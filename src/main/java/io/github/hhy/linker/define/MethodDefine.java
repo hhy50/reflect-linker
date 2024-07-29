@@ -4,6 +4,7 @@ import java.util.List;
 
 public class MethodDefine {
     private String methodName;
+    private String methodDesc;
     private List<String> parameters;
     private String returnType;
     private boolean invokeSuper;
@@ -14,6 +15,14 @@ public class MethodDefine {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
+    }
+
+    public String getMethodDesc() {
+        return methodDesc;
+    }
+
+    public void setMethodDesc(String methodDesc) {
+        this.methodDesc = methodDesc;
     }
 
     public List<String> getParameters() {
