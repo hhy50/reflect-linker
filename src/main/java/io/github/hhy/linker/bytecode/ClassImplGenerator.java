@@ -10,6 +10,12 @@ import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+
+
 public class ClassImplGenerator {
 
     private static final BytecodeClassLoader classLoader = new BytecodeClassLoader();
@@ -41,13 +47,19 @@ public class ClassImplGenerator {
 
 
         for (MethodDefine methodDefine : defineClass.getMethodDefines()) {
-            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDefine.getMethodName(), methodDefine.getMethodDesc(), null, null)
+            Method method = methodDefine.getMethod();
+            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null, null)
                     .accept(writer -> {
                         BytecodeGenerator bytecodeGenerator = methodDefine.getBytecodeGenerator();
                         bytecodeGenerator.generate(classBuilder, writer);
                     });
         }
         byte[] bytecode = classBuilder.end().toBytecode();
+        try {
+            Files.write(FileSystems.getDefault().getPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\build\\"+ClassUtil.toSimpleName(implClassName)+".class"), bytecode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return classLoader.load(implClassName, bytecode);
     }
 }

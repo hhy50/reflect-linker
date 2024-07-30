@@ -1,10 +1,13 @@
 package io.github.hhy.linker.bytecode;
 
 import io.github.hhy.linker.asm.AsmClassBuilder;
+import io.github.hhy.linker.define.Target$Field;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 
 public class SetterBytecodeGenerator implements BytecodeGenerator {
 
@@ -12,11 +15,10 @@ public class SetterBytecodeGenerator implements BytecodeGenerator {
     private String fieldName;
     private Type fieldType;
 
-
-    public SetterBytecodeGenerator(Class<?> target, String fieldName, Class<?> fieldType) {
-        this.target = Type.getType(target);
-        this.fieldName = fieldName;
-        this.fieldType = Type.getType(fieldType);
+    public SetterBytecodeGenerator(Target$Field.Setter target) {
+        this.target = Type.getType(target.getOwner());
+        this.fieldName = target.getFieldName();
+        this.fieldType = Type.getType(target.getField().getType());
     }
 
     /**
@@ -34,9 +36,9 @@ public class SetterBytecodeGenerator implements BytecodeGenerator {
                 .writeClint((staticWriter) -> {
                     // mhVar = lookup.findGetter(target.class, "fieldName", fieldType.class);
                     staticWriter.visitFieldInsn(Opcodes.GETSTATIC, implDesc, "lookup", "Ljava/lang/invoke/MethodHandles$Lookup;");
-                    staticWriter.visitLdcInsn(target);
+                    adaptLdcClassType(staticWriter, target);
                     staticWriter.visitLdcInsn(fieldName);
-                    staticWriter.visitLdcInsn(fieldType);
+                    adaptLdcClassType(staticWriter, fieldType);
                     staticWriter.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandles$Lookup", "findSetter", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/invoke/MethodHandle;");
                     staticWriter.visitFieldInsn(Opcodes.PUTSTATIC, implDesc, mhVar, "Ljava/lang/invoke/MethodHandle;");
                 });
@@ -46,7 +48,7 @@ public class SetterBytecodeGenerator implements BytecodeGenerator {
         writer.visitVarInsn(Opcodes.ALOAD, 0);
         writer.visitMethodInsn(Opcodes.INVOKEINTERFACE, "io/github/hhy/linker/define/TargetProvider", "getTarget", "()Ljava/lang/Object;");
         writer.visitTypeInsn(Opcodes.CHECKCAST, target.getInternalName());
-        writer.visitVarInsn(Opcodes.ALOAD, 1); // obj
+        writer.visitVarInsn(fieldType.getOpcode(Opcodes.ILOAD), 1); // obj
         writer.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandle", "invoke", Type.getMethodDescriptor(Type.VOID_TYPE, target, fieldType));
         writer.visitInsn(Opcodes.RETURN);
     }

@@ -9,9 +9,15 @@ public interface MyArrayList {
 
     void add(Object o);
 
-    @Field.Getter()
-    Object[] elementData();
+    @Field.Getter("elementData")
+    Object[] getElementData();
 
-    @Field.Setter
-    void elementData(Object[] elementData);
+    @Field.Setter("elementData")
+    void setElementData(Object[] elementData);
+
+    @Field.Getter("modCount")
+    int modCount();
+
+    @Field.Setter("modCount")
+    void modCount(int modCount);
 }

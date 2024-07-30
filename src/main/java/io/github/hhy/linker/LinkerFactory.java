@@ -21,7 +21,12 @@ public class LinkerFactory {
         return (T) constructor.newInstance(o);
     }
 
+    @SneakyThrows
     public static <T> T createLinker(Class<T> define, Object target) {
-        return null;
+        InvokeClassDefine defineClass = InvokeClassDefine.parse(define, target.getClass());
+        Class<?> implClass = ClassImplGenerator.loadClass(defineClass);
+
+        Constructor<?> constructor = implClass.getConstructors()[0];
+        return (T) constructor.newInstance(target);
     }
 }

@@ -45,4 +45,37 @@ public class AsmUtil {
         write.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NoSuchMethodError", "<init>", "(Ljava/lang/String;)V", false);
         write.visitInsn(Opcodes.ATHROW);
     }
+
+    public static void adaptLdcClassType(MethodVisitor visitor, Type type) {
+        if (type.getSort() <= Type.DOUBLE) {
+            visitor.visitFieldInsn(Opcodes.GETSTATIC, getPrimitiveClass(type.getClassName()), "TYPE", "Ljava/lang/Class;");
+        } else {
+            visitor.visitLdcInsn(type);
+        }
+    }
+
+    private static String getPrimitiveClass(String className) {
+        switch (className) {
+            case "void":
+                return "java/lang/Void";
+            case "boolean":
+                return "java/lang/Boolean";
+            case "char":
+                return "java/lang/Character";
+            case "byte":
+                return "java/lang/Byte";
+            case "short":
+                return "java/lang/Short";
+            case "int":
+                return "java/lang/Integer";
+            case "float":
+                return "java/lang/Float";
+            case "long":
+                return "java/lang/Long";
+            case "double":
+                return "java/lang/Double";
+            default:
+                return "";
+        }
+    }
 }

@@ -1,15 +1,16 @@
 package io.github.hhy.linker.bytecode;
 
 import io.github.hhy.linker.asm.AsmClassBuilder;
+import io.github.hhy.linker.define.Target$Field;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 import static io.github.hhy.linker.asm.AsmUtil.areturn;
 
 public class GetterBytecodeGenerator implements BytecodeGenerator {
-
     private Type target;
     private String fieldName;
     private Type fieldType;
@@ -18,6 +19,12 @@ public class GetterBytecodeGenerator implements BytecodeGenerator {
         this.target = Type.getType(target);
         this.fieldName = fieldName;
         this.fieldType = Type.getType(fieldType);
+    }
+
+    public GetterBytecodeGenerator(Target$Field.Getter target) {
+        this.target = Type.getType(target.getOwner());
+        this.fieldName = target.getFieldName();
+        this.fieldType = Type.getType(target.getField().getType());
     }
 
     /**
@@ -35,9 +42,9 @@ public class GetterBytecodeGenerator implements BytecodeGenerator {
                 .writeClint((staticWriter) -> {
                     // mhVar = lookup.findGetter(target.class, "fieldName", fieldType.class);
                     staticWriter.visitFieldInsn(Opcodes.GETSTATIC, implDesc, "lookup", "Ljava/lang/invoke/MethodHandles$Lookup;");
-                    staticWriter.visitLdcInsn(target);
+                    adaptLdcClassType(staticWriter, target);
                     staticWriter.visitLdcInsn(fieldName);
-                    staticWriter.visitLdcInsn(fieldType);
+                    adaptLdcClassType(staticWriter, fieldType);
                     staticWriter.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandles$Lookup", "findGetter", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/invoke/MethodHandle;");
                     staticWriter.visitFieldInsn(Opcodes.PUTSTATIC, implDesc, mhVar, "Ljava/lang/invoke/MethodHandle;");
                 });

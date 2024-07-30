@@ -1,6 +1,7 @@
 package io.github.hhy.linker.test;
 
 import io.github.hhy.linker.LinkerFactory;
+import io.github.hhy.linker.define.TargetProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,9 +13,13 @@ public class MyArrayListTest {
     @Test
     public void test() {
         Object[] objects = new Object[10];
+
         MyArrayList list = LinkerFactory.newInstance(MyArrayList.class, ArrayList.class);
-        list.elementData(objects);
-        Object[] elementData = list.elementData();
+        Assertions.assertTrue(list instanceof TargetProvider);
+
+        list.setElementData(objects);
+        Object[] elementData = list.getElementData();
+
         Assertions.assertTrue(objects==elementData);
     }
 }
