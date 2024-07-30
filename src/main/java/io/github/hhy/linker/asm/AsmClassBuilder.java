@@ -1,28 +1,31 @@
 package io.github.hhy.linker.asm;
 
 import io.github.hhy.linker.util.ClassUtil;
+import lombok.Data;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
+
+
+@Data
 public class AsmClassBuilder {
 
     private String className;
+    private MethodVisitor staticMethodWriter;
+    private ClassWriter classWriter = new ClassWriter(COMPUTE_MAXS|COMPUTE_FRAMES);
 
-    private String superClassName;
-
-    private ClassWriter classWriter = new ClassWriter(0);
-
-    public AsmClassBuilder(int access, String className, String superName, String[] interfaces, String signature)  {
+    public AsmClassBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         this.classWriter.visit(Opcodes.V1_8, access, ClassUtil.className2path(className), signature,
-                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", interfaces);
+                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces).map(ClassUtil::className2path).toArray(String[]::new));
         this.className = className;
-        this.superClassName = superName;
     }
-
 
     public AsmClassBuilder defineField(int access, String fieldName, String fieldDesc, String fieldSignature, Object value) {
         this.classWriter.visitField(access, fieldName, fieldDesc, fieldSignature, value);
@@ -30,7 +33,7 @@ public class AsmClassBuilder {
     }
 
     public MethodBuilder defineConstruct(int access, String[] argsType, String[] exceptions, String sign) {
-        MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "(" + toDesc(argsType) + ")V", sign, exceptions);
+        MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "("+toDesc(argsType)+")V", sign, exceptions);
         return new MethodBuilder(this, methodVisitor);
     }
 
@@ -49,22 +52,22 @@ public class AsmClassBuilder {
 
     public AsmClassBuilder end() {
         this.classWriter.visitEnd();
+        if (this.staticMethodWriter != null) {
+            this.staticMethodWriter.visitInsn(Opcodes.RETURN);
+            this.staticMethodWriter.visitMaxs(0, 0);
+        }
         return this;
     }
 
-    public String getClassName() {
-        return className;
+    public byte[] toBytecode() {
+        return classWriter.toByteArray();
     }
 
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public String getSuperClassName() {
-        return superClassName;
-    }
-
-    public void setSuperClassName(String superClassName) {
-        this.superClassName = superClassName;
+    public synchronized void writeClint(Consumer<MethodVisitor> interceptor) {
+        if (staticMethodWriter == null) {
+            staticMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null)
+                    .getMethodVisitor();
+        }
+        interceptor.accept(staticMethodWriter);
     }
 }

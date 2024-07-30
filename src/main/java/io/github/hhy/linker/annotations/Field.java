@@ -10,6 +10,7 @@ public interface Field {
     /**
      * 获取指定字段值
      * 这个字段可以是private | static
+     * TODO? 支持获取多级字段 a.b.c
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
