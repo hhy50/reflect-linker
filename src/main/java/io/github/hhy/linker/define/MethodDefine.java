@@ -40,15 +40,15 @@ public class MethodDefine {
 
         Target target = null;
         if (fieldName != null) {
-            java.lang.reflect.Field field = ReflectUtil.getDeclaredField(targetClass, fieldName);
-            if (field == null || !fieldType.isAssignableFrom(field.getType())) {
+            java.lang.reflect.Field rField = ReflectUtil.getDeclaredField(targetClass, fieldName);
+            if (rField == null || !fieldType.isAssignableFrom(rField.getType())) {
                 throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], not found field "+fieldName+" in "+targetClass.getName());
             }
             // 无法为final字段生成setter
-            if (setter != null && (field.getModifiers() & Modifier.FINAL) > 0) {
+            if (setter != null && (rField.getModifiers() & Modifier.FINAL) > 0) {
                 throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], unable to generate setter for final field '"+fieldName+"'");
             }
-            target = setter != null ? Target$Field.createSetter(field) : Target$Field.createGetter(field);
+            target = setter != null ? Target$Field.createSetter(rField) : Target$Field.createGetter(rField);
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn
                     = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
@@ -58,6 +58,8 @@ public class MethodDefine {
                     .getAnnotation(io.github.hhy.linker.annotations.Method.DynamicSign.class);
             // 校验方法是否存在
             String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), method.getName());
+            java.lang.reflect.Method rMethod = ReflectUtil.getDeclaredMethod(targetClass, methodName);
+            target = Target$Method.create(rMethod);
         }
 
         MethodDefine methodDefine = new MethodDefine(method);
@@ -105,7 +107,7 @@ public class MethodDefine {
         } else if (target instanceof Target$Field.Setter) {
             return new SetterBytecodeGenerator((Target$Field.Setter) target);
         } else {
-            return new InvokeBytecodeGenerator(targetClass, null);
+            return new InvokeBytecodeGenerator((Target$Method) target);
         }
     }
 }

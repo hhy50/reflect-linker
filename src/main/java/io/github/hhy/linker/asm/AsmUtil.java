@@ -15,6 +15,15 @@ public class AsmUtil {
         return new AsmClassBuilder(access, className, superName, interfaces, sign);
     }
 
+    public static void loadArgs(MethodVisitor bytecode, boolean isStatic, Type[] argumentTypes) {
+        int i = isStatic ? 0 : 1;
+        for (Type argumentType : argumentTypes) {
+            bytecode.visitVarInsn(argumentType.getOpcode(Opcodes.ILOAD), i);
+            if (argumentType.getSort() == Type.DOUBLE || argumentType.getSort() == Type.LONG) i++;
+            i++;
+        }
+    }
+
     public static void areturn(MethodVisitor writer, Type rType) {
         if (rType.getSort() == Type.VOID) {
             writer.visitInsn(Opcodes.RETURN);

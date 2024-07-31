@@ -1,8 +1,6 @@
 package io.github.hhy.linker.define;
 
 
-import io.github.hhy.linker.exceptions.VerifyException;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 

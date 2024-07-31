@@ -25,6 +25,19 @@ public class ReflectUtil {
         return null;
     }
 
+    public static Method getDeclaredMethod(Class<?> clazz, String methodName) {
+        if (clazz == null) {
+            return null;
+        }
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getName().equals(methodName)) return method;
+        }
+        if (clazz.getSuperclass() != Object.class) {
+            return getDeclaredMethod(clazz.getSuperclass(), methodName);
+        }
+        return null;
+    }
+
     public static Field getField(Class<?> clazz, String fieldName) {
         if (clazz == null) {
             return null;
