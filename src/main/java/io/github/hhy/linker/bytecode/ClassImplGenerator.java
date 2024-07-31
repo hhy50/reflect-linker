@@ -10,17 +10,14 @@ import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 
 
 public class ClassImplGenerator {
 
     private static final BytecodeClassLoader classLoader = new BytecodeClassLoader();
 
-    public static Class<?> loadClass(InvokeClassDefine defineClass) {
+    public static Class<?> generateImplClass(InvokeClassDefine defineClass) {
         Class<?> define = defineClass.getDefine();
         Class<?> target = defineClass.getTarget();
         String implClassName = define.getName()+"$impl";
@@ -55,11 +52,6 @@ public class ClassImplGenerator {
                     });
         }
         byte[] bytecode = classBuilder.end().toBytecode();
-        try {
-            Files.write(FileSystems.getDefault().getPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\build\\"+ClassUtil.toSimpleName(implClassName)+".class"), bytecode);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         return classLoader.load(implClassName, bytecode);
     }
 }
