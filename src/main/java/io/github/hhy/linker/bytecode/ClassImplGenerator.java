@@ -20,27 +20,21 @@ public class ClassImplGenerator {
     public static Class<?> generateImplClass(InvokeClassDefine defineClass) {
         Class<?> define = defineClass.getDefine();
         Class<?> target = defineClass.getTarget();
-        String implClassName = define.getName()+"$impl";
-        AsmClassBuilder classBuilder = AsmUtil.defineClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName,
-                DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "");
+        String implClassName = define.getName() + "$impl";
+        InvokeClassImplBuilder classBuilder = AsmUtil
+                .defineImplClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
+                .setTarget(target);
+        classBuilder.defineLookup(target.getName());
 
-        // 增加带参的构造函数
-        classBuilder.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{target.getName()}, null, "")
-                .accept(writer -> {
-                    writer.visitVarInsn(Opcodes.ALOAD, 0);
-                    writer.visitVarInsn(Opcodes.ALOAD, 1);
-                    writer.visitMethodInsn(Opcodes.INVOKESPECIAL, ClassUtil.className2path(DefaultTargetProviderImpl.class.getName()), "<init>", "(Ljava/lang/Object;)V", false);
-                    writer.visitInsn(Opcodes.RETURN);
-                });
         // 创建lookup字段
-        classBuilder.defineField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "lookup",
-                        "Ljava/lang/invoke/MethodHandles$Lookup;", null, null)
-                .writeClint(writer -> {
-                    // lookup = Util.lookup(target.class);
-                    writer.visitLdcInsn(Type.getType(target));
-                    writer.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/util/Util", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false);
-                    writer.visitFieldInsn(Opcodes.PUTSTATIC, ClassUtil.className2path(implClassName), "lookup", "Ljava/lang/invoke/MethodHandles$Lookup;");
-                });
+//        classBuilder.defineField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "lookup",
+//                        "Ljava/lang/invoke/MethodHandles$Lookup;", null, null)
+//                .writeClint(writer -> {
+//                    // lookup = Util.lookup(target.class);
+//                    writer.visitLdcInsn(Type.getType(target));
+//                    writer.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false);
+//                    writer.visitFieldInsn(Opcodes.PUTSTATIC, ClassUtil.className2path(implClassName), "lookup", "Ljava/lang/invoke/MethodHandles$Lookup;");
+//                });
 
 
         for (MethodDefine methodDefine : defineClass.getMethodDefines()) {

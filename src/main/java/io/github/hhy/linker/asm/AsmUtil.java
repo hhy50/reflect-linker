@@ -1,5 +1,6 @@
 package io.github.hhy.linker.asm;
 
+import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -13,6 +14,10 @@ public class AsmUtil {
 
     public static AsmClassBuilder defineClass(int access, String className, String superName, String[] interfaces, String sign) {
         return new AsmClassBuilder(access, className, superName, interfaces, sign);
+    }
+
+    public static InvokeClassImplBuilder defineImplClass(int access, String className, String superName, String[] interfaces, String sign) {
+        return new InvokeClassImplBuilder(access, className, superName, interfaces, sign);
     }
 
     public static void loadArgs(MethodVisitor bytecode, boolean isStatic, Type[] argumentTypes) {
