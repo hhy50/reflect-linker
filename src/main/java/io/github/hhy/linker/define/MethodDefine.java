@@ -6,6 +6,7 @@ import io.github.hhy.linker.bytecode.GetterBytecodeGenerator;
 import io.github.hhy.linker.bytecode.InvokeBytecodeGenerator;
 import io.github.hhy.linker.bytecode.SetterBytecodeGenerator;
 import io.github.hhy.linker.exceptions.VerifyException;
+import io.github.hhy.linker.token.TokenParser;
 import io.github.hhy.linker.util.ReflectUtil;
 import io.github.hhy.linker.util.Util;
 import lombok.Data;
@@ -19,34 +20,38 @@ public class MethodDefine {
     private Target target;
     private BytecodeGenerator bytecodeGenerator;
 
+    private TokenParser tokenParser;
+
     public MethodDefine(Method method) {
         this.method = method;
+        this.tokenParser = new TokenParser();
     }
 
     public static MethodDefine parseMethod(Class<?> targetClass, Method method) {
         verify(targetClass, method);
 
-        String fieldName = null;
+        String fieldExpr = null;
         Class<?> fieldType = null;
         Field.Getter getter = method.getDeclaredAnnotation(Field.Getter.class);
         Field.Setter setter = method.getDeclaredAnnotation(Field.Setter.class);
         if (getter != null) {
-            fieldName = Util.getOrElseDefault(getter.value(), method.getName());
+            fieldExpr = Util.getOrElseDefault(getter.value(), method.getName());
             fieldType = method.getReturnType();
         } else if (setter != null) {
-            fieldName = Util.getOrElseDefault(setter.value(), method.getName());
+            fieldExpr = Util.getOrElseDefault(setter.value(), method.getName());
             fieldType = method.getParameterTypes()[0];
         }
 
         Target target = null;
-        if (fieldName != null) {
-            java.lang.reflect.Field rField = ReflectUtil.getDeclaredField(targetClass, fieldName);
+        if (fieldExpr != null) {
+//            this.tokenParser(fieldExpr);
+            java.lang.reflect.Field rField = ReflectUtil.getDeclaredField(targetClass, fieldExpr);
             if (rField == null || !fieldType.isAssignableFrom(rField.getType())) {
-                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], not found field "+fieldName+" in "+targetClass.getName());
+                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], not found field "+fieldExpr+" in "+targetClass.getName());
             }
             // 无法为final字段生成setter
             if (setter != null && (rField.getModifiers() & Modifier.FINAL) > 0) {
-                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], unable to generate setter for final field '"+fieldName+"'");
+                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], unable to generate setter for final field '"+fieldExpr+"'");
             }
             target = setter != null ? Target$Field.createSetter(rField) : Target$Field.createGetter(rField);
         } else {

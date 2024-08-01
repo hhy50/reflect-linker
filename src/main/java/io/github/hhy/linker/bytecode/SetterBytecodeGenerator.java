@@ -1,6 +1,5 @@
 package io.github.hhy.linker.bytecode;
 
-import io.github.hhy.linker.asm.AsmClassBuilder;
 import io.github.hhy.linker.define.Target$Field;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
@@ -26,7 +25,7 @@ public class SetterBytecodeGenerator implements BytecodeGenerator {
      *
      * @param writer
      */
-    public void generate(AsmClassBuilder classBuilder, MethodVisitor writer) {
+    public void generate(InvokeClassImplBuilder classBuilder, MethodVisitor writer) {
         String implDesc = ClassUtil.className2path(classBuilder.getClassName());
 
         // 创建methodHandle

@@ -24,18 +24,6 @@ public class ClassImplGenerator {
         InvokeClassImplBuilder classBuilder = AsmUtil
                 .defineImplClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
                 .setTarget(target);
-        classBuilder.defineLookup(target.getName());
-
-        // 创建lookup字段
-//        classBuilder.defineField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "lookup",
-//                        "Ljava/lang/invoke/MethodHandles$Lookup;", null, null)
-//                .writeClint(writer -> {
-//                    // lookup = Util.lookup(target.class);
-//                    writer.visitLdcInsn(Type.getType(target));
-//                    writer.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false);
-//                    writer.visitFieldInsn(Opcodes.PUTSTATIC, ClassUtil.className2path(implClassName), "lookup", "Ljava/lang/invoke/MethodHandles$Lookup;");
-//                });
-
 
         for (MethodDefine methodDefine : defineClass.getMethodDefines()) {
             Method method = methodDefine.getMethod();

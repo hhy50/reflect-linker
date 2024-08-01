@@ -32,6 +32,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
                     writer.visitMethodInsn(Opcodes.INVOKESPECIAL, ClassUtil.className2path(DefaultTargetProviderImpl.class.getName()), "<init>", "(Ljava/lang/Object;)V", false);
                     writer.visitInsn(Opcodes.RETURN);
                 });
+        defineLookup(bindTarget.getName());
         return this;
     }
 

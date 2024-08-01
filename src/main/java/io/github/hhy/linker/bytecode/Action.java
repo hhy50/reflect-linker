@@ -4,5 +4,9 @@ import org.objectweb.asm.tree.InsnList;
 
 public interface Action {
 
-    void action(InsnList insn);
+    /**
+     * 执行下一个操作
+     * @param insn
+     */
+    void doAction(InsnList insn);
 }

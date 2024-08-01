@@ -1,6 +1,5 @@
 package io.github.hhy.linker.bytecode;
 
-import io.github.hhy.linker.asm.AsmClassBuilder;
 import io.github.hhy.linker.define.Target$Field;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
@@ -14,12 +13,8 @@ public class GetterBytecodeGenerator implements BytecodeGenerator {
     private Type target;
     private String fieldName;
     private Type fieldType;
+    private Action action;
 
-    public GetterBytecodeGenerator(Class<?> target, String fieldName, Class<?> fieldType) {
-        this.target = Type.getType(target);
-        this.fieldName = fieldName;
-        this.fieldType = Type.getType(fieldType);
-    }
 
     public GetterBytecodeGenerator(Target$Field.Getter target) {
         this.target = Type.getType(target.getOwner());
@@ -32,7 +27,7 @@ public class GetterBytecodeGenerator implements BytecodeGenerator {
      *
      * @param writer
      */
-    public void generate(AsmClassBuilder classBuilder, MethodVisitor writer) {
+    public void generate(InvokeClassImplBuilder classBuilder, MethodVisitor writer) {
         String implDesc = ClassUtil.className2path(classBuilder.getClassName());
 
         // 创建methodHandle
