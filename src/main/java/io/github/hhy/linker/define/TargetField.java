@@ -8,62 +8,72 @@ import java.lang.reflect.Modifier;
  * 目标字段
  */
 
-public abstract class Target$Field extends Target {
+public class TargetField extends TargetPoint {
     /**
      *
      */
-    @lombok.Getter
     private Field field;
 
     /**
      * 持有字段的类
      */
-    @lombok.Getter
     private Class<?> owner;
 
     /**
      * 字段名
      */
-    @lombok.Getter
     private String fieldName;
 
     /**
      * 是否是静态字段
      */
-    @lombok.Getter
     private boolean isStatic;
 
     /**
      * 是否是私有字段
      */
-    @lombok.Getter
     private boolean isPrivate;
 
-    public Target$Field(Field field) {
+    /**
+     * 上一个字段， 比如 a.b, this=b, prev=a;
+     */
+    private TargetField prev;
+
+    public TargetField(TargetField prev, String name) {
+        this.prev = prev;
+        this.fieldName = name;
+    }
+    
+    public TargetField(TargetField prev, Field field) {
         this.field = field;
         this.owner = field.getDeclaringClass();
         this.fieldName = field.getName();
         this.isStatic = (field.getModifiers() & Modifier.STATIC) > 0;
         this.isPrivate = (field.getModifiers() & Modifier.PRIVATE) > 0;
+        this.prev = prev;
     }
 
-    public static Target$Field createGetter(Field field) {
-        return new Getter(field);
+    public Field getField() {
+        return field;
     }
 
-    public static Target$Field createSetter(Field field) {
-        return new Setter(field);
+    public Class<?> getOwner() {
+        return owner;
     }
 
-    public static class Getter extends Target$Field {
-        public Getter(Field field) {
-            super(field);
-        }
+    public String getFieldName() {
+        return fieldName;
     }
 
-    public static class Setter extends Target$Field {
-        public Setter(Field field) {
-            super(field);
-        }
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public TargetField getPrev() {
+        return prev;
     }
 }

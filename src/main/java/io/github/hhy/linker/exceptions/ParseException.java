@@ -1,4 +1,4 @@
-package io.github.hhy.linker.token;
+package io.github.hhy.linker.exceptions;
 
 public class ParseException extends RuntimeException {
 

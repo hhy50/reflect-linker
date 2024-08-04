@@ -17,7 +17,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      *
      */
-    private Map<String /* lookup_class */, String /* lookup_var */> lookups = new HashMap<>();
+    private Map<String /* lookup_class */, LookupHolder /* lookup_var */> lookups = new HashMap<>();
 
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
@@ -36,8 +36,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return this;
     }
 
-    public String defineLookup(String className) {
-        if (!lookups.containsKey(className)) {
+    public LookupHolder defineLookup(String className) {
+        LookupHolder lookup = findLookup(className);
+        if (lookup == null) {
             String lookupVar = className.replace('.', '_') + "_lookup";
             this.defineField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, lookupVar,
                             "Ljava/lang/invoke/MethodHandles$Lookup;", null, null)
@@ -47,9 +48,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
                         writer.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false);
                         writer.visitFieldInsn(Opcodes.PUTSTATIC, ClassUtil.className2path(this.getClassName()), lookupVar, "Ljava/lang/invoke/MethodHandles$Lookup;");
                     });
-            lookups.put(className, lookupVar);
-            return lookupVar;
+            lookup = new LookupHolder(lookupVar, className);
+            lookups.put(className, lookup);
         }
+        return lookup;
+    }
+
+    public LookupHolder findLookup(String className) {
         return lookups.get(className);
     }
 }

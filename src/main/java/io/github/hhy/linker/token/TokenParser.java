@@ -2,6 +2,8 @@ package io.github.hhy.linker.token;
 
 
 
+import io.github.hhy.linker.exceptions.ParseException;
+
 import java.util.Iterator;
 
 public class TokenParser {
@@ -76,7 +78,7 @@ public class TokenParser {
                 }
             }
             if (owner == null) {
-                owner = tokenStr;
+                owner = tokenStr.substring(pos);
                 pos = tokenSymbols.length;
             }
             if (mapIndex && index == null) {

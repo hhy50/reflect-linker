@@ -1,7 +1,6 @@
 package io.github.hhy.linker.asm;
 
 import io.github.hhy.linker.util.ClassUtil;
-import lombok.Data;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -14,7 +13,6 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 
-@Data
 public class AsmClassBuilder {
 
     private String className;
@@ -69,5 +67,9 @@ public class AsmClassBuilder {
                     .getMethodVisitor();
         }
         interceptor.accept(staticMethodWriter);
+    }
+
+    public String getClassName() {
+        return this.className;
     }
 }

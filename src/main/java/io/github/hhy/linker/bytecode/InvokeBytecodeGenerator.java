@@ -1,24 +1,19 @@
 package io.github.hhy.linker.bytecode;
 
 import io.github.hhy.linker.asm.AsmUtil;
-import io.github.hhy.linker.define.Target$Method;
-import io.github.hhy.linker.util.ClassUtil;
+import io.github.hhy.linker.define.TargetMethod;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
-import static io.github.hhy.linker.asm.AsmUtil.loadArgs;
 
 
 public class InvokeBytecodeGenerator implements BytecodeGenerator {
 
     private static final AtomicInteger COUNTER = new AtomicInteger(1);
-    private final Target$Method target;
+    private final TargetMethod target;
 
-    public InvokeBytecodeGenerator(Target$Method target) {
+    public InvokeBytecodeGenerator(TargetMethod target) {
         this.target = target;
     }
 
@@ -52,6 +47,6 @@ public class InvokeBytecodeGenerator implements BytecodeGenerator {
 //            writer.visitMethodInsn(Opcodes.INVOKEVIRTUAL, target.getOwner().getName(),
 //                    target.getMethodName(), methodType.getDescriptor());
 //        }
-        AsmUtil.areturn(writer, methodType.getReturnType());
+        AsmUtil.throwNoSuchMethod(writer, "1");
     }
 }
