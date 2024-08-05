@@ -8,6 +8,7 @@ import io.github.hhy.linker.exceptions.VerifyException;
 import io.github.hhy.linker.token.Token;
 import io.github.hhy.linker.token.TokenParser;
 import io.github.hhy.linker.token.Tokens;
+import io.github.hhy.linker.util.ClassUtil;
 import io.github.hhy.linker.util.ReflectUtil;
 import io.github.hhy.linker.util.Util;
 
@@ -20,30 +21,17 @@ public class ClassDefineParse {
 
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
-    public static <T> InvokeClassDefine parseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
-        if (!define.isInterface()) {
-            throw new VerifyException("class define must a be interface");
-        }
-        io.github.hhy.linker.annotations.Target.Bind annotation = define.getDeclaredAnnotation(Target.Bind.class);
-        if (annotation == null || annotation.value().equals("")) {
-            throw new VerifyException("use @Target.Bind specified a class");
-        }
-        Class<?> targetClass = classLoader.loadClass(annotation.value());
-        return doParseClass(define, targetClass);
-    }
-
     public static <T> InvokeClassDefine parseClass(Class<T> define, Class<?> targetClass) throws ParseException {
-        return doParseClass(define, targetClass);
+        return doParseClass(define, targetClass.getName());
     }
 
-    public static <T> InvokeClassDefine doParseClass(Class<T> define, Class<?> targetClass) throws ParseException {
+    public static <T> InvokeClassDefine doParseClass(Class<T> define, String targetClass) throws ParseException {
         io.github.hhy.linker.annotations.Target.Bind annotation = define.getDeclaredAnnotation(Target.Bind.class);
         if (annotation == null || annotation.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
-        } else if (!annotation.value().equals(targetClass.getName())) {
-            throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+targetClass.getName()+"]");
+        } else if (ClassUtil.isAssignableFrom(targetClass, annotation.value())) {
+            throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+targetClass+"]");
         }
-
         List<MethodDefine> methodDefines = new ArrayList<>();
         for (Method declaredMethod : define.getDeclaredMethods()) {
             methodDefines.add(parseMethod(targetClass, declaredMethod, TOKEN_PARSER));
@@ -56,7 +44,7 @@ public class ClassDefineParse {
     }
 
     public static MethodDefine parseMethod(Class<?> targetClass, Method method, TokenParser tokenParser) {
-        verify(targetClass, method);
+        verify(method);
 
         String fieldExpr = null;
         Field.Getter getter = method.getDeclaredAnnotation(Field.Getter.class);
@@ -86,11 +74,41 @@ public class ClassDefineParse {
             methodDefine.targetPoint = new TargetMethod(rMethod);
             methodDefine.targetPointType = setter != null ? TargetPointType.SETTER : TargetPointType.GETTER;
         }
-//        methodDefine.target = target;
-//        methodDefine.bytecodeGenerator = findGenerator(targetClass, methodDefine);
         return methodDefine;
     }
 
+    public static MethodDefine parseMethod(String targetClass, Method method, TokenParser tokenParser) {
+        verify(method);
+
+        String fieldExpr = null;
+        Field.Getter getter = method.getDeclaredAnnotation(Field.Getter.class);
+        Field.Setter setter = method.getDeclaredAnnotation(Field.Setter.class);
+        if (getter != null) {
+            fieldExpr = Util.getOrElseDefault(getter.value(), method.getName());
+        } else if (setter != null) {
+            fieldExpr = Util.getOrElseDefault(setter.value(), method.getName());
+        }
+
+        MethodDefine methodDefine = new MethodDefine(method);
+        if (fieldExpr != null) {
+            Tokens tokens = tokenParser.parse(fieldExpr);
+            methodDefine.targetPoint = parseTargetField(targetClass, tokens);
+            methodDefine.targetPointType = setter != null ? TargetPointType.SETTER : TargetPointType.GETTER;
+        } else {
+            io.github.hhy.linker.annotations.Method.Name methodNameAnn
+                    = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
+            io.github.hhy.linker.annotations.Method.InvokeSuper superClass
+                    = method.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
+            io.github.hhy.linker.annotations.Method.DynamicSign dynamicSign = method
+                    .getAnnotation(io.github.hhy.linker.annotations.Method.DynamicSign.class);
+            // 校验方法是否存在
+            String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), method.getName());
+//            java.lang.reflect.Method rMethod = ReflectUtil.getDeclaredMethod(targetClass, methodName);
+            methodDefine.targetPoint = new TargetMethod(methodName);
+            methodDefine.targetPointType = setter != null ? TargetPointType.SETTER : TargetPointType.GETTER;
+        }
+        return methodDefine;
+    }
 
     /**
      * 校验规则
@@ -99,10 +117,10 @@ public class ClassDefineParse {
      * <p>3. @Field.Setter和@Field.Getter和@Method.Name只能有一个</p>
      * <p>4.</p>
      *
-     * @param targetClass
+     * @param method
      * @param method
      */
-    private static void verify(Class<?> targetClass, Method method) {
+    private static void verify(Method method) {
         Field.Getter getter = method.getDeclaredAnnotation(Field.Getter.class);
         Field.Setter setter = method.getDeclaredAnnotation(Field.Setter.class);
         // Field.Setter和@Field.Getter只能有一个
@@ -149,6 +167,21 @@ public class ClassDefineParse {
             }
             targetField = new RuntimeField(targetField, token.value());
             pos = Object.class;
+        }
+        return targetField;
+    }
+
+    /**
+     * 解析字段 （运行时）
+     *
+     * @param first
+     * @param tokens
+     * @return
+     */
+    private static TargetField parseTargetField(final String first, final Tokens tokens) {
+        TargetField targetField = null;
+        for (Token token : tokens) {
+            targetField = new RuntimeField(targetField, token.value());
         }
         return targetField;
     }

@@ -29,6 +29,10 @@ public class TargetMethod extends TargetPoint {
 
     private boolean isSuperCall;
 
+    public TargetMethod(String name) {
+        this.method = method;
+    }
+
     public TargetMethod(Method method) {
         this.method = method;
         this.owner = method.getDeclaringClass();

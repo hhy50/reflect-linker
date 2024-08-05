@@ -13,4 +13,8 @@ public class ClassUtil {
     public static String toSimpleName(String className) {
         return className.substring(className.lastIndexOf(".") + 1);
     }
+
+    public static boolean isAssignableFrom(String child, String parent) {
+        return false;
+    }
 }

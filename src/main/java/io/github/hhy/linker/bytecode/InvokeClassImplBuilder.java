@@ -12,49 +12,49 @@ import java.util.Map;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
 
-    private Class<?> bindTarget;
+    public String bindTarget;
 
     /**
      *
      */
-    private Map<String /* lookup_class */, LookupHolder /* lookup_var */> lookups = new HashMap<>();
+    private Map<String /* lookup_class */, Lookup /* lookup_var */> lookups = new HashMap<>();
 
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
     }
 
-    public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
+    public InvokeClassImplBuilder setTarget(String bindTarget) {
         this.bindTarget = bindTarget;
-        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget.getName()}, null, "")
+        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget}, null, "")
                 .accept(writer -> {
                     writer.visitVarInsn(Opcodes.ALOAD, 0);
                     writer.visitVarInsn(Opcodes.ALOAD, 1);
                     writer.visitMethodInsn(Opcodes.INVOKESPECIAL, ClassUtil.className2path(DefaultTargetProviderImpl.class.getName()), "<init>", "(Ljava/lang/Object;)V", false);
                     writer.visitInsn(Opcodes.RETURN);
                 });
-        defineLookup(bindTarget.getName());
+        defineLookup(bindTarget);
         return this;
     }
 
-    public LookupHolder defineLookup(String className) {
-        LookupHolder lookup = findLookup(className);
+    public Lookup defineLookup(String lookupClass) {
+        Lookup lookup = findLookup(lookupClass);
         if (lookup == null) {
-            String lookupVar = className.replace('.', '_') + "_lookup";
+            String lookupVar = lookupClass.replace('.', '_') + "_lookup";
             this.defineField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, lookupVar,
                             "Ljava/lang/invoke/MethodHandles$Lookup;", null, null)
                     .writeClint(writer -> {
                         // lookup = Runtime.lookup(className);
-                        writer.visitLdcInsn(Type.getType(AsmUtil.toTypeDesc(className)));
+                        writer.visitLdcInsn(Type.getType(AsmUtil.toTypeDesc(lookupClass)));
                         writer.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false);
                         writer.visitFieldInsn(Opcodes.PUTSTATIC, ClassUtil.className2path(this.getClassName()), lookupVar, "Ljava/lang/invoke/MethodHandles$Lookup;");
                     });
-            lookup = new LookupHolder(lookupVar, className);
-            lookups.put(className, lookup);
+            lookup = new Lookup(lookupVar, lookupClass);
+            lookups.put(lookupClass, lookup);
         }
         return lookup;
     }
 
-    public LookupHolder findLookup(String className) {
-        return lookups.get(className);
+    public Lookup findLookup(String lookupClass) {
+        return lookups.get(lookupClass);
     }
 }

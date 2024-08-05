@@ -20,19 +20,6 @@ public class LinkerFactory {
         }
     }
 
-    public static <T> T newInstance(Class<T> define, ClassLoader classLoader, Object... args) throws LinkerException {
-        try {
-            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, classLoader);
-            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
-
-            Object target = defineClass.targetClass.newInstance();
-            Constructor<?> constructor = implClass.getConstructors()[0];
-            return (T) constructor.newInstance(target);
-        } catch (Exception e) {
-            throw new LinkerException("create linker exception", e);
-        }
-    }
-
     public static <T> T newInstance(Class<T> define, Class<?> targetClass, Object... args) throws LinkerException {
         InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, targetClass);
         Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
