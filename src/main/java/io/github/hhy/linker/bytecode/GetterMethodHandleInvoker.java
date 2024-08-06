@@ -3,8 +3,6 @@ package io.github.hhy.linker.bytecode;
 import io.github.hhy.linker.bytecode.vars.VarInst;
 import io.github.hhy.linker.define.Field;
 import io.github.hhy.linker.define.TargetField;
-import io.github.hhy.linker.util.ClassUtil;
-import org.objectweb.asm.Opcodes;
 
 
 public class GetterMethodHandleInvoker extends MethodHandleInvoker {
@@ -37,16 +35,16 @@ public class GetterMethodHandleInvoker extends MethodHandleInvoker {
 
             });
 
-            classBuilder.defineField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, mhVar, "Ljava/lang/invoke/MethodHandle;", null, null);
-            construct.append((write) -> {
-                String ownerDesc = ClassUtil.className2path(classBuilder.getClassName());
-                write.visitFieldInsn(Opcodes.GETFIELD, ownerDesc, lookup.getVarName(), "Ljava/lang/invoke/MethodHandles/Lookup;");
-                prevMh.invoke(write);
-                write.visitLdcInsn(fieldName);
-                write.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findGetter",
-                        "(Ljava/lang/invoke/MethodHandles/Lookup;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;");
-                write.visitFieldInsn(Opcodes.PUTFIELD, ownerDesc, mhVar, "Ljava/lang/invoke/MethodHandle;");
-            });
+//            classBuilder.defineField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, mhVar, "Ljava/lang/invoke/MethodHandle;", null, null);
+//            construct.append((write) -> {
+//                String ownerDesc = ClassUtil.className2path(classBuilder.getClassName());
+//                write.visitFieldInsn(Opcodes.GETFIELD, ownerDesc, lookup.getVarName(), "Ljava/lang/invoke/MethodHandles/Lookup;");
+//                prevMh.invoke(write);
+//                write.visitLdcInsn(fieldName);
+//                write.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findGetter",
+//                        "(Ljava/lang/invoke/MethodHandles/Lookup;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;");
+//                write.visitFieldInsn(Opcodes.PUTFIELD, ownerDesc, mhVar, "Ljava/lang/invoke/MethodHandle;");
+//            });
         }
     }
 }

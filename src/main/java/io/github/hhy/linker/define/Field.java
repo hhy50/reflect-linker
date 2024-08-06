@@ -34,8 +34,12 @@ public abstract class Field extends TargetPoint {
     public String getFullName() {
         String prefix = "";
         if (prev != null) {
-            prefix = prev.getFullName() + "_";
+            prefix = prev.getFullName() + "_$_";
         }
         return prefix + fieldName;
+    }
+
+    public String getGetterMhVarName() {
+        return getFullName() + "_mh_getter";
     }
 }

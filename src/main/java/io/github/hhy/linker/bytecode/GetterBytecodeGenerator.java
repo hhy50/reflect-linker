@@ -36,8 +36,9 @@ public class GetterBytecodeGenerator implements BytecodeGenerator {
         if (prev == null && target instanceof RuntimeField) {
             prev = GetterMethodHandleInvoker.target(classBuilder.bindTarget);
         }
-        GetterMethodHandleInvoker setterMh = new GetterMethodHandleInvoker(prev, target);
-        setterMh.define(classBuilder);
-        return setterMh;
+
+        GetterMethodHandleInvoker getterMh = new GetterMethodHandleInvoker(prev, target);
+        classBuilder.addMhInvoker(target.getGetterMhVarName(), getterMh);
+        return getterMh;
     }
 }

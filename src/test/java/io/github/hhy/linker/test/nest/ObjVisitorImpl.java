@@ -10,14 +10,13 @@ import java.lang.invoke.MethodHandles;
 
 public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisitor {
     private static final MethodHandles.Lookup lookup;
-    private final MethodHandles.Lookup a_lookup;
-    private static final MethodHandle a_getter_mh;
-    private final MethodHandle a_c_getter_mh;
+    private MethodHandle a_getter_mh;
+    private MethodHandles.Lookup a_lookup;
+    private MethodHandle a_c_getter_mh;
 
     static {
         try {
             lookup = Runtime.lookup(Obj.class);
-            a_getter_mh = lookup.findGetter(Obj.class, "a", A.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -25,16 +24,19 @@ public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisi
 
     public ObjVisitorImpl(Object target) throws Throwable {
         super(target);
-        Object a = a_getter_mh.invoke(target);
 
-        a_lookup = Runtime.lookup(a.getClass());
-        a_c_getter_mh = Runtime.findGetter(a_lookup, a, "c");
     }
 
     @Field.Getter("a")
     public Object getA() {
         try {
-            return a_getter_mh.invoke(getTarget());
+            if (target == null) {
+                throw new NullPointerException();
+            }
+            if (a_getter_mh == null) {
+                a_getter_mh = Runtime.findGetter(lookup, target, "a");
+            }
+            return a_getter_mh.invoke(target);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
@@ -53,7 +55,15 @@ public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisi
     @Override
     public Object getC2() {
         try {
-            return a_c_getter_mh.invoke(a_getter_mh.invoke(getTarget()));
+            Object a = getA();
+            if (a == null) {
+                throw new NullPointerException();
+            }
+            if (a_lookup == null || a.getClass() != a_lookup.lookupClass()) {
+                a_lookup = Runtime.lookup(a.getClass());
+                a_c_getter_mh = Runtime.findGetter(a_lookup, a, "c");
+            }
+            return a_c_getter_mh.invoke(a);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

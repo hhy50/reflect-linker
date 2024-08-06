@@ -2,7 +2,7 @@ package io.github.hhy.linker.define;
 
 public abstract class DefaultTargetProviderImpl implements TargetProvider{
 
-    private Object target;
+    protected Object target;
 
     public DefaultTargetProviderImpl(Object target) {
         this.target = target;
