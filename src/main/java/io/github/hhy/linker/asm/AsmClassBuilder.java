@@ -16,7 +16,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 public class AsmClassBuilder {
 
     private String className;
-    private MethodVisitor staticMethodWriter;
+    private MethodVisitor clinitMethodWriter;
     private ClassWriter classWriter = new ClassWriter(COMPUTE_MAXS|COMPUTE_FRAMES);
 
     public AsmClassBuilder(int access, String className, String superName, String[] interfaces, String signature) {
@@ -50,23 +50,24 @@ public class AsmClassBuilder {
 
     public AsmClassBuilder end() {
         this.classWriter.visitEnd();
-        if (this.staticMethodWriter != null) {
-            this.staticMethodWriter.visitInsn(Opcodes.RETURN);
-            this.staticMethodWriter.visitMaxs(0, 0);
+        if (this.clinitMethodWriter != null) {
+            this.clinitMethodWriter.visitInsn(Opcodes.RETURN);
+            this.clinitMethodWriter.visitMaxs(0, 0);
         }
+
         return this;
+    }
+
+    public synchronized void appendClinit(Consumer<MethodVisitor> interceptor) {
+        if (clinitMethodWriter == null) {
+            clinitMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null)
+                    .getMethodVisitor();
+        }
+        interceptor.accept(clinitMethodWriter);
     }
 
     public byte[] toBytecode() {
         return classWriter.toByteArray();
-    }
-
-    public synchronized void writeClint(Consumer<MethodVisitor> interceptor) {
-        if (staticMethodWriter == null) {
-            staticMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null)
-                    .getMethodVisitor();
-        }
-        interceptor.accept(staticMethodWriter);
     }
 
     public String getClassName() {

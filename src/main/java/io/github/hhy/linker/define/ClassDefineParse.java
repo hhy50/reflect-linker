@@ -160,7 +160,7 @@ public class ClassDefineParse {
                     if (token.mapExpr() && field.getType().isAssignableFrom(Map.class)) {
                         throw new VerifyException(" ,field "+pos.getDeclaringClass()+"."+pos.getName()+" not an array type");
                     }
-                    targetField = new TargetField(targetField, field);
+                    targetField = new CompileField(targetField, field);
                     pos = field.getType();
                     continue;
                 }

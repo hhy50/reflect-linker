@@ -2,10 +2,12 @@ package io.github.hhy.linker.runtime;
 
 import io.github.hhy.linker.util.ReflectUtil;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 public class Runtime {
@@ -22,38 +24,36 @@ public class Runtime {
     }
 
     /**
-     * 获取字段类型
+     * 获取Getter
      * @param obj
      * @param fieldName
      * @return
      */
-    public static Class<?> getFieldType(Object obj, String fieldName) {
+    public static MethodHandle findGetter(MethodHandles.Lookup lookup, Object obj, String fieldName) throws IllegalAccessException {
         Field field = ReflectUtil.getField(obj.getClass(), fieldName);
-        return field.getType();
+        return lookup.unreflectGetter(field);
     }
 
-//
-//    @SneakyThrows
-//    public static MethodHandle findSetter(String className, String fieldName) {
-//        for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {
-//            if (constructor.getParameterCount() == 2) {
-//                constructor.setAccessible(true);
-//                return (MethodHandles.Lookup) constructor.newInstance(callerClass,
-//                        MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE);
-//            }
-//        }
-//        return null;
-//    }
-//
-//    @SneakyThrows
-//    public static MethodHandle findSetter(String className, String fieldName) {
-//        for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {
-//            if (constructor.getParameterCount() == 2) {
-//                constructor.setAccessible(true);
-//                return (MethodHandles.Lookup) constructor.newInstance(callerClass,
-//                        MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE);
-//            }
-//        }
-//        return null;
-//    }
+
+    /**
+     * 获取Setter
+     * @param obj
+     * @param fieldName
+     * @return
+     */
+    public static MethodHandle getSetterMethodHandle(MethodHandles.Lookup lookup, Object obj, String fieldName) throws IllegalAccessException {
+        Field field = ReflectUtil.getField(obj.getClass(), fieldName);
+        return lookup.unreflectSetter(field);
+    }
+
+    /**
+     * 获取 MethodHandle.method
+     * @param obj
+     * @param methodName
+     * @return
+     */
+    public static MethodHandle getInvokeMethodHandle(MethodHandles.Lookup lookup, Object obj, String methodName) throws IllegalAccessException {
+        Method method = ReflectUtil.getDeclaredMethod(obj.getClass(), methodName);
+        return lookup.unreflect(method);
+    }
 }

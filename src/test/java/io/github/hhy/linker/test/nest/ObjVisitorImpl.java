@@ -28,7 +28,7 @@ public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisi
         Object a = a_getter_mh.invoke(target);
 
         lookup2 = Runtime.lookup(a.getClass());
-        a_c_getter_mh = lookup2.findGetter(a.getClass(), "c", Runtime.getFieldType(a, "c"));
+        a_c_getter_mh = Runtime.findGetter(lookup2, a, "c");
     }
 
     @Field.Getter("a")
