@@ -1,6 +1,5 @@
 package io.github.hhy.linker.define;
 
-import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Target;
 import io.github.hhy.linker.enums.TargetPointType;
 import io.github.hhy.linker.exceptions.ParseException;
@@ -43,46 +42,12 @@ public class ClassDefineParse {
         return classDefine;
     }
 
-    public static MethodDefine parseMethod(Class<?> targetClass, Method method, TokenParser tokenParser) {
-        verify(method);
-
-        String fieldExpr = null;
-        Field.Getter getter = method.getDeclaredAnnotation(Field.Getter.class);
-        Field.Setter setter = method.getDeclaredAnnotation(Field.Setter.class);
-        if (getter != null) {
-            fieldExpr = Util.getOrElseDefault(getter.value(), method.getName());
-        } else if (setter != null) {
-            fieldExpr = Util.getOrElseDefault(setter.value(), method.getName());
-        }
-
-        MethodDefine methodDefine = new MethodDefine(method);
-        if (fieldExpr != null) {
-            Tokens tokens = tokenParser.parse(fieldExpr);
-            methodDefine.targetPoint = parseTargetField(targetClass, tokens);
-            methodDefine.targetPointType = setter != null ? TargetPointType.SETTER : TargetPointType.GETTER;
-        } else {
-            io.github.hhy.linker.annotations.Method.Name methodNameAnn
-                    = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
-            io.github.hhy.linker.annotations.Method.InvokeSuper superClass
-                    = method.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
-            io.github.hhy.linker.annotations.Method.DynamicSign dynamicSign = method
-                    .getAnnotation(io.github.hhy.linker.annotations.Method.DynamicSign.class);
-            // 校验方法是否存在
-            String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), method.getName());
-            java.lang.reflect.Method rMethod = ReflectUtil.getDeclaredMethod(targetClass, methodName);
-
-            methodDefine.targetPoint = new TargetMethod(rMethod);
-            methodDefine.targetPointType = setter != null ? TargetPointType.SETTER : TargetPointType.GETTER;
-        }
-        return methodDefine;
-    }
-
     public static MethodDefine parseMethod(String targetClass, Method method, TokenParser tokenParser) {
         verify(method);
 
         String fieldExpr = null;
-        Field.Getter getter = method.getDeclaredAnnotation(Field.Getter.class);
-        Field.Setter setter = method.getDeclaredAnnotation(Field.Setter.class);
+        io.github.hhy.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Getter.class);
+        io.github.hhy.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Setter.class);
         if (getter != null) {
             fieldExpr = Util.getOrElseDefault(getter.value(), method.getName());
         } else if (setter != null) {
@@ -92,7 +57,7 @@ public class ClassDefineParse {
         MethodDefine methodDefine = new MethodDefine(method);
         if (fieldExpr != null) {
             Tokens tokens = tokenParser.parse(fieldExpr);
-            methodDefine.targetPoint = parseTargetField(targetClass, tokens);
+            methodDefine.targetPoint = parseFieldExpr(targetClass, tokens);
             methodDefine.targetPointType = setter != null ? TargetPointType.SETTER : TargetPointType.GETTER;
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn
@@ -121,8 +86,8 @@ public class ClassDefineParse {
      * @param method
      */
     private static void verify(Method method) {
-        Field.Getter getter = method.getDeclaredAnnotation(Field.Getter.class);
-        Field.Setter setter = method.getDeclaredAnnotation(Field.Setter.class);
+        io.github.hhy.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Getter.class);
+        io.github.hhy.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Setter.class);
         // Field.Setter和@Field.Getter只能有一个
         if (getter != null && setter != null) {
             throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] cannot have two annotations @Field.getter and @Field.setter");
@@ -141,36 +106,6 @@ public class ClassDefineParse {
         }
     }
 
-
-    /**
-     * 解析目标字段
-     *
-     * @param tokens
-     */
-    private static TargetField parseTargetField(final Class<?> first, final Tokens tokens) {
-        Class<?> pos = first;
-        TargetField targetField = null;
-        for (Token token : tokens) {
-            if (!(targetField instanceof RuntimeField)) {
-                java.lang.reflect.Field field = token.getField(pos);
-                if (field != null) {
-                    if (token.arrayExpr() && !field.getType().isArray()) {
-                        throw new VerifyException(" ,field "+pos.getDeclaringClass()+"."+pos.getName()+", not an array type");
-                    }
-                    if (token.mapExpr() && field.getType().isAssignableFrom(Map.class)) {
-                        throw new VerifyException(" ,field "+pos.getDeclaringClass()+"."+pos.getName()+" not an array type");
-                    }
-                    targetField = new CompileField(targetField, field);
-                    pos = field.getType();
-                    continue;
-                }
-            }
-            targetField = new RuntimeField(targetField, token.value());
-            pos = Object.class;
-        }
-        return targetField;
-    }
-
     /**
      * 解析字段 （运行时）
      *
@@ -178,11 +113,11 @@ public class ClassDefineParse {
      * @param tokens
      * @return
      */
-    private static TargetField parseTargetField(final String first, final Tokens tokens) {
-        TargetField targetField = null;
+    private static Field parseFieldExpr(final String first, final Tokens tokens) {
+        Field field = null;
         for (Token token : tokens) {
-            targetField = new RuntimeField(targetField, token.value());
+            field = new RuntimeField(field, token.value());
         }
-        return targetField;
+        return field;
     }
 }

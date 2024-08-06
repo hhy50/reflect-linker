@@ -1,16 +1,15 @@
 package io.github.hhy.linker.define;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 /**
  * 编译时字段, 通过反射获取到
  */
-public class CompileField extends TargetField {
+public class CompileField extends Field {
     /**
      *
      */
-    private Field field;
+    private java.lang.reflect.Field field;
 
     /**
      * 声明类
@@ -28,7 +27,7 @@ public class CompileField extends TargetField {
     private boolean isPrivate;
 
 
-    public CompileField(TargetField prev, Field field) {
+    public CompileField(Field prev, java.lang.reflect.Field field) {
         super(prev, field.getName());
         this.field = field;
         this.declare = field.getDeclaringClass();

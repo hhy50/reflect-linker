@@ -10,7 +10,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisitor {
     private static final MethodHandles.Lookup lookup;
-    private final MethodHandles.Lookup lookup2;
+    private final MethodHandles.Lookup a_lookup;
     private static final MethodHandle a_getter_mh;
     private final MethodHandle a_c_getter_mh;
 
@@ -27,8 +27,8 @@ public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisi
         super(target);
         Object a = a_getter_mh.invoke(target);
 
-        lookup2 = Runtime.lookup(a.getClass());
-        a_c_getter_mh = Runtime.findGetter(lookup2, a, "c");
+        a_lookup = Runtime.lookup(a.getClass());
+        a_c_getter_mh = Runtime.findGetter(a_lookup, a, "c");
     }
 
     @Field.Getter("a")

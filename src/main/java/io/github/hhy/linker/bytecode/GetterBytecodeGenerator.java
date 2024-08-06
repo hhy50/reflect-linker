@@ -1,19 +1,14 @@
 package io.github.hhy.linker.bytecode;
 
 import io.github.hhy.linker.define.RuntimeField;
-import io.github.hhy.linker.define.TargetField;
-import io.github.hhy.linker.runtime.Runtime;
-import io.github.hhy.linker.util.ClassUtil;
+import io.github.hhy.linker.define.Field;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-
-import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 
 public class GetterBytecodeGenerator implements BytecodeGenerator {
-    private final TargetField target;
+    private final Field target;
 
 
-    public GetterBytecodeGenerator(TargetField target) {
+    public GetterBytecodeGenerator(Field target) {
         this.target = target;
     }
 
@@ -33,17 +28,16 @@ public class GetterBytecodeGenerator implements BytecodeGenerator {
      * @param target
      * @return
      */
-    private GetterMethodHandleHolder createGetterMhInvoker(InvokeClassImplBuilder classBuilder, TargetField target) {
-        GetterMethodHandleHolder prev = null;
+    private GetterMethodHandleInvoker createGetterMhInvoker(InvokeClassImplBuilder classBuilder, Field target) {
+        GetterMethodHandleInvoker prev = null;
         if (target.getPrev() != null) {
             prev = createGetterMhInvoker(classBuilder, target.getPrev());
         }
         if (prev == null && target instanceof RuntimeField) {
-            prev = GetterMethodHandleHolder.target(classBuilder.bindTarget);
+            prev = GetterMethodHandleInvoker.target(classBuilder.bindTarget);
         }
-        GetterMethodHandleHolder setterMh = new GetterMethodHandleHolder(prev, target);
-
-
+        GetterMethodHandleInvoker setterMh = new GetterMethodHandleInvoker(prev, target);
+        setterMh.define(classBuilder);
         return setterMh;
     }
 }

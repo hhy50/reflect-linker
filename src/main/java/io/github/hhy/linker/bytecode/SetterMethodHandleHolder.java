@@ -1,16 +1,16 @@
 package io.github.hhy.linker.bytecode;
 
-import io.github.hhy.linker.define.TargetField;
+import io.github.hhy.linker.define.Field;
 
 public class SetterMethodHandleHolder extends MethodHandleInvoker {
-    private TargetField target;
+    private Field target;
     private MethodHandleInvoker prev;
 
     public SetterMethodHandleHolder(MethodHandleInvoker prev, Lookup lookup, String varName, boolean isStatic) {
         this.prev = prev;
     }
 
-    public SetterMethodHandleHolder(MethodHandleInvoker prev, TargetField target) {
+    public SetterMethodHandleHolder(MethodHandleInvoker prev, Field target) {
         this.prev = prev;
         this.target = target;
     }

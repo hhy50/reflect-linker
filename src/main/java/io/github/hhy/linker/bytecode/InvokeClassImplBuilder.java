@@ -4,20 +4,17 @@ import io.github.hhy.linker.asm.AsmClassBuilder;
 import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.asm.MethodBuilder;
 import io.github.hhy.linker.define.DefaultTargetProviderImpl;
-import io.github.hhy.linker.exceptions.ImplClassBuilderException;
 import io.github.hhy.linker.util.ClassUtil;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     public String bindTarget;
-    private MethodVisitor initMethodWriter;
+    private ImplClassConstruct implClassConstruct;
     /**
      *
      */
@@ -27,48 +24,37 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         super(access, className, superName, interfaces, signature);
     }
 
-    @Override
-    public MethodBuilder defineConstruct(int access, String[] argsType, String[] exceptions, String sign) {
-        if (this.initMethodWriter != null) {
-            MethodBuilder methodBuilder = super.defineConstruct(access, argsType, exceptions, sign);
-            this.initMethodWriter = methodBuilder.getMethodVisitor();
-            return methodBuilder;
+    public ImplClassConstruct getConstruct() {
+        if (this.implClassConstruct == null) {
+            MethodBuilder methodBuilder = super.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget}, null, null);
+            this.implClassConstruct = new ImplClassConstruct(methodBuilder.getMethodVisitor());
         }
-        throw new ImplClassBuilderException("Define multiple constructors");
+        return this.implClassConstruct;
     }
 
     @Override
     public AsmClassBuilder end() {
-        if (this.initMethodWriter != null) {
-            this.initMethodWriter.visitInsn(Opcodes.RETURN);
-            this.initMethodWriter.visitMaxs(0, 0);
+        if (this.implClassConstruct != null) {
+            this.implClassConstruct.end();
         }
         return super.end();
     }
 
-    public void appendInit(Consumer<MethodVisitor> interceptor) {
-        if (initMethodWriter != null) {
-            interceptor.accept(initMethodWriter);
-        }
-    }
-
     public InvokeClassImplBuilder setTarget(String bindTarget) {
         this.bindTarget = bindTarget;
-        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget}, null, "")
-                .accept(writer -> {
+        this.getConstruct()
+                .append(writer -> {
                     writer.visitVarInsn(Opcodes.ALOAD, 0);
                     writer.visitVarInsn(Opcodes.ALOAD, 1);
                     writer.visitMethodInsn(Opcodes.INVOKESPECIAL, ClassUtil.className2path(DefaultTargetProviderImpl.class.getName()), "<init>", "(Ljava/lang/Object;)V", false);
-                    writer.visitInsn(Opcodes.RETURN);
                 });
-        defineLookup(bindTarget);
         return this;
     }
 
-    public Lookup defineLookup(String lookupClass) {
+    public Lookup defineLookup(String lookupName) {
         Lookup lookup = findLookup(lookupClass);
         if (lookup == null) {
-            String lookupVar = lookupClass.replace('.', '_') + "_lookup";
+            String lookupVar = lookupClass.replace('.', '_')+"_lookup";
             this.defineField(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, lookupVar,
                             "Ljava/lang/invoke/MethodHandles$Lookup;", null, null)
                     .appendClinit(writer -> {

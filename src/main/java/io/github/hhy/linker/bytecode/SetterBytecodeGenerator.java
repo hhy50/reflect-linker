@@ -1,18 +1,14 @@
 package io.github.hhy.linker.bytecode;
 
-import io.github.hhy.linker.define.TargetField;
+import io.github.hhy.linker.define.Field;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-
-import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 
 public class SetterBytecodeGenerator implements BytecodeGenerator {
 
-    private TargetField target;
+    private Field target;
 
-    public SetterBytecodeGenerator(TargetField target) {
+    public SetterBytecodeGenerator(Field target) {
         this.target = target;
     }
 
