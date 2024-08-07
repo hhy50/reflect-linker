@@ -1,4 +1,4 @@
-package io.github.hhy.linker.code;
+package io.github.hhy.linker.bytecode;
 
 import org.objectweb.asm.MethodVisitor;
 

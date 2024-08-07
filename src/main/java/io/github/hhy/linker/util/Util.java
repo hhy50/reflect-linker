@@ -6,6 +6,4 @@ public class Util {
         if (value.equals("")) return defaultVale;
         return value;
     }
-
-
 }

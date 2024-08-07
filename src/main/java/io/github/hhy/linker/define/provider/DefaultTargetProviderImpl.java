@@ -1,6 +1,6 @@
-package io.github.hhy.linker.define;
+package io.github.hhy.linker.define.provider;
 
-public abstract class DefaultTargetProviderImpl implements TargetProvider{
+public abstract class DefaultTargetProviderImpl implements TargetProvider {
 
     protected Object target;
 

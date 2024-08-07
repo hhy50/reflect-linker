@@ -1,7 +1,7 @@
 package io.github.hhy.linker.test.nest;
 
 import io.github.hhy.linker.annotations.Field;
-import io.github.hhy.linker.define.DefaultTargetProviderImpl;
+import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy.linker.runtime.Runtime;
 
 import java.lang.invoke.MethodHandle;

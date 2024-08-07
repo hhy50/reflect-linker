@@ -1,4 +1,4 @@
-package io.github.hhy.linker.code.vars;
+package io.github.hhy.linker.bytecode.vars;
 
 public class LookupVar extends VarInst {
 

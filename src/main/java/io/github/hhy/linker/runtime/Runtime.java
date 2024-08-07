@@ -41,7 +41,7 @@ public class Runtime {
      * @param fieldName
      * @return
      */
-    public static MethodHandle getSetterMethodHandle(MethodHandles.Lookup lookup, Object obj, String fieldName) throws IllegalAccessException {
+    public static MethodHandle findSetter(MethodHandles.Lookup lookup, Object obj, String fieldName) throws IllegalAccessException {
         Field field = ReflectUtil.getField(obj.getClass(), fieldName);
         return lookup.unreflectSetter(field);
     }
@@ -52,8 +52,8 @@ public class Runtime {
      * @param methodName
      * @return
      */
-    public static MethodHandle getInvokeMethodHandle(MethodHandles.Lookup lookup, Object obj, String methodName) throws IllegalAccessException {
-        Method method = ReflectUtil.getDeclaredMethod(obj.getClass(), methodName);
+    public static MethodHandle findInvokeVirtual(MethodHandles.Lookup lookup, Object obj, String methodName) throws IllegalAccessException {
+        Method method = ReflectUtil.getMethod(obj.getClass(), methodName);
         return lookup.unreflect(method);
     }
 }

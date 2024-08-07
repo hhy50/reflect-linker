@@ -6,7 +6,7 @@ import io.github.hhy.linker.annotations.Target;
 @Target.Bind("io.github.hhy.linker.test.nest.Obj")
 public interface ObjVisitor {
     @Field.Getter("a")
-    AVisitor getA();
+    Object getA();
 
     @Field.Getter("a.b")
     Object getB();

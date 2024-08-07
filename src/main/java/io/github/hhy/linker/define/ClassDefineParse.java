@@ -1,48 +1,45 @@
 package io.github.hhy.linker.define;
 
 import io.github.hhy.linker.annotations.Target;
-import io.github.hhy.linker.enums.TargetPointType;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
 import io.github.hhy.linker.token.Token;
 import io.github.hhy.linker.token.TokenParser;
 import io.github.hhy.linker.token.Tokens;
 import io.github.hhy.linker.util.ClassUtil;
-import io.github.hhy.linker.util.ReflectUtil;
 import io.github.hhy.linker.util.Util;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ClassDefineParse {
 
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
-    public static <T> InvokeClassDefine parseClass(Class<T> define, Class<?> targetClass) throws ParseException {
-        return doParseClass(define, targetClass.getName());
+    public static <T> InvokeClassDefine parseClass(Class<T> define, Class<?> bindClass) throws ParseException {
+        return doParseClass(define, bindClass.getName());
     }
 
-    public static <T> InvokeClassDefine doParseClass(Class<T> define, String targetClass) throws ParseException {
+    public static <T> InvokeClassDefine doParseClass(Class<T> define, String bindClass) throws ParseException {
         io.github.hhy.linker.annotations.Target.Bind annotation = define.getDeclaredAnnotation(Target.Bind.class);
         if (annotation == null || annotation.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
-        } else if (ClassUtil.isAssignableFrom(targetClass, annotation.value())) {
-            throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+targetClass+"]");
+        } else if (ClassUtil.isAssignableFrom(bindClass, annotation.value())) {
+            throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+bindClass+"]");
         }
         List<MethodDefine> methodDefines = new ArrayList<>();
         for (Method declaredMethod : define.getDeclaredMethods()) {
-            methodDefines.add(parseMethod(targetClass, declaredMethod, TOKEN_PARSER));
+            methodDefines.add(parseMethod(bindClass, declaredMethod, TOKEN_PARSER));
         }
         InvokeClassDefine classDefine = new InvokeClassDefine();
         classDefine.define = define;
-        classDefine.targetClass = targetClass;
+        classDefine.bindClass = bindClass;
         classDefine.methodDefines = methodDefines;
         return classDefine;
     }
 
-    public static MethodDefine parseMethod(String targetClass, Method method, TokenParser tokenParser) {
+    public static MethodDefine parseMethod(String bindClass, Method method, TokenParser tokenParser) {
         verify(method);
 
         String fieldExpr = null;
@@ -57,8 +54,7 @@ public class ClassDefineParse {
         MethodDefine methodDefine = new MethodDefine(method);
         if (fieldExpr != null) {
             Tokens tokens = tokenParser.parse(fieldExpr);
-            methodDefine.targetPoint = parseFieldExpr(targetClass, tokens);
-            methodDefine.targetPointType = setter != null ? TargetPointType.SETTER : TargetPointType.GETTER;
+            methodDefine.targetPoint = parseFieldExpr(bindClass, tokens);
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn
                     = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
@@ -68,9 +64,8 @@ public class ClassDefineParse {
                     .getAnnotation(io.github.hhy.linker.annotations.Method.DynamicSign.class);
             // 校验方法是否存在
             String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), method.getName());
-//            java.lang.reflect.Method rMethod = ReflectUtil.getDeclaredMethod(targetClass, methodName);
-            methodDefine.targetPoint = new TargetMethod(methodName);
-            methodDefine.targetPointType = setter != null ? TargetPointType.SETTER : TargetPointType.GETTER;
+//            java.lang.reflect.Method rMethod = ReflectUtil.getDeclaredMethod(bindClass, methodName);
+            methodDefine.targetPoint = new RuntimeMethod(methodName);
         }
         return methodDefine;
     }
@@ -113,8 +108,8 @@ public class ClassDefineParse {
      * @param tokens
      * @return
      */
-    private static Field parseFieldExpr(final String first, final Tokens tokens) {
-        Field field = null;
+    private static RuntimeField parseFieldExpr(final String first, final Tokens tokens) {
+        RuntimeField field = null;
         for (Token token : tokens) {
             field = new RuntimeField(field, token.value());
         }

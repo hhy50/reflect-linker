@@ -1,4 +1,4 @@
-package io.github.hhy.linker.define;
+package io.github.hhy.linker.define.provider;
 
 public interface TargetProvider {
 
