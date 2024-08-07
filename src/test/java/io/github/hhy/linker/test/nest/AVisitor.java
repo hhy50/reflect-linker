@@ -3,10 +3,10 @@ package io.github.hhy.linker.test.nest;
 import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Target;
 
-@Target.Bind("io.github.hhy.linker.test.nest.Obj")
-public interface ObjVisitor {
+@Target.Bind("io.github.hhy.linker.test.nest.A")
+public interface AVisitor {
     @Field.Getter("a")
-    AVisitor getA();
+    Object getA();
 
     @Field.Getter("a.b")
     Object getB();

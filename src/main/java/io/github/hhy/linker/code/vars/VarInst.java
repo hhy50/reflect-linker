@@ -1,12 +1,10 @@
 package io.github.hhy.linker.code.vars;
 
 
+import io.github.hhy.linker.code.MethodBody;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import javax.swing.*;
 
 /**
  * VarInstance
@@ -18,12 +16,12 @@ public abstract class VarInst {
     /**
      * 当前变量在局部变量表中的索引
      */
-    protected final int lvbIndex;
+    final int lvbIndex;
 
     /**
      * 类型
      */
-    protected Type type;
+    Type type;
 
     public VarInst(int lvbIndex, String typeDesc) {
         this.lvbIndex = lvbIndex;
@@ -38,17 +36,18 @@ public abstract class VarInst {
      *     }
      * </pre>
      */
-    public void checkNullPointer(MethodVisitor methodVisitor, String nullerr) {
-        Label iflabel = new Label();
-
-        methodVisitor.visitVarInsn(load(), lvbIndex);
-        methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, iflabel);
-        methodVisitor.visitLabel(iflabel);
-        methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
-        methodVisitor.visitInsn(Opcodes.DUP);
-        methodVisitor.visitLdcInsn(nullerr);
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
-        methodVisitor.visitInsn(Opcodes.ATHROW);
+    public void checkNullPointer(MethodBody methodBody, String nullerr) {
+        methodBody.append(methodVisitor -> {
+            Label iflabel = new Label();
+            methodVisitor.visitVarInsn(load(), lvbIndex);
+            methodVisitor.visitJumpInsn(Opcodes.IFNULL, iflabel);
+            methodVisitor.visitLabel(iflabel);
+            methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
+            methodVisitor.visitInsn(Opcodes.DUP);
+            methodVisitor.visitLdcInsn(nullerr);
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
+            methodVisitor.visitInsn(Opcodes.ATHROW);
+        });
     }
 
     /**

@@ -15,7 +15,11 @@ public class MyArrayListTest {
     public void test() throws LinkerException {
         Object[] objects = new Object[10];
 
-        MyArrayList list = LinkerFactory.newInstance(MyArrayList.class, ArrayList.class);
+        MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
+
+//        list.getElementData();
+//        list.setElementData();
+
         Assertions.assertTrue(list instanceof TargetProvider);
 
         list.setElementData(objects);

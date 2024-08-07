@@ -22,7 +22,6 @@ public class GetterBytecodeGenerator implements BytecodeGenerator {
         createGetterMhInvoker(classBuilder, target);
     }
 
-
     /**
      * @param classBuilder
      * @param target
@@ -38,7 +37,7 @@ public class GetterBytecodeGenerator implements BytecodeGenerator {
         }
 
         GetterMethodHandleInvoker getterMh = new GetterMethodHandleInvoker(prev, target);
-        classBuilder.addMhInvoker(target.getGetterMhVarName(), getterMh);
+//        classBuilder.addMhInvoker(target.getGetterMhVarName(), getterMh);
         return getterMh;
     }
 }

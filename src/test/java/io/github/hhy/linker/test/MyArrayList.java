@@ -9,6 +9,12 @@ public interface MyArrayList {
 
     void add(Object o);
 
+    @Field.Getter("elementData[0]")
+    Object getElementData0();
+
+    @Field.Getter("elementData.length")
+    int len();
+
     @Field.Getter("elementData")
     Object[] getElementData();
 
