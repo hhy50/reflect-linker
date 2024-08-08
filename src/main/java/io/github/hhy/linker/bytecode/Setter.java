@@ -6,9 +6,6 @@ import io.github.hhy.linker.bytecode.vars.ObjectVar;
 
 public class Setter extends MethodHandle {
 
-    public Setter(MethodHandle prevHandle) {
-        super(prevHandle);
-    }
 
     @Override
     public ObjectVar invoke(MethodBody methodBody) {

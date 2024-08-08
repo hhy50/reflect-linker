@@ -10,11 +10,11 @@ import static org.objectweb.asm.Opcodes.*;
 
 public abstract class MethodHandle {
 
-    protected MethodHandle prevMethodHandle;
-
-    public MethodHandle(MethodHandle prevMethodHandle) {
-        this.prevMethodHandle = prevMethodHandle;
-    }
+//    protected MethodHandle prevMethodHandle;
+//
+//    public MethodHandle(MethodHandle prevMethodHandle) {
+//        this.prevMethodHandle = prevMethodHandle;
+//    }
 
     public void define(InvokeClassImplBuilder classImplBuilder) {
 
@@ -69,5 +69,12 @@ public abstract class MethodHandle {
         });
     }
 
+    /**
+     * mh 重新赋值字节码逻辑
+     * @param methodBody
+     * @param lookupMember
+     * @param mhMember
+     * @param objVar
+     */
     protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar);
 }

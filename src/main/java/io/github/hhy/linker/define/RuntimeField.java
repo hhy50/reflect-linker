@@ -1,6 +1,8 @@
 package io.github.hhy.linker.define;
 
 
+import io.github.hhy.linker.bytecode.Getter;
+
 /**
  * 用来表示目标字段
  */
@@ -11,6 +13,11 @@ public class RuntimeField extends TargetPoint {
      * 字段名
      */
     public String fieldName;
+
+    /**
+     * 对应的getter
+     */
+    public Getter getter;
 
     /**
      * 上一个字段， 比如 a.b, 那么 this=b, prev=a;

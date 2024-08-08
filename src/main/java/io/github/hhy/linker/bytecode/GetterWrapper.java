@@ -9,41 +9,35 @@ import org.objectweb.asm.Opcodes;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class Getter extends MethodHandle {
+public class GetterWrapper extends MethodHandle {
 
-    private RuntimeField field;
-    private final LookupMember lookupMember;
-    private final MethodHandleMember mhMember;
+    private Getter getter;
 
-    public Getter(String bindImplClass, RuntimeField field) {
-        this.field = field;
-        this.lookupMember = field.getPrev() != null ? new LookupMember(bindImplClass, field.getPrev().getFullName()+"_lookup") : null;
-        this.mhMember = new MethodHandleMember(bindImplClass, field.getFullName()+"_getter_mh");
+    public GetterWrapper(Getter getter) {
+        this.getter = getter;
     }
 
     @Override
     public void define(InvokeClassImplBuilder classImplBuilder) {
-        RuntimeField prev = field.getPrev();
-        if (prev != null) {
-            // 先定义上一层字段的lookup
-            classImplBuilder.defineField(Opcodes.ACC_PUBLIC, lookupMember.memberName, lookupMember.type, null, null);
-        }
-        // 定义当前字段的mh
-        classImplBuilder.defineField(Opcodes.ACC_PUBLIC, field.getGetterMhVarName(), MethodHandleVar.DESCRIPTOR, null, null);
+        getter.define(classImplBuilder);
     }
 
     @Override
     public ObjectVar invoke(MethodBody methodBody) {
-        ObjectVar prevObj = field.getter.invoke(methodBody);
-        prevObj.checkNullPointer(methodBody, field.getNullErrorVar());
-
-        // 校验lookup和mh
-        checkLookup(methodBody, lookupMember, mhMember, prevObj);
-
-        mhMember.invoke(prevObj);
-
+        ObjectVar invoke = getter.invoke();
         return null;
     }
+
+//    @Override
+//    public ObjectVar invoke(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
+//        ObjectVar prevObj = field.getter.invoke(methodBody);
+//        prevObj.checkNullPointer(methodBody, field.getNullErrorVar());
+//
+//        // 校验lookup和mh
+//        checkLookup(methodBody, lookupMember, mhMember, prevObj);
+//
+//        return null;
+//    }
 
     @Override
     public void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
