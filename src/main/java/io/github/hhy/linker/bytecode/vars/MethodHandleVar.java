@@ -9,6 +9,4 @@ public class MethodHandleVar extends VarInst {
     public MethodHandleVar(int index) {
         super(index, DESCRIPTOR);
     }
-
-
 }

@@ -6,8 +6,9 @@ import io.github.hhy.linker.bytecode.Getter;
 /**
  * 用来表示目标字段
  */
-
 public class RuntimeField extends TargetPoint {
+
+    public static final RuntimeField TARGET = new RuntimeField(null, "target");
 
     /**
      * 字段名
@@ -38,9 +39,8 @@ public class RuntimeField extends TargetPoint {
         if (prev != null) {
             prefix = prev.getFullName()+"_$_";
         }
-        return prefix+"_$_"+fieldName;
+        return prefix+fieldName;
     }
-
 
     public String getGetterMhVarName() {
         return getFullName()+"_mh_getter";

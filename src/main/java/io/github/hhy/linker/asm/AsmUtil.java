@@ -30,6 +30,16 @@ public class AsmUtil {
     }
 
     public static void areturn(MethodVisitor writer, Type rType) {
+        writer.visitTypeInsn(Opcodes.CHECKCAST, rType.getDescriptor());
+        if (rType.getSort() == Type.VOID) {
+            writer.visitInsn(Opcodes.RETURN);
+        } else {
+            writer.visitInsn(rType.getOpcode(Opcodes.IRETURN));
+        }
+    }
+
+    public static void areturnNull(MethodVisitor writer, Type rType) {
+        writer.visitInsn(Opcodes.ACONST_NULL);
         if (rType.getSort() == Type.VOID) {
             writer.visitInsn(Opcodes.RETURN);
         } else {

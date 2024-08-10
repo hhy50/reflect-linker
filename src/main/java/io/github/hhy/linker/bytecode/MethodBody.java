@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 
 public class MethodBody {
 
-    private final MethodVisitor writer;
+    public final MethodVisitor writer;
 
-    private int lvbIndex;
+    public int lvbIndex;
 
     public MethodBody(MethodVisitor writer, boolean isStatic) {
         this.writer = writer;

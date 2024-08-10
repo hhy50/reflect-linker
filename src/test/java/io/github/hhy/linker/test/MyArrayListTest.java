@@ -16,13 +16,9 @@ public class MyArrayListTest {
         Object[] objects = new Object[10];
 
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
-
-//        list.getElementData();
-//        list.setElementData();
-
         Assertions.assertTrue(list instanceof TargetProvider);
 
-        list.setElementData(objects);
+//        list.setElementData(objects);
         Object[] elementData = list.getElementData();
 
         Assertions.assertTrue(objects==elementData);

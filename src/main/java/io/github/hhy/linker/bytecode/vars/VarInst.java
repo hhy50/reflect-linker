@@ -38,15 +38,15 @@ public abstract class VarInst {
      */
     public void checkNullPointer(MethodBody methodBody, String nullerr) {
         methodBody.append(methodVisitor -> {
-            Label iflabel = new Label();
+            Label nlabel = new Label();
             methodVisitor.visitVarInsn(load(), lvbIndex);
-            methodVisitor.visitJumpInsn(Opcodes.IFNULL, iflabel);
-            methodVisitor.visitLabel(iflabel);
+            methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, nlabel);
             methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
             methodVisitor.visitInsn(Opcodes.DUP);
             methodVisitor.visitLdcInsn(nullerr);
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
             methodVisitor.visitInsn(Opcodes.ATHROW);
+            methodVisitor.visitLabel(nlabel);
         });
     }
 

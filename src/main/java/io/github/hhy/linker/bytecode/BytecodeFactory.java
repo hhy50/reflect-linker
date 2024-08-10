@@ -1,12 +1,20 @@
 package io.github.hhy.linker.bytecode;
 
+import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.define.RuntimeField;
-import org.objectweb.asm.MethodVisitor;
+
 
 public class BytecodeFactory {
 
-    public static void generateSetter(InvokeClassImplBuilder classBuilder, MethodVisitor writer, RuntimeField targetPoint) {
-        //new Getter(classBuilder, writer, targetPoint)
-//        new Getter(classBuilder.bindTarget, );
+    public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, RuntimeField targetPoint) {
+        RuntimeField prev = targetPoint.getPrev();
+        while (prev != null) {
+            prev.getter = classBuilder.defineGetter(prev);
+            prev = prev.getPrev();
+        }
+        Getter getter = classBuilder.defineGetter(targetPoint);
+        getter.methodDefine = methodDefine;
+        getter.define(classBuilder);
+        return getter;
     }
 }

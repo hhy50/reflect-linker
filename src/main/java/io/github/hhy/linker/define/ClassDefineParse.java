@@ -109,7 +109,7 @@ public class ClassDefineParse {
      * @return
      */
     private static RuntimeField parseFieldExpr(final String first, final Tokens tokens) {
-        RuntimeField field = null;
+        RuntimeField field = RuntimeField.TARGET;
         for (Token token : tokens) {
             field = new RuntimeField(field, token.value());
         }
