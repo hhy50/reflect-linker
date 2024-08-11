@@ -1,4 +1,4 @@
-package io.github.hhy.linker.test;
+package io.github.hhy.linker.test.arraylist;
 
 import io.github.hhy.linker.LinkerFactory;
 import io.github.hhy.linker.define.provider.TargetProvider;
@@ -14,13 +14,10 @@ public class MyArrayListTest {
     @Test
     public void test() throws LinkerException {
         Object[] objects = new Object[10];
-
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
+        list.setElementData(objects);
+
         Assertions.assertTrue(list instanceof TargetProvider);
-
-//        list.setElementData(objects);
-        Object[] elementData = list.getElementData();
-
-        Assertions.assertTrue(objects==elementData);
+        Assertions.assertTrue(objects==list.getElementData());
     }
 }

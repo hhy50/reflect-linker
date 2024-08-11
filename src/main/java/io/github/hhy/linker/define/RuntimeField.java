@@ -1,7 +1,7 @@
 package io.github.hhy.linker.define;
 
 
-import io.github.hhy.linker.bytecode.Getter;
+import io.github.hhy.linker.bytecode.getter.Getter;
 
 /**
  * 用来表示目标字段
@@ -43,14 +43,17 @@ public class RuntimeField extends TargetPoint {
     }
 
     public String getGetterMhVarName() {
-        return getFullName()+"_mh_getter";
+        return getFullName()+"_getter_mh";
+    }
+
+    public String getSetterMhVarName() {
+        return getFullName()+"_setter_mh";
     }
 
     public String getNullErrorVar() {
-        String prefix = "";
-        if (prev != null) {
-            prefix = prev.fieldName+".";
+        if (prev == null || prev == TARGET) {
+            return "null."+fieldName;
         }
-        return prefix+"[null]."+fieldName;
+        return prev.fieldName+"[null]."+fieldName;
     }
 }

@@ -9,12 +9,6 @@ import static org.objectweb.asm.Opcodes.*;
 
 public abstract class MethodHandle {
 
-//    protected MethodHandle prevMethodHandle;
-//
-//    public MethodHandle(MethodHandle prevMethodHandle) {
-//        this.prevMethodHandle = prevMethodHandle;
-//    }
-
     public void define(InvokeClassImplBuilder classImplBuilder) {
 
     }
@@ -31,7 +25,7 @@ public abstract class MethodHandle {
      * <pre>
      * if (lookup == null || obj.getClass() != lookup.lookupClass()) {
      *      lookup = Runtime.lookup(obj.getClass());
-     *      // mh = Runtime.findGetter(lookup, obj, "field"); // mhReassign()
+     *      mh = Runtime.findGetter(lookup, obj, "field"); // mhReassign()
      * }
      * </pre>
      *
@@ -41,41 +35,44 @@ public abstract class MethodHandle {
      */
     protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append((mv) -> {
-            Label nifLabel = new Label();
-            if (lookupMember != null) {
-                Label ifLabel = new Label();
+            Label endLabel = new Label();
+            Label breakLabel = new Label();
+            Label initLabel = new Label();
 
-                //  if (lookup == null || obj.getClass() != lookup.lookupClass())
-                mv.visitVarInsn(ALOAD, 0); // this
-                mv.visitFieldInsn(GETFIELD, lookupMember.owner, lookupMember.memberName, lookupMember.type); // lookupMember.lookup
-                mv.visitJumpInsn(IFNULL, ifLabel);
+            //  if (lookup == null || obj.getClass() != lookup.lookupClass())
+            mv.visitVarInsn(ALOAD, 0); // this
+            mv.visitFieldInsn(GETFIELD, lookupMember.owner, lookupMember.memberName, lookupMember.type); // lookupMember.lookup
+            mv.visitJumpInsn(IFNULL, initLabel); // null
 
-                mv.visitVarInsn(ALOAD, objVar.lvbIndex); // obj
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, lookupMember.owner, lookupMember.memberName, lookupMember.type);
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/invoke/MethodHandles$Lookup", "lookupClass", "()Ljava/lang/Class;", false);
-                mv.visitJumpInsn(IF_ACMPEQ, nifLabel);
+            mv.visitVarInsn(ALOAD, objVar.lvbIndex); // obj
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitFieldInsn(GETFIELD, lookupMember.owner, lookupMember.memberName, lookupMember.type);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/invoke/MethodHandles$Lookup", "lookupClass", "()Ljava/lang/Class;", false);
+            mv.visitJumpInsn(IF_ACMPEQ, breakLabel); // !=
 
-                mv.visitLabel(ifLabel);
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitVarInsn(ALOAD, objVar.lvbIndex); // obj
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false); // a.getClass()
-                mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()
-                mv.visitFieldInsn(PUTFIELD, lookupMember.owner, lookupMember.memberName, "Ljava/lang/invoke/MethodHandles$Lookup;");
-            } else {
-                // if (mh == null)
-                mv.visitVarInsn(ALOAD, 0); // this
-                mv.visitFieldInsn(GETFIELD, mhMember.owner, mhMember.memberName, mhMember.type); // this.mh
-                mv.visitJumpInsn(IFNONNULL, nifLabel);
-            }
+            mv.visitLabel(initLabel);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, objVar.lvbIndex); // obj
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false); // a.getClass()
+            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()
+            mv.visitFieldInsn(PUTFIELD, lookupMember.owner, lookupMember.memberName, "Ljava/lang/invoke/MethodHandles$Lookup;");
             mhReassign(methodBody, lookupMember, mhMember, objVar);
-            mv.visitLabel(nifLabel);
+
+            mv.visitLabel(breakLabel);
+
+            // if (mh == null)
+            mv.visitVarInsn(ALOAD, 0); // this
+            mv.visitFieldInsn(GETFIELD, mhMember.owner, mhMember.memberName, mhMember.type); // this.mh
+            mv.visitJumpInsn(IFNONNULL, endLabel);
+            mhReassign(methodBody, lookupMember, mhMember, objVar);
+            mv.visitLabel(endLabel);
         });
     }
 
     /**
      * mh 重新赋值字节码逻辑
+     *
      * @param methodBody
      * @param lookupMember
      * @param mhMember

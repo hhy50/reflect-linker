@@ -1,5 +1,6 @@
-package io.github.hhy.linker.bytecode;
+package io.github.hhy.linker.bytecode.getter;
 
+import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.RuntimeField;
 import io.github.hhy.linker.util.ClassUtil;

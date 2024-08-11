@@ -41,11 +41,13 @@ public class ClassImplGenerator {
         if (methodDefine.hasGetter()) {
             mh = BytecodeFactory.generateGetter(classBuilder, methodDefine, (RuntimeField) methodDefine.targetPoint);
         } else if (methodDefine.hasSetter()) {
-            AsmUtil.throwNoSuchMethod(writer, methodDefine.define.getName());
+            mh = BytecodeFactory.generateSetter(classBuilder, methodDefine, (RuntimeField) methodDefine.targetPoint);
         } else {
             AsmUtil.throwNoSuchMethod(writer, methodDefine.define.getName());
         }
-        if (mh != null)
-            mh.invoke(new MethodBody(writer, false));
+        if (mh != null) {
+            mh.define(classBuilder);
+            mh.invoke(new MethodBody(writer, Type.getType(methodDefine.define)));
+        }
     }
 }

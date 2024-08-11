@@ -47,6 +47,10 @@ public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisi
         return null;
     }
 
+    @Override
+    public void setB(Object value) {
+    }
+
     @Field.Getter("a.b.c")
     public Object getC() {
         return null;
@@ -63,6 +67,9 @@ public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisi
                 a_lookup = Runtime.lookup(a.getClass());
                 a_c_getter_mh = Runtime.findGetter(a_lookup, a, "c");
             }
+            if (a_c_getter_mh == null) {
+                a_c_getter_mh = Runtime.findGetter(a_lookup, a, "c");
+            }
             return a_c_getter_mh.invoke(a);
         } catch (Throwable e) {
             throw new RuntimeException(e);
@@ -72,11 +79,5 @@ public class ObjVisitorImpl extends DefaultTargetProviderImpl implements ObjVisi
     @Field.Getter("a.b.c.str")
     public String getStr() {
         return null;
-    }
-
-    public static void main(String[] args) throws Throwable {
-        ObjVisitorImpl objVisitor = new ObjVisitorImpl(new Obj());
-        System.out.println(objVisitor.getC2());
-
     }
 }

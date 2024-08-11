@@ -39,7 +39,7 @@ public abstract class VarInst {
     public void checkNullPointer(MethodBody methodBody, String nullerr) {
         methodBody.append(methodVisitor -> {
             Label nlabel = new Label();
-            methodVisitor.visitVarInsn(load(), lvbIndex);
+            methodVisitor.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ILOAD), lvbIndex);
             methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, nlabel);
             methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
             methodVisitor.visitInsn(Opcodes.DUP);
@@ -51,20 +51,24 @@ public abstract class VarInst {
     }
 
     /**
-     * 获取load指令
+     * lpad到栈上
      *
      * @return
      */
-    public int load() {
-        return Type.getType(type).getOpcode(Opcodes.ILOAD);
+    public void load(MethodBody methodBody) {
+        methodBody.append(writer -> {
+            writer.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ILOAD), lvbIndex);
+        });
     }
 
     /**
-     * 获取store指令
+     * store到局部变量表
      *
      * @return
      */
-    public int store() {
-        return Type.getType(type).getOpcode(Opcodes.ISTORE);
+    public void store(MethodBody methodBody) {
+        methodBody.append(writer -> {
+            writer.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ISTORE), lvbIndex);
+        });
     }
 }

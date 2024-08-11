@@ -11,6 +11,9 @@ public interface ObjVisitor {
     @Field.Getter("a.b")
     Object getB();
 
+    @Field.Setter("a.b")
+    void setB(Object value);
+
     @Field.Getter("a.b.c")
     Object getC();
 
