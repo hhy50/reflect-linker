@@ -4,6 +4,7 @@ import io.github.hhy.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -31,6 +32,7 @@ public class Runtime {
      */
     public static MethodHandle findGetter(MethodHandles.Lookup lookup, Object obj, String fieldName) throws IllegalAccessException {
         Field field = ReflectUtil.getField(obj.getClass(), fieldName);
+        if (field == null) return null;
         return lookup.unreflectGetter(field);
     }
 
