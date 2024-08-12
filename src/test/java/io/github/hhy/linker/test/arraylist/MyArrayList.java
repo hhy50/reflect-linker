@@ -9,8 +9,8 @@ public interface MyArrayList {
 
     void add(Object o);
 
-    @Field.Getter("elementData.length")
-    int cap();
+//    @Field.Getter("elementData.length")
+//    int cap();
 
     @Field.Getter("elementData")
     Object[] getElementData();

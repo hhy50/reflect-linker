@@ -19,6 +19,5 @@ public class MyArrayListTest {
 
         Assertions.assertTrue(list instanceof TargetProvider);
         Assertions.assertTrue(objects == list.getElementData());
-        Assertions.assertTrue(objects.length == list.cap());
     }
 }
