@@ -50,6 +50,10 @@ public class RuntimeField extends TargetPoint {
         return getFullName()+"_setter_mh";
     }
 
+    public String getLookupName() {
+        return getFullName()+"_lookup";
+    }
+
     public String getNullErrorVar() {
         if (prev == null || prev == TARGET) {
             return "null."+fieldName;

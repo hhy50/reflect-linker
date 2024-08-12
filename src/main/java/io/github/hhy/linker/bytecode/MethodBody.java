@@ -16,8 +16,8 @@ public class MethodBody {
 
     public int lvbIndex;
 
-    public MethodBody(MethodVisitor writer, Type methodType) {
-        this.writer = writer;
+    public MethodBody(MethodVisitor mv, Type methodType) {
+        this.writer = mv;
         this.methodType = methodType;
         this.lvbIndex = AsmUtil.calculateLvbOffset(false, methodType.getArgumentTypes());
     }

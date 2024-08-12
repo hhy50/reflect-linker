@@ -16,11 +16,11 @@ public class AsmUtil {
         return new InvokeClassImplBuilder(access, className, superName, interfaces, sign);
     }
 
-    public static void areturn(MethodVisitor writer, Type rType) {
+    public static void areturn(MethodVisitor mv, Type rType) {
         if (rType.getSort() == Type.VOID) {
-            writer.visitInsn(Opcodes.RETURN);
+            mv.visitInsn(Opcodes.RETURN);
         } else {
-            writer.visitInsn(rType.getOpcode(Opcodes.IRETURN));
+            mv.visitInsn(rType.getOpcode(Opcodes.IRETURN));
         }
     }
 
@@ -31,12 +31,12 @@ public class AsmUtil {
         return Type.getMethodType(header ? ("(" + split[0] + split[1]) : (split[0] + ")" + split[1]));
     }
 
-    public static void areturnNull(MethodVisitor writer, Type rType) {
-        writer.visitInsn(Opcodes.ACONST_NULL);
+    public static void areturnNull(MethodVisitor mv, Type rType) {
+        mv.visitInsn(Opcodes.ACONST_NULL);
         if (rType.getSort() == Type.VOID) {
-            writer.visitInsn(Opcodes.RETURN);
+            mv.visitInsn(Opcodes.RETURN);
         } else {
-            writer.visitInsn(rType.getOpcode(Opcodes.IRETURN));
+            mv.visitInsn(rType.getOpcode(Opcodes.IRETURN));
         }
     }
 

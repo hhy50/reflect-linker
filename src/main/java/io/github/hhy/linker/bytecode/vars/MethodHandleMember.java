@@ -22,8 +22,7 @@ public class MethodHandleMember extends Member {
     public ObjectVar invoke(MethodBody methodBody, ObjectVar... args) {
         ObjectVar objectVar = initResultVar(methodBody);
         methodBody.append(write -> {
-            write.visitVarInsn(Opcodes.ALOAD, 0);
-            write.visitFieldInsn(Opcodes.GETFIELD, owner, memberName, type);
+            load(methodBody); // mh
             for (ObjectVar arg : args) {
                 arg.load(methodBody);
             }

@@ -18,10 +18,10 @@ public class TargetFieldGetter extends Getter {
     @Override
     public ObjectVar invoke(MethodBody methodBody) {
         int targetIndex = methodBody.lvbIndex++;
-        methodBody.append(writer -> {
-            writer.visitVarInsn(Opcodes.ALOAD, 0);
-            writer.visitFieldInsn(Opcodes.GETFIELD, ClassUtil.className2path(implClass), "target", "Ljava/lang/Object;");
-            writer.visitVarInsn(Opcodes.ASTORE, targetIndex);
+        methodBody.append(mv -> {
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            mv.visitFieldInsn(Opcodes.GETFIELD, ClassUtil.className2path(implClass), "target", "Ljava/lang/Object;");
+            mv.visitVarInsn(Opcodes.ASTORE, targetIndex);
         });
         return new ObjectVar(targetIndex);
     }

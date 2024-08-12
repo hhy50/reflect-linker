@@ -36,34 +36,34 @@ public abstract class MethodHandle {
     protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append((mv) -> {
             Label endLabel = new Label();
-            Label breakLabel = new Label();
             Label initLabel = new Label();
 
             //  if (lookup == null || obj.getClass() != lookup.lookupClass())
-            mv.visitVarInsn(ALOAD, 0); // this
-            mv.visitFieldInsn(GETFIELD, lookupMember.owner, lookupMember.memberName, lookupMember.type); // lookupMember.lookup
+            lookupMember.load(methodBody); // this.lookup
             mv.visitJumpInsn(IFNULL, initLabel); // null
 
             mv.visitVarInsn(ALOAD, objVar.lvbIndex); // obj
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, lookupMember.owner, lookupMember.memberName, lookupMember.type);
+            lookupMember.load(methodBody); // this.lookup
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/invoke/MethodHandles$Lookup", "lookupClass", "()Ljava/lang/Class;", false);
-            mv.visitJumpInsn(IF_ACMPEQ, breakLabel); // !=
+            mv.visitJumpInsn(IF_ACMPEQ, endLabel); // !=
 
             mv.visitLabel(initLabel);
-            mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, objVar.lvbIndex); // obj
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false); // a.getClass()
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false); // obj.getClass()
             mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()
-            mv.visitFieldInsn(PUTFIELD, lookupMember.owner, lookupMember.memberName, "Ljava/lang/invoke/MethodHandles$Lookup;");
+            lookupMember.store(methodBody);
+
             mhReassign(methodBody, lookupMember, mhMember, objVar);
+            mv.visitLabel(endLabel);
+        });
+    }
 
-            mv.visitLabel(breakLabel);
-
+    protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
+        methodBody.append(mv -> {
+            Label endLabel = new Label();
             // if (mh == null)
-            mv.visitVarInsn(ALOAD, 0); // this
-            mv.visitFieldInsn(GETFIELD, mhMember.owner, mhMember.memberName, mhMember.type); // this.mh
+            mhMember.load(methodBody); // this.mh
             mv.visitJumpInsn(IFNONNULL, endLabel);
             mhReassign(methodBody, lookupMember, mhMember, objVar);
             mv.visitLabel(endLabel);

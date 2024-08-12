@@ -56,8 +56,8 @@ public abstract class VarInst {
      * @return
      */
     public void load(MethodBody methodBody) {
-        methodBody.append(writer -> {
-            writer.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ILOAD), lvbIndex);
+        methodBody.append(mv -> {
+            mv.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ILOAD), lvbIndex);
         });
     }
 
@@ -67,8 +67,8 @@ public abstract class VarInst {
      * @return
      */
     public void store(MethodBody methodBody) {
-        methodBody.append(writer -> {
-            writer.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ISTORE), lvbIndex);
+        methodBody.append(mv -> {
+            mv.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ISTORE), lvbIndex);
         });
     }
 }
