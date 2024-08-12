@@ -20,7 +20,7 @@ public class TargetFieldGetter extends Getter {
         int targetIndex = methodBody.lvbIndex++;
         methodBody.append(mv -> {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitFieldInsn(Opcodes.GETFIELD, ClassUtil.className2path(implClass), "target", "Ljava/lang/Object;");
+            mv.visitFieldInsn(Opcodes.GETFIELD, ClassUtil.className2path(implClass), RuntimeField.TARGET.getFullName(), "Ljava/lang/Object;");
             mv.visitVarInsn(Opcodes.ASTORE, targetIndex);
         });
         return new ObjectVar(targetIndex);
