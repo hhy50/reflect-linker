@@ -23,7 +23,7 @@ public class RuntimeFieldGetter extends Getter {
     public RuntimeFieldGetter(String implClass, RuntimeField field, Type methodType) {
         super(field);
         this.prev = field.getPrev();
-        this.methodType = methodType == null ? Type.getType("()Ljava/lang/Object;") : methodType;
+        this.methodType = methodType == null ? DEFAULT_METHOD_TYPE : methodType;
         this.methodRef = new MethodRef(ClassUtil.className2path(implClass), "get_"+field.getFullName(), this.methodType.getDescriptor());
     }
 
