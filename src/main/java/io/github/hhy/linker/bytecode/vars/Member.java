@@ -3,7 +3,7 @@ package io.github.hhy.linker.bytecode.vars;
 import io.github.hhy.linker.bytecode.MethodBody;
 import org.objectweb.asm.Opcodes;
 
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.*;
 
 public abstract class Member {
 
@@ -61,6 +61,14 @@ public abstract class Member {
                 objectVar.load(methodBody);
                 mv.visitFieldInsn(Opcodes.PUTFIELD, this.owner, this.memberName, this.type);
             }
+        });
+    }
+
+    public void getClassName(MethodBody methodBody) {
+        methodBody.append(mv -> {
+            load(methodBody);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Class", "getName", "()Ljava/lang/String;", false);
         });
     }
 }
