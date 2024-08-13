@@ -5,14 +5,14 @@ import io.github.hhy.linker.bytecode.getter.GetterWrapper;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.setter.SetterWrapper;
 import io.github.hhy.linker.define.MethodDefine;
-import io.github.hhy.linker.define.RuntimeField;
+import io.github.hhy.linker.define.FieldRef;
 import org.objectweb.asm.Type;
 
 
 public class BytecodeFactory {
 
-    public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, RuntimeField targetPoint) {
-        RuntimeField prev = targetPoint.getPrev();
+    public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef targetPoint) {
+        FieldRef prev = targetPoint.getPrev();
         while (prev != null) {
             prev.getter = classBuilder.defineGetter(prev, null);
             prev = prev.getPrev();
@@ -21,8 +21,8 @@ public class BytecodeFactory {
         return new GetterWrapper(getter, methodDefine.define);
     }
 
-    public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, RuntimeField targetPoint) {
-        RuntimeField prev = targetPoint.getPrev();
+    public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef targetPoint) {
+        FieldRef prev = targetPoint.getPrev();
         while (prev != null) {
             prev.getter = classBuilder.defineGetter(prev, null);
             prev = prev.getPrev();

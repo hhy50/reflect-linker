@@ -6,7 +6,7 @@ import io.github.hhy.linker.bytecode.MethodHandle;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.RuntimeField;
+import io.github.hhy.linker.define.FieldRef;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
@@ -14,11 +14,11 @@ public abstract class Getter extends MethodHandle {
 
     private boolean defined = false;
 
-    public final RuntimeField field;
+    public final FieldRef field;
 
     public LookupMember lookupMember;
 
-    public Getter(RuntimeField field) {
+    public Getter(FieldRef field) {
         this.field = field;
     }
 

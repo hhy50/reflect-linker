@@ -6,19 +6,19 @@ import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.MethodRef;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.RuntimeField;
+import io.github.hhy.linker.define.FieldRef;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class RuntimeFieldGetter extends Getter {
     private static final Type DEFAULT_METHOD_TYPE = Type.getType("()Ljava/lang/Object;");
-    public final RuntimeField prev;
+    public final FieldRef prev;
     public final Type methodType;
     public MethodHandleMember mhMember;
     private MethodRef methodRef;
 
-    public RuntimeFieldGetter(String implClass, RuntimeField field, Type methodType) {
+    public RuntimeFieldGetter(String implClass, FieldRef field, Type methodType) {
         super(field);
         this.prev = field.getPrev();
         this.methodType = methodType == null ? DEFAULT_METHOD_TYPE : methodType;
@@ -38,7 +38,7 @@ public class RuntimeFieldGetter extends Getter {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     ObjectVar objVar = prev.getter.invoke(methodBody);
 
-                    if (!lookupMember.memberName.equals(RuntimeField.TARGET.getLookupName())) {
+                    if (!lookupMember.memberName.equals(FieldRef.TARGET.getLookupName())) {
                         // 校验lookup和mh
                         Getter prev = this.prev.getter;
                         staticCheckLookup(methodBody, prev.lookupMember, this.lookupMember, objVar, prev.field);

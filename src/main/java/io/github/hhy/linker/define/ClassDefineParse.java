@@ -1,6 +1,10 @@
 package io.github.hhy.linker.define;
 
 import io.github.hhy.linker.annotations.Target;
+import io.github.hhy.linker.annotations.Typed;
+import io.github.hhy.linker.define.field.EarlyFieldRef;
+import io.github.hhy.linker.define.field.RuntimeFieldRef;
+import io.github.hhy.linker.define.field.VulnerableFieldRef;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
 import io.github.hhy.linker.token.Token;
@@ -9,37 +13,56 @@ import io.github.hhy.linker.token.Tokens;
 import io.github.hhy.linker.util.ClassUtil;
 import io.github.hhy.linker.util.Util;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ClassDefineParse {
 
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
-    public static <T> InvokeClassDefine parseClass(Class<T> define, Class<?> bindClass) throws ParseException {
-        return doParseClass(define, bindClass.getName());
+    public static InvokeClassDefine parseClass(Class<?> define, Class<?> bindClass) throws ParseException {
+        return doParseClass(define, bindClass);
     }
 
-    public static <T> InvokeClassDefine doParseClass(Class<T> define, String bindClass) throws ParseException {
+    public static InvokeClassDefine doParseClass(Class<?> define, Class<?> bindClass) throws ParseException {
         io.github.hhy.linker.annotations.Target.Bind annotation = define.getDeclaredAnnotation(Target.Bind.class);
         if (annotation == null || annotation.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
         } else if (ClassUtil.isAssignableFrom(bindClass, annotation.value())) {
             throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+bindClass+"]");
         }
+        Map<String, String> typeDefines = getTypeDefines(define);
         List<MethodDefine> methodDefines = new ArrayList<>();
         for (Method declaredMethod : define.getDeclaredMethods()) {
-            methodDefines.add(parseMethod(bindClass, declaredMethod, TOKEN_PARSER));
+            methodDefines.add(parseMethod(bindClass, declaredMethod, typeDefines));
         }
+
         InvokeClassDefine classDefine = new InvokeClassDefine();
         classDefine.define = define;
-        classDefine.bindClass = bindClass;
+        classDefine.bindClass = bindClass.getName();
         classDefine.methodDefines = methodDefines;
         return classDefine;
     }
 
-    public static MethodDefine parseMethod(String bindClass, Method method, TokenParser tokenParser) {
+    /**
+     * 从接口类上面获取提前定义好的类型
+     *
+     * @param define
+     * @param <T>
+     * @return
+     */
+    private static <T> Map<String, String> getTypeDefines(Class<T> define) {
+        Typed[] declaredAnnotations = define.getDeclaredAnnotationsByType(Typed.class);
+        return Arrays.stream(declaredAnnotations).collect(Collectors.toMap(Typed::name, Typed::type));
+    }
+
+    public static MethodDefine parseMethod(Class<?> bindClass, Method method, Map<String, String> typedDefines) {
         verify(method);
 
         String fieldExpr = null;
@@ -53,8 +76,8 @@ public class ClassDefineParse {
 
         MethodDefine methodDefine = new MethodDefine(method);
         if (fieldExpr != null) {
-            Tokens tokens = tokenParser.parse(fieldExpr);
-            methodDefine.targetPoint = parseFieldExpr(bindClass, tokens);
+            Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
+            methodDefine.fieldRef = parseFieldExpr(bindClass, tokens, typedDefines);
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn
                     = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
@@ -102,17 +125,38 @@ public class ClassDefineParse {
     }
 
     /**
-     * 解析字段 （运行时）
+     * 解析目标字段
      *
-     * @param first
      * @param tokens
-     * @return
+     * @param typedDefines
      */
-    private static RuntimeField parseFieldExpr(final String first, final Tokens tokens) {
-        RuntimeField field = RuntimeField.TARGET;
+    private static FieldRef parseFieldExpr(final Class<?> first, final Tokens tokens, Map<String, String> typedDefines) {
+        Class<?> currentType = first;
+        FieldRef lastField = new EarlyFieldRef(null, "target", currentType);
         for (Token token : tokens) {
-            field = new RuntimeField(field, token.value());
+            if (lastField instanceof RuntimeFieldRef) {
+                lastField = new RuntimeFieldRef(lastField, token.value());
+                continue;
+            }
+            Class<?> type = null;
+            Field field = token.getField(currentType);
+            if (field != null) {
+                type = field.getType();
+//                boolean isFinal = (type.getModifiers() & Modifier.FINAL) > 0;
+            } else if (typedDefines.containsKey(token.getName())) {
+                type = null;
+            }
+            if (token.arrayExpr() && !field.getType().isArray()) {
+                throw new VerifyException(" ,field "+currentType.getDeclaringClass()+"."+currentType.getName()+", not an array type");
+            }
+            if (token.mapExpr() && field.getType().isAssignableFrom(Map.class)) {
+                throw new VerifyException(" ,field "+currentType.getDeclaringClass()+"."+currentType.getName()+" not an array type");
+            }
+            lastField = isFinal ? new EarlyFieldRef(lastField, field) : new VulnerableFieldRef(lastField, field);
+            currentType = field.getType();
+            continue;
+            lastField = new RuntimeFieldRef(lastField, token.value());
         }
-        return field;
+        return lastField;
     }
 }

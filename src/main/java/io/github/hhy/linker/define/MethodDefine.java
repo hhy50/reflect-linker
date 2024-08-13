@@ -6,7 +6,11 @@ import io.github.hhy.linker.annotations.Field;
 import java.lang.reflect.Method;
 
 public class MethodDefine {
+
     public Method define;
+
+    public FieldRef fieldRef;
+
     public TargetPoint targetPoint;
 
     public MethodDefine(Method method) {
@@ -22,8 +26,8 @@ public class MethodDefine {
     }
 
     public String getName() {
-        if (targetPoint instanceof RuntimeField) {
-            return ((RuntimeField) targetPoint).getFullName();
+        if (targetPoint instanceof FieldRef) {
+            return ((FieldRef) targetPoint).getFullName();
         }
         return define.getName();
     }

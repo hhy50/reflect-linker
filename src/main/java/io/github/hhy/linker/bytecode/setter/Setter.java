@@ -9,7 +9,7 @@ import io.github.hhy.linker.bytecode.getter.Getter;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.RuntimeField;
+import io.github.hhy.linker.define.FieldRef;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -19,14 +19,14 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public class Setter extends MethodHandle {
     protected boolean defined = false;
-    protected final RuntimeField field;
-    public final RuntimeField prev;
+    protected final FieldRef field;
+    public final FieldRef prev;
     protected final Type methodType;
     protected LookupMember lookupMember;
     protected MethodHandleMember mhMember;
     protected MethodRef methodRef;
 
-    public Setter(String implClass, RuntimeField field, Type methodType) {
+    public Setter(String implClass, FieldRef field, Type methodType) {
         this.field = field;
         this.prev = field.getPrev();
         this.methodType = methodType;
@@ -47,7 +47,7 @@ public class Setter extends MethodHandle {
                     ObjectVar objVar = prev.getter.invoke(methodBody);
 
                     // 校验lookup和mh
-                    if (!lookupMember.memberName.equals(RuntimeField.TARGET.getLookupName())) {
+                    if (!lookupMember.memberName.equals(FieldRef.TARGET.getLookupName())) {
                         Getter prev = this.prev.getter;
                         staticCheckLookup(methodBody, prev.lookupMember, this.lookupMember, objVar, prev.field);
                         checkLookup(methodBody, lookupMember, mhMember, objVar);

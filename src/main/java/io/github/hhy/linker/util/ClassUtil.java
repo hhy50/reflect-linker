@@ -14,7 +14,7 @@ public class ClassUtil {
         return className.substring(className.lastIndexOf(".") + 1);
     }
 
-    public static boolean isAssignableFrom(String child, String parent) {
+    public static boolean isAssignableFrom(Class<?> child, String parent) {
         return false;
     }
 }

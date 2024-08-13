@@ -6,7 +6,7 @@ import io.github.hhy.linker.bytecode.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.bytecode.getter.TargetFieldGetter;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.vars.*;
-import io.github.hhy.linker.define.RuntimeField;
+import io.github.hhy.linker.define.FieldRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
@@ -31,8 +31,8 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     private void init() {
-        String targetLookup = RuntimeField.TARGET.getLookupName();
-        String targetGetter = RuntimeField.TARGET.getGetterName();
+        String targetLookup = FieldRef.TARGET.getLookupName();
+        String targetGetter = FieldRef.TARGET.getGetterName();
         this.defineField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, targetLookup, LookupVar.DESCRIPTOR, null, null);
         this.appendClinit(mv -> {
             // lookup = Runtime.lookup(className);
@@ -58,12 +58,12 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return this;
     }
 
-    public Getter defineGetter(RuntimeField field, Type methodType) {
+    public Getter defineGetter(FieldRef field, Type methodType) {
         String getterMhVarName = field.getGetterName();
         return getters.computeIfAbsent(getterMhVarName, key -> new RuntimeFieldGetter(getClassName(), field, methodType));
     }
 
-    public Setter defineSetter(RuntimeField field, Type methodType) {
+    public Setter defineSetter(FieldRef field, Type methodType) {
         String getterMhVarName = field.getGetterName();
         return setters.computeIfAbsent(getterMhVarName, key -> new Setter(getClassName(), field, methodType));
     }

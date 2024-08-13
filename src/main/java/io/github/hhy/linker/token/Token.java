@@ -1,5 +1,9 @@
 package io.github.hhy.linker.token;
 
+import io.github.hhy.linker.util.ReflectUtil;
+
+import java.lang.reflect.Field;
+
 public abstract class Token {
 
     public Token next;
@@ -25,5 +29,14 @@ public abstract class Token {
      */
     public boolean mapExpr() {
         return false;
+    }
+
+    public String getName() {
+
+    }
+
+    public Field getField(Class<?> owner) {
+        String fieldName = value();
+        return ReflectUtil.getField(owner, fieldName);
     }
 }

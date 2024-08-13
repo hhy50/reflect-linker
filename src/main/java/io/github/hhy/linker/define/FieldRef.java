@@ -6,9 +6,9 @@ import io.github.hhy.linker.bytecode.getter.Getter;
 /**
  * 用来表示目标字段
  */
-public class RuntimeField extends TargetPoint {
+public class FieldRef extends TargetPoint {
 
-    public static final RuntimeField TARGET = new RuntimeField(null, "target");
+    public static final FieldRef TARGET = new FieldRef(null, "target");
 
     /**
      * 字段名
@@ -23,14 +23,14 @@ public class RuntimeField extends TargetPoint {
     /**
      * 上一个字段， 比如 a.b, 那么 this=b, prev=a;
      */
-    private RuntimeField prev;
+    private FieldRef prev;
 
-    public RuntimeField(RuntimeField prev, String name) {
+    public FieldRef(FieldRef prev, String name) {
         this.prev = prev;
         this.fieldName = name;
     }
 
-    public RuntimeField getPrev() {
+    public FieldRef getPrev() {
         return prev;
     }
 

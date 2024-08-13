@@ -3,7 +3,7 @@ package io.github.hhy.linker.bytecode;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.RuntimeField;
+import io.github.hhy.linker.define.FieldRef;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
@@ -69,7 +69,7 @@ public abstract class MethodHandle {
      * @param objVar
      * @param field
      */
-    protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, ObjectVar objVar, RuntimeField field) {
+    protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, ObjectVar objVar, FieldRef field) {
         methodBody.append((mv) -> {
             // if (obj == null)
             objVar.load(methodBody);
