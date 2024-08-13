@@ -75,6 +75,9 @@ public abstract class MethodHandle {
             objVar.load(methodBody);
             mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // obj == null
 
+            lookupMember.load(methodBody);
+            mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // this.lookup != null
+
             prevLookupMember.lookupClass(methodBody); // prev_lookup.lookupClass()
             mv.visitLdcInsn(field.fieldName); // 'field'
             mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findLookup", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()

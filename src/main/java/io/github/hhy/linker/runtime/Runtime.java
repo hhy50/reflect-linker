@@ -30,32 +30,44 @@ public class Runtime {
 
     /**
      * 获取Getter
+     *
      * @param lookup
-     * @param clazz
      * @param fieldName
      * @return
      */
-    public static MethodHandle findGetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException {
+    public static MethodHandle findGetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
         Field field = ReflectUtil.getField(lookup.lookupClass(), fieldName);
-        if (field == null) return null;
+        if (field == null) {
+            throw new NoSuchFieldException("not found property '"+fieldName+"' in class '"+lookup.lookupClass().getName()+"'");
+        }
+        if (lookup.lookupClass() != field.getDeclaringClass() && !field.isAccessible()) {
+            lookup = lookup(field.getDeclaringClass());
+        }
         return lookup.unreflectGetter(field);
     }
 
 
     /**
      * 获取Setter
+     *
      * @param lookup
-     * @param clazz
      * @param fieldName
      * @return
      */
-    public static MethodHandle findSetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException {
+    public static MethodHandle findSetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
         Field field = ReflectUtil.getField(lookup.lookupClass(), fieldName);
+        if (field == null) {
+            throw new NoSuchFieldException("not found property '"+fieldName+"' in class "+lookup.lookupClass().getName());
+        }
+        if (lookup.lookupClass() != field.getDeclaringClass() && !field.isAccessible()) {
+            lookup = lookup(field.getDeclaringClass());
+        }
         return lookup.unreflectSetter(field);
     }
 
     /**
      * 获取 MethodHandle.method
+     *
      * @param obj
      * @param methodName
      * @return

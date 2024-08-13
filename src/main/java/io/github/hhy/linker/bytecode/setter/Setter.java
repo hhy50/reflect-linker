@@ -6,7 +6,6 @@ import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.MethodHandle;
 import io.github.hhy.linker.bytecode.MethodRef;
 import io.github.hhy.linker.bytecode.getter.Getter;
-import io.github.hhy.linker.bytecode.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;

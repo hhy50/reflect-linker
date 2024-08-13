@@ -10,6 +10,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import java.lang.reflect.Method;
+import java.util.Comparator;
+import java.util.List;
 
 
 public class ClassImplGenerator {
@@ -24,7 +26,9 @@ public class ClassImplGenerator {
                 .defineImplClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
                 .setTarget(target);
 
-        for (MethodDefine methodDefine : defineClass.methodDefines) {
+        List<MethodDefine> methodDefines = defineClass.methodDefines;
+        methodDefines.sort(Comparator.comparing(MethodDefine::getName));
+        for (MethodDefine methodDefine : methodDefines) {
             Method method = methodDefine.define;
             classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null, null)
                     .accept(mv -> {

@@ -1,5 +1,5 @@
 package io.github.hhy.linker.test.nest;
 
 public class A {
-    private B b;
+    private B b = new B();
 }

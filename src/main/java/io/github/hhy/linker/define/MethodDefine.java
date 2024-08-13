@@ -20,4 +20,11 @@ public class MethodDefine {
     public boolean hasGetter() {
         return define.getDeclaredAnnotation(Field.Getter.class) != null;
     }
+
+    public String getName() {
+        if (targetPoint instanceof RuntimeField) {
+            return ((RuntimeField) targetPoint).getFullName();
+        }
+        return define.getName();
+    }
 }
