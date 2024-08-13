@@ -10,7 +10,25 @@ public class StaticTest {
 
     @Test
     public void test1() throws LinkerException {
-        MyStaticClass linker = LinkerFactory.createLinker(MyStaticClass.class, new StaticClass());
-        Assertions.assertTrue(linker.getA() == StaticClass.getA());
+        MyStaticClass myObj = LinkerFactory.createLinker(MyStaticClass.class, new StaticClass());
+        Assertions.assertTrue(myObj.getA() == StaticClass.getA());
+        Assertions.assertTrue(myObj.getA() == StaticClass.getA());
+        Assertions.assertTrue(myObj.getA() == StaticClass.getA());
+        Assertions.assertTrue(myObj.getA() == StaticClass.getA());
+        Assertions.assertTrue(myObj.getA2().equals("1234"));
+        Assertions.assertTrue(myObj.getA2().equals("1234"));
+        Assertions.assertTrue(myObj.getA2().equals("1234"));
+        Assertions.assertTrue(myObj.getA2().equals("1234"));
+
+        String str = new String("1234");
+        myObj.setA(str);
+        myObj.setA(str);
+        myObj.setA(str);
+        myObj.setA(str);
+        myObj.setA(str);
+        Assertions.assertTrue(str == StaticClass.getA());
+        Assertions.assertTrue(str == StaticClass.getA());
+        Assertions.assertTrue(str == StaticClass.getA());
+        Assertions.assertTrue(str == StaticClass.getA());
     }
 }

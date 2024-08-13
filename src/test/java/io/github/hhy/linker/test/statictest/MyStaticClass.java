@@ -7,5 +7,11 @@ import io.github.hhy.linker.annotations.Target;
 public interface MyStaticClass {
 
     @Field.Getter("aaa")
-   public String getA();
+    public String getA();
+
+    @Field.Getter("aaa2")
+    public String getA2();
+
+    @Field.Setter("aaa")
+    public void setA(String aaa);
 }
