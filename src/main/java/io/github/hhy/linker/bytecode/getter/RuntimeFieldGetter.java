@@ -33,7 +33,7 @@ public class RuntimeFieldGetter extends Getter {
         // 先定义上一层字段的lookup
         this.lookupMember = classImplBuilder.defineLookup(this.prev.getLookupName());
         // 定义当前字段的mh
-        this.mhMember = classImplBuilder.defineMethodHandle(field.getGetterMhVarName(), Type.getMethodType("(Ljava/lang/Object;)"+methodType.getReturnType().getDescriptor()));
+        this.mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), Type.getMethodType("(Ljava/lang/Object;)"+methodType.getReturnType().getDescriptor()));
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodRef.methodName, methodRef.desc, null, "")
                 .accept(mv -> {

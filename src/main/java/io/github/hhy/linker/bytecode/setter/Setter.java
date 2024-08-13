@@ -37,7 +37,7 @@ public class Setter extends MethodHandle {
         // 先定义上一层字段的lookup
         this.lookupMember = classImplBuilder.defineLookup(this.prev.getLookupName());
         // 定义当前字段的 setter_mh
-        this.mhMember = classImplBuilder.defineMethodHandle(field.getSetterMhVarName(),
+        this.mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(),
                 AsmUtil.addArgsDesc(methodType, Type.getType("Ljava/lang/Object;"), true));
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodRef.methodName, methodRef.desc, null, "")
@@ -72,7 +72,7 @@ public class Setter extends MethodHandle {
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append(mv -> {
             lookupMember.load(methodBody); // this.lookup
-            mv.visitVarInsn(ALOAD, objVar.lvbIndex); // obj
+            objVar.loadClass(methodBody); // obj.class
             mv.visitLdcInsn(this.field.fieldName); // 'field'
             mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findSetter", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;", false);
             mhMember.store(methodBody);

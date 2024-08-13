@@ -6,6 +6,9 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+
 /**
  * VarInstance
  * 生成可以复用的字节码
@@ -69,6 +72,13 @@ public abstract class VarInst {
     public void store(MethodBody methodBody) {
         methodBody.append(mv -> {
             mv.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ISTORE), lvbIndex);
+        });
+    }
+
+    public void loadClass(MethodBody methodBody) {
+        methodBody.append(mv -> {
+            mv.visitVarInsn(ALOAD, lvbIndex); // obj
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
         });
     }
 }

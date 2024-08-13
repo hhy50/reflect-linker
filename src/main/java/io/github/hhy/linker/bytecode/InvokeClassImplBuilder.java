@@ -32,6 +32,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     private void init() {
         String targetLookup = RuntimeField.TARGET.getLookupName();
+        String targetGetter = RuntimeField.TARGET.getGetterName();
         this.defineField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, targetLookup, LookupVar.DESCRIPTOR, null, null);
         this.appendClinit(mv -> {
             // lookup = Runtime.lookup(className);
@@ -41,7 +42,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         });
         this.members.put(targetLookup, new LookupMember(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
                 implClassDesc, targetLookup));
-        this.getters.put(RuntimeField.TARGET.getGetterMhVarName(), new TargetFieldGetter(getClassName()));
+        this.getters.put(targetGetter, new TargetFieldGetter(getClassName()));
     }
 
     public InvokeClassImplBuilder setTarget(String bindTarget) {
@@ -58,12 +59,12 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     public Getter defineGetter(RuntimeField field, Type methodType) {
-        String getterMhVarName = field.getGetterMhVarName();
+        String getterMhVarName = field.getGetterName();
         return getters.computeIfAbsent(getterMhVarName, key -> new RuntimeFieldGetter(getClassName(), field, methodType));
     }
 
     public Setter defineSetter(RuntimeField field, Type methodType) {
-        String getterMhVarName = field.getGetterMhVarName();
+        String getterMhVarName = field.getGetterName();
         return setters.computeIfAbsent(getterMhVarName, key -> new Setter(getClassName(), field, methodType));
     }
 

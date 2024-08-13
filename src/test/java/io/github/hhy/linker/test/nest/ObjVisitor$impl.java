@@ -51,13 +51,14 @@ public class ObjVisitor$impl extends DefaultTargetProviderImpl implements ObjVis
     public Object get_target_$_a() throws Throwable {
         Object var1 = this.target;
         if (var1 == null) {
-//            if (this.target_$_a_getter_mh == null) {
-//                this.target_$_a_getter_mh = Runtime.findGetter(target_lookup, target_lookup.lookupClass(), "a");
-//            }
+            if (this.target_$_a_getter_mh == null) {
+                MethodHandle var2 = Runtime.findGetter(target_lookup, var1.getClass(), "a");
+                this.target_$_a_getter_mh = var2;
+            }
             throw new NullPointerException("null.a");
         } else {
             if (this.target_$_a_getter_mh == null) {
-                MethodHandle var2 = Runtime.findGetter(target_lookup, var1, "a");
+                MethodHandle var2 = Runtime.findGetter(target_lookup, var1.getClass(), "a");
                 this.target_$_a_getter_mh = var2;
             }
 
@@ -74,12 +75,12 @@ public class ObjVisitor$impl extends DefaultTargetProviderImpl implements ObjVis
             if (this.target_$_a_lookup == null || var2.getClass() != this.target_$_a_lookup.lookupClass()) {
                 MethodHandles.Lookup var3 = Runtime.lookup(var2.getClass());
                 this.target_$_a_lookup = var3;
-                MethodHandle var4 = Runtime.findSetter(this.target_$_a_lookup, var2, "b");
+                MethodHandle var4 = Runtime.findSetter(this.target_$_a_lookup, var2.getClass(), "b");
                 this.target_$_a_$_b_setter_mh = var4;
             }
 
             if (this.target_$_a_$_b_setter_mh == null) {
-                MethodHandle var5 = Runtime.findSetter(this.target_$_a_lookup, var2, "b");
+                MethodHandle var5 = Runtime.findSetter(this.target_$_a_lookup, var2.getClass(), "b");
                 this.target_$_a_$_b_setter_mh = var5;
             }
 
@@ -105,12 +106,12 @@ public class ObjVisitor$impl extends DefaultTargetProviderImpl implements ObjVis
             if (this.target_$_a_lookup == null || var1.getClass() != this.target_$_a_lookup.lookupClass()) {
                 MethodHandles.Lookup var2 = Runtime.lookup(var1.getClass());
                 this.target_$_a_lookup = var2;
-                MethodHandle var3 = Runtime.findGetter(this.target_$_a_lookup, var1, "b");
+                MethodHandle var3 = Runtime.findGetter(this.target_$_a_lookup, var1.getClass(), "b");
                 this.target_$_a_$_b_getter_mh = var3;
             }
 
             if (this.target_$_a_$_b_getter_mh == null) {
-                MethodHandle var4 = Runtime.findGetter(this.target_$_a_lookup, var1, "b");
+                MethodHandle var4 = Runtime.findGetter(this.target_$_a_lookup, var1.getClass(), "b");
                 this.target_$_a_$_b_getter_mh = var4;
             }
 
@@ -127,12 +128,12 @@ public class ObjVisitor$impl extends DefaultTargetProviderImpl implements ObjVis
             if (this.target_$_a_$_b_lookup == null || var1.getClass() != this.target_$_a_$_b_lookup.lookupClass()) {
                 MethodHandles.Lookup var2 = Runtime.lookup(var1.getClass());
                 this.target_$_a_$_b_lookup = var2;
-                MethodHandle var3 = Runtime.findGetter(this.target_$_a_$_b_lookup, var1, "c");
+                MethodHandle var3 = Runtime.findGetter(this.target_$_a_$_b_lookup, var1.getClass(), "c");
                 this.target_$_a_$_b_$_c_getter_mh = var3;
             }
 
             if (this.target_$_a_$_b_$_c_getter_mh == null) {
-                MethodHandle var4 = Runtime.findGetter(this.target_$_a_$_b_lookup, var1, "c");
+                MethodHandle var4 = Runtime.findGetter(this.target_$_a_$_b_lookup, var1.getClass(), "c");
                 this.target_$_a_$_b_$_c_getter_mh = var4;
             }
 
@@ -149,12 +150,12 @@ public class ObjVisitor$impl extends DefaultTargetProviderImpl implements ObjVis
             if (this.target_$_a_$_b_$_c_lookup == null || var1.getClass() != this.target_$_a_$_b_$_c_lookup.lookupClass()) {
                 MethodHandles.Lookup var2 = Runtime.lookup(var1.getClass());
                 this.target_$_a_$_b_$_c_lookup = var2;
-                MethodHandle var3 = Runtime.findGetter(this.target_$_a_$_b_$_c_lookup, var1, "str");
+                MethodHandle var3 = Runtime.findGetter(this.target_$_a_$_b_$_c_lookup, var1.getClass(), "str");
                 this.target_$_a_$_b_$_c_$_str_getter_mh = var3;
             }
 
             if (this.target_$_a_$_b_$_c_$_str_getter_mh == null) {
-                MethodHandle var4 = Runtime.findGetter(this.target_$_a_$_b_$_c_lookup, var1, "str");
+                MethodHandle var4 = Runtime.findGetter(this.target_$_a_$_b_$_c_lookup, var1.getClass(), "str");
                 this.target_$_a_$_b_$_c_$_str_getter_mh = var4;
             }
 
@@ -181,12 +182,12 @@ public class ObjVisitor$impl extends DefaultTargetProviderImpl implements ObjVis
             if (this.target_$_a_lookup == null || var1.getClass() != this.target_$_a_lookup.lookupClass()) {
                 MethodHandles.Lookup var2 = Runtime.lookup(var1.getClass());
                 this.target_$_a_lookup = var2;
-                MethodHandle var3 = Runtime.findGetter(this.target_$_a_lookup, var1, "c");
+                MethodHandle var3 = Runtime.findGetter(this.target_$_a_lookup, var1.getClass(), "c");
                 this.target_$_a_$_c_getter_mh = var3;
             }
 
             if (this.target_$_a_$_c_getter_mh == null) {
-                MethodHandle var4 = Runtime.findGetter(this.target_$_a_lookup, var1, "c");
+                MethodHandle var4 = Runtime.findGetter(this.target_$_a_lookup, var1.getClass(), "c");
                 this.target_$_a_$_c_getter_mh = var4;
             }
 

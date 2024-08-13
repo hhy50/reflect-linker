@@ -42,11 +42,11 @@ public class RuntimeField extends TargetPoint {
         return prefix+fieldName;
     }
 
-    public String getGetterMhVarName() {
+    public String getGetterName() {
         return getFullName()+"_getter_mh";
     }
 
-    public String getSetterMhVarName() {
+    public String getSetterName() {
         return getFullName()+"_setter_mh";
     }
 

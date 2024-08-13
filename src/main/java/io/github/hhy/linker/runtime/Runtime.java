@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 
 public class Runtime {
 
-    public static MethodHandles.Lookup lookup(Class callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {
             if (constructor.getParameterCount() == 2) {
                 constructor.setAccessible(true);
@@ -29,8 +29,8 @@ public class Runtime {
      * @param fieldName
      * @return
      */
-    public static MethodHandle findGetter(MethodHandles.Lookup lookup, Object obj, String fieldName) throws IllegalAccessException {
-        Field field = ReflectUtil.getField(obj.getClass(), fieldName);
+    public static MethodHandle findGetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException {
+        Field field = ReflectUtil.getField(clazz, fieldName);
         if (field == null) return null;
         return lookup.unreflectGetter(field);
     }
@@ -42,8 +42,8 @@ public class Runtime {
      * @param fieldName
      * @return
      */
-    public static MethodHandle findSetter(MethodHandles.Lookup lookup, Object obj, String fieldName) throws IllegalAccessException {
-        Field field = ReflectUtil.getField(obj.getClass(), fieldName);
+    public static MethodHandle findSetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException {
+        Field field = ReflectUtil.getField(clazz, fieldName);
         return lookup.unreflectSetter(field);
     }
 
