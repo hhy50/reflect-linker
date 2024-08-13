@@ -5,6 +5,8 @@ import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.MethodHandle;
 import io.github.hhy.linker.bytecode.MethodRef;
+import io.github.hhy.linker.bytecode.getter.Getter;
+import io.github.hhy.linker.bytecode.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
@@ -13,7 +15,8 @@ import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public class Setter extends MethodHandle {
     protected boolean defined = false;
@@ -37,25 +40,25 @@ public class Setter extends MethodHandle {
         // 先定义上一层字段的lookup
         this.lookupMember = classImplBuilder.defineLookup(this.prev.getLookupName());
         // 定义当前字段的 setter_mh
-        this.mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(),
-                AsmUtil.addArgsDesc(methodType, Type.getType("Ljava/lang/Object;"), true));
+        this.mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(), methodType);
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodRef.methodName, methodRef.desc, null, "")
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     ObjectVar objVar = prev.getter.invoke(methodBody);
-//                    objVar.checkNullPointer(methodBody, field.getNullErrorVar());
+
                     // 校验lookup和mh
                     if (!lookupMember.memberName.equals(RuntimeField.TARGET.getLookupName())) {
-//                        staticCheckLookup(methodBody, lookupMember, objVar);
+                        Getter prev = this.prev.getter;
+                        staticCheckLookup(methodBody, prev.lookupMember, this.lookupMember, objVar, prev.field);
                         checkLookup(methodBody, lookupMember, mhMember, objVar);
                     }
                     checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
+
                     // mh.invoke(obj, value)
                     mhMember.invoke(methodBody, objVar, methodBody.getArg(0));
                     AsmUtil.areturn(mv, Type.VOID_TYPE);
                 });
-
         this.defined = true;
     }
 
@@ -73,9 +76,8 @@ public class Setter extends MethodHandle {
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append(mv -> {
             lookupMember.load(methodBody); // this.lookup
-            objVar.thisClass(methodBody); // obj.class
             mv.visitLdcInsn(this.field.fieldName); // 'field'
-            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findSetter", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;", false);
+            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findSetter", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;", false);
             mhMember.store(methodBody);
         });
     }

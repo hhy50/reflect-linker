@@ -53,11 +53,4 @@ public class RuntimeField extends TargetPoint {
     public String getLookupName() {
         return getFullName()+"_lookup";
     }
-
-    public String getNullErrorVar() {
-        if (prev == null || prev == TARGET) {
-            return "null."+fieldName;
-        }
-        return prev.fieldName+"[null]."+fieldName;
-    }
-}
+ }

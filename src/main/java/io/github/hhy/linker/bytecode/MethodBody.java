@@ -2,6 +2,7 @@ package io.github.hhy.linker.bytecode;
 
 import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -15,6 +16,11 @@ public class MethodBody {
     private Type methodType;
 
     public int lvbIndex;
+
+    // ============================ Labels ===================================
+    private Label checkLookupLabel;
+    private Label lookupReassignLabel;
+    private Label checkMhLabel;
 
     public MethodBody(MethodVisitor mv, Type methodType) {
         this.writer = mv;
@@ -46,5 +52,26 @@ public class MethodBody {
         for (int i = 0; i < methodType.getArgumentTypes().length; i++) {
             getArg(i).load(this);
         }
+    }
+
+    public Label getCheckLookupLabel() {
+        if (checkLookupLabel == null) {
+            checkLookupLabel = new Label();
+        }
+        return checkLookupLabel;
+    }
+
+    public Label getLookupAssignLabel() {
+        if (lookupReassignLabel == null) {
+            lookupReassignLabel = new Label();
+        }
+        return lookupReassignLabel;
+    }
+
+    public Label getCheckMhLabel() {
+        if (checkMhLabel == null) {
+            checkMhLabel = new Label();
+        }
+        return checkMhLabel;
     }
 }

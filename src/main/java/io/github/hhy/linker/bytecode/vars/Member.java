@@ -50,10 +50,10 @@ public abstract class Member {
 
     public void store(MethodBody methodBody) {
         methodBody.append(mv -> {
-            // 临时变量
             if ((access & Opcodes.ACC_STATIC) > 0) {
                 mv.visitFieldInsn(Opcodes.PUTSTATIC, this.owner, this.memberName, this.type);
             } else {
+                // 临时变量
                 ObjectVar objectVar = new ObjectVar(methodBody.lvbIndex++, this.type);
                 objectVar.store(methodBody);
 

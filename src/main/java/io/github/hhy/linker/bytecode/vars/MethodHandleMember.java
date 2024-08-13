@@ -1,6 +1,7 @@
 package io.github.hhy.linker.bytecode.vars;
 
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.bytecode.MethodBody;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -26,8 +27,8 @@ public class MethodHandleMember extends Member {
             for (ObjectVar arg : args) {
                 arg.load(methodBody);
             }
-            write.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor(), false);
-            if (objectVar != null)  objectVar.store(methodBody);
+            write.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor(), false);
+            if (objectVar != null) objectVar.store(methodBody);
         });
         return objectVar;
     }

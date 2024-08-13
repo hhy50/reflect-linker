@@ -1,5 +1,6 @@
 package io.github.hhy.linker.bytecode.getter;
 
+import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.RuntimeField;
@@ -13,6 +14,11 @@ public class TargetFieldGetter extends Getter {
     public TargetFieldGetter(String implClass) {
         super(RuntimeField.TARGET);
         this.implClass = implClass;
+    }
+
+    @Override
+    protected void define0(InvokeClassImplBuilder classImplBuilder) {
+        this.lookupMember = classImplBuilder.defineLookup(RuntimeField.TARGET.getLookupName());
     }
 
     @Override

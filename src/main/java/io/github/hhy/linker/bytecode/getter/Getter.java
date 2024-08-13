@@ -14,7 +14,9 @@ public abstract class Getter extends MethodHandle {
 
     private boolean defined = false;
 
-    protected final RuntimeField field;
+    public final RuntimeField field;
+
+    public LookupMember lookupMember;
 
     public Getter(RuntimeField field) {
         this.field = field;
@@ -34,9 +36,8 @@ public abstract class Getter extends MethodHandle {
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append(mv -> {
             lookupMember.load(methodBody); // this.lookup
-            objVar.thisClass(methodBody); // obj.class
             mv.visitLdcInsn(this.field.fieldName); // 'field'
-            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findGetter", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;", false);
+            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findGetter", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;", false);
             mhMember.store(methodBody);
         });
     }

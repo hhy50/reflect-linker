@@ -3,7 +3,9 @@ package io.github.hhy.linker.bytecode;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.define.RuntimeField;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -25,7 +27,7 @@ public abstract class MethodHandle {
      * <pre>
      * if (lookup == null || obj.getClass() != lookup.lookupClass()) {
      *      lookup = Runtime.lookup(obj.getClass());
-     *      mh = Runtime.findGetter(lookup, obj, "field"); // mhReassign()
+     *      mh = Runtime.findGetter(lookup, lookup.lookupClass(), "field"); // mhReassign()
      * }
      * </pre>
      *
@@ -35,31 +37,57 @@ public abstract class MethodHandle {
      */
     protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append((mv) -> {
-            Label endLabel = new Label();
-            Label initLabel = new Label();
+            mv.visitLabel(methodBody.getCheckLookupLabel());
 
             //  if (lookup == null || obj.getClass() != lookup.lookupClass())
             lookupMember.load(methodBody); // this.lookup
-            mv.visitJumpInsn(IFNULL, initLabel); // this.lookup == null
+            mv.visitJumpInsn(IFNULL, methodBody.getLookupAssignLabel()); // this.lookup == null
 
-            objVar.thisClass(methodBody);  // obj.class
-            lookupMember.load(methodBody); // this.lookup
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/invoke/MethodHandles$Lookup", "lookupClass", "()Ljava/lang/Class;", false);
-            mv.visitJumpInsn(IF_ACMPEQ, endLabel); // obj.class != this.lookup.lookupClass()
+            objVar.getClass(methodBody);  // obj.class
+            lookupMember.lookupClass(methodBody);
+            mv.visitJumpInsn(IF_ACMPEQ, methodBody.getCheckMhLabel()); // obj.class != this.lookup.lookupClass()
 
-            mv.visitLabel(initLabel);
-            objVar.thisClass(methodBody);  // obj.class
+            mv.visitLabel(methodBody.getLookupAssignLabel());
+            objVar.getClass(methodBody);  // obj.class
             mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()
             lookupMember.store(methodBody);
 
             mhReassign(methodBody, lookupMember, mhMember, objVar);
-            mv.visitLabel(endLabel);
+        });
+    }
+
+    /**
+     * 通过一级的class获取字段, 主要是为了静态字段的访问
+     * <pre>
+     * if (obj == null) {
+     *      lookup = Runtime.findLookup(prev_lookup.lookupClass(), 'field');
+     * }
+     * </pre>
+     *
+     * @param methodBody
+     * @param lookupMember
+     * @param objVar
+     * @param field
+     */
+    protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, ObjectVar objVar, RuntimeField field) {
+        methodBody.append((mv) -> {
+            // if (obj == null)
+            objVar.load(methodBody);
+            mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // obj == null
+
+            prevLookupMember.lookupClass(methodBody); // prev_lookup.lookupClass()
+            mv.visitLdcInsn(field.fieldName); // 'field'
+            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findLookup", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()
+            lookupMember.store(methodBody);
+            mv.visitJumpInsn(Opcodes.GOTO, methodBody.getCheckMhLabel());
         });
     }
 
     protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append(mv -> {
             Label endLabel = new Label();
+
+            mv.visitLabel(methodBody.getCheckMhLabel());
             // if (mh == null)
             mhMember.load(methodBody); // this.mh
             mv.visitJumpInsn(IFNONNULL, endLabel);

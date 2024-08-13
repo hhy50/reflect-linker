@@ -35,8 +35,8 @@ public class Runtime {
      * @param fieldName
      * @return
      */
-    public static MethodHandle findGetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException {
-        Field field = ReflectUtil.getField(clazz, fieldName);
+    public static MethodHandle findGetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException {
+        Field field = ReflectUtil.getField(lookup.lookupClass(), fieldName);
         if (field == null) return null;
         return lookup.unreflectGetter(field);
     }
@@ -49,8 +49,8 @@ public class Runtime {
      * @param fieldName
      * @return
      */
-    public static MethodHandle findSetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException {
-        Field field = ReflectUtil.getField(clazz, fieldName);
+    public static MethodHandle findSetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException {
+        Field field = ReflectUtil.getField(lookup.lookupClass(), fieldName);
         return lookup.unreflectSetter(field);
     }
 
