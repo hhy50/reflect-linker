@@ -42,13 +42,13 @@ public abstract class MethodHandle {
             lookupMember.load(methodBody); // this.lookup
             mv.visitJumpInsn(IFNULL, initLabel); // this.lookup == null
 
-            objVar.loadClass(methodBody);  // obj.class
+            objVar.thisClass(methodBody);  // obj.class
             lookupMember.load(methodBody); // this.lookup
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/invoke/MethodHandles$Lookup", "lookupClass", "()Ljava/lang/Class;", false);
             mv.visitJumpInsn(IF_ACMPEQ, endLabel); // obj.class != this.lookup.lookupClass()
 
             mv.visitLabel(initLabel);
-            objVar.loadClass(methodBody);  // obj.class
+            objVar.thisClass(methodBody);  // obj.class
             mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()
             lookupMember.store(methodBody);
 

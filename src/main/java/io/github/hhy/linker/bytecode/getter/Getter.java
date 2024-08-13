@@ -34,7 +34,7 @@ public abstract class Getter extends MethodHandle {
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append(mv -> {
             lookupMember.load(methodBody); // this.lookup
-            objVar.loadClass(methodBody); // obj.class
+            objVar.thisClass(methodBody); // obj.class
             mv.visitLdcInsn(this.field.fieldName); // 'field'
             mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findGetter", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;", false);
             mhMember.store(methodBody);

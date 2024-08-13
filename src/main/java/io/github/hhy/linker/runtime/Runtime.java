@@ -23,9 +23,15 @@ public class Runtime {
         return null;
     }
 
+    public static MethodHandles.Lookup findLookup(Class<?> clazz, String fieldName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        Field field = ReflectUtil.getField(clazz, fieldName);
+        return lookup(field.getType());
+    }
+
     /**
      * 获取Getter
-     * @param obj
+     * @param lookup
+     * @param clazz
      * @param fieldName
      * @return
      */
@@ -38,7 +44,8 @@ public class Runtime {
 
     /**
      * 获取Setter
-     * @param obj
+     * @param lookup
+     * @param clazz
      * @param fieldName
      * @return
      */

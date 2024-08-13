@@ -75,7 +75,7 @@ public abstract class VarInst {
         });
     }
 
-    public void loadClass(MethodBody methodBody) {
+    public void thisClass(MethodBody methodBody) {
         methodBody.append(mv -> {
             mv.visitVarInsn(ALOAD, lvbIndex); // obj
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);

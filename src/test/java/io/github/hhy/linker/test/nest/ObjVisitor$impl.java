@@ -51,26 +51,30 @@ public class ObjVisitor$impl extends DefaultTargetProviderImpl implements ObjVis
     public Object get_target_$_a() throws Throwable {
         Object var1 = this.target;
         if (var1 == null) {
-            if (this.target_$_a_getter_mh == null) {
-                MethodHandle var2 = Runtime.findGetter(target_lookup, var1.getClass(), "a");
-                this.target_$_a_getter_mh = var2;
+            MethodHandle var2 = Runtime.findGetter(target_lookup, target_lookup.lookupClass(), "a");
+            if (var2 == null) {
+                throw new NoSuchFieldException("not found property['a'] in class ''");
             }
-            throw new NullPointerException("null.a");
+            this.target_$_a_getter_mh = var2;
         } else {
             if (this.target_$_a_getter_mh == null) {
                 MethodHandle var2 = Runtime.findGetter(target_lookup, var1.getClass(), "a");
+                if (var2 == null) {
+                    throw new NoSuchFieldException("not found property['a'] in class ''");
+                }
                 this.target_$_a_getter_mh = var2;
             }
-
-            Object var3 = this.target_$_a_getter_mh.invoke(var1);
-            return var3;
         }
+
+        Object var3 = this.target_$_a_getter_mh.invoke(var1);
+        return var3;
     }
 
     public void set_target_$_a_$_b(Object var1) throws Throwable {
         Object var2 = this.get_target_$_a();
         if (var2 == null) {
-            throw new NullPointerException("a[null].b");
+            MethodHandles.Lookup var3 = Runtime.findLookup(target_lookup.lookupClass(), "a");
+            this.target_$_a_lookup = var3;
         } else {
             if (this.target_$_a_lookup == null || var2.getClass() != this.target_$_a_lookup.lookupClass()) {
                 MethodHandles.Lookup var3 = Runtime.lookup(var2.getClass());
@@ -78,14 +82,12 @@ public class ObjVisitor$impl extends DefaultTargetProviderImpl implements ObjVis
                 MethodHandle var4 = Runtime.findSetter(this.target_$_a_lookup, var2.getClass(), "b");
                 this.target_$_a_$_b_setter_mh = var4;
             }
-
-            if (this.target_$_a_$_b_setter_mh == null) {
-                MethodHandle var5 = Runtime.findSetter(this.target_$_a_lookup, var2.getClass(), "b");
-                this.target_$_a_$_b_setter_mh = var5;
-            }
-
-            this.target_$_a_$_b_setter_mh.invoke(var2, var1);
         }
+        if (this.target_$_a_$_b_setter_mh == null) {
+            MethodHandle var5 = Runtime.findSetter(this.target_$_a_lookup, var2.getClass(), "b");
+            this.target_$_a_$_b_setter_mh = var5;
+        }
+        this.target_$_a_$_b_setter_mh.invoke(var2, var1);
     }
 
     public String getStr() {

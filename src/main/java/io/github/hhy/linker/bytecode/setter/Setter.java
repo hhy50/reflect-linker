@@ -19,16 +19,16 @@ public class Setter extends MethodHandle {
     protected boolean defined = false;
     protected final RuntimeField field;
     public final RuntimeField prev;
-    private final Type methodType;
-    private LookupMember lookupMember;
-    private MethodHandleMember mhMember;
-    private MethodRef methodRef;
+    protected final Type methodType;
+    protected LookupMember lookupMember;
+    protected MethodHandleMember mhMember;
+    protected MethodRef methodRef;
 
     public Setter(String implClass, RuntimeField field, Type methodType) {
         this.field = field;
         this.prev = field.getPrev();
         this.methodType = methodType;
-        this.methodRef = new MethodRef(ClassUtil.className2path(implClass), "set_"+field.getFullName(), methodType.getDescriptor());
+        this.methodRef = new MethodRef(ClassUtil.className2path(implClass), "set_" + field.getFullName(), methodType.getDescriptor());
     }
 
     public final void define(InvokeClassImplBuilder classImplBuilder) {
@@ -44,9 +44,10 @@ public class Setter extends MethodHandle {
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     ObjectVar objVar = prev.getter.invoke(methodBody);
-                    objVar.checkNullPointer(methodBody, field.getNullErrorVar());
+//                    objVar.checkNullPointer(methodBody, field.getNullErrorVar());
                     // 校验lookup和mh
                     if (!lookupMember.memberName.equals(RuntimeField.TARGET.getLookupName())) {
+//                        staticCheckLookup(methodBody, lookupMember, objVar);
                         checkLookup(methodBody, lookupMember, mhMember, objVar);
                     }
                     checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
@@ -72,7 +73,7 @@ public class Setter extends MethodHandle {
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
         methodBody.append(mv -> {
             lookupMember.load(methodBody); // this.lookup
-            objVar.loadClass(methodBody); // obj.class
+            objVar.thisClass(methodBody); // obj.class
             mv.visitLdcInsn(this.field.fieldName); // 'field'
             mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findSetter", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;", false);
             mhMember.store(methodBody);
