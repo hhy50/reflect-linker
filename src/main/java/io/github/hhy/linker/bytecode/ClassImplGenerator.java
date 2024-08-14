@@ -4,7 +4,6 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.BytecodeClassLoader;
 import io.github.hhy.linker.define.InvokeClassDefine;
 import io.github.hhy.linker.define.MethodDefine;
-import io.github.hhy.linker.define.FieldRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
@@ -52,9 +51,9 @@ public class ClassImplGenerator {
     private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodVisitor mv, MethodDefine methodDefine) {
         MethodHandle mh = null;
         if (methodDefine.hasGetter()) {
-            mh = BytecodeFactory.generateGetter(classBuilder, methodDefine, (FieldRef) methodDefine.targetPoint);
+            mh = BytecodeFactory.generateGetter(classBuilder, methodDefine, methodDefine.fieldRef);
         } else if (methodDefine.hasSetter()) {
-            mh = BytecodeFactory.generateSetter(classBuilder, methodDefine, (FieldRef) methodDefine.targetPoint);
+            mh = BytecodeFactory.generateSetter(classBuilder, methodDefine, methodDefine.fieldRef);
         } else {
             AsmUtil.throwNoSuchMethod(mv, methodDefine.define.getName());
         }

@@ -1,12 +1,14 @@
 package io.github.hhy.linker.bytecode;
 
 import io.github.hhy.linker.asm.AsmClassBuilder;
+import io.github.hhy.linker.bytecode.getter.EarlyFieldGetter;
 import io.github.hhy.linker.bytecode.getter.Getter;
 import io.github.hhy.linker.bytecode.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.bytecode.getter.TargetFieldGetter;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.vars.*;
 import io.github.hhy.linker.define.FieldRef;
+import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
@@ -60,7 +62,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     public Getter defineGetter(FieldRef field, Type methodType) {
         String getterMhVarName = field.getGetterName();
-        return getters.computeIfAbsent(getterMhVarName, key -> new RuntimeFieldGetter(getClassName(), field, methodType));
+        return getters.computeIfAbsent(getterMhVarName, key -> {
+            if (field.getPrev() instanceof EarlyFieldRef) {
+                return new EarlyFieldGetter(getClassName(), (EarlyFieldRef) field, methodType);
+            } else {
+                return new RuntimeFieldGetter(getClassName(), field, methodType);
+            }
+        });
     }
 
     public Setter defineSetter(FieldRef field, Type methodType) {
@@ -71,6 +79,19 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public LookupMember defineLookup(String lookupMemberName) {
         if (!members.containsKey(lookupMemberName)) {
             super.defineField(Opcodes.ACC_PUBLIC, lookupMemberName, LookupVar.DESCRIPTOR, null, null);
+            this.members.put(lookupMemberName, new LookupMember(implClassDesc, lookupMemberName));
+        }
+        return (LookupMember) members.get(lookupMemberName);
+    }
+
+    public LookupMember defineLookup(FieldRef fieldRef) {
+        String lookupMemberName = fieldRef.getLookupName();
+        if (!members.containsKey(lookupMemberName)) {
+            int access = Opcodes.ACC_PUBLIC;
+            if (fieldRef instanceof EarlyFieldRef) {
+                access |= Opcodes.ACC_STATIC;
+            }
+            super.defineField(access, lookupMemberName, LookupVar.DESCRIPTOR, null, null);
             this.members.put(lookupMemberName, new LookupMember(implClassDesc, lookupMemberName));
         }
         return (LookupMember) members.get(lookupMemberName);

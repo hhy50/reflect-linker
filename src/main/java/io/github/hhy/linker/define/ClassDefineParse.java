@@ -37,10 +37,12 @@ public class ClassDefineParse {
         } else if (ClassUtil.isAssignableFrom(bindClass, annotation.value())) {
             throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+bindClass+"]");
         }
+
         Map<String, String> typeDefines = getTypeDefines(define);
+        EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, "target", bindClass);
         List<MethodDefine> methodDefines = new ArrayList<>();
         for (Method declaredMethod : define.getDeclaredMethods()) {
-            methodDefines.add(parseMethod(bindClass, declaredMethod, typeDefines));
+            methodDefines.add(parseMethod(declaredMethod, targetFieldRef, typeDefines));
         }
 
         InvokeClassDefine classDefine = new InvokeClassDefine();
@@ -62,7 +64,13 @@ public class ClassDefineParse {
         return Arrays.stream(declaredAnnotations).collect(Collectors.toMap(Typed::name, Typed::type));
     }
 
-    public static MethodDefine parseMethod(Class<?> bindClass, Method method, Map<String, String> typedDefines) {
+    /**
+     * @param method
+     * @param targetFieldRef
+     * @param typedDefines
+     * @return
+     */
+    public static MethodDefine parseMethod(Method method, EarlyFieldRef targetFieldRef, Map<String, String> typedDefines) {
         verify(method);
 
         String fieldExpr = null;
@@ -77,7 +85,7 @@ public class ClassDefineParse {
         MethodDefine methodDefine = new MethodDefine(method);
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
-            methodDefine.fieldRef = parseFieldExpr(bindClass, tokens, typedDefines);
+            methodDefine.fieldRef = parseFieldExpr(targetFieldRef, tokens, typedDefines);
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn
                     = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
@@ -127,35 +135,35 @@ public class ClassDefineParse {
     /**
      * 解析目标字段
      *
+     * @param targetFieldRef
      * @param tokens
      * @param typedDefines
+     * @return
      */
-    private static FieldRef parseFieldExpr(final Class<?> first, final Tokens tokens, Map<String, String> typedDefines) {
-        Class<?> currentType = first;
-        FieldRef lastField = new EarlyFieldRef(null, "target", currentType);
+    private static FieldRef parseFieldExpr(final EarlyFieldRef targetFieldRef, final Tokens tokens, Map<String, String> typedDefines) {
+        Class<?> currentType = targetFieldRef.getType();
+        FieldRef lastField = targetFieldRef;
         for (Token token : tokens) {
             if (lastField instanceof RuntimeFieldRef) {
                 lastField = new RuntimeFieldRef(lastField, token.value());
                 continue;
             }
-            Class<?> type = null;
-            Field field = token.getField(currentType);
-            if (field != null) {
-                type = field.getType();
-//                boolean isFinal = (type.getModifiers() & Modifier.FINAL) > 0;
-            } else if (typedDefines.containsKey(token.getName())) {
-                type = null;
+            String fieldRef = lastField.getFieldRef(token.value());
+            String type = typedDefines.get(fieldRef);
+            if (type == null) {
+                type = typedDefines.get(token.value());
             }
-            if (token.arrayExpr() && !field.getType().isArray()) {
-                throw new VerifyException(" ,field "+currentType.getDeclaringClass()+"."+currentType.getName()+", not an array type");
+            if (type != null) {
+                lastField = new EarlyFieldRef(lastField, token.value(), type);
+            } else {
+                Field field = token.getField(currentType);
+                if (field == null) {
+                    lastField = new RuntimeFieldRef(lastField, token.value());
+                    continue;
+                }
+                boolean isFinal = Modifier.isFinal(field.getType().getModifiers());
+                lastField = isFinal ? new EarlyFieldRef(lastField, field) : new RuntimeFieldRef(lastField, field.getName());
             }
-            if (token.mapExpr() && field.getType().isAssignableFrom(Map.class)) {
-                throw new VerifyException(" ,field "+currentType.getDeclaringClass()+"."+currentType.getName()+" not an array type");
-            }
-            lastField = isFinal ? new EarlyFieldRef(lastField, field) : new VulnerableFieldRef(lastField, field);
-            currentType = field.getType();
-            continue;
-            lastField = new RuntimeFieldRef(lastField, token.value());
         }
         return lastField;
     }

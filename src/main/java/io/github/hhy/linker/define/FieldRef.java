@@ -53,4 +53,11 @@ public class FieldRef extends TargetPoint {
     public String getLookupName() {
         return getFullName()+"_lookup";
     }
- }
+
+    public String getFieldRef(String fieldName) {
+        if (prev == null) {
+            return fieldName;
+        }
+        return prev.getFieldRef(this.fieldName)+"."+fieldName;
+    }
+}

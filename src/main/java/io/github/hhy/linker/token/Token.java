@@ -31,10 +31,6 @@ public abstract class Token {
         return false;
     }
 
-    public String getName() {
-
-    }
-
     public Field getField(Class<?> owner) {
         String fieldName = value();
         return ReflectUtil.getField(owner, fieldName);
