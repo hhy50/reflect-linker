@@ -1,8 +1,6 @@
 package io.github.hhy.linker.define.field;
 
 
-import io.github.hhy.linker.define.FieldRef;
-
 import java.lang.reflect.Field;
 
 /**

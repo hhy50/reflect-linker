@@ -41,7 +41,7 @@ public class ClassImplGenerator {
         }
         byte[] bytecode = classBuilder.end().toBytecode();
         try {
-            Files.write(FileSystems.getDefault().getPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\build\\"+ClassUtil.toSimpleName(implClassName)+".class"), bytecode);
+            Files.write(FileSystems.getDefault().getPath("/Users/hanhaiyang/IdeaProjects/reflect-linker/build/"+ ClassUtil.toSimpleName(implClassName)+".class"), bytecode);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,7 +1,8 @@
 package io.github.hhy.linker.define.field;
 
-import io.github.hhy.linker.define.FieldRef;
-
+/**
+ * 运行时字段, 在运行时才能拿到真正的类型
+ */
 public class RuntimeFieldRef extends FieldRef {
 
     public RuntimeFieldRef(FieldRef prev, String name) {

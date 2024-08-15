@@ -1,16 +1,14 @@
 package io.github.hhy.linker.bytecode.getter;
 
 import io.github.hhy.linker.asm.AsmUtil;
-import io.github.hhy.linker.bytecode.ClassImplGenerator;
 import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.MethodRef;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.FieldRef;
+import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
-import io.github.hhy.linker.exceptions.ImplClassBuilderException;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

@@ -3,8 +3,8 @@ package io.github.hhy.linker.define;
 import io.github.hhy.linker.annotations.Target;
 import io.github.hhy.linker.annotations.Typed;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
+import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
-import io.github.hhy.linker.define.field.VulnerableFieldRef;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
 import io.github.hhy.linker.token.Token;
@@ -143,13 +143,15 @@ public class ClassDefineParse {
     private static FieldRef parseFieldExpr(final EarlyFieldRef targetFieldRef, final Tokens tokens, Map<String, String> typedDefines) {
         Class<?> currentType = targetFieldRef.getType();
         FieldRef lastField = targetFieldRef;
+
+        String curField = null;
         for (Token token : tokens) {
+            curField = curField == null ? token.value() : (curField+"."+token.value());
             if (lastField instanceof RuntimeFieldRef) {
                 lastField = new RuntimeFieldRef(lastField, token.value());
                 continue;
             }
-            String fieldRef = lastField.getFieldRef(token.value());
-            String type = typedDefines.get(fieldRef);
+            String type = typedDefines.get(curField);
             if (type == null) {
                 type = typedDefines.get(token.value());
             }

@@ -7,7 +7,7 @@ import io.github.hhy.linker.bytecode.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.bytecode.getter.TargetFieldGetter;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.vars.*;
-import io.github.hhy.linker.define.FieldRef;
+import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy.linker.util.ClassUtil;
@@ -20,6 +20,7 @@ import java.util.Map;
 public class InvokeClassImplBuilder extends AsmClassBuilder {
     public String bindTarget;
     private final String implClassDesc;
+    private MethodBody clinit;
     private final Map<String, Getter> getters;
     private final Map<String, Setter> setters;
     private final Map<String, Member> members;
@@ -36,7 +37,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         String targetLookup = FieldRef.TARGET.getLookupName();
         String targetGetter = FieldRef.TARGET.getGetterName();
         this.defineField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, targetLookup, LookupVar.DESCRIPTOR, null, null);
-        this.appendClinit(mv -> {
+        this.getClinit().append(mv -> {
             // lookup = Runtime.lookup(className);
             mv.visitLdcInsn(Type.getType("L"+ClassUtil.className2path(bindTarget)+";"));
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false);
@@ -103,5 +104,16 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
             this.members.put(mhMemberName, new MethodHandleMember(implClassDesc, mhMemberName, methodType));
         }
         return (MethodHandleMember) members.get(mhMemberName);
+    }
+
+    public MethodBody getClinit() {
+        if (clinitMethodWriter == null) {
+            clinitMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null)
+                    .getMethodVisitor();
+        }
+        if (clinit == null) {
+            clinit = new MethodBody(clinitMethodWriter, Type.getMethodType(Type.VOID_TYPE));
+        }
+        return clinit;
     }
 }

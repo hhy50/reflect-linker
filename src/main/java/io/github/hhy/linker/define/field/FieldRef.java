@@ -1,7 +1,8 @@
-package io.github.hhy.linker.define;
+package io.github.hhy.linker.define.field;
 
 
 import io.github.hhy.linker.bytecode.getter.Getter;
+import io.github.hhy.linker.define.TargetPoint;
 
 /**
  * 用来表示目标字段
@@ -52,12 +53,5 @@ public class FieldRef extends TargetPoint {
 
     public String getLookupName() {
         return getFullName()+"_lookup";
-    }
-
-    public String getFieldRef(String fieldName) {
-        if (prev == null) {
-            return fieldName;
-        }
-        return prev.getFieldRef(this.fieldName)+"."+fieldName;
     }
 }

@@ -15,9 +15,9 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 public class AsmClassBuilder {
 
-    private String className;
-    private MethodVisitor clinitMethodWriter;
-    private ClassWriter classWriter = new ClassWriter(COMPUTE_MAXS|COMPUTE_FRAMES);
+    protected String className;
+    protected MethodVisitor clinitMethodWriter;
+    protected ClassWriter classWriter = new ClassWriter(COMPUTE_MAXS|COMPUTE_FRAMES);
 
     public AsmClassBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         this.classWriter.visit(Opcodes.V1_8, access, ClassUtil.className2path(className), signature,
@@ -56,14 +56,6 @@ public class AsmClassBuilder {
         }
 
         return this;
-    }
-
-    public synchronized void appendClinit(Consumer<MethodVisitor> interceptor) {
-        if (clinitMethodWriter == null) {
-            clinitMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null)
-                    .getMethodVisitor();
-        }
-        interceptor.accept(clinitMethodWriter);
     }
 
     public byte[] toBytecode() {
