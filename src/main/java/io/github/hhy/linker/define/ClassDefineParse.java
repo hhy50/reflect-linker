@@ -5,6 +5,7 @@ import io.github.hhy.linker.annotations.Typed;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
+import io.github.hhy.linker.define.field.VulnerableFieldRef;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
 import io.github.hhy.linker.token.Token;
@@ -164,7 +165,7 @@ public class ClassDefineParse {
                     continue;
                 }
                 boolean isFinal = Modifier.isFinal(field.getType().getModifiers());
-                lastField = isFinal ? new EarlyFieldRef(lastField, field) : new RuntimeFieldRef(lastField, field.getName());
+                lastField = isFinal ? new EarlyFieldRef(lastField, field) : new VulnerableFieldRef(lastField, field);
             }
         }
         return lastField;

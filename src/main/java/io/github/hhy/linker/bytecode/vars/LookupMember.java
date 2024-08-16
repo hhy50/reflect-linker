@@ -17,7 +17,7 @@ public class LookupMember extends Member {
     public void lookupClass(MethodBody methodBody) {
         methodBody.append(mv -> {
             load(methodBody);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandles$Lookup", "lookupClass", "()Ljava/lang/Class;", false);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LookupVar.OWNER, "lookupClass", "()Ljava/lang/Class;", false);
         });
     }
 }
