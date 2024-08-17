@@ -10,7 +10,6 @@ import org.objectweb.asm.Type;
 public class MethodHandleMember extends Member {
 
     private final Type methodType;
-
     private Label invokeThisLabel = new Label();
     private Label invokeEndLabel = new Label();
 
@@ -18,13 +17,12 @@ public class MethodHandleMember extends Member {
      * @param owner
      * @param mhVarName
      */
-    public MethodHandleMember(String owner, String mhVarName, Type methodType) {
-        super(owner, mhVarName, MethodHandleVar.DESCRIPTOR);
+    public MethodHandleMember(int access, String owner, String mhVarName, Type methodType) {
+        super(access, owner, mhVarName, MethodHandleVar.TYPE);
         this.methodType = methodType;
     }
 
-
-    public ObjectVar invoke(MethodBody methodBody, ObjectVar that, ObjectVar... args) {
+    public ObjectVar invoke(MethodBody methodBody, ObjectVar that, VarInst... args) {
         ObjectVar result = initResultVar(methodBody);
         methodBody.append(mv -> {
             // if (mh.getClass().getName().contains("DirectMethodHandle$StaticAccessor"))
@@ -36,16 +34,32 @@ public class MethodHandleMember extends Member {
             // if static
             invokeStatic(result, methodBody, args);
             // else no static
-            invokeThis(result, methodBody, that, args);
+            invokeInstance(result, methodBody, that, args);
             mv.visitLabel(invokeEndLabel);
         });
         return result;
     }
 
-    private void invokeStatic(ObjectVar result, MethodBody methodBody, ObjectVar... args) {
+    public ObjectVar invokerStatic(MethodBody methodBody, ObjectVar... args) {
+        ObjectVar result = initResultVar(methodBody);
+        methodBody.append(mv -> {
+            invokeStatic(result, methodBody, args);
+        });
+        return result;
+    }
+
+    public ObjectVar invokeInstance(MethodBody methodBody, ObjectVar that, ObjectVar... args) {
+        ObjectVar result = initResultVar(methodBody);
+        methodBody.append(mv -> {
+            invokeInstance(result, methodBody, that, args);
+        });
+        return result;
+    }
+
+    private void invokeStatic(ObjectVar result, MethodBody methodBody, VarInst... args) {
         methodBody.append(write -> {
             load(methodBody); // mh
-            for (ObjectVar arg : args) {
+            for (VarInst arg : args) {
                 arg.load(methodBody);
             }
             write.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor(), false);
@@ -54,13 +68,13 @@ public class MethodHandleMember extends Member {
         });
     }
 
-    private void invokeThis(ObjectVar result, MethodBody methodBody, ObjectVar that, ObjectVar... args) {
+    private void invokeInstance(ObjectVar result, MethodBody methodBody, VarInst that, VarInst... args) {
         methodBody.append(mv -> {
             mv.visitLabel(invokeThisLabel);
 
             load(methodBody); // mh
             that.load(methodBody); // this
-            for (ObjectVar arg : args) {
+            for (VarInst arg : args) {
                 arg.load(methodBody);
             }
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor(), false);
@@ -71,7 +85,7 @@ public class MethodHandleMember extends Member {
     private ObjectVar initResultVar(MethodBody methodBody) {
         ObjectVar objectVar = null;
         if (methodType.getReturnType().getSort() != Type.VOID) {
-            objectVar = new ObjectVar(methodBody.lvbIndex++, methodType.getReturnType().getDescriptor());
+            objectVar = new ObjectVar(methodBody.lvbIndex++, methodType.getReturnType());
         }
         return objectVar;
     }

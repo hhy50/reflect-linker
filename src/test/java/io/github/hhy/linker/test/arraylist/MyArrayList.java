@@ -20,8 +20,5 @@ public interface MyArrayList {
     void setElementData(Object[] elementData);
 
     @Field.Getter("modCount")
-    MyInteger modCount();
-
-    @Field.Setter("modCount")
-    void modCount(MyInteger modCount);
+    int modCount();
 }

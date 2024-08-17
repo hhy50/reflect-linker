@@ -11,6 +11,11 @@ import java.lang.reflect.Method;
 
 
 public class Runtime {
+    public static String OWNER = "io/github/hhy/linker/runtime/Runtime";
+    public static String LOOKUP_DESC = "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;";
+    public static String FIND_LOOKUP_DESC = "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;";
+    public static String FIND_GETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
 
     public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {

@@ -6,7 +6,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;

@@ -7,22 +7,21 @@ import io.github.hhy.linker.bytecode.MethodRef;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class RuntimeFieldGetter extends Getter {
-    private static final Type DEFAULT_METHOD_TYPE = Type.getType("()Ljava/lang/Object;");
+public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
     public final FieldRef prev;
     public final Type methodType;
     public MethodHandleMember mhMember;
-    private MethodRef methodRef;
 
-    public RuntimeFieldGetter(String implClass, FieldRef field, Type methodType) {
+    public RuntimeFieldGetter(String implClass, RuntimeFieldRef field, Type methodType) {
         super(field);
         this.prev = field.getPrev();
-        this.methodType = methodType == null ? DEFAULT_METHOD_TYPE : methodType;
-        this.methodRef = new MethodRef(ClassUtil.className2path(implClass), "get_" + field.getFullName(), this.methodType.getDescriptor());
+        this.methodType = methodType;
+        super.methodRef = new MethodRef(ClassUtil.className2path(implClass), "get_" + field.getFullName(), this.methodType.getDescriptor());
     }
 
     @Override
@@ -38,7 +37,7 @@ public class RuntimeFieldGetter extends Getter {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     ObjectVar objVar = prev.getter.invoke(methodBody);
 
-                    if (!lookupMember.memberName.equals(FieldRef.TARGET.getLookupName())) {
+                    if (!lookupMember.isTargetLookup()) {
                         // 校验lookup和mh
                         Getter prev = this.prev.getter;
                         staticCheckLookup(methodBody, prev.lookupMember, this.lookupMember, objVar, prev.field);
@@ -55,7 +54,7 @@ public class RuntimeFieldGetter extends Getter {
 
     @Override
     public ObjectVar invoke(MethodBody methodBody) {
-        ObjectVar objectVar = new ObjectVar(methodBody.lvbIndex++, methodType.getReturnType().getDescriptor());
+        ObjectVar objectVar = new ObjectVar(methodBody.lvbIndex++, methodType.getReturnType());
         methodBody.append(mv -> {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodRef.owner, methodRef.methodName, methodRef.desc, false);

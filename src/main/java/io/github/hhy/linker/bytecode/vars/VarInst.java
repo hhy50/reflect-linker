@@ -24,11 +24,11 @@ public abstract class VarInst {
     /**
      * 类型
      */
-    public String type;
+    public Type type;
 
-    public VarInst(int lvbIndex, String typeDesc) {
+    public VarInst(int lvbIndex, Type type) {
         this.lvbIndex = lvbIndex;
-        this.type = typeDesc;
+        this.type = type;
     }
 
     /**
@@ -42,7 +42,7 @@ public abstract class VarInst {
     public void checkNullPointer(MethodBody methodBody, String nullerr) {
         methodBody.append(methodVisitor -> {
             Label nlabel = new Label();
-            methodVisitor.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ILOAD), lvbIndex);
+            methodVisitor.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex);
             methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, nlabel);
             methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
             methodVisitor.visitInsn(Opcodes.DUP);
@@ -60,7 +60,7 @@ public abstract class VarInst {
      */
     public void load(MethodBody methodBody) {
         methodBody.append(mv -> {
-            mv.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ILOAD), lvbIndex);
+            mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex);
         });
     }
 
@@ -71,7 +71,7 @@ public abstract class VarInst {
      */
     public void store(MethodBody methodBody) {
         methodBody.append(mv -> {
-            mv.visitVarInsn(Type.getType(type).getOpcode(Opcodes.ISTORE), lvbIndex);
+            mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
         });
     }
 

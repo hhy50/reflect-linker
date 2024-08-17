@@ -7,6 +7,7 @@ import io.github.hhy.linker.bytecode.MethodHandle;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -28,9 +29,18 @@ public class GetterWrapper extends MethodHandle {
 
     @Override
     public ObjectVar invoke(MethodBody methodBody) {
+        /**
+         * get只需要对返回值进行转换就行
+         */
         ObjectVar result = getter.invoke(methodBody);
-        result.load(methodBody);
-        AsmUtil.areturn(methodBody.writer, Type.getType(methodDefine.getReturnType()));
+        methodBody.append(mv -> {
+            result.load(methodBody);
+            Type reType = Type.getType(methodDefine.getReturnType());
+            if (!result.type.equals(reType)) {
+                mv.visitTypeInsn(Opcodes.CHECKCAST, reType.getInternalName());
+            }
+            AsmUtil.areturn(mv, reType);
+        });
         return result;
     }
 

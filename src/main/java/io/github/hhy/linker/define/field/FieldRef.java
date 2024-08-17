@@ -2,14 +2,15 @@ package io.github.hhy.linker.define.field;
 
 
 import io.github.hhy.linker.bytecode.getter.Getter;
+import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.TargetPoint;
+import org.objectweb.asm.Type;
 
 /**
  * 用来表示目标字段
  */
 public class FieldRef extends TargetPoint {
 
-    public static final FieldRef TARGET = new FieldRef(null, "target");
 
     /**
      * 字段名
@@ -53,5 +54,9 @@ public class FieldRef extends TargetPoint {
 
     public String getLookupName() {
         return getFullName()+"_lookup";
+    }
+
+    public Type getType() {
+        return ObjectVar.TYPE;
     }
 }

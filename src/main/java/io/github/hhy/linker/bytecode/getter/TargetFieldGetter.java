@@ -3,22 +3,23 @@ package io.github.hhy.linker.bytecode.getter;
 import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 
-public class TargetFieldGetter extends Getter {
+public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 
     private final String implClass;
 
-    public TargetFieldGetter(String implClass) {
-        super(FieldRef.TARGET);
+    public TargetFieldGetter(String implClass, EarlyFieldRef targetFieldRef) {
+        super(targetFieldRef);
         this.implClass = implClass;
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        this.lookupMember = classImplBuilder.defineLookup(FieldRef.TARGET.getLookupName());
+        this.lookupMember = classImplBuilder.defineLookup(field);
+        this.field.getter = classImplBuilder.defineGetter(field, null);
     }
 
     @Override
@@ -26,7 +27,7 @@ public class TargetFieldGetter extends Getter {
         int targetIndex = methodBody.lvbIndex++;
         methodBody.append(mv -> {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitFieldInsn(Opcodes.GETFIELD, ClassUtil.className2path(implClass), FieldRef.TARGET.getFullName(), "Ljava/lang/Object;");
+            mv.visitFieldInsn(Opcodes.GETFIELD, ClassUtil.className2path(implClass), field.getFullName(), "Ljava/lang/Object;");
             mv.visitVarInsn(Opcodes.ASTORE, targetIndex);
         });
         return new ObjectVar(targetIndex);

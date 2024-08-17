@@ -5,7 +5,7 @@ import io.github.hhy.linker.annotations.Typed;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
-import io.github.hhy.linker.define.field.VulnerableFieldRef;
+import io.github.hhy.linker.exceptions.ClassTypeNotMuchException;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
 import io.github.hhy.linker.token.Token;
@@ -13,10 +13,10 @@ import io.github.hhy.linker.token.TokenParser;
 import io.github.hhy.linker.token.Tokens;
 import io.github.hhy.linker.util.ClassUtil;
 import io.github.hhy.linker.util.Util;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,20 +35,20 @@ public class ClassDefineParse {
         io.github.hhy.linker.annotations.Target.Bind annotation = define.getDeclaredAnnotation(Target.Bind.class);
         if (annotation == null || annotation.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
-        } else if (ClassUtil.isAssignableFrom(bindClass, annotation.value())) {
+        } else if (!ClassUtil.isAssignableFrom(bindClass, annotation.value())) {
             throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+bindClass+"]");
         }
 
         Map<String, String> typeDefines = getTypeDefines(define);
-        EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, "target", bindClass);
+        EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, "target", Type.getType(bindClass));
         List<MethodDefine> methodDefines = new ArrayList<>();
         for (Method declaredMethod : define.getDeclaredMethods()) {
-            methodDefines.add(parseMethod(declaredMethod, targetFieldRef, typeDefines));
+            methodDefines.add(parseMethod(bindClass, declaredMethod, targetFieldRef, typeDefines));
         }
 
         InvokeClassDefine classDefine = new InvokeClassDefine();
         classDefine.define = define;
-        classDefine.bindClass = bindClass.getName();
+        classDefine.bindClass = bindClass;
         classDefine.methodDefines = methodDefines;
         return classDefine;
     }
@@ -66,12 +66,13 @@ public class ClassDefineParse {
     }
 
     /**
+     * @param bindClass
      * @param method
      * @param targetFieldRef
      * @param typedDefines
      * @return
      */
-    public static MethodDefine parseMethod(Method method, EarlyFieldRef targetFieldRef, Map<String, String> typedDefines) {
+    public static MethodDefine parseMethod(Class<?> bindClass, Method method, EarlyFieldRef targetFieldRef, Map<String, String> typedDefines) {
         verify(method);
 
         String fieldExpr = null;
@@ -86,7 +87,7 @@ public class ClassDefineParse {
         MethodDefine methodDefine = new MethodDefine(method);
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
-            methodDefine.fieldRef = parseFieldExpr(targetFieldRef, tokens, typedDefines);
+            methodDefine.fieldRef = parseFieldExpr(bindClass, targetFieldRef, tokens, typedDefines);
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn
                     = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
@@ -136,36 +137,43 @@ public class ClassDefineParse {
     /**
      * 解析目标字段
      *
+     * @param bindClass
      * @param targetFieldRef
      * @param tokens
      * @param typedDefines
      * @return
      */
-    private static FieldRef parseFieldExpr(final EarlyFieldRef targetFieldRef, final Tokens tokens, Map<String, String> typedDefines) {
-        Class<?> currentType = targetFieldRef.getType();
+    private static FieldRef parseFieldExpr(Class<?> bindClass, final EarlyFieldRef targetFieldRef, final Tokens tokens, Map<String, String> typedDefines) {
+        Class<?> currentType = bindClass;
         FieldRef lastField = targetFieldRef;
 
-        String curField = null;
+        String fullField = null;
         for (Token token : tokens) {
-            curField = curField == null ? token.value() : (curField+"."+token.value());
+            fullField = fullField == null ? token.value() : (fullField+"."+token.value());
             if (lastField instanceof RuntimeFieldRef) {
                 lastField = new RuntimeFieldRef(lastField, token.value());
                 continue;
             }
-            String type = typedDefines.get(curField);
-            if (type == null) {
-                type = typedDefines.get(token.value());
+            Field currentField = null;
+            if (currentType != null) {
+                currentField = token.getField(currentType);
+                currentType = currentField == null ? null : currentField.getType();
             }
-            if (type != null) {
-                lastField = new EarlyFieldRef(lastField, token.value(), type);
+            String assignedType = typedDefines.get(fullField);
+            if (assignedType == null) {
+                assignedType = typedDefines.get(token.value());
+            }
+            if (assignedType != null && currentField != null) {
+                if (!ClassUtil.isAssignableFrom(currentField.getType(), assignedType)) {
+                    throw new ClassTypeNotMuchException(assignedType, currentField.getType().getName());
+                }
+                lastField = new EarlyFieldRef(lastField, currentField, Type.getObjectType(assignedType));
             } else {
-                Field field = token.getField(currentType);
-                if (field == null) {
+                if (currentField == null) {
                     lastField = new RuntimeFieldRef(lastField, token.value());
                     continue;
                 }
-                boolean isFinal = Modifier.isFinal(field.getType().getModifiers());
-                lastField = isFinal ? new EarlyFieldRef(lastField, field) : new VulnerableFieldRef(lastField, field);
+                lastField = new EarlyFieldRef(lastField, currentField, null);
             }
         }
         return lastField;

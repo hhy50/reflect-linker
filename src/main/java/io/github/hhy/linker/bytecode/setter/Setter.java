@@ -10,6 +10,7 @@ import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -47,7 +48,7 @@ public class Setter extends MethodHandle {
                     ObjectVar objVar = prev.getter.invoke(methodBody);
 
                     // 校验lookup和mh
-                    if (!lookupMember.memberName.equals(FieldRef.TARGET.getLookupName())) {
+                    if (!lookupMember.isTargetLookup()) {
                         Getter prev = this.prev.getter;
                         staticCheckLookup(methodBody, prev.lookupMember, this.lookupMember, objVar, prev.field);
                         checkLookup(methodBody, lookupMember, mhMember, objVar);
@@ -76,7 +77,7 @@ public class Setter extends MethodHandle {
         methodBody.append(mv -> {
             lookupMember.load(methodBody); // this.lookup
             mv.visitLdcInsn(this.field.fieldName); // 'field'
-            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findSetter", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;", false);
+            mv.visitMethodInsn(INVOKESTATIC, Runtime.OWNER, "findSetter", Runtime.FIND_SETTER_DESC, false);
             mhMember.store(methodBody);
         });
     }

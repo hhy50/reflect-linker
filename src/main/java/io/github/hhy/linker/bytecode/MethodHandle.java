@@ -4,6 +4,7 @@ import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
@@ -49,7 +50,7 @@ public abstract class MethodHandle {
 
             mv.visitLabel(methodBody.getLookupAssignLabel());
             objVar.getClass(methodBody);  // obj.class
-            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()
+            mv.visitMethodInsn(INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false); // Call Runtime.lookup()
             lookupMember.store(methodBody);
 
             mhReassign(methodBody, lookupMember, mhMember, objVar);
@@ -80,7 +81,7 @@ public abstract class MethodHandle {
 
             prevLookupMember.lookupClass(methodBody); // prev_lookup.lookupClass()
             mv.visitLdcInsn(field.fieldName); // 'field'
-            mv.visitMethodInsn(INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "findLookup", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;", false); // Call Runtime.lookup()
+            mv.visitMethodInsn(INVOKESTATIC, Runtime.OWNER, "findLookup", Runtime.FIND_LOOKUP_DESC, false); // Call Runtime.lookup()
             lookupMember.store(methodBody);
             mv.visitJumpInsn(Opcodes.GOTO, methodBody.getCheckMhLabel());
         });

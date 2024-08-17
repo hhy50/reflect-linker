@@ -9,7 +9,7 @@ import org.objectweb.asm.Type;
 public class AsmUtil {
 
     public static String toTypeDesc(String className) {
-        return "L" + ClassUtil.className2path(className) + ";";
+        return "L"+ClassUtil.className2path(className)+";";
     }
 
     public static InvokeClassImplBuilder defineImplClass(int access, String className, String superName, String[] interfaces, String sign) {
@@ -24,11 +24,44 @@ public class AsmUtil {
         }
     }
 
+    public static void adaptLdcClassType(MethodVisitor visitor, Type type) {
+        if (type.getSort() <= Type.DOUBLE) {
+            visitor.visitFieldInsn(Opcodes.GETSTATIC, getPrimitiveClass(type.getClassName()), "TYPE", "Ljava/lang/Class;");
+        } else {
+            visitor.visitLdcInsn(type);
+        }
+    }
+
+    private static String getPrimitiveClass(String className) {
+        switch (className) {
+            case "void":
+                return "java/lang/Void";
+            case "boolean":
+                return "java/lang/Boolean";
+            case "char":
+                return "java/lang/Character";
+            case "byte":
+                return "java/lang/Byte";
+            case "short":
+                return "java/lang/Short";
+            case "int":
+                return "java/lang/Integer";
+            case "float":
+                return "java/lang/Float";
+            case "long":
+                return "java/lang/Long";
+            case "double":
+                return "java/lang/Double";
+            default:
+                return "";
+        }
+    }
+
     public static Type addArgsDesc(Type methodType, Type newArg, boolean header) {
         String delimiter = header ? "\\(" : "\\)";
         String[] split = methodType.getDescriptor().split(delimiter);
         split[0] += newArg.getDescriptor();
-        return Type.getMethodType(header ? ("(" + split[0] + split[1]) : (split[0] + ")" + split[1]));
+        return Type.getMethodType(header ? ("("+split[0]+split[1]) : (split[0]+")"+split[1]));
     }
 
     public static void areturnNull(MethodVisitor mv, Type rType) {

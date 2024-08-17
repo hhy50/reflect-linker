@@ -7,9 +7,11 @@ import io.github.hhy.linker.bytecode.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.bytecode.getter.TargetFieldGetter;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.vars.*;
-import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
+import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
+import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -18,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
-    public String bindTarget;
+    public Class<?> bindTarget;
     private final String implClassDesc;
     private MethodBody clinit;
     private final Map<String, Getter> getters;
@@ -34,23 +36,25 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     private void init() {
-        String targetLookup = FieldRef.TARGET.getLookupName();
-        String targetGetter = FieldRef.TARGET.getGetterName();
-        this.defineField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, targetLookup, LookupVar.DESCRIPTOR, null, null);
+        EarlyFieldRef target = new EarlyFieldRef(null, "target", Type.getType(bindTarget));
+        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
+        LookupMember lookupMember = new LookupMember(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, implClassDesc, target.getLookupName());
+        lookupMember.isTarget(true);
+
+        this.defineField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, lookupMember.memberName, LookupVar.DESCRIPTOR, null, null);
         this.getClinit().append(mv -> {
-            // lookup = Runtime.lookup(className);
-            mv.visitLdcInsn(Type.getType("L"+ClassUtil.className2path(bindTarget)+";"));
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "io/github/hhy/linker/runtime/Runtime", "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;", false);
-            mv.visitFieldInsn(Opcodes.PUTSTATIC, ClassUtil.className2path(this.getClassName()), targetLookup, "Ljava/lang/invoke/MethodHandles$Lookup;");
+            mv.visitLdcInsn(target.getType());
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);
+            mv.visitFieldInsn(Opcodes.PUTSTATIC, ClassUtil.className2path(this.getClassName()), lookupMember.memberName, LookupVar.DESCRIPTOR);
         });
-        this.members.put(targetLookup, new LookupMember(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
-                implClassDesc, targetLookup));
-        this.getters.put(targetGetter, new TargetFieldGetter(getClassName()));
+
+        this.members.put(lookupMember.memberName, lookupMember);
+        this.getters.put(targetFieldGetter.field.getGetterName(), targetFieldGetter);
     }
 
-    public InvokeClassImplBuilder setTarget(String bindTarget) {
+    public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
         this.bindTarget = bindTarget;
-        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget}, null, "")
+        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget.getName()}, null, "")
                 .accept(mv -> {
                     mv.visitVarInsn(Opcodes.ALOAD, 0);
                     mv.visitVarInsn(Opcodes.ALOAD, 1);
@@ -64,10 +68,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public Getter defineGetter(FieldRef field, Type methodType) {
         String getterMhVarName = field.getGetterName();
         return getters.computeIfAbsent(getterMhVarName, key -> {
-            if (field.getPrev() instanceof EarlyFieldRef) {
+            if (field instanceof EarlyFieldRef) {
                 return new EarlyFieldGetter(getClassName(), (EarlyFieldRef) field, methodType);
             } else {
-                return new RuntimeFieldGetter(getClassName(), field, methodType);
+                return new RuntimeFieldGetter(getClassName(), (RuntimeFieldRef) field, methodType);
             }
         });
     }
@@ -93,15 +97,24 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
                 access |= Opcodes.ACC_STATIC;
             }
             super.defineField(access, lookupMemberName, LookupVar.DESCRIPTOR, null, null);
-            this.members.put(lookupMemberName, new LookupMember(implClassDesc, lookupMemberName));
+            this.members.put(lookupMemberName, new LookupMember(access, implClassDesc, lookupMemberName));
         }
         return (LookupMember) members.get(lookupMemberName);
+    }
+
+    public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
+        if (!members.containsKey(mhMemberName)) {
+            int access = Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC;
+            super.defineField(access, mhMemberName, MethodHandleVar.DESCRIPTOR, null, null);
+            this.members.put(mhMemberName, new MethodHandleMember(access, implClassDesc, mhMemberName, methodType));
+        }
+        return (MethodHandleMember) members.get(mhMemberName);
     }
 
     public MethodHandleMember defineMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
             super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, MethodHandleVar.DESCRIPTOR, null, null);
-            this.members.put(mhMemberName, new MethodHandleMember(implClassDesc, mhMemberName, methodType));
+            this.members.put(mhMemberName, new MethodHandleMember(Opcodes.ACC_PUBLIC, implClassDesc, mhMemberName, methodType));
         }
         return (MethodHandleMember) members.get(mhMemberName);
     }

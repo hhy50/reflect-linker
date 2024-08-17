@@ -14,20 +14,20 @@ public class BytecodeFactory {
     public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef targetPoint) {
         FieldRef prev = targetPoint.getPrev();
         while (prev != null) {
-            prev.getter = classBuilder.defineGetter(prev, null);
+            prev.getter = classBuilder.defineGetter(prev, Type.getMethodType(prev.getType()));
             prev = prev.getPrev();
         }
-        Getter getter = classBuilder.defineGetter(targetPoint, Type.getType(methodDefine.define));
+        Getter getter = classBuilder.defineGetter(targetPoint, Type.getMethodType(targetPoint.getType()));
         return new GetterWrapper(getter, methodDefine.define);
     }
 
     public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef targetPoint) {
         FieldRef prev = targetPoint.getPrev();
         while (prev != null) {
-            prev.getter = classBuilder.defineGetter(prev, null);
+            prev.getter = classBuilder.defineGetter(prev, Type.getMethodType(Type.VOID_TYPE, prev.getType()));
             prev = prev.getPrev();
         }
-        Setter getter = classBuilder.defineSetter(targetPoint, Type.getType(methodDefine.define));
-        return new SetterWrapper(getter, methodDefine);
+        Setter setter = classBuilder.defineSetter(targetPoint, Type.getMethodType(Type.VOID_TYPE, targetPoint.getType()));
+        return new SetterWrapper(setter, methodDefine);
     }
 }

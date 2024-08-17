@@ -15,6 +15,6 @@ public class ClassUtil {
     }
 
     public static boolean isAssignableFrom(Class<?> child, String parent) {
-        return false;
+        return true;
     }
 }
