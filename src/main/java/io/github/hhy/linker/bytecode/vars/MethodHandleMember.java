@@ -33,6 +33,8 @@ public class MethodHandleMember extends Member {
 
             // if static
             invokeStatic(result, methodBody, args);
+            mv.visitJumpInsn(Opcodes.GOTO, invokeEndLabel);
+
             // else no static
             invokeInstance(result, methodBody, that, args);
             mv.visitLabel(invokeEndLabel);
@@ -40,7 +42,7 @@ public class MethodHandleMember extends Member {
         return result;
     }
 
-    public ObjectVar invokerStatic(MethodBody methodBody, ObjectVar... args) {
+    public ObjectVar invokeStatic(MethodBody methodBody, VarInst... args) {
         ObjectVar result = initResultVar(methodBody);
         methodBody.append(mv -> {
             invokeStatic(result, methodBody, args);
@@ -48,7 +50,7 @@ public class MethodHandleMember extends Member {
         return result;
     }
 
-    public ObjectVar invokeInstance(MethodBody methodBody, ObjectVar that, ObjectVar... args) {
+    public ObjectVar invokeInstance(MethodBody methodBody, ObjectVar that, VarInst... args) {
         ObjectVar result = initResultVar(methodBody);
         methodBody.append(mv -> {
             invokeInstance(result, methodBody, that, args);
@@ -64,7 +66,6 @@ public class MethodHandleMember extends Member {
             }
             write.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor(), false);
             if (result != null) result.store(methodBody);
-            write.visitJumpInsn(Opcodes.GOTO, invokeEndLabel);
         });
     }
 

@@ -81,14 +81,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return setters.computeIfAbsent(getterMhVarName, key -> new Setter(getClassName(), field, methodType));
     }
 
-    public LookupMember defineLookup(String lookupMemberName) {
-        if (!members.containsKey(lookupMemberName)) {
-            super.defineField(Opcodes.ACC_PUBLIC, lookupMemberName, LookupVar.DESCRIPTOR, null, null);
-            this.members.put(lookupMemberName, new LookupMember(implClassDesc, lookupMemberName));
-        }
-        return (LookupMember) members.get(lookupMemberName);
-    }
-
     public LookupMember defineLookup(FieldRef fieldRef) {
         String lookupMemberName = fieldRef.getLookupName();
         if (!members.containsKey(lookupMemberName)) {

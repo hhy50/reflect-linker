@@ -28,7 +28,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         this.prev.getter.define(classImplBuilder);
         // 先定义上一层字段的lookup
-        this.lookupMember = classImplBuilder.defineLookup(this.prev.getLookupName());
+        this.lookupMember = classImplBuilder.defineLookup(this.prev);
         // 定义当前字段的mh
         this.mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
         // 定义当前字段的getter

@@ -13,5 +13,5 @@ public interface MyStaticClass {
     public String getA2();
 
     @Field.Setter("aaa")
-    public void setA(String aaa);
+    public void setA(Object aaa);
 }

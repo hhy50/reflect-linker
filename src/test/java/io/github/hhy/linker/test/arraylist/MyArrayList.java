@@ -2,7 +2,6 @@ package io.github.hhy.linker.test.arraylist;
 
 import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Target;
-import io.github.hhy.linker.test.MyInteger;
 
 
 @Target.Bind("java.util.ArrayList")

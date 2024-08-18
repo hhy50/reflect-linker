@@ -10,7 +10,6 @@ import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
-import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -56,35 +55,9 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
                 checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
             }
             // mh.invoke(obj)
-            ObjectVar result = field.isStatic() ? mhMember.invokerStatic(methodBody, objVar) : mhMember.invokeInstance(methodBody, objVar);
+            ObjectVar result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
             result.load(methodBody);
             AsmUtil.areturn(mv, methodType.getReturnType());
-        });
-    }
-
-    private static void initStaticLookup(InvokeClassImplBuilder classImplBuilder, LookupMember lookupMember, Type type) {
-        if (lookupMember.isTargetLookup()) return;
-
-        MethodBody clinit = classImplBuilder.getClinit();
-        clinit.append(mv -> {
-            mv.visitLdcInsn(type);
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);
-            lookupMember.store(clinit);
-        });
-    }
-
-    private void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember,
-                                        Type ownerType, String fieldName, Type methodType, boolean isStatic) {
-        MethodBody clinit = classImplBuilder.getClinit();
-        clinit.append(mv -> {
-            // mh = lookup.findGetter(ArrayList.class, "elementData", Object[].class);
-            lookupMember.load(clinit); // lookup
-            mv.visitLdcInsn(ownerType); // ArrayList.class,
-            mv.visitLdcInsn(fieldName); // 'elementData'
-            adaptLdcClassType(mv, methodType.getReturnType()); // Object[].class
-
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LookupVar.OWNER, isStatic ? "findStaticGetter" : "findGetter", LookupVar.FIND_GETTER_DESC, false);
-            mhMember.store(clinit);
         });
     }
 
@@ -97,5 +70,21 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
             objectVar.store(methodBody);
         });
         return objectVar;
+    }
+
+    @Override
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember,
+                                          Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+        MethodBody clinit = classImplBuilder.getClinit();
+        clinit.append(mv -> {
+            // mh = lookup.findGetter(ArrayList.class, "elementData", Object[].class);
+            lookupMember.load(clinit); // lookup
+            mv.visitLdcInsn(ownerType); // ArrayList.class
+            mv.visitLdcInsn(fieldName); // 'elementData'
+            adaptLdcClassType(mv, methodType.getReturnType()); // Object[].class
+
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LookupVar.OWNER, isStatic ? "findStaticGetter" : "findGetter", LookupVar.FIND_GETTER_DESC, false);
+            mhMember.store(clinit);
+        });
     }
 }

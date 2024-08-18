@@ -7,14 +7,17 @@ import io.github.hhy.linker.bytecode.MethodHandle;
 import io.github.hhy.linker.bytecode.MethodRef;
 import io.github.hhy.linker.bytecode.getter.Getter;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
+import io.github.hhy.linker.bytecode.vars.LookupVar;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
@@ -26,37 +29,51 @@ public class Setter extends MethodHandle {
     protected LookupMember lookupMember;
     protected MethodHandleMember mhMember;
     protected MethodRef methodRef;
+    protected boolean isEarly;
 
     public Setter(String implClass, FieldRef field, Type methodType) {
         this.field = field;
         this.prev = field.getPrev();
         this.methodType = methodType;
-        this.methodRef = new MethodRef(ClassUtil.className2path(implClass), "set_" + field.getFullName(), methodType.getDescriptor());
+        this.methodRef = new MethodRef(ClassUtil.className2path(implClass), "set_"+field.getFullName(), methodType.getDescriptor());
+        this.isEarly = this.field instanceof EarlyFieldRef;
     }
 
     public final void define(InvokeClassImplBuilder classImplBuilder) {
         if (defined) return;
         this.prev.getter.define(classImplBuilder);
         // 先定义上一层字段的lookup
-        this.lookupMember = classImplBuilder.defineLookup(this.prev.getLookupName());
+        this.lookupMember = classImplBuilder.defineLookup(this.prev);
         // 定义当前字段的 setter_mh
-        this.mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(), methodType);
+        this.mhMember = isEarly ? classImplBuilder.defineStaticMethodHandle(this.field.getSetterName(), methodType)
+                : classImplBuilder.defineMethodHandle(this.field.getSetterName(), methodType);
+
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodRef.methodName, methodRef.desc, null, "")
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     ObjectVar objVar = prev.getter.invoke(methodBody);
-
-                    // 校验lookup和mh
-                    if (!lookupMember.isTargetLookup()) {
-                        Getter prev = this.prev.getter;
-                        staticCheckLookup(methodBody, prev.lookupMember, this.lookupMember, objVar, prev.field);
+                    if (this.prev instanceof EarlyFieldRef) {
+                        initStaticLookup(classImplBuilder, this.lookupMember, this.prev.getType());
+                    } else {
+                        Getter prevGetter = this.prev.getter;
+                        staticCheckLookup(methodBody, prevGetter.lookupMember, this.lookupMember, objVar, prevGetter.field);
                         checkLookup(methodBody, lookupMember, mhMember, objVar);
                     }
-                    checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
+                    if (this.isEarly) {
+                        EarlyFieldRef earlyField = (EarlyFieldRef) this.field;
+                        initStaticMethodHandle(classImplBuilder, this.mhMember, this.lookupMember,
+                                ((EarlyFieldRef) this.prev).type, this.field.fieldName, methodType, earlyField.isStatic());
 
-                    // mh.invoke(obj, value)
-                    mhMember.invoke(methodBody, objVar, methodBody.getArg(0));
+                        // mh.invoke(obj, value)
+                        ObjectVar nil = ((EarlyFieldRef) this.field).isStatic()
+                                ? mhMember.invokeStatic(methodBody, methodBody.getArg(0))
+                                : mhMember.invokeInstance(methodBody, objVar, methodBody.getArg(0));
+                    } else {
+                        checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
+                        // mh.invoke(obj, value)
+                        mhMember.invoke(methodBody, objVar, methodBody.getArg(0));
+                    }
                     AsmUtil.areturn(mv, Type.VOID_TYPE);
                 });
         this.defined = true;
@@ -70,6 +87,21 @@ public class Setter extends MethodHandle {
             mv.visitMethodInsn(INVOKEVIRTUAL, methodRef.owner, methodRef.methodName, methodRef.desc, false);
         });
         return null;
+    }
+
+    @Override
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+        MethodBody clinit = classImplBuilder.getClinit();
+        clinit.append(mv -> {
+            // mh = lookup.findSetter(ArrayList.class, "elementData", Object[].class);
+            lookupMember.load(clinit); // lookup
+            mv.visitLdcInsn(ownerType); // ArrayList.class,
+            mv.visitLdcInsn(fieldName); // 'elementData'
+            adaptLdcClassType(mv, methodType.getArgumentTypes()[0]); // Object[].class
+
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LookupVar.OWNER, isStatic ? "findStaticSetter" : "findSetter", LookupVar.FIND_GETTER_DESC, false);
+            mhMember.store(clinit);
+        });
     }
 
     @Override

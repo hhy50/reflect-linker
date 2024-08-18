@@ -1,13 +1,16 @@
 package io.github.hhy.linker.bytecode;
 
 import io.github.hhy.linker.bytecode.vars.LookupMember;
+import io.github.hhy.linker.bytecode.vars.LookupVar;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
+import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 import static org.objectweb.asm.Opcodes.*;
 
 public abstract class MethodHandle {
@@ -22,6 +25,39 @@ public abstract class MethodHandle {
      * @return
      */
     public abstract ObjectVar invoke(MethodBody methodBody);
+
+
+    /**
+     * 初始化静态lookup
+     * @param classImplBuilder
+     * @param lookupMember
+     * @param type
+     */
+    protected void initStaticLookup(InvokeClassImplBuilder classImplBuilder, LookupMember lookupMember, Type type) {
+        if (lookupMember.isTargetLookup()) return;
+
+        MethodBody clinit = classImplBuilder.getClinit();
+        clinit.append(mv -> {
+            mv.visitLdcInsn(type);
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);
+            lookupMember.store(clinit);
+        });
+    }
+
+    /**
+     * 初始化静态 methodhandle
+     * @param classImplBuilder
+     * @param mhMember
+     * @param lookupMember
+     * @param ownerType
+     * @param fieldName
+     * @param methodType
+     * @param isStatic
+     */
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember,
+                                        Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+
+    }
 
 
     /**
