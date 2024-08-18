@@ -2,8 +2,8 @@ package io.github.hhy.linker.test.nest;
 
 import io.github.hhy.linker.LinkerFactory;
 import io.github.hhy.linker.exceptions.LinkerException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 public class NestObjTest {
@@ -20,12 +20,12 @@ public class NestObjTest {
         String str = obj.getStr2();
         String str2 = obj.getStr2();
 
-        Assertions.assertNotNull(a);
-        Assertions.assertNotNull(b);
-        Assertions.assertNotNull(c);
-        Assertions.assertNotNull(c2);
-        Assertions.assertNotNull(str);
-        Assertions.assertNotNull(str2);
+        Assert.assertNotNull(a);
+        Assert.assertNotNull(b);
+        Assert.assertNotNull(c);
+        Assert.assertNotNull(c2);
+        Assert.assertNotNull(str);
+        Assert.assertNotNull(str2);
 
         // set
         a = new A2();
@@ -42,10 +42,10 @@ public class NestObjTest {
         obj.setStr(str);
         obj.setStr2(str2);
 
-        Assertions.assertEquals(obj.getA(), a);
-        Assertions.assertEquals(obj.getB(), b);
-        Assertions.assertEquals(obj.getC(), c);
-        Assertions.assertEquals(obj.getStr(), str);
-        Assertions.assertEquals(obj.getStr2(), str2);
+        Assert.assertEquals(obj.getA(), a);
+        Assert.assertEquals(obj.getB(), b);
+        Assert.assertEquals(obj.getC(), c);
+        Assert.assertEquals(obj.getStr(), str);
+        Assert.assertEquals(obj.getStr2(), str2);
     }
 }

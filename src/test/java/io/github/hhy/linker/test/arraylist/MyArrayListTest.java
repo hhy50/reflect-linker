@@ -3,12 +3,14 @@ package io.github.hhy.linker.test.arraylist;
 import io.github.hhy.linker.LinkerFactory;
 import io.github.hhy.linker.define.provider.TargetProvider;
 import io.github.hhy.linker.exceptions.LinkerException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
 public class MyArrayListTest {
+
+
 
 
     @Test
@@ -17,7 +19,7 @@ public class MyArrayListTest {
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
         list.setElementData(objects);
 
-        Assertions.assertTrue(list instanceof TargetProvider);
-        Assertions.assertTrue(objects == list.getElementData());
+        Assert.assertTrue(list instanceof TargetProvider);
+        Assert.assertTrue(objects == list.getElementData());
     }
 }
