@@ -15,10 +15,11 @@ public class StaticTest {
         Assertions.assertTrue(myObj.getA() == StaticClass.getA());
         Assertions.assertTrue(myObj.getA() == StaticClass.getA());
         Assertions.assertTrue(myObj.getA() == StaticClass.getA());
-//        Assertions.assertTrue(myObj.getA2().equals("1234"));
-//        Assertions.assertTrue(myObj.getA2().equals("1234"));
-//        Assertions.assertTrue(myObj.getA2().equals("1234"));
-//        Assertions.assertTrue(myObj.getA2().equals("1234"));
+
+        Assertions.assertTrue(myObj.getA2().equals("1234"));
+        Assertions.assertTrue(myObj.getA2().equals("1234"));
+        Assertions.assertTrue(myObj.getA2().equals("1234"));
+        Assertions.assertTrue(myObj.getA2().equals("1234"));
 
         String str = new String("1234");
         myObj.setA(str);

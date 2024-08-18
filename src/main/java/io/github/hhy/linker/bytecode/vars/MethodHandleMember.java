@@ -7,6 +7,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Field;
+
 public class MethodHandleMember extends Member {
 
     private final Type methodType;
@@ -72,6 +74,7 @@ public class MethodHandleMember extends Member {
     private void invokeInstance(ObjectVar result, MethodBody methodBody, VarInst that, VarInst... args) {
         methodBody.append(mv -> {
             mv.visitLabel(invokeThisLabel);
+            that.checkNullPointer(methodBody, that instanceof FieldVar ? ((FieldVar) that).getFullName() : "Unknown Object");
 
             load(methodBody); // mh
             that.load(methodBody); // this

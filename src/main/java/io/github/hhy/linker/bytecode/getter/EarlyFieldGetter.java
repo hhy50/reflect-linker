@@ -3,11 +3,8 @@ package io.github.hhy.linker.bytecode.getter;
 import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
-import io.github.hhy.linker.bytecode.MethodRef;
-import io.github.hhy.linker.bytecode.vars.LookupMember;
-import io.github.hhy.linker.bytecode.vars.LookupVar;
-import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
-import io.github.hhy.linker.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.bytecode.MethodHolder;
+import io.github.hhy.linker.bytecode.vars.*;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.util.ClassUtil;
@@ -20,14 +17,14 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
     public final FieldRef prev;
     public final Type methodType;
     public MethodHandleMember mhMember;
-    private MethodRef methodRef;
+    private MethodHolder methodHolder;
     private boolean inited = false;
 
     public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef, Type methodType) {
         super(fieldRef);
         this.prev = field.getPrev();
         this.methodType = methodType;
-        this.methodRef = new MethodRef(ClassUtil.className2path(implClass), "get_"+field.getFullName(), this.methodType.getDescriptor());
+        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getFullName(), this.methodType.getDescriptor());
     }
 
     @Override
@@ -47,7 +44,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         }
 
         // 定义当前字段的getter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodRef.methodName, methodRef.desc, null, "").accept(mv -> {
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.methodName, methodHolder.desc, null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(mv, methodType);
             ObjectVar objVar = prev.getter.invoke(methodBody);
             if (!inited) {
@@ -63,10 +60,10 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
     @Override
     public ObjectVar invoke(MethodBody methodBody) {
-        ObjectVar objectVar = new ObjectVar(methodBody.lvbIndex++, methodType.getReturnType());
+        FieldVar objectVar = new FieldVar(methodBody.lvbIndex++, methodType.getReturnType(), field.fieldName);
         methodBody.append(mv -> {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodRef.owner, methodRef.methodName, methodRef.desc, false);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodHolder.owner, methodHolder.methodName, methodHolder.desc, false);
             objectVar.store(methodBody);
         });
         return objectVar;

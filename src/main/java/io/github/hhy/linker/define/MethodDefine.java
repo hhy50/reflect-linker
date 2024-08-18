@@ -12,8 +12,6 @@ public class MethodDefine {
 
     public FieldRef fieldRef;
 
-    public TargetPoint targetPoint;
-
     public MethodDefine(Method method) {
         this.define = method;
     }
@@ -27,8 +25,8 @@ public class MethodDefine {
     }
 
     public String getName() {
-        if (targetPoint instanceof FieldRef) {
-            return ((FieldRef) targetPoint).getFullName();
+        if (fieldRef != null) {
+            return fieldRef.getFullName();
         }
         return define.getName();
     }

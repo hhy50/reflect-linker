@@ -3,7 +3,7 @@ package io.github.hhy.linker.bytecode.getter;
 import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.MethodHandle;
-import io.github.hhy.linker.bytecode.MethodRef;
+import io.github.hhy.linker.bytecode.MethodHolder;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
@@ -18,7 +18,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
 
     public final T field;
 
-    public MethodRef methodRef;
+    public MethodHolder methodHolder;
 
     public LookupMember lookupMember;
 

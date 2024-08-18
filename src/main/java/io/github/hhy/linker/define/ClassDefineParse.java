@@ -98,7 +98,7 @@ public class ClassDefineParse {
             // 校验方法是否存在
             String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), method.getName());
 //            java.lang.reflect.Method rMethod = ReflectUtil.getDeclaredMethod(bindClass, methodName);
-            methodDefine.targetPoint = new RuntimeMethod(methodName);
+//            methodDefine.targetPoint = new RuntimeMethod(methodName);
         }
         return methodDefine;
     }

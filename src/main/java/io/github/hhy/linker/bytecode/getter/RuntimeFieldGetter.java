@@ -3,7 +3,8 @@ package io.github.hhy.linker.bytecode.getter;
 import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
-import io.github.hhy.linker.bytecode.MethodRef;
+import io.github.hhy.linker.bytecode.MethodHolder;
+import io.github.hhy.linker.bytecode.vars.FieldVar;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.field.FieldRef;
@@ -21,7 +22,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         super(field);
         this.prev = field.getPrev();
         this.methodType = methodType;
-        super.methodRef = new MethodRef(ClassUtil.className2path(implClass), "get_" + field.getFullName(), this.methodType.getDescriptor());
+        super.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_" + field.getFullName(), this.methodType.getDescriptor());
     }
 
     @Override
@@ -32,7 +33,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         // 定义当前字段的mh
         this.mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
         // 定义当前字段的getter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodRef.methodName, methodRef.desc, null, "")
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.methodName, methodHolder.desc, null, "")
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     ObjectVar objVar = prev.getter.invoke(methodBody);
@@ -54,10 +55,10 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
 
     @Override
     public ObjectVar invoke(MethodBody methodBody) {
-        ObjectVar objectVar = new ObjectVar(methodBody.lvbIndex++, methodType.getReturnType());
+        FieldVar objectVar = new FieldVar(methodBody.lvbIndex++, methodType.getReturnType(), field.fieldName);
         methodBody.append(mv -> {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodRef.owner, methodRef.methodName, methodRef.desc, false);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodHolder.owner, methodHolder.methodName, methodHolder.desc, false);
             objectVar.store(methodBody);
         });
         return objectVar;

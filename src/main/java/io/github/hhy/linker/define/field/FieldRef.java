@@ -3,13 +3,12 @@ package io.github.hhy.linker.define.field;
 
 import io.github.hhy.linker.bytecode.getter.Getter;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.TargetPoint;
 import org.objectweb.asm.Type;
 
 /**
  * 用来表示目标字段
  */
-public class FieldRef extends TargetPoint {
+public class FieldRef {
 
 
     /**

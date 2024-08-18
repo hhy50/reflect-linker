@@ -4,7 +4,7 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.MethodHandle;
-import io.github.hhy.linker.bytecode.MethodRef;
+import io.github.hhy.linker.bytecode.MethodHolder;
 import io.github.hhy.linker.bytecode.getter.Getter;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.LookupVar;
@@ -28,14 +28,14 @@ public class Setter extends MethodHandle {
     protected final Type methodType;
     protected LookupMember lookupMember;
     protected MethodHandleMember mhMember;
-    protected MethodRef methodRef;
+    protected MethodHolder methodHolder;
     protected boolean isEarly;
 
     public Setter(String implClass, FieldRef field, Type methodType) {
         this.field = field;
         this.prev = field.getPrev();
         this.methodType = methodType;
-        this.methodRef = new MethodRef(ClassUtil.className2path(implClass), "set_"+field.getFullName(), methodType.getDescriptor());
+        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "set_"+field.getFullName(), methodType.getDescriptor());
         this.isEarly = this.field instanceof EarlyFieldRef;
     }
 
@@ -49,7 +49,7 @@ public class Setter extends MethodHandle {
                 : classImplBuilder.defineMethodHandle(this.field.getSetterName(), methodType);
 
         // 定义当前字段的 setter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodRef.methodName, methodRef.desc, null, "")
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.methodName, methodHolder.desc, null, "")
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     ObjectVar objVar = prev.getter.invoke(methodBody);
@@ -84,7 +84,7 @@ public class Setter extends MethodHandle {
         methodBody.append(mv -> {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             methodBody.loadArgs();
-            mv.visitMethodInsn(INVOKEVIRTUAL, methodRef.owner, methodRef.methodName, methodRef.desc, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, methodHolder.owner, methodHolder.methodName, methodHolder.desc, false);
         });
         return null;
     }
