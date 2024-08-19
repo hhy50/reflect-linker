@@ -11,7 +11,6 @@ import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
-import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -38,15 +37,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     private void init() {
         EarlyFieldRef target = new EarlyFieldRef(null, "target", Type.getType(bindTarget));
         TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
-        LookupMember lookupMember = new LookupMember(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, implClassDesc, target.getLookupName());
-        lookupMember.isTarget(true);
 
-        this.defineField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, lookupMember.memberName, LookupVar.DESCRIPTOR, null, null);
-        this.getClinit().append(mv -> {
-            mv.visitLdcInsn(target.getType());
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);
-            mv.visitFieldInsn(Opcodes.PUTSTATIC, ClassUtil.className2path(this.getClassName()), lookupMember.memberName, LookupVar.DESCRIPTOR);
-        });
+        LookupMember lookupMember = this.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, target.getLookupName());
+        lookupMember.isTarget(true);
+        lookupMember.staticInit(this.getClinit(), target.getType());
 
         this.members.put(lookupMember.memberName, lookupMember);
         this.getters.put(targetFieldGetter.field.getGetterName(), targetFieldGetter);
@@ -92,6 +86,14 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
             this.members.put(lookupMemberName, new LookupMember(access, implClassDesc, lookupMemberName));
         }
         return (LookupMember) members.get(lookupMemberName);
+    }
+
+    public LookupMember defineLookup(int access, String memberName) {
+        if (!members.containsKey(memberName)) {
+            super.defineField(access, memberName, LookupVar.DESCRIPTOR, null, null);
+            this.members.put(memberName, new LookupMember(access, implClassDesc, memberName));
+        }
+        return (LookupMember) members.get(memberName);
     }
 
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {

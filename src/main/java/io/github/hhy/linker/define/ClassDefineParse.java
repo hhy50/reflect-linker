@@ -27,18 +27,16 @@ public class ClassDefineParse {
 
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
-    public static InvokeClassDefine parseClass(Class<?> define, Class<?> bindClass) throws ParseException {
-        return doParseClass(define, bindClass);
+    public static InvokeClassDefine parseClass(Class<?> define, Class<?> bindClass) throws ParseException, ClassNotFoundException {
+        return doParseClass(define, bindClass.getClassLoader());
     }
 
-    public static InvokeClassDefine doParseClass(Class<?> define, Class<?> bindClass) throws ParseException {
+    public static InvokeClassDefine doParseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
         io.github.hhy.linker.annotations.Target.Bind annotation = define.getDeclaredAnnotation(Target.Bind.class);
         if (annotation == null || annotation.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
-        } else if (!ClassUtil.isAssignableFrom(bindClass, annotation.value())) {
-            throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+bindClass+"]");
         }
-
+        Class<?> bindClass = classLoader.loadClass(annotation.value());
         Map<String, String> typeDefines = getTypeDefines(define);
         EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, "target", Type.getType(bindClass));
         List<MethodDefine> methodDefines = new ArrayList<>();
@@ -72,7 +70,7 @@ public class ClassDefineParse {
      * @param typedDefines
      * @return
      */
-    public static MethodDefine parseMethod(Class<?> bindClass, Method method, EarlyFieldRef targetFieldRef, Map<String, String> typedDefines) {
+    public static MethodDefine parseMethod(Class<?> bindClass, Method method, EarlyFieldRef targetFieldRef, Map<String, String> typedDefines) throws ClassNotFoundException {
         verify(method);
 
         String fieldExpr = null;
@@ -93,8 +91,8 @@ public class ClassDefineParse {
                     = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
             io.github.hhy.linker.annotations.Method.InvokeSuper superClass
                     = method.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
-            io.github.hhy.linker.annotations.Method.DynamicSign dynamicSign = method
-                    .getAnnotation(io.github.hhy.linker.annotations.Method.DynamicSign.class);
+//            io.github.hhy.linker.annotations.Method.DynamicSign dynamicSign = method
+//                    .getAnnotation(io.github.hhy.linker.annotations.Method.DynamicSign.class);
             // 校验方法是否存在
             String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), method.getName());
 //            java.lang.reflect.Method rMethod = ReflectUtil.getDeclaredMethod(bindClass, methodName);
@@ -143,7 +141,7 @@ public class ClassDefineParse {
      * @param typedDefines
      * @return
      */
-    private static FieldRef parseFieldExpr(Class<?> bindClass, final EarlyFieldRef targetFieldRef, final Tokens tokens, Map<String, String> typedDefines) {
+    private static FieldRef parseFieldExpr(Class<?> bindClass, final EarlyFieldRef targetFieldRef, final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
         Class<?> currentType = bindClass;
         FieldRef lastField = targetFieldRef;
 
@@ -159,21 +157,23 @@ public class ClassDefineParse {
                 currentField = token.getField(currentType);
                 currentType = currentField == null ? null : currentField.getType();
             }
-            String assignedType = typedDefines.get(fullField);
-            if (assignedType == null) {
-                assignedType = typedDefines.get(token.value());
+            Class<?> assignedType = null;
+            if (typedDefines.containsKey(fullField)) {
+                assignedType = bindClass.getClassLoader().loadClass(typedDefines.get(fullField));
             }
+
             if (assignedType != null && currentField != null) {
-                if (!ClassUtil.isAssignableFrom(currentField.getType(), assignedType)) {
-                    throw new ClassTypeNotMuchException(assignedType, currentField.getType().getName());
+                if (!ClassUtil.isAssignableFrom(assignedType, currentField.getType())) {
+                    throw new ClassTypeNotMuchException(assignedType.getName(), currentField.getType().getName());
                 }
-                lastField = new EarlyFieldRef(lastField, currentField, Type.getObjectType(assignedType));
+                currentType = assignedType;
+                lastField = new EarlyFieldRef(lastField, currentField, Type.getType(assignedType));
             } else {
                 if (currentField == null) {
                     lastField = new RuntimeFieldRef(lastField, token.value());
                     continue;
                 }
-                lastField = new EarlyFieldRef(lastField, currentField, null);
+                lastField = new EarlyFieldRef(lastField, currentField);
             }
         }
         return lastField;

@@ -6,7 +6,11 @@ import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 
-public class Invoker extends MethodHandle {
+public class EarlyMethodInvoke extends MethodHandle {
+
+    public EarlyMethodInvoke() {
+
+    }
 
     @Override
     public ObjectVar invoke(MethodBody methodBody) {

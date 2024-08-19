@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 public interface Field {
 
     /**
-     * 获取指定字段值
-     * 这个字段可以是private | static
-     * TODO? 支持获取多级字段 a.b.c
+     *  <p>获取指定字段值</p>
+     * 这个字段可以是 private | static, 支持获取链式字段 a.b.c
+     * 这个注解方法的签名返回值必须是void, 并且参数只能有一个
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
@@ -19,8 +19,9 @@ public interface Field {
     }
 
     /**
-     * 设置指定字段值
+     * <p>设置指定字段值</p>
      * 这个字段可以是private | static | final
+     * 这个注解方法的签名返回值类型不能为void, 并且参数的长度必须为0
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})

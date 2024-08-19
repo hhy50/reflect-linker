@@ -54,7 +54,7 @@ public class Setter extends MethodHandle {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     ObjectVar objVar = prev.getter.invoke(methodBody);
                     if (this.prev instanceof EarlyFieldRef) {
-                        initStaticLookup(classImplBuilder, this.lookupMember, this.prev.getType());
+                        this.lookupMember.staticInit(classImplBuilder.getClinit(), this.prev.getType());
                     } else {
                         Getter prevGetter = this.prev.getter;
                         staticCheckLookup(methodBody, prevGetter.lookupMember, this.lookupMember, objVar, prevGetter.field);
@@ -63,7 +63,7 @@ public class Setter extends MethodHandle {
                     if (this.isEarly) {
                         EarlyFieldRef earlyField = (EarlyFieldRef) this.field;
                         initStaticMethodHandle(classImplBuilder, this.mhMember, this.lookupMember,
-                                ((EarlyFieldRef) this.prev).type, this.field.fieldName, methodType, earlyField.isStatic());
+                                this.prev.getType(), this.field.fieldName, methodType, earlyField.isStatic());
 
                         // mh.invoke(obj, value)
                         ObjectVar nil = ((EarlyFieldRef) this.field).isStatic()

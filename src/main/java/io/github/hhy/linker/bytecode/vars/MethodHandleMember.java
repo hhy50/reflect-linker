@@ -7,8 +7,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Field;
-
 public class MethodHandleMember extends Member {
 
     private final Type methodType;

@@ -14,7 +14,20 @@ public class ClassUtil {
         return className.substring(className.lastIndexOf(".") + 1);
     }
 
-    public static boolean isAssignableFrom(Class<?> child, String parent) {
-        return true;
+    /**
+     * 验证是否有父子关系
+     * @param child
+     * @param parent
+     * @return
+     */
+    public static boolean isAssignableFrom(Class<?> child, Class<?> parent) {
+        Class<?> superclass = child.getSuperclass();
+        while (superclass != null && superclass != Object.class) {
+            if (superclass == parent) {
+                return true;
+            }
+            superclass = superclass.getSuperclass();
+        }
+        return false;
     }
 }

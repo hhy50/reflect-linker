@@ -16,17 +16,28 @@ public class EarlyFieldRef extends FieldRef {
 
     private Field field;
 
-    public Type type;
+    public Type declaredType;
+
+    public Type realType;
+
+    public EarlyFieldRef(FieldRef prev, Field field) {
+        super(prev, field.getName());
+        this.field = field;
+        this.declaredType = Type.getType(field.getType());
+        this.realType = this.declaredType;
+    }
 
     public EarlyFieldRef(FieldRef prev, Field field, Type realType) {
         super(prev, field.getName());
         this.field = field;
-        this.type = realType == null ? Type.getType(field.getType()) : realType;
+        this.declaredType = Type.getType(field.getType());
+        this.realType = realType;
     }
 
     public EarlyFieldRef(FieldRef prev, String fieldName, Type realType) {
         super(prev, fieldName);
-        this.type = realType;
+        this.declaredType = realType;
+        this.realType = realType;
     }
 
     public boolean isStatic() {
@@ -35,6 +46,6 @@ public class EarlyFieldRef extends FieldRef {
 
     @Override
     public Type getType() {
-        return this.type;
+        return this.realType;
     }
 }

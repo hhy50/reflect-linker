@@ -13,9 +13,10 @@ public class LinkerFactory {
         if (target == null) {
             throw new NullPointerException("target");
         }
-        InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, target.getClass());
-        Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
+
         try {
+            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, target.getClass());
+            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
             Constructor<?> constructor = implClass.getConstructors()[0];
             return (T) constructor.newInstance(target);
         } catch (Exception e) {
@@ -24,9 +25,10 @@ public class LinkerFactory {
     }
 
     public static <T, U> T createStaticLinker(Class<T> define, Class<U> bindClass) throws LinkerException {
-        InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, bindClass);
-        Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
         try {
+            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, bindClass);
+            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
+
             Constructor<?> constructor = implClass.getConstructors()[0];
             return (T) constructor.newInstance((U) null);
         } catch (Exception e) {
@@ -35,9 +37,10 @@ public class LinkerFactory {
     }
 
     public static <T> T newInstance(Class<T> define, Class<?> bindClass, Object... args) throws LinkerException {
-        InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, bindClass);
-        Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
         try {
+            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, bindClass);
+            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
+
             Object target = bindClass.newInstance();
             Constructor<?> constructor = implClass.getConstructors()[0];
             return (T) constructor.newInstance(target);

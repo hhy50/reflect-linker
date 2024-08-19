@@ -2,11 +2,8 @@ package io.github.hhy.linker.test.statictest;
 
 import io.github.hhy.linker.LinkerFactory;
 import io.github.hhy.linker.exceptions.LinkerException;
-import io.github.hhy.linker.test.arraylist.MyArrayList;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 public class StaticTest {
 

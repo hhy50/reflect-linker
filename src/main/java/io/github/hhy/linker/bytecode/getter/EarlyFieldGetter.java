@@ -24,22 +24,29 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         super(fieldRef);
         this.prev = field.getPrev();
         this.methodType = methodType;
-        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getFullName(), this.methodType.getDescriptor());
+        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_" + field.getFullName(), this.methodType.getDescriptor());
     }
 
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         this.prev.getter.define(classImplBuilder);
-        // 先定义上一层字段的lookup
-        this.lookupMember = classImplBuilder.defineLookup(this.prev);
+        // 先定义上一层字段的lookup/realType
+        this.lookupMember = classImplBuilder.defineLookup(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, this.prev.getLookupName());
         // 定义当前字段的mh
         this.mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), methodType);
 
         // 如果上层也是确定好的类型, 直接初始化
         if (this.prev instanceof EarlyFieldRef) {
-            initStaticLookup(classImplBuilder, this.lookupMember, ((EarlyFieldRef) this.prev).type);
+            EarlyFieldRef prev = (EarlyFieldRef) this.prev;
+            this.lookupMember.staticInit(classImplBuilder.getClinit(), this.prev.getType());
+
             initStaticMethodHandle(classImplBuilder, this.mhMember, this.lookupMember,
-                    ((EarlyFieldRef) this.prev).type, this.field.fieldName, methodType, field.isStatic());
+                    prev.realType, this.field.fieldName, methodType, field.isStatic());
+            if (prev.declaredType != prev.getType()) {
+                LookupMember lookup = classImplBuilder
+                        .defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, prev.declaredType.getClassName().replace('.', '_') + "_lookup");
+                lookup.staticInit(classImplBuilder.getClinit(), prev.declaredType);
+            }
             this.inited = true;
         }
 

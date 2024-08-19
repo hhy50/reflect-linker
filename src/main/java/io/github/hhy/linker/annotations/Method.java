@@ -16,11 +16,11 @@ public interface Method {
         String value();
     }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @java.lang.annotation.Target({ElementType.METHOD})
-    @interface DynamicSign {
-        String value();
-    }
+//    @Retention(RetentionPolicy.RUNTIME)
+//    @java.lang.annotation.Target({ElementType.METHOD})
+//    @interface DynamicSign {
+//        String value();
+//    }
 
     /**
      * 调用super
@@ -30,5 +30,4 @@ public interface Method {
     public @interface InvokeSuper {
         String value() default "";
     }
-
 }
