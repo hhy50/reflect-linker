@@ -30,4 +30,23 @@ public class ClassUtil {
         }
         return false;
     }
+
+    /**
+     * 验证是否有父子关系
+     * @param child
+     * @param parent
+     * @return
+     */
+    public static boolean isAssignableFrom(Class<?> child, String parent) {
+        if (child.getName().equals(parent)) return true;
+
+        Class<?> superclass = child.getSuperclass();
+        while (superclass != null && superclass != Object.class) {
+            if (superclass.getName().equals(parent)) {
+                return true;
+            }
+            superclass = superclass.getSuperclass();
+        }
+        return false;
+    }
 }

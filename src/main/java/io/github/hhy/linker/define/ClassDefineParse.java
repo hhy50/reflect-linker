@@ -17,10 +17,7 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClassDefineParse {
@@ -28,15 +25,17 @@ public class ClassDefineParse {
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
     public static InvokeClassDefine parseClass(Class<?> define, Class<?> bindClass) throws ParseException, ClassNotFoundException {
-        return doParseClass(define, bindClass.getClassLoader());
+        return doParseClass(define, bindClass);
     }
 
-    public static InvokeClassDefine doParseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
+    public static InvokeClassDefine doParseClass(Class<?> define, Class<?> bindClass) throws ParseException, ClassNotFoundException {
         io.github.hhy.linker.annotations.Target.Bind annotation = define.getDeclaredAnnotation(Target.Bind.class);
         if (annotation == null || annotation.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
+        } else if (!ClassUtil.isAssignableFrom(bindClass, annotation.value())) {
+            throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+bindClass+"]");
         }
-        Class<?> bindClass = classLoader.loadClass(annotation.value());
+
         Map<String, String> typeDefines = getTypeDefines(define);
         EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, "target", Type.getType(bindClass));
         List<MethodDefine> methodDefines = new ArrayList<>();
@@ -141,7 +140,9 @@ public class ClassDefineParse {
      * @param typedDefines
      * @return
      */
-    private static FieldRef parseFieldExpr(Class<?> bindClass, final EarlyFieldRef targetFieldRef, final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
+    private static FieldRef parseFieldExpr(Class<?> bindClass, final EarlyFieldRef targetFieldRef,
+                                           final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
+        ClassLoader classLoader = Optional.ofNullable(bindClass.getClassLoader()).orElse(ClassLoader.getSystemClassLoader());
         Class<?> currentType = bindClass;
         FieldRef lastField = targetFieldRef;
 

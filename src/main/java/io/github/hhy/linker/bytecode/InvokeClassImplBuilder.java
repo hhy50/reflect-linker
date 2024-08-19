@@ -88,7 +88,14 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return (LookupMember) members.get(lookupMemberName);
     }
 
-    public LookupMember defineLookup(int access, String memberName) {
+    /**
+     * 定义指定类型的lookup字段
+     * @param access
+     * @param type
+     * @return
+     */
+    public LookupMember defineLookup(int access, Type type) {
+        String memberName = type.getClassName().replace('.', '_') + "_lookup";
         if (!members.containsKey(memberName)) {
             super.defineField(access, memberName, LookupVar.DESCRIPTOR, null, null);
             this.members.put(memberName, new LookupMember(access, implClassDesc, memberName));

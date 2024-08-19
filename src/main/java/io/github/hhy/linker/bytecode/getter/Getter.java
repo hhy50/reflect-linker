@@ -20,7 +20,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
 
     public MethodHolder methodHolder;
 
-    public LookupMember lookupMember;
+    protected LookupMember lookupMember;
 
     public Getter(T field) {
         this.field = field;

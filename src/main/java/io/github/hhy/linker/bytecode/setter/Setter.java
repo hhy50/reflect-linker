@@ -63,7 +63,7 @@ public class Setter extends MethodHandle {
                     if (this.isEarly) {
                         EarlyFieldRef earlyField = (EarlyFieldRef) this.field;
                         initStaticMethodHandle(classImplBuilder, this.mhMember, this.lookupMember,
-                                this.prev.getType(), this.field.fieldName, methodType, earlyField.isStatic());
+                                this.prev.getType(), this.field.fieldName, Type.getMethodType(Type.VOID_TYPE, earlyField.declaredType), earlyField.isStatic());
 
                         // mh.invoke(obj, value)
                         ObjectVar nil = ((EarlyFieldRef) this.field).isStatic()

@@ -12,7 +12,8 @@ public class NestObjTest {
     @Test
     public void test1() throws LinkerException {
         // get
-        ObjVisitor obj = LinkerFactory.createLinker(ObjVisitor.class, new Obj());
+//        ObjVisitor obj = LinkerFactory.createLinker(ObjVisitor.class, new Obj());
+        ObjVisitor$impl obj = new ObjVisitor$impl(new Obj());
         Object a = obj.getA();
         Object b = obj.getB();
         Object c = obj.getC();

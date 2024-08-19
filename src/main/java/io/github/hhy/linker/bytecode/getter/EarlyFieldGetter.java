@@ -30,9 +30,11 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         this.prev.getter.define(classImplBuilder);
-        // 先定义上一层字段的lookup/realType
-        this.lookupMember = classImplBuilder.defineLookup(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, this.prev.getLookupName());
-        // 定义当前字段的mh
+
+        // 定义上一层字段的lookup, 必须要用declaredType
+        this.lookupMember = classImplBuilder.defineLookup(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, prev.getType());
+
+        // 定义当前字段的getter mh
         this.mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), methodType);
 
         // 如果上层也是确定好的类型, 直接初始化
@@ -40,13 +42,16 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
             EarlyFieldRef prev = (EarlyFieldRef) this.prev;
             this.lookupMember.staticInit(classImplBuilder.getClinit(), this.prev.getType());
 
-            initStaticMethodHandle(classImplBuilder, this.mhMember, this.lookupMember,
-                    prev.realType, this.field.fieldName, methodType, field.isStatic());
-            if (prev.declaredType != prev.getType()) {
+            LookupMember declaredLookup = this.lookupMember;
+            if (field.declaredType != field.getType()) {
                 LookupMember lookup = classImplBuilder
-                        .defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, prev.declaredType.getClassName().replace('.', '_') + "_lookup");
-                lookup.staticInit(classImplBuilder.getClinit(), prev.declaredType);
+                        .defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, field.declaredType);
+                lookup.staticInit(classImplBuilder.getClinit(), field.declaredType);
+                declaredLookup = lookup;
             }
+
+            initStaticMethodHandle(classImplBuilder, this.mhMember, this.lookupMember,
+                    prev.realType, this.field.fieldName, Type.getMethodType(field.declaredType), field.isStatic());
             this.inited = true;
         }
 
