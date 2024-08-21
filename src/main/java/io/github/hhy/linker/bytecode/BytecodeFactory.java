@@ -5,13 +5,15 @@ import io.github.hhy.linker.bytecode.getter.GetterWrapper;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.setter.SetterWrapper;
 import io.github.hhy.linker.define.MethodDefine;
-import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.define.field2.FieldRef;
 import org.objectweb.asm.Type;
 
 
 public class BytecodeFactory {
 
-    public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef targetPoint) {
+    public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef fieldRef) {
+        String fullName = fieldRef.getFullName();
+
         FieldRef prev = targetPoint.getPrev();
         while (prev != null) {
             prev.getter = classBuilder.defineGetter(prev, Type.getMethodType(prev.getType()));

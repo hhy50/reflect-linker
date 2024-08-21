@@ -2,7 +2,7 @@ package io.github.hhy.linker.define;
 
 
 import io.github.hhy.linker.annotations.Field;
-import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.define.field2.FieldRef;
 
 import java.lang.reflect.Method;
 

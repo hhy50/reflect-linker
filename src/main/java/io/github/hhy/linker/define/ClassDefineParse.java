@@ -2,9 +2,9 @@ package io.github.hhy.linker.define;
 
 import io.github.hhy.linker.annotations.Target;
 import io.github.hhy.linker.annotations.Typed;
-import io.github.hhy.linker.define.field.EarlyFieldRef;
-import io.github.hhy.linker.define.field.FieldRef;
-import io.github.hhy.linker.define.field.RuntimeFieldRef;
+import io.github.hhy.linker.define.field2.EarlyFieldRef;
+import io.github.hhy.linker.define.field2.FieldRef;
+import io.github.hhy.linker.define.field2.RuntimeFieldRef;
 import io.github.hhy.linker.exceptions.ClassTypeNotMuchException;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
@@ -33,11 +33,11 @@ public class ClassDefineParse {
         if (annotation == null || annotation.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
         } else if (!ClassUtil.isAssignableFrom(bindClass, annotation.value())) {
-            throw new VerifyException("@Target.Bind specified target "+annotation.value()+", but used another target class ["+bindClass+"]");
+            throw new VerifyException("@Target.Bind specified target " + annotation.value() + ", but used another target class [" + bindClass + "]");
         }
 
         Map<String, String> typeDefines = getTypeDefines(define);
-        EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, "target", Type.getType(bindClass));
+        EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, null, "target", Type.getType(bindClass));
         List<MethodDefine> methodDefines = new ArrayList<>();
         for (Method declaredMethod : define.getDeclaredMethods()) {
             methodDefines.add(parseMethod(bindClass, declaredMethod, targetFieldRef, typeDefines));
@@ -115,19 +115,19 @@ public class ClassDefineParse {
         io.github.hhy.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Setter.class);
         // Field.Setter和@Field.Getter只能有一个
         if (getter != null && setter != null) {
-            throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] cannot have two annotations @Field.getter and @Field.setter");
+            throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations @Field.getter and @Field.setter");
         }
         if (getter != null && (method.getReturnType() == void.class || method.getParameters().length > 0)) {
-            throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method,its return value cannot be of type void, and the parameter length must be 0");
+            throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method,its return value cannot be of type void, and the parameter length must be 0");
         } else if (setter != null && (method.getReturnType() != void.class || method.getParameters().length != 1)) {
-            throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is setter method,its return value must be of type void, and the parameter length must be 1");
+            throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is setter method,its return value must be of type void, and the parameter length must be 1");
         }
 
         io.github.hhy.linker.annotations.Method.Name methodNameAnn
                 = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
         // @Field 和 @Method相关的注解不能同时存在
         if ((getter != null || setter != null) & (methodNameAnn != null)) {
-            throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
+            throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
         }
     }
 
@@ -143,38 +143,35 @@ public class ClassDefineParse {
     private static FieldRef parseFieldExpr(Class<?> bindClass, final EarlyFieldRef targetFieldRef,
                                            final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
         ClassLoader classLoader = Optional.ofNullable(bindClass.getClassLoader()).orElse(ClassLoader.getSystemClassLoader());
+
         Class<?> currentType = bindClass;
         FieldRef lastField = targetFieldRef;
-
         String fullField = null;
         for (Token token : tokens) {
-            fullField = fullField == null ? token.value() : (fullField+"."+token.value());
+            fullField = fullField == null ? token.value() : (fullField + "." + token.value());
             if (lastField instanceof RuntimeFieldRef) {
-                lastField = new RuntimeFieldRef(lastField, token.value());
+                lastField = new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
                 continue;
             }
-            Field currentField = null;
-            if (currentType != null) {
-                currentField = token.getField(currentType);
-                currentType = currentField == null ? null : currentField.getType();
-            }
+            Field currentField = token.getField(currentType);
+            currentType = currentField == null ? null : currentField.getType();
+
             Class<?> assignedType = null;
             if (typedDefines.containsKey(fullField)) {
-                assignedType = bindClass.getClassLoader().loadClass(typedDefines.get(fullField));
+                assignedType = classLoader.loadClass(typedDefines.get(fullField));
             }
-
             if (assignedType != null && currentField != null) {
                 if (!ClassUtil.isAssignableFrom(assignedType, currentField.getType())) {
                     throw new ClassTypeNotMuchException(assignedType.getName(), currentField.getType().getName());
                 }
                 currentType = assignedType;
-                lastField = new EarlyFieldRef(lastField, currentField, Type.getType(assignedType));
+                lastField = new EarlyFieldRef(null, lastField.fieldName, currentField, Type.getType(assignedType));
             } else {
                 if (currentField == null) {
-                    lastField = new RuntimeFieldRef(lastField, token.value());
+                    lastField = new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
                     continue;
                 }
-                lastField = new EarlyFieldRef(lastField, currentField);
+                lastField = new EarlyFieldRef(lastField, lastField.fieldName, currentField);
             }
         }
         return lastField;

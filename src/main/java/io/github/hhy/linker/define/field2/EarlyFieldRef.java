@@ -25,9 +25,17 @@ public class EarlyFieldRef extends FieldRef {
     public EarlyFieldRef(FieldRef prev, String objName, Field field) {
         super(prev, objName, field.getName());
         this.objDeclaredType = Type.getType(field.getDeclaringClass());
+        this.objRealType = this.objDeclaredType;
         this.fieldType = Type.getType(field.getType());
         this.isStatic = Modifier.isStatic(field.getModifiers());
-//        this.objRealType = Type.getType(field.getType());
+    }
+
+    public EarlyFieldRef(FieldRef prev, String objName, Field field, Type objRealType) {
+        super(prev, objName, field.getName());
+        this.objDeclaredType = Type.getType(field.getDeclaringClass());
+        this.objRealType = objRealType;
+        this.fieldType = Type.getType(field.getType());
+        this.isStatic = Modifier.isStatic(field.getModifiers());
     }
 
     /**
