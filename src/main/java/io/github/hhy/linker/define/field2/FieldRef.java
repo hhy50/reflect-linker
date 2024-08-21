@@ -7,7 +7,7 @@ import org.objectweb.asm.Type;
 /**
  * 用来表示目标字段
  */
-public class FieldRef {
+public abstract class FieldRef {
 
     /**
      * 对象名
@@ -48,5 +48,9 @@ public class FieldRef {
 
     public Type getType() {
         return ObjectVar.TYPE;
+    }
+
+    public FieldRef getPrev() {
+        return prev;
     }
 }

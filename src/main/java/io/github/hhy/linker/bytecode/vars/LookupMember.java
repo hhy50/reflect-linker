@@ -11,12 +11,36 @@ public class LookupMember extends Member {
     private boolean isTargetLookup;
 
     /**
+     * lookupClass
+     */
+    private Type staticType;
+
+    /**
      * 防止多次静态初始化
      */
     private boolean inited;
 
+    /**
+     * 拥有静态类型的构造
+     * @param access
+     * @param owner
+     * @param lookupName
+     * @param staticType
+     */
+    public LookupMember(int access, String owner, String lookupName, Type staticType) {
+        super(access, owner, lookupName, LookupVar.TYPE);
+        this.staticType = staticType;
+    }
+
+    /**
+     * 没有静态类型的构造， 只能在运行时初始化
+     * @param access
+     * @param owner
+     * @param lookupName
+     */
     public LookupMember(int access, String owner, String lookupName) {
         super(access, owner, lookupName, LookupVar.TYPE);
+        this.staticType = staticType;
     }
 
     public void lookupClass(MethodBody methodBody) {
@@ -37,10 +61,11 @@ public class LookupMember extends Member {
      * @param clinit
      * @param type
      */
-    public void staticInit(MethodBody clinit, Type type) {
+    public void staticInit(MethodBody clinit) {
         if (inited) return;
+//        if (staticType == null) throw ;
         clinit.append(mv -> {
-            mv.visitLdcInsn(type);
+            mv.visitLdcInsn(staticType);
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);
             store(clinit);
         });

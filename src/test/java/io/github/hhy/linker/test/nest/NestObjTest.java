@@ -1,6 +1,5 @@
 package io.github.hhy.linker.test.nest;
 
-import io.github.hhy.linker.LinkerFactory;
 import io.github.hhy.linker.exceptions.LinkerException;
 import org.junit.Assert;
 import org.junit.Test;

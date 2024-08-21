@@ -7,9 +7,9 @@ import io.github.hhy.linker.bytecode.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.bytecode.getter.TargetFieldGetter;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.vars.*;
-import io.github.hhy.linker.define.field.EarlyFieldRef;
-import io.github.hhy.linker.define.field.FieldRef;
-import io.github.hhy.linker.define.field.RuntimeFieldRef;
+import io.github.hhy.linker.define.field2.EarlyFieldRef;
+import io.github.hhy.linker.define.field2.FieldRef;
+import io.github.hhy.linker.define.field2.RuntimeFieldRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
@@ -59,24 +59,42 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return this;
     }
 
-    public Getter defineGetter(FieldRef field, Type methodType) {
-        String getterMhVarName = field.getGetterName();
-        return getters.computeIfAbsent(getterMhVarName, key -> {
-            if (field instanceof EarlyFieldRef) {
-                return new EarlyFieldGetter(getClassName(), (EarlyFieldRef) field, methodType);
+    /**
+     * 定义Getter
+     * @param field
+     * @param methodType
+     * @return
+     */
+    public Getter defineGetter(String fieldName, FieldRef fieldRef) {
+        return getters.computeIfAbsent(fieldName, key -> {
+            if (fieldRef instanceof EarlyFieldRef) {
+                return new EarlyFieldGetter(getClassName(), (EarlyFieldRef) fieldRef);
             } else {
-                return new RuntimeFieldGetter(getClassName(), (RuntimeFieldRef) field, methodType);
+                return new RuntimeFieldGetter(getClassName(), (RuntimeFieldRef) fieldRef);
             }
         });
     }
 
-    public Setter defineSetter(FieldRef field, Type methodType) {
-        String getterMhVarName = field.getGetterName();
-        return setters.computeIfAbsent(getterMhVarName, key -> new Setter(getClassName(), field, methodType));
+    /**
+     * 获取getter
+     * @param fieldName
+     * @return
+     */
+    public Getter getGetter(String fieldName) {
+        return getters.get(fieldName);
     }
 
+    public Setter defineSetter(String fieldName, FieldRef field) {
+        return setters.computeIfAbsent(fieldName, key -> new Setter(getClassName(), field));
+    }
+
+    /**
+     * 定义运行时的lookup
+     * @param fieldRef
+     * @return
+     */
     public LookupMember defineLookup(FieldRef fieldRef) {
-        String lookupMemberName = fieldRef.getLookupName();
+        String lookupMemberName = fieldRef.getFullName()+"_lookup";
         if (!members.containsKey(lookupMemberName)) {
             int access = Opcodes.ACC_PUBLIC;
             if (fieldRef instanceof EarlyFieldRef) {
@@ -98,11 +116,17 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         String memberName = type.getClassName().replace('.', '_') + "_lookup";
         if (!members.containsKey(memberName)) {
             super.defineField(access, memberName, LookupVar.DESCRIPTOR, null, null);
-            this.members.put(memberName, new LookupMember(access, implClassDesc, memberName));
+            this.members.put(memberName, new LookupMember(access, implClassDesc, memberName, type));
         }
         return (LookupMember) members.get(memberName);
     }
 
+    /**
+     * 定义静态的methodHandle
+     * @param mhMemberName
+     * @param methodType
+     * @return
+     */
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
             int access = Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC;

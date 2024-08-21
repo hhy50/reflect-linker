@@ -6,30 +6,28 @@ import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.setter.SetterWrapper;
 import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.define.field2.FieldRef;
-import org.objectweb.asm.Type;
 
 
 public class BytecodeFactory {
 
     public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef fieldRef) {
-        String fullName = fieldRef.getFullName();
-
-        FieldRef prev = targetPoint.getPrev();
+        FieldRef prev = fieldRef.getPrev();
         while (prev != null) {
-            prev.getter = classBuilder.defineGetter(prev, Type.getMethodType(prev.getType()));
+            classBuilder.defineGetter(prev.getFullName(), prev);
             prev = prev.getPrev();
         }
-        Getter getter = classBuilder.defineGetter(targetPoint, Type.getMethodType(targetPoint.getType()));
+        Getter getter = classBuilder.defineGetter(fieldRef.getFullName(), fieldRef);
         return new GetterWrapper(getter, methodDefine.define);
     }
 
-    public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef targetPoint) {
-        FieldRef prev = targetPoint.getPrev();
+    public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef fieldRef) {
+        FieldRef prev = fieldRef.getPrev();
         while (prev != null) {
-            prev.getter = classBuilder.defineGetter(prev, Type.getMethodType(Type.VOID_TYPE, prev.getType()));
+            classBuilder.defineGetter(prev.getFullName(), prev);
             prev = prev.getPrev();
         }
-        Setter setter = classBuilder.defineSetter(targetPoint, Type.getMethodType(Type.VOID_TYPE, targetPoint.getType()));
+
+        Setter setter = classBuilder.defineSetter(fieldRef.getFullName(), fieldRef);
         return new SetterWrapper(setter, methodDefine);
     }
 }

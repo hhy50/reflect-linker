@@ -32,8 +32,11 @@ public class ClassImplGenerator {
 
         List<MethodDefine> methodDefines = defineClass.methodDefines;
         methodDefines.sort(Comparator.comparing(MethodDefine::getName));
+
+        generateGetter();
         for (MethodDefine methodDefine : methodDefines) {
             Method method = methodDefine.define;
+
             classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null, null)
                     .accept(mv -> {
                         generateMethodImpl(classBuilder, mv, methodDefine);

@@ -5,8 +5,7 @@ import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.MethodHolder;
 import io.github.hhy.linker.bytecode.vars.*;
-import io.github.hhy.linker.define.field.EarlyFieldRef;
-import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.define.field2.EarlyFieldRef;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -14,55 +13,39 @@ import org.objectweb.asm.Type;
 import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 
 public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
-    public final FieldRef prev;
-    public final Type methodType;
-    public MethodHandleMember mhMember;
+    private Type methodType;
+    //private MethodHandleMember mhMember;
     private MethodHolder methodHolder;
-    private boolean inited = false;
 
-    public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef, Type methodType) {
+    public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef) {
         super(fieldRef);
-        this.prev = field.getPrev();
-        this.methodType = methodType;
-        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_" + field.getFullName(), this.methodType.getDescriptor());
+        this.methodType = Type.getMethodType(field.getType());
+        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getFullName(), this.methodType.getDescriptor());
     }
 
     @Override
-    public void define0(InvokeClassImplBuilder classImplBuilder) {
-        this.prev.getter.define(classImplBuilder);
+    protected void define0(InvokeClassImplBuilder classImplBuilder) {
+        Getter getter = classImplBuilder.getGetter(field.getPrev().getFullName());
+        getter.define(classImplBuilder);
+
+        MethodBody clinit = classImplBuilder.getClinit();
 
         // 定义上一层字段的lookup, 必须要用declaredType
-        this.lookupMember = classImplBuilder.defineLookup(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, prev.getType());
+        LookupMember lookupMember = classImplBuilder.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, field.declaredType);
+        // init lookup
+        lookupMember.staticInit(clinit);
 
         // 定义当前字段的getter mh
-        this.mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), methodType);
-
-        // 如果上层也是确定好的类型, 直接初始化
-        if (this.prev instanceof EarlyFieldRef) {
-            EarlyFieldRef prev = (EarlyFieldRef) this.prev;
-            this.lookupMember.staticInit(classImplBuilder.getClinit(), this.prev.getType());
-
-            LookupMember declaredLookup = this.lookupMember;
-            if (field.declaredType != field.getType()) {
-                LookupMember lookup = classImplBuilder
-                        .defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, field.declaredType);
-                lookup.staticInit(classImplBuilder.getClinit(), field.declaredType);
-                declaredLookup = lookup;
-            }
-
-            initStaticMethodHandle(classImplBuilder, this.mhMember, this.lookupMember,
-                    prev.realType, this.field.fieldName, Type.getMethodType(field.declaredType), field.isStatic());
-            this.inited = true;
-        }
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
+        // init methodHandle
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember,
+                field.declaredType, field.fieldName, methodType, field.isStatic());
 
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.methodName, methodHolder.desc, null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(mv, methodType);
-            ObjectVar objVar = prev.getter.invoke(methodBody);
-            if (!inited) {
-                checkLookup(methodBody, lookupMember, mhMember, objVar);
-                checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
-            }
+            ObjectVar objVar = getter.invoke(methodBody);
+
             // mh.invoke(obj)
             ObjectVar result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
             result.load(methodBody);

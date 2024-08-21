@@ -14,26 +14,40 @@ import java.lang.reflect.Modifier;
  */
 public class EarlyFieldRef extends FieldRef {
 
-    public Type objDeclaredType;
+    /**
+     * objDeclaredType
+     * 生明的类型
+     */
+    public Type declaredType;
 
-    public Type objRealType;
+    /**
+     * objRealType
+     * 指定的类型
+     */
+    public Type realType;
 
+    /**
+     * 字段类型
+     */
     public Type fieldType;
 
+    /**
+     * 是否是静态字段
+     */
     public boolean isStatic;
 
-    public EarlyFieldRef(FieldRef prev, String objName, Field field) {
-        super(prev, objName, field.getName());
-        this.objDeclaredType = Type.getType(field.getDeclaringClass());
-        this.objRealType = this.objDeclaredType;
+    public EarlyFieldRef(FieldRef prev, Field field) {
+        super(prev, prev.getFullName(), field.getName());
+        this.declaredType = Type.getType(field.getDeclaringClass());
+        this.realType = this.declaredType;
         this.fieldType = Type.getType(field.getType());
         this.isStatic = Modifier.isStatic(field.getModifiers());
     }
 
-    public EarlyFieldRef(FieldRef prev, String objName, Field field, Type objRealType) {
-        super(prev, objName, field.getName());
-        this.objDeclaredType = Type.getType(field.getDeclaringClass());
-        this.objRealType = objRealType;
+    public EarlyFieldRef(FieldRef prev, Field field, Type objRealType) {
+        super(prev, prev.getFullName(), field.getName());
+        this.declaredType = Type.getType(field.getDeclaringClass());
+        this.realType = objRealType;
         this.fieldType = Type.getType(field.getType());
         this.isStatic = Modifier.isStatic(field.getModifiers());
     }

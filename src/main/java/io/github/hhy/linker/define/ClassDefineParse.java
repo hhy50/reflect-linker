@@ -165,13 +165,13 @@ public class ClassDefineParse {
                     throw new ClassTypeNotMuchException(assignedType.getName(), currentField.getType().getName());
                 }
                 currentType = assignedType;
-                lastField = new EarlyFieldRef(null, lastField.fieldName, currentField, Type.getType(assignedType));
+                lastField = new EarlyFieldRef(lastField, currentField, Type.getType(assignedType));
             } else {
                 if (currentField == null) {
                     lastField = new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
                     continue;
                 }
-                lastField = new EarlyFieldRef(lastField, lastField.fieldName, currentField);
+                lastField = new EarlyFieldRef(lastField, currentField);
             }
         }
         return lastField;
