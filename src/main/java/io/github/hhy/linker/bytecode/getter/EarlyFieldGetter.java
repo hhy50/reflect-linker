@@ -14,7 +14,7 @@ import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 
 public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
     private Type methodType;
-    //private MethodHandleMember mhMember;
+
     private MethodHolder methodHolder;
 
     public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef) {
@@ -25,7 +25,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        Getter getter = classImplBuilder.getGetter(field.getPrev().getFullName());
+        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getFullName());
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();

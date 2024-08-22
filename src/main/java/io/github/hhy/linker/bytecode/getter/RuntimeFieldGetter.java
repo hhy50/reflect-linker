@@ -14,14 +14,11 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
-//    public final FieldRef prev;
     private Type methodType;
     private MethodHolder methodHolder;
-//    public MethodHandleMember mhMember;
 
     public RuntimeFieldGetter(String implClass, RuntimeFieldRef field) {
         super(field);
-//        this.prev = field.getPrev();
         this.methodType = Type.getMethodType(ObjectVar.TYPE);
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_" + field.getFullName(), methodType.getDescriptor());
     }
@@ -45,7 +42,8 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
                     if (!lookupMember.isTargetLookup()) {
 //                        // 校验lookup和mh
 //                        Getter prev = this.prev.getter;
-                        staticCheckLookup(methodBody, prev.lookupMember, this.lookupMember, objVar, prev.field);
+//                        LookupMember lookupMember2 = classImplBuilder.defineLookup(field.getPrev());
+//                        staticCheckLookup(methodBody, lookupMember2, lookupMember, objVar, prev.field);
                         checkLookup(methodBody, lookupMember, mhMember, objVar);
                     }
                     checkMethodHandle(methodBody, lookupMember, mhMember, objVar);

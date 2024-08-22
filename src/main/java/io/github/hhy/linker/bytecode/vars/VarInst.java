@@ -19,12 +19,12 @@ public abstract class VarInst {
     /**
      * 当前变量在局部变量表中的索引
      */
-    public int lvbIndex;
+    private int lvbIndex;
 
     /**
      * 类型
      */
-    public Type type;
+    protected Type type;
 
     public VarInst(int lvbIndex, Type type) {
         this.lvbIndex = lvbIndex;
@@ -80,5 +80,9 @@ public abstract class VarInst {
             mv.visitVarInsn(ALOAD, lvbIndex); // obj
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
         });
+    }
+
+    public Type getType() {
+        return type;
     }
 }

@@ -9,22 +9,22 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public abstract class Member {
 
-    public int access = ACC_PUBLIC;
+    private int access = ACC_PUBLIC;
 
     /**
      * 所属类
      */
-    public String owner;
+    private String owner;
 
     /**
      * 成员名称
      */
-    public String memberName;
+    private String memberName;
 
     /**
      * 类型
      */
-    public Type type;
+    private Type type;
 
     public Member(int access, String owner, String memberName, Type type) {
         this.access = access;
@@ -33,10 +33,8 @@ public abstract class Member {
         this.type = type;
     }
 
-    public Member(String owner, String memberName, Type type) {
-        this.owner = owner;
-        this.memberName = memberName;
-        this.type = type;
+    public String getMemberName() {
+        return memberName;
     }
 
     public void load(MethodBody methodBody) {

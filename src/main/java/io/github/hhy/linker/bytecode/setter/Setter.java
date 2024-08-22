@@ -22,48 +22,44 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public class Setter extends MethodHandle {
-    protected boolean defined = false;
-    protected final FieldRef field;
-    public final FieldRef prev;
-    protected final Type methodType;
-    protected LookupMember lookupMember;
-    protected MethodHandleMember mhMember;
-    protected MethodHolder methodHolder;
-    protected boolean isEarly;
+    private final FieldRef field;
+    private final Type methodType;
+    private final MethodHolder methodHolder;
+    private final boolean isEarly;
 
     public Setter(String implClass, FieldRef field) {
         this.field = field;
-        this.prev = field.getPrev();
-        this.methodType = methodType;
+        this.methodType = Type.getMethodType(Type.VOID_TYPE, field.getType());
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "set_"+field.getFullName(), methodType.getDescriptor());
         this.isEarly = this.field instanceof EarlyFieldRef;
     }
 
-    public final void define(InvokeClassImplBuilder classImplBuilder) {
-        if (defined) return;
-        this.prev.getter.define(classImplBuilder);
+    @Override
+    public final void define0(InvokeClassImplBuilder classImplBuilder) {
+        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getFullName());
+        getter.define(classImplBuilder);
+
         // 先定义上一层字段的lookup
-        this.lookupMember = classImplBuilder.defineLookup(this.prev);
+        LookupMember lookupMember = classImplBuilder.defineLookup(field.getPrev());
         // 定义当前字段的 setter_mh
-        this.mhMember = isEarly ? classImplBuilder.defineStaticMethodHandle(this.field.getSetterName(), methodType)
+        MethodHandleMember mhMember = isEarly ? classImplBuilder.defineStaticMethodHandle(this.field.getSetterName(), methodType)
                 : classImplBuilder.defineMethodHandle(this.field.getSetterName(), methodType);
 
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.methodName, methodHolder.desc, null, "")
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(mv, methodType);
-                    ObjectVar objVar = prev.getter.invoke(methodBody);
-                    if (this.prev instanceof EarlyFieldRef) {
-                        this.lookupMember.staticInit(classImplBuilder.getClinit(), this.prev.getType());
+                    ObjectVar objVar = getter.invoke(methodBody);
+                    if (field.getPrev() instanceof EarlyFieldRef) {
+                        lookupMember.staticInit(classImplBuilder.getClinit());
                     } else {
-                        Getter prevGetter = this.prev.getter;
-                        staticCheckLookup(methodBody, prevGetter.lookupMember, this.lookupMember, objVar, prevGetter.field);
+//                        staticCheckLookup(methodBody, prevGetter.lookupMember, this.lookupMember, objVar, prevGetter.field);
                         checkLookup(methodBody, lookupMember, mhMember, objVar);
                     }
                     if (this.isEarly) {
                         EarlyFieldRef earlyField = (EarlyFieldRef) this.field;
-                        initStaticMethodHandle(classImplBuilder, this.mhMember, this.lookupMember,
-                                this.prev.getType(), this.field.fieldName, Type.getMethodType(Type.VOID_TYPE, earlyField.declaredType), earlyField.isStatic());
+                        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember,
+                                field.getPrev().getType(), this.field.fieldName, Type.getMethodType(Type.VOID_TYPE, earlyField.declaredType), earlyField.isStatic());
 
                         // mh.invoke(obj, value)
                         ObjectVar nil = ((EarlyFieldRef) this.field).isStatic()
@@ -76,7 +72,6 @@ public class Setter extends MethodHandle {
                     }
                     AsmUtil.areturn(mv, Type.VOID_TYPE);
                 });
-        this.defined = true;
     }
 
     @Override

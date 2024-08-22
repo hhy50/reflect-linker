@@ -1,6 +1,5 @@
 package io.github.hhy.linker.bytecode.getter;
 
-import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.MethodHandle;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
@@ -13,22 +12,10 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 public abstract class Getter<T extends FieldRef> extends MethodHandle {
 
-    private boolean defined = false;
-
-    public final T field;
+    protected final T field;
 
     public Getter(T field) {
         this.field = field;
-    }
-
-    public final void define(InvokeClassImplBuilder classImplBuilder) {
-        if (defined) return;
-        define0(classImplBuilder);
-        this.defined = true;
-    }
-
-    protected void define0(InvokeClassImplBuilder classImplBuilder) {
-
     }
 
     @Override

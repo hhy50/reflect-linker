@@ -10,9 +10,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.List;
@@ -24,16 +24,15 @@ public class ClassImplGenerator {
 
     public static Class<?> generateImplClass(InvokeClassDefine defineClass) {
         Class<?> define = defineClass.define;
-        Class<?> target = defineClass.bindClass;
+        Class<?> targetClass = defineClass.targetClass;
         String implClassName = define.getName()+"$impl";
         InvokeClassImplBuilder classBuilder = AsmUtil
                 .defineImplClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
-                .setTarget(target);
+                .setTarget(targetClass);
 
         List<MethodDefine> methodDefines = defineClass.methodDefines;
         methodDefines.sort(Comparator.comparing(MethodDefine::getName));
 
-        generateGetter();
         for (MethodDefine methodDefine : methodDefines) {
             Method method = methodDefine.define;
 
@@ -44,7 +43,7 @@ public class ClassImplGenerator {
         }
         byte[] bytecode = classBuilder.end().toBytecode();
         try {
-            Files.write(new File("/Users/hanhaiyang/IdeaProjects/reflect-linker/target/"+ ClassUtil.toSimpleName(implClassName)+".class").toPath(), bytecode);
+            Files.write(FileSystems.getDefault().getPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\target\\"+ClassUtil.toSimpleName(implClassName)+".class"), bytecode);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

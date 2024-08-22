@@ -15,7 +15,7 @@ public class LinkerFactory {
         }
 
         try {
-            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, target.getClass());
+            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, target.getClass().getClassLoader());
             Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
             Constructor<?> constructor = implClass.getConstructors()[0];
             return (T) constructor.newInstance(target);
@@ -24,26 +24,17 @@ public class LinkerFactory {
         }
     }
 
-    public static <T, U> T createStaticLinker(Class<T> define, Class<U> bindClass) throws LinkerException {
-        try {
-            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, bindClass);
-            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
-
-            Constructor<?> constructor = implClass.getConstructors()[0];
-            return (T) constructor.newInstance((U) null);
-        } catch (Exception e) {
-            throw new LinkerException("create linker exception", e);
-        }
+    public static <T, U> T createStaticLinker(Class<T> define, Class<U> targetClass) throws LinkerException {
+        return createStaticLinker(define, targetClass.getClassLoader());
     }
 
-    public static <T> T newInstance(Class<T> define, Class<?> bindClass, Object... args) throws LinkerException {
+    public static <T> T createStaticLinker(Class<T> define, ClassLoader classLoader) throws LinkerException {
         try {
-            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, bindClass);
+            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, classLoader);
             Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass);
 
-            Object target = bindClass.newInstance();
             Constructor<?> constructor = implClass.getConstructors()[0];
-            return (T) constructor.newInstance(target);
+            return (T) constructor.newInstance((Object) null);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);
         }

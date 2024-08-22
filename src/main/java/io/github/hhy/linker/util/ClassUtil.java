@@ -41,7 +41,7 @@ public class ClassUtil {
         if (child.getName().equals(parent)) return true;
 
         Class<?> superclass = child.getSuperclass();
-        while (superclass != null && superclass != Object.class) {
+        while (superclass != null) {
             if (superclass.getName().equals(parent)) {
                 return true;
             }

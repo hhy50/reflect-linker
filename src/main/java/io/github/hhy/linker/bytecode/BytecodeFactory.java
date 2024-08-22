@@ -16,8 +16,8 @@ public class BytecodeFactory {
             classBuilder.defineGetter(prev.getFullName(), prev);
             prev = prev.getPrev();
         }
-        Getter getter = classBuilder.defineGetter(fieldRef.getFullName(), fieldRef);
-        return new GetterWrapper(getter, methodDefine.define);
+        Getter<?> getter = classBuilder.defineGetter(fieldRef.getFullName(), fieldRef);
+        return new GetterWrapper(getter, fieldRef, methodDefine.define);
     }
 
     public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef fieldRef) {
@@ -28,6 +28,6 @@ public class BytecodeFactory {
         }
 
         Setter setter = classBuilder.defineSetter(fieldRef.getFullName(), fieldRef);
-        return new SetterWrapper(setter, methodDefine);
+        return new SetterWrapper(setter, fieldRef, methodDefine);
     }
 }

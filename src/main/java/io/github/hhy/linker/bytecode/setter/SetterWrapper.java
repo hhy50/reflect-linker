@@ -9,6 +9,7 @@ import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.bytecode.vars.VarInst;
 import io.github.hhy.linker.define.MethodDefine;
+import io.github.hhy.linker.define.field2.FieldRef;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Parameter;
@@ -18,23 +19,27 @@ import static org.objectweb.asm.Opcodes.CHECKCAST;
 public class SetterWrapper extends MethodHandle {
 
     private Setter setter;
+    private final FieldRef fieldRef;
     private final MethodDefine methodDefine;
 
-    public SetterWrapper(Setter setter, MethodDefine methodDefine) {
+    public SetterWrapper(Setter setter, FieldRef fieldRef, MethodDefine methodDefine) {
         this.setter = setter;
+        this.fieldRef = fieldRef;
         this.methodDefine = methodDefine;
     }
 
     @Override
-    public void define(InvokeClassImplBuilder classImplBuilder) {
+    public void define0(InvokeClassImplBuilder classImplBuilder) {
         setter.define(classImplBuilder);
     }
 
     @Override
     public ObjectVar invoke(MethodBody methodBody) {
         // 校验入参类型
+        // 方法定义的类型
         Parameter parameter = methodDefine.define.getParameters()[0];
-        Type type = setter.field.getType();
+        // 字段实际类型
+        Type type = fieldRef.getType();
         if (!type.equals(Type.getType(parameter.getType()))) {
             methodBody.append(mv -> {
                 VarInst arg = methodBody.getArg(0);
@@ -43,11 +48,13 @@ public class SetterWrapper extends MethodHandle {
 
                 arg = new ObjectVar(methodBody.lvbIndex++, type);
                 arg.store(methodBody);
-                methodBody.args[0] = arg;
+                methodBody.setArg(0,arg);
             });
         }
         setter.invoke(methodBody);
-        AsmUtil.areturn(methodBody.writer, Type.VOID_TYPE);
+        methodBody.append(mv -> {
+            AsmUtil.areturn(mv, Type.VOID_TYPE);
+        });
         return null;
     }
 

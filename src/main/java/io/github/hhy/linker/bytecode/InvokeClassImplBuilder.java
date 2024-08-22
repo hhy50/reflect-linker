@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
-    public Class<?> bindTarget;
+    private Class<?> bindTarget;
     private final String implClassDesc;
     private MethodBody clinit;
     private final Map<String, Getter> getters;
@@ -35,15 +35,15 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     private void init() {
-        EarlyFieldRef target = new EarlyFieldRef(null, "target", Type.getType(bindTarget));
+        EarlyFieldRef target = new EarlyFieldRef(null, null, "target", Type.getType(bindTarget));
         TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
 
-        LookupMember lookupMember = this.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, target.getLookupName());
+        LookupMember lookupMember = this.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, target.getType());
         lookupMember.isTarget(true);
-        lookupMember.staticInit(this.getClinit(), target.getType());
+        lookupMember.staticInit(this.getClinit());
 
-        this.members.put(lookupMember.memberName, lookupMember);
-        this.getters.put(targetFieldGetter.field.getGetterName(), targetFieldGetter);
+        this.members.put(lookupMember.getMemberName(), lookupMember);
+        this.getters.put(target.getFullName(), targetFieldGetter);
     }
 
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
@@ -80,7 +80,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @param fieldName
      * @return
      */
-    public Getter getGetter(String fieldName) {
+    public Getter<?> getGetter(String fieldName) {
         return getters.get(fieldName);
     }
 

@@ -4,7 +4,7 @@ import org.objectweb.asm.Type;
 
 public class FieldVar extends ObjectVar {
 
-    public final String fieldName;
+    private final String fieldName;
 
     public FieldVar(int lvbIndex, Type type, String fieldName) {
         super(lvbIndex, type);

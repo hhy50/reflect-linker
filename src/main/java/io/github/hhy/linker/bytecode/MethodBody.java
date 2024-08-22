@@ -10,10 +10,10 @@ import org.objectweb.asm.Type;
 import java.util.function.Consumer;
 
 public class MethodBody {
-    public final MethodVisitor writer;
+    private final MethodVisitor writer;
     private Type methodType;
     public int lvbIndex;
-    public VarInst[] args;
+    private VarInst[] args;
 
     // ============================ Labels ===================================
     private Label checkLookupLabel;
@@ -42,10 +42,6 @@ public class MethodBody {
 
     public void append(Consumer<MethodVisitor> interceptor) {
         interceptor.accept(this.writer);
-    }
-
-    public void end() {
-        this.writer.visitMaxs(0, 0);
     }
 
     /**
@@ -83,5 +79,9 @@ public class MethodBody {
             checkMhLabel = new Label();
         }
         return checkMhLabel;
+    }
+
+    public void setArg(int i, VarInst arg) {
+        this.args[i] = arg;
     }
 }

@@ -27,7 +27,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         FieldVar objectVar = new FieldVar(methodBody.lvbIndex++, field.getType(), field.fieldName);
         methodBody.append(mv -> {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitFieldInsn(Opcodes.GETFIELD, ClassUtil.className2path(implClass), field.getFullName(), field.getType().getDescriptor());
+            mv.visitFieldInsn(Opcodes.GETFIELD, ClassUtil.className2path(implClass), field.getFullName(), ObjectVar.TYPE.getDescriptor());
             objectVar.store(methodBody);
         });
         return objectVar;

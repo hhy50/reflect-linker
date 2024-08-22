@@ -13,7 +13,15 @@ import static org.objectweb.asm.Opcodes.*;
 
 public abstract class MethodHandle {
 
-    public void define(InvokeClassImplBuilder classImplBuilder) {
+    protected boolean defined = false;
+
+    public final void define(InvokeClassImplBuilder classImplBuilder) {
+        if (this.defined) return;
+        define0(classImplBuilder);
+        this.defined = true;
+    }
+
+    protected void define0(InvokeClassImplBuilder classImplBuilder) {
 
     }
 
