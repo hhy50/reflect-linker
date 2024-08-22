@@ -8,7 +8,7 @@ import io.github.hhy.linker.bytecode.vars.FieldVar;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.field2.RuntimeFieldRef;
+import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

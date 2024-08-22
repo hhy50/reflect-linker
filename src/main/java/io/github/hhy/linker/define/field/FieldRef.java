@@ -1,4 +1,4 @@
-package io.github.hhy.linker.define.field2;
+package io.github.hhy.linker.define.field;
 
 
 import io.github.hhy.linker.bytecode.vars.ObjectVar;

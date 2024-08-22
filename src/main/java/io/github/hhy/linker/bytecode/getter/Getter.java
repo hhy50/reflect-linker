@@ -5,7 +5,7 @@ import io.github.hhy.linker.bytecode.MethodHandle;
 import io.github.hhy.linker.bytecode.vars.LookupMember;
 import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.field2.FieldRef;
+import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.runtime.Runtime;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;

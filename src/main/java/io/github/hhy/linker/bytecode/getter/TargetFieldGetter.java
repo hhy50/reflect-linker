@@ -4,7 +4,7 @@ import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
 import io.github.hhy.linker.bytecode.vars.FieldVar;
 import io.github.hhy.linker.bytecode.vars.ObjectVar;
-import io.github.hhy.linker.define.field2.EarlyFieldRef;
+import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 

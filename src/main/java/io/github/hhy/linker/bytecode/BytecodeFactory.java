@@ -5,7 +5,7 @@ import io.github.hhy.linker.bytecode.getter.GetterWrapper;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.setter.SetterWrapper;
 import io.github.hhy.linker.define.MethodDefine;
-import io.github.hhy.linker.define.field2.FieldRef;
+import io.github.hhy.linker.define.field.FieldRef;
 
 
 public class BytecodeFactory {

@@ -2,9 +2,9 @@ package io.github.hhy.linker.define;
 
 import io.github.hhy.linker.annotations.Target;
 import io.github.hhy.linker.annotations.Typed;
-import io.github.hhy.linker.define.field2.EarlyFieldRef;
-import io.github.hhy.linker.define.field2.FieldRef;
-import io.github.hhy.linker.define.field2.RuntimeFieldRef;
+import io.github.hhy.linker.define.field.EarlyFieldRef;
+import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.exceptions.ClassTypeNotMuchException;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
