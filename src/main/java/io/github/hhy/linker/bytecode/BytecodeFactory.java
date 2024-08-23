@@ -27,7 +27,7 @@ public class BytecodeFactory {
             prev = prev.getPrev();
         }
 
-        Setter setter = classBuilder.defineSetter(fieldRef.getFullName(), fieldRef);
+        Setter<?> setter = classBuilder.defineSetter(fieldRef.getFullName(), fieldRef);
         return new SetterWrapper(setter, fieldRef, methodDefine);
     }
 }

@@ -67,7 +67,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @param methodType
      * @return
      */
-    public Getter defineGetter(String fieldName, FieldRef fieldRef) {
+    public Getter<?> defineGetter(String fieldName, FieldRef fieldRef) {
         return getters.computeIfAbsent(fieldName, key -> {
             if (fieldRef instanceof EarlyFieldRef) {
                 return new EarlyFieldGetter(getClassName(), (EarlyFieldRef) fieldRef);
@@ -86,7 +86,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return getters.get(fieldName);
     }
 
-    public Setter defineSetter(String fieldName, FieldRef fieldRef) {
+    public Setter<?> defineSetter(String fieldName, FieldRef fieldRef) {
         return setters.computeIfAbsent(fieldName, key -> {
             if (fieldRef instanceof EarlyFieldRef) {
                 return new EarlyFieldSetter(getClassName(), (EarlyFieldRef) fieldRef);
