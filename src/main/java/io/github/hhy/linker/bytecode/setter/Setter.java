@@ -25,13 +25,11 @@ public class Setter extends MethodHandle {
     private final FieldRef field;
     private final Type methodType;
     private final MethodHolder methodHolder;
-    private final boolean isEarly;
 
     public Setter(String implClass, FieldRef field) {
         this.field = field;
         this.methodType = Type.getMethodType(Type.VOID_TYPE, field.getType());
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "set_"+field.getFullName(), methodType.getDescriptor());
-        this.isEarly = this.field instanceof EarlyFieldRef;
     }
 
     @Override
@@ -39,6 +37,7 @@ public class Setter extends MethodHandle {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getFullName());
         getter.define(classImplBuilder);
 
+        boolean isEarly = field.getPrev() instanceof EarlyFieldRef;
         // 先定义上一层字段的lookup
         LookupMember lookupMember = classImplBuilder.defineLookup(field.getPrev());
         // 定义当前字段的 setter_mh
@@ -56,10 +55,10 @@ public class Setter extends MethodHandle {
 //                        staticCheckLookup(methodBody, prevGetter.lookupMember, this.lookupMember, objVar, prevGetter.field);
                         checkLookup(methodBody, lookupMember, mhMember, objVar);
                     }
-                    if (this.isEarly) {
+                    if (isEarly && field.getPrev() instanceof EarlyFieldRef) {
                         EarlyFieldRef earlyField = (EarlyFieldRef) this.field;
                         initStaticMethodHandle(classImplBuilder, mhMember, lookupMember,
-                                field.getPrev().getType(), this.field.fieldName, Type.getMethodType(Type.VOID_TYPE, earlyField.declaredType), earlyField.isStatic());
+                                ((EarlyFieldRef) field.getPrev()).declaredType, this.field.fieldName, Type.getMethodType(Type.VOID_TYPE, earlyField.fieldType), earlyField.isStatic());
 
                         // mh.invoke(obj, value)
                         ObjectVar nil = ((EarlyFieldRef) this.field).isStatic()

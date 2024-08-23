@@ -62,16 +62,16 @@ public class GetterWrapper extends MethodHandle {
                     result.load(methodBody);
                     switch (rType.getSort()) {
                         case Type.BYTE:
-                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapByte", RuntimeUtil.UNWRAP_BYTE_DESC);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapByte", RuntimeUtil.UNWRAP_BYTE_DESC, false);
                             break;
                         case Type.SHORT:
-                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapShort", RuntimeUtil.UNWRAP_SHORT_DESC);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapShort", RuntimeUtil.UNWRAP_SHORT_DESC, false);
                             break;
                         case Type.INT:
-                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapInt", RuntimeUtil.UNWRAP_INT_DESC);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapInt", RuntimeUtil.UNWRAP_INT_DESC, false);
                             break;
                         case Type.LONG:
-                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapLong", RuntimeUtil.UNWRAP_LONG_DESC);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapLong", RuntimeUtil.UNWRAP_LONG_DESC, false);
                             break;
                     }
                 } else {
@@ -80,6 +80,8 @@ public class GetterWrapper extends MethodHandle {
                     mv.visitTypeInsn(Opcodes.CHECKCAST, rType.getInternalName());
                 }
             });
+        } else {
+            result.load(methodBody);
         }
     }
 

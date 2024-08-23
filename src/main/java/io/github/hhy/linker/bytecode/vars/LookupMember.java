@@ -40,7 +40,7 @@ public class LookupMember extends Member {
      */
     public LookupMember(int access, String owner, String lookupName) {
         super(access, owner, lookupName, LookupVar.TYPE);
-        this.staticType = staticType;
+        this.staticType = null;
     }
 
     public void lookupClass(MethodBody methodBody) {
@@ -63,7 +63,6 @@ public class LookupMember extends Member {
      */
     public void staticInit(MethodBody clinit) {
         if (inited) return;
-//        if (staticType == null) throw ;
         clinit.append(mv -> {
             mv.visitLdcInsn(staticType);
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);

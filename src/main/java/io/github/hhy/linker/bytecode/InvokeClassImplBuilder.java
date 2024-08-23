@@ -94,12 +94,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return
      */
     public LookupMember defineLookup(FieldRef fieldRef) {
+        if (fieldRef instanceof EarlyFieldRef) {
+            return defineLookup(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, fieldRef.getType());
+        }
+
         String lookupMemberName = fieldRef.getFullName()+"_lookup";
         if (!members.containsKey(lookupMemberName)) {
             int access = Opcodes.ACC_PUBLIC;
-            if (fieldRef instanceof EarlyFieldRef) {
-                access |= Opcodes.ACC_STATIC;
-            }
             super.defineField(access, lookupMemberName, LookupVar.DESCRIPTOR, null, null);
             this.members.put(lookupMemberName, new LookupMember(access, implClassDesc, lookupMemberName));
         }
