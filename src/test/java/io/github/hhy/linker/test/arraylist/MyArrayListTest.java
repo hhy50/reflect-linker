@@ -10,9 +10,6 @@ import java.util.ArrayList;
 
 public class MyArrayListTest {
 
-
-
-
     @Test
     public void test() throws LinkerException {
         Object[] objects = new Object[10];

@@ -10,11 +10,8 @@ import org.objectweb.asm.Opcodes;
 
 public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 
-    private final String implClass;
-
     public TargetFieldGetter(String implClass, EarlyFieldRef targetFieldRef) {
-        super(targetFieldRef);
-        this.implClass = implClass;
+        super(implClass, targetFieldRef);
     }
 
     @Override

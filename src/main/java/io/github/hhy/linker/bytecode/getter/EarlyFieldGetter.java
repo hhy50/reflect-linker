@@ -3,24 +3,20 @@ package io.github.hhy.linker.bytecode.getter;
 import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
 import io.github.hhy.linker.bytecode.MethodBody;
-import io.github.hhy.linker.bytecode.MethodHolder;
-import io.github.hhy.linker.bytecode.vars.*;
+import io.github.hhy.linker.bytecode.vars.LookupMember;
+import io.github.hhy.linker.bytecode.vars.LookupVar;
+import io.github.hhy.linker.bytecode.vars.MethodHandleMember;
+import io.github.hhy.linker.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
-import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
 
 public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
-    private Type methodType;
-
-    private MethodHolder methodHolder;
 
     public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef) {
-        super(fieldRef);
-        this.methodType = Type.getMethodType(field.getType());
-        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getFullName(), this.methodType.getDescriptor());
+        super(implClass, fieldRef);
     }
 
     @Override
@@ -38,11 +34,10 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         // 定义当前字段的getter mh
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember,
-                field.declaredType, field.fieldName, methodType, field.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, field.declaredType, field.fieldName, methodType, field.isStatic());
 
         // 定义当前字段的getter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.methodName, methodHolder.desc, null, "").accept(mv -> {
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(mv, methodType);
             ObjectVar objVar = getter.invoke(methodBody);
 
@@ -54,19 +49,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
     }
 
     @Override
-    public ObjectVar invoke(MethodBody methodBody) {
-        FieldVar objectVar = new FieldVar(methodBody.lvbIndex++, methodType.getReturnType(), field.fieldName);
-        methodBody.append(mv -> {
-            mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodHolder.owner, methodHolder.methodName, methodHolder.desc, false);
-            objectVar.store(methodBody);
-        });
-        return objectVar;
-    }
-
-    @Override
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember,
-                                          Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         MethodBody clinit = classImplBuilder.getClinit();
         clinit.append(mv -> {
             // mh = lookup.findGetter(ArrayList.class, "elementData", Object[].class);

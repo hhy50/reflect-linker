@@ -41,7 +41,11 @@ public class Runtime {
      * @return
      */
     public static MethodHandle findGetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
-        Field field = ReflectUtil.getField(lookup.lookupClass(), fieldName);
+        return findGetter(lookup, lookup.lookupClass(), fieldName);
+    }
+
+    public static MethodHandle findGetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
+        Field field = ReflectUtil.getField(clazz, fieldName);
         if (field == null) {
             throw new NoSuchFieldException("not found property '"+fieldName+"' in class '"+lookup.lookupClass().getName()+"'");
         }

@@ -40,16 +40,19 @@ public abstract class VarInst {
      * </pre>
      */
     public void checkNullPointer(MethodBody methodBody, String nullerr) {
-        methodBody.append(methodVisitor -> {
-            Label nlabel = new Label();
-            methodVisitor.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex);
-            methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, nlabel);
-            methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
-            methodVisitor.visitInsn(Opcodes.DUP);
-            methodVisitor.visitLdcInsn(nullerr);
-            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
-            methodVisitor.visitInsn(Opcodes.ATHROW);
-            methodVisitor.visitLabel(nlabel);
+        methodBody.append(mv -> {
+            // 基本数据没法校验
+            if (type.getSort() > Type.DOUBLE) {
+                Label nlabel = new Label();
+                mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex);
+                mv.visitJumpInsn(Opcodes.IFNONNULL, nlabel);
+                mv.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
+                mv.visitInsn(Opcodes.DUP);
+                mv.visitLdcInsn(nullerr);
+                mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
+                mv.visitInsn(Opcodes.ATHROW);
+                mv.visitLabel(nlabel);
+            }
         });
     }
 

@@ -5,6 +5,8 @@ import io.github.hhy.linker.bytecode.getter.EarlyFieldGetter;
 import io.github.hhy.linker.bytecode.getter.Getter;
 import io.github.hhy.linker.bytecode.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.bytecode.getter.TargetFieldGetter;
+import io.github.hhy.linker.bytecode.setter.EarlyFieldSetter;
+import io.github.hhy.linker.bytecode.setter.RuntimeFieldSetter;
 import io.github.hhy.linker.bytecode.setter.Setter;
 import io.github.hhy.linker.bytecode.vars.*;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
@@ -84,8 +86,14 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return getters.get(fieldName);
     }
 
-    public Setter defineSetter(String fieldName, FieldRef field) {
-        return setters.computeIfAbsent(fieldName, key -> new Setter(getClassName(), field));
+    public Setter defineSetter(String fieldName, FieldRef fieldRef) {
+        return setters.computeIfAbsent(fieldName, key -> {
+            if (fieldRef instanceof EarlyFieldRef) {
+                return new EarlyFieldSetter(getClassName(), (EarlyFieldRef) fieldRef);
+            } else {
+                return new RuntimeFieldSetter(getClassName(), (RuntimeFieldRef) fieldRef);
+            }
+        });
     }
 
     /**

@@ -79,7 +79,8 @@ public abstract class MethodHandle {
     }
 
     /**
-     * 通过一级的class获取字段, 主要是为了静态字段的访问
+     * 如果当前字段为null, 就以上级lookup获取字段的类型
+     * <p>ps: 主要是为了静态字段的访问</p>
      * <pre>
      * if (obj == null) {
      *      lookup = Runtime.findLookup(prev_lookup.lookupClass(), 'field');
