@@ -1,5 +1,6 @@
 package io.github.hhy.linker.runtime;
 
+import io.github.hhy.linker.generate.MethodHolder;
 import io.github.hhy.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
@@ -16,6 +17,7 @@ public class Runtime {
     public static String FIND_LOOKUP_DESC = "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;";
     public static String FIND_GETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static final MethodHolder FIND_GETTER = new MethodHolder(Runtime.OWNER, "findGetter", Runtime.FIND_GETTER_DESC);
 
     public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {

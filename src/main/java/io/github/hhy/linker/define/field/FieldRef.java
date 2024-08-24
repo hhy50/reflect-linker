@@ -1,7 +1,7 @@
 package io.github.hhy.linker.define.field;
 
 
-import io.github.hhy.linker.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 /**

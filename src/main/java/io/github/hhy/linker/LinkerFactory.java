@@ -1,9 +1,9 @@
 package io.github.hhy.linker;
 
-import io.github.hhy.linker.bytecode.ClassImplGenerator;
 import io.github.hhy.linker.define.ClassDefineParse;
 import io.github.hhy.linker.define.InvokeClassDefine;
 import io.github.hhy.linker.exceptions.LinkerException;
+import io.github.hhy.linker.generate.ClassImplGenerator;
 
 import java.lang.reflect.Constructor;
 

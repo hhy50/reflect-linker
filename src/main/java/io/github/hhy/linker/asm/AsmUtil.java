@@ -1,6 +1,6 @@
 package io.github.hhy.linker.asm;
 
-import io.github.hhy.linker.bytecode.InvokeClassImplBuilder;
+import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
