@@ -5,11 +5,9 @@ import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -18,12 +16,6 @@ public class MethodBody {
     private Type methodType;
     public int lvbIndex;
     private VarInst[] args;
-
-    // 构建语句
-    private List<Action> interceptors;
-    // ============================ Labels ===================================
-    private Label checkLookupLabel;
-
 
     public MethodBody(MethodVisitor mv, Type methodType) {
         Type[] argumentTypes = methodType.getArgumentTypes();
@@ -70,13 +62,6 @@ public class MethodBody {
         }
     }
 
-    public Label getCheckLookupLabel() {
-        if (checkLookupLabel == null) {
-            checkLookupLabel = new Label();
-        }
-        return checkLookupLabel;
-    }
-
     public void setArg(int i, VarInst arg) {
         this.args[i] = arg;
     }
@@ -87,16 +72,13 @@ public class MethodBody {
 
     /**
      *
-     * @param returnType
+     * @param type
      * @param fieldName
+     * @param action
      */
     public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
         LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
         localVarInst.store(this, action);
         return localVarInst;
-    }
-
-    public void visitLabel(Label label) {
-        this.writer.visitLabel(label);
     }
 }

@@ -7,12 +7,15 @@ import io.github.hhy.linker.generate.bytecode.action.JumpAction;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 public abstract class MethodHandle {
 
     protected boolean defined = false;
 
+    // ============================ Labels ===================================
+    private Label checkLookupLabel;
     private Label lookupReassignLabel;
     private Label checkMhLabel;
 
@@ -61,8 +64,9 @@ public abstract class MethodHandle {
      * @param objVar
      */
     protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst varInst) {
+        MethodVisitor mv = methodBody.getWriter();
         // start check
-        methodBody.visitLabel(methodBody.getCheckLookupLabel());
+        mv.visitLabel(getCheckLookupLabel());
 
         JumpAction lookupAssign = new JumpAction(getLookupAssignLabel());
         JumpAction checkMh = new JumpAction(getCheckMhLabel());
@@ -72,7 +76,7 @@ public abstract class MethodHandle {
         // if (obj.getClass() != lookup.lookupClass())
         lookupMember.runtimeCheck(methodBody, varInst, lookupAssign, checkMh);
 
-        methodBody.visitLabel(getLookupAssignLabel());
+        mv.visitLabel(getLookupAssignLabel());
         lookupMember.reinit(methodBody, varInst);
         this.mhReassign(methodBody, lookupMember, mhMember, varInst);
     }
@@ -112,7 +116,7 @@ public abstract class MethodHandle {
     }
 
     protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        methodBody.visitLabel(getCheckMhLabel());
+        methodBody.getWriter().visitLabel(getCheckMhLabel());
         mhMember.ifNull(methodBody, body -> mhReassign(body, lookupMember, mhMember, objVar));
     }
 
@@ -129,11 +133,11 @@ public abstract class MethodHandle {
      */
     protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar);
 
-    public Label getCheckMhLabel() {
-        if (checkMhLabel == null) {
-            checkMhLabel = new Label();
+    public Label getCheckLookupLabel() {
+        if (checkLookupLabel == null) {
+            checkLookupLabel = new Label();
         }
-        return checkMhLabel;
+        return checkLookupLabel;
     }
 
     public Label getLookupAssignLabel() {
@@ -141,5 +145,12 @@ public abstract class MethodHandle {
             lookupReassignLabel = new Label();
         }
         return lookupReassignLabel;
+    }
+
+    public Label getCheckMhLabel() {
+        if (checkMhLabel == null) {
+            checkMhLabel = new Label();
+        }
+        return checkMhLabel;
     }
 }
