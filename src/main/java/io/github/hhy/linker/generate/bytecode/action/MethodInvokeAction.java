@@ -9,7 +9,7 @@ public class MethodInvokeAction implements Action {
 
     private final MethodHolder methodHolder;
     private Action instance;
-    private LoadAction[] args;
+    private Action[] args;
 
     public MethodInvokeAction(MethodHolder methodHolder) {
         this.methodHolder = methodHolder;
@@ -22,7 +22,7 @@ public class MethodInvokeAction implements Action {
         if (instance != null) {
             instance.apply(body);
         }
-        for (LoadAction arg : args) {
+        for (Action arg : args) {
             arg.apply(body);
         }
         mv.visitMethodInsn(instance != null ? Opcodes.INVOKEVIRTUAL : Opcodes.INVOKESTATIC,
@@ -34,7 +34,7 @@ public class MethodInvokeAction implements Action {
         return this;
     }
 
-    public MethodInvokeAction setArgs(LoadAction... args) {
+    public MethodInvokeAction setArgs(Action... args) {
         this.args = args;
         return this;
     }

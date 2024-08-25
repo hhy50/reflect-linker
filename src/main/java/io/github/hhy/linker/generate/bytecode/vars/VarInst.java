@@ -1,22 +1,22 @@
 package io.github.hhy.linker.generate.bytecode.vars;
 
 
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
-import org.objectweb.asm.Label;
+import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 /**
  * VarInstance
  * 生成可以复用的字节码
  */
 
-public abstract class VarInst {
+public abstract class VarInst implements LoadAction {
+
+    public static final MethodHolder OBJECT_GET_CLASS = new MethodHolder("java/lang/Object", "getClass", "()Ljava/lang/Class;");
 
     /**
      * 当前变量在局部变量表中的索引
@@ -42,31 +42,20 @@ public abstract class VarInst {
      * </pre>
      */
     public void checkNullPointer(MethodBody methodBody, String nullerr) {
-        methodBody.append(mv -> {
-            // 基本数据没法校验
-            if (type.getSort() > Type.DOUBLE) {
-                Label nlabel = new Label();
-                mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex);
-                mv.visitJumpInsn(Opcodes.IFNONNULL, nlabel);
-                mv.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
-                mv.visitInsn(Opcodes.DUP);
-                mv.visitLdcInsn(nullerr);
-                mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
-                mv.visitInsn(Opcodes.ATHROW);
-                mv.visitLabel(nlabel);
-            }
-        });
+        if (type.getSort() > Type.DOUBLE) {
+            this.ifNull(methodBody, Action.throwNullException(nullerr));
+        }
     }
 
     /**
-     * lpad到栈上
+     * load 到栈上
      *
      * @return
      */
+
+    @Override
     public void load(MethodBody methodBody) {
-        methodBody.append(mv -> {
-            mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex);
-        });
+        methodBody.append(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
     }
 
     /**
@@ -84,13 +73,6 @@ public abstract class VarInst {
         MethodVisitor mv = body.getWriter();
         action.apply(body);
         mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
-    }
-
-    public void getClass(MethodBody methodBody) {
-        methodBody.append(mv -> {
-            mv.visitVarInsn(ALOAD, lvbIndex); // obj
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
-        });
     }
 
     public String getName() {

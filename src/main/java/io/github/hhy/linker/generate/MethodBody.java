@@ -9,7 +9,9 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class MethodBody {
     private final MethodVisitor writer;
@@ -17,10 +19,11 @@ public class MethodBody {
     public int lvbIndex;
     private VarInst[] args;
 
+    // 构建语句
+    private List<Action> interceptors;
     // ============================ Labels ===================================
     private Label checkLookupLabel;
-    private Label lookupReassignLabel;
-    private Label checkMhLabel;
+
 
     public MethodBody(MethodVisitor mv, Type methodType) {
         Type[] argumentTypes = methodType.getArgumentTypes();
@@ -46,6 +49,11 @@ public class MethodBody {
         interceptor.accept(this.writer);
     }
 
+    public void append(Supplier<Action> interceptor) {
+        Action action = interceptor.get();
+        action.apply(this);
+    }
+
     /**
      * 根据参数生命的顺序， 获取第几个参数
      *
@@ -69,20 +77,6 @@ public class MethodBody {
         return checkLookupLabel;
     }
 
-    public Label getLookupAssignLabel() {
-        if (lookupReassignLabel == null) {
-            lookupReassignLabel = new Label();
-        }
-        return lookupReassignLabel;
-    }
-
-    public Label getCheckMhLabel() {
-        if (checkMhLabel == null) {
-            checkMhLabel = new Label();
-        }
-        return checkMhLabel;
-    }
-
     public void setArg(int i, VarInst arg) {
         this.args[i] = arg;
     }
@@ -100,5 +94,9 @@ public class MethodBody {
         LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
         localVarInst.store(this, action);
         return localVarInst;
+    }
+
+    public void visitLabel(Label label) {
+        this.writer.visitLabel(label);
     }
 }

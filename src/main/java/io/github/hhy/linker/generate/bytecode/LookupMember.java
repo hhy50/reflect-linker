@@ -2,13 +2,21 @@ package io.github.hhy.linker.generate.bytecode;
 
 
 import io.github.hhy.linker.constant.Lookup;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
+import io.github.hhy.linker.generate.bytecode.action.Action;
+import io.github.hhy.linker.generate.bytecode.action.JumpAction;
+import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy.linker.generate.bytecode.vars.VarInst.OBJECT_GET_CLASS;
+
 public class LookupMember extends Member {
+
+    public static final MethodHolder LOOKUP_LOOKUP_CLASS = new MethodHolder(Lookup.OWNER, "lookupClass", "()Ljava/lang/Class;");
 
     private boolean isTargetLookup;
 
@@ -24,6 +32,7 @@ public class LookupMember extends Member {
 
     /**
      * 拥有静态类型的构造
+     *
      * @param access
      * @param owner
      * @param lookupName
@@ -36,6 +45,7 @@ public class LookupMember extends Member {
 
     /**
      * 没有静态类型的构造， 只能在运行时初始化
+     *
      * @param access
      * @param owner
      * @param lookupName
@@ -73,11 +83,30 @@ public class LookupMember extends Member {
         this.inited = true;
     }
 
-    public void reinit(MethodBody method, VarInst objectVar) {
-        method.append(mv -> {
-            objectVar.getClass(method);
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);
-            store(method);
+    public void reinit(MethodBody methodBody, VarInst objectVar) {
+        this.store(methodBody, new MethodInvokeAction(Runtime.LOOKUP)
+                .setArgs(new MethodInvokeAction(OBJECT_GET_CLASS)
+                        .setInstance(objectVar))
+        );
+    }
+
+    /**
+     * 生成运行时校验lookup的代码
+     * <pre>
+     *     if (obj.getClass() != lookup.lookupClass()) {
+     *         // goto jump
+     *     }
+     * </pre>
+     *
+     * @param methodBody
+     * @param varInst
+     * @param jump
+     */
+    public void runtimeCheck(MethodBody methodBody, VarInst varInst, JumpAction lookupAssign, JumpAction mhCheck) {
+        methodBody.append(() -> {
+            MethodInvokeAction getClass = new MethodInvokeAction(OBJECT_GET_CLASS).setInstance(varInst);
+            MethodInvokeAction lookupClass = new MethodInvokeAction(LOOKUP_LOOKUP_CLASS).setInstance(this);
+            return Action.ifNotEq(getClass, lookupClass, lookupAssign, mhCheck);
         });
     }
 

@@ -3,18 +3,18 @@ package io.github.hhy.linker.generate;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.action.JumpAction;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import static org.objectweb.asm.Opcodes.*;
 
 public abstract class MethodHandle {
 
     protected boolean defined = false;
+
+    private Label lookupReassignLabel;
+    private Label checkMhLabel;
 
     public final void define(InvokeClassImplBuilder classImplBuilder) {
         if (this.defined) return;
@@ -35,6 +35,7 @@ public abstract class MethodHandle {
 
     /**
      * 初始化静态 methodhandle
+     *
      * @param classImplBuilder
      * @param mhMember
      * @param lookupMember
@@ -43,11 +44,9 @@ public abstract class MethodHandle {
      * @param methodType
      * @param isStatic
      */
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember,
-                                        Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
 
     }
-
 
     /**
      * <pre>
@@ -62,21 +61,20 @@ public abstract class MethodHandle {
      * @param objVar
      */
     protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst varInst) {
-        methodBody.append((mv) -> {
-            mv.visitLabel(methodBody.getCheckLookupLabel());
+        // start check
+        methodBody.visitLabel(methodBody.getCheckLookupLabel());
 
-            //  if (lookup == null || obj.getClass() != lookup.lookupClass())
-            lookupMember.load(methodBody); // this.lookup
-            mv.visitJumpInsn(IFNULL, methodBody.getLookupAssignLabel()); // this.lookup == null
+        JumpAction lookupAssign = new JumpAction(getLookupAssignLabel());
+        JumpAction checkMh = new JumpAction(getCheckMhLabel());
 
-            varInst.getClass(methodBody);  // obj.class
-            lookupMember.lookupClass(methodBody);
-            mv.visitJumpInsn(IF_ACMPEQ, methodBody.getCheckMhLabel()); // obj.class != this.lookup.lookupClass()
+        // if (lookup == null)
+        lookupMember.ifNull(methodBody, lookupAssign);
+        // if (obj.getClass() != lookup.lookupClass())
+        lookupMember.runtimeCheck(methodBody, varInst, lookupAssign, checkMh);
 
-            mv.visitLabel(methodBody.getLookupAssignLabel());
-            lookupMember.reinit(methodBody, varInst);
-            mhReassign(methodBody, lookupMember, mhMember, varInst);
-        });
+        methodBody.visitLabel(getLookupAssignLabel());
+        lookupMember.reinit(methodBody, varInst);
+        this.mhReassign(methodBody, lookupMember, mhMember, varInst);
     }
 
     /**
@@ -95,32 +93,27 @@ public abstract class MethodHandle {
      */
     protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, ObjectVar objVar, FieldRef field) {
         methodBody.append((mv) -> {
+
             // if (obj == null)
-            objVar.load(methodBody);
-            mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // obj == null
+//            objVar.ifNull(methodBody, );
 
-            lookupMember.load(methodBody);
-            mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // this.lookup != null
+            //objVar.load(methodBody);
+            //mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // obj == null
 
-            prevLookupMember.lookupClass(methodBody); // prev_lookup.lookupClass()
-            mv.visitLdcInsn(field.fieldName); // 'field'
-            mv.visitMethodInsn(INVOKESTATIC, Runtime.OWNER, "findLookup", Runtime.FIND_LOOKUP_DESC, false); // Call Runtime.lookup()
-            lookupMember.store(methodBody);
-            mv.visitJumpInsn(Opcodes.GOTO, methodBody.getCheckMhLabel());
+//            lookupMember.load(methodBody);
+//            mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // this.lookup != null
+//
+//            prevLookupMember.lookupClass(methodBody); // prev_lookup.lookupClass()
+//            mv.visitLdcInsn(field.fieldName); // 'field'
+//            mv.visitMethodInsn(INVOKESTATIC, Runtime.OWNER, "findLookup", Runtime.FIND_LOOKUP_DESC, false); // Call Runtime.lookup()
+//            lookupMember.store(methodBody);
+//            mv.visitJumpInsn(Opcodes.GOTO, getCheckMhLabel());
         });
     }
 
     protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        methodBody.append(mv -> {
-            Label endLabel = new Label();
-
-            mv.visitLabel(methodBody.getCheckMhLabel());
-            // if (mh == null)
-            mhMember.load(methodBody); // this.mh
-            mv.visitJumpInsn(IFNONNULL, endLabel);
-            mhReassign(methodBody, lookupMember, mhMember, objVar);
-            mv.visitLabel(endLabel);
-        });
+        methodBody.append(mv -> mv.visitLabel(getCheckMhLabel()));
+        mhMember.ifNull(methodBody, body -> mhReassign(body, lookupMember, mhMember, objVar));
     }
 
     /**
@@ -135,4 +128,18 @@ public abstract class MethodHandle {
      * @param objVar
      */
     protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar);
+
+    public Label getCheckMhLabel() {
+        if (checkMhLabel == null) {
+            checkMhLabel = new Label();
+        }
+        return checkMhLabel;
+    }
+
+    public Label getLookupAssignLabel() {
+        if (lookupReassignLabel == null) {
+            lookupReassignLabel = new Label();
+        }
+        return lookupReassignLabel;
+    }
 }

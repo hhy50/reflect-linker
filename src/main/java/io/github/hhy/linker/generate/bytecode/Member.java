@@ -8,12 +8,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public abstract class Member implements LoadAction {
 
-    private int access = ACC_PUBLIC;
+    private int access;
 
     /**
      * 所属类

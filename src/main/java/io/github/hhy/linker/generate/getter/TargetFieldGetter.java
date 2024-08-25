@@ -2,7 +2,6 @@ package io.github.hhy.linker.generate.getter;
 
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.entity.FieldHolder;
-import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.FieldLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
