@@ -5,6 +5,7 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
+import io.github.hhy.linker.generate.bytecode.action.Condition;
 import io.github.hhy.linker.generate.bytecode.action.ConditionJumpAction;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
@@ -34,9 +35,12 @@ public class MethodHandleMember extends Member {
                                     .setInstance(this)))
                     .setArgs(LdcLoadAction.of("DirectMethodHandle$StaticAccessor"));
 
-            return new ConditionJumpAction(invoke,
+            return new ConditionJumpAction(Condition.wrap(invoke),
                     (__) -> invokeStatic(result, methodBody, args),
-                    (__) -> invokeInstance(result, methodBody, that, args));
+                    (__) -> {
+                        that.checkNullPointer(methodBody, that.getName());
+                        invokeInstance(result, methodBody, that, args);
+                    });
         });
         return result;
     }

@@ -1,11 +1,15 @@
 package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.action.Action;
+import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
+import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
 public abstract class MethodHandle {
@@ -79,24 +83,12 @@ public abstract class MethodHandle {
      * @param objVar
      * @param field
      */
-    protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, ObjectVar objVar, FieldRef field) {
-//        methodBody.append((mv) -> {
-
-            // if (obj == null)
-//            objVar.ifNull(methodBody, );
-
-            //objVar.load(methodBody);
-            //mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // obj == null
-
-//            lookupMember.load(methodBody);
-//            mv.visitJumpInsn(IFNONNULL, methodBody.getCheckLookupLabel()); // this.lookup != null
-//
-//            prevLookupMember.lookupClass(methodBody); // prev_lookup.lookupClass()
-//            mv.visitLdcInsn(field.fieldName); // 'field'
-//            mv.visitMethodInsn(INVOKESTATIC, Runtime.OWNER, "findLookup", Runtime.FIND_LOOKUP_DESC, false); // Call Runtime.lookup()
-//            lookupMember.store(methodBody);
-//            mv.visitJumpInsn(Opcodes.GOTO, getCheckMhLabel());
-//        });
+    protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, VarInst objVar, FieldRef field) {
+        objVar.ifNull(methodBody, (__) -> {
+            lookupMember.store(methodBody, new MethodInvokeAction(Runtime.FIND_LOOKUP)
+                    .setArgs(new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS)
+                            .setInstance(prevLookupMember), LdcLoadAction.of(field.fieldName)));
+        });
     }
 
     protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {

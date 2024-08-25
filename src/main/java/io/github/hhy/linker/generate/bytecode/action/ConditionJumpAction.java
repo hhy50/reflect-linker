@@ -6,11 +6,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 public class ConditionJumpAction implements Action {
-    private final Action condition;
+    private final Condition condition;
     private final Action ifBlock;
     private final Action elseBlock;
 
-    public ConditionJumpAction(Action condition, Action ifBlock, Action elseBlock) {
+    public ConditionJumpAction(Condition condition, Action ifBlock, Action elseBlock) {
         this.condition = condition;
         this.ifBlock = ifBlock;
         this.elseBlock = elseBlock;
@@ -18,14 +18,14 @@ public class ConditionJumpAction implements Action {
 
     @Override
     public void apply(MethodBody body) {
-        condition.apply(body);
-
         MethodVisitor mv = body.getWriter();
 
         Label ifLabel = new Label();
         Label elseLabel = new Label();
         Label endLabel = new Label();
-        mv.visitJumpInsn(Opcodes.IFEQ, elseLabel);
+
+        condition.jump(body, ifLabel);
+        mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
 
         // if {}
         mv.visitLabel(ifLabel);

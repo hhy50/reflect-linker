@@ -40,6 +40,9 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
+            if (!field.isStatic()) {
+                objVar.checkNullPointer(methodBody, objVar.getName());
+            }
 
             // mh.invoke(obj)
             VarInst result = field.isStatic() ? mhMember.invokeStatic(methodBody, methodBody.getArg(0)) : mhMember.invokeInstance(methodBody, objVar, methodBody.getArg(0));

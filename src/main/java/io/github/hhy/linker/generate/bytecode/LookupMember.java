@@ -93,7 +93,8 @@ public class LookupMember extends Member {
             // obj.getClass() != lookup.lookupClass()
             MethodInvokeAction getClass = new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS).setInstance(varInst);
             MethodInvokeAction lookupClass = new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS).setInstance(this);
-            return new AnyConditionJumpAction(Arrays.asList(Condition.isNull(this), Condition.notEq(getClass, lookupClass)),
+            return new AnyConditionJumpAction(Arrays.asList(Condition.isNull(this),
+                    Condition.notEq(getClass, lookupClass)),
                     lookupAssign, null);
         });
     }

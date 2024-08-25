@@ -12,6 +12,12 @@ public interface MyStaticClass {
     @Field.Getter("aaa2")
     public String getA2();
 
+    @Field.Getter("obj2.aaa")
+    public String getObjAaa();
+
+    @Field.Getter("obj2.obj3.aaa")
+    public String getObjAaa2();
+
     @Field.Setter("aaa")
     public void setA(Object aaa);
 }

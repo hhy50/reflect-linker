@@ -25,20 +25,15 @@ public interface LoadAction extends Action {
     }
 
     default void ifNull(MethodBody body, Action ifBlock) {
-        ifNull(body, ifBlock, null);
+        body.append(() ->
+                new ConditionJumpAction(Condition.isNull(this), ifBlock, null)
+        );
     }
 
     default void ifNull(MethodBody body, Action ifBlock, Action elseBlock) {
-        MethodVisitor mv = body.getWriter();
-        Label elseLabel = new Label();
-
-        load(body);
-        mv.visitJumpInsn(IFNONNULL, elseLabel);
-        ifBlock.apply(body);
-
-        mv.visitLabel(elseLabel);
-        if (elseBlock != null)
-            elseBlock.apply(body);
+        body.append(() ->
+                new ConditionJumpAction(Condition.isNull(this), ifBlock, elseBlock)
+        );
     }
 
     void load(MethodBody body);

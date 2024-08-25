@@ -45,6 +45,9 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(mv, methodType);
                     VarInst objVar = getter.invoke(methodBody);
+                    if (!field.isStatic()) {
+                        objVar.checkNullPointer(methodBody, objVar.getName());
+                    }
 
                     // mh.invoke(obj)
                     VarInst result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);

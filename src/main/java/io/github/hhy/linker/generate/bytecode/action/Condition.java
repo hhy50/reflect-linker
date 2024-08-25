@@ -38,4 +38,17 @@ public interface Condition {
             mv.visitJumpInsn(Opcodes.IF_ACMPNE, jumpLabel);
         };
     }
+
+    /**
+     * @ifne not equals 当栈顶in类型数值不等于0时跳转
+     * @ifeq equals 当栈顶int类型数值等于0时跳转
+     * @param action
+     * @return
+     */
+    static Condition wrap(Action action) {
+        return (body, ifLabel) -> {
+            action.apply(body);
+            body.getWriter().visitJumpInsn(Opcodes.IFNE, ifLabel);
+        };
+    }
 }
