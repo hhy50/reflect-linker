@@ -4,13 +4,12 @@ package io.github.hhy.linker.generate.bytecode;
 import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.bytecode.action.Action;
-import io.github.hhy.linker.generate.bytecode.action.JumpAction;
-import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy.linker.generate.bytecode.action.*;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
+
+import java.util.Arrays;
 
 
 public class LookupMember extends Member {
@@ -78,8 +77,8 @@ public class LookupMember extends Member {
     /**
      * 生成运行时校验lookup的代码
      * <pre>
-     *     if (obj.getClass() != lookup.lookupClass()) {
-     *         // goto lookupAssign
+     *     if (lookup == null || obj.getClass() != lookup.lookupClass()) {
+     *         // goto @Label lookupAssign
      *     }
      *     // goto checkMh
      * </pre>
@@ -89,11 +88,13 @@ public class LookupMember extends Member {
      * @param lookupAssign
      * @param checkMh
      */
-    public void runtimeCheck(MethodBody methodBody, VarInst varInst, JumpAction lookupAssign, JumpAction checkMh) {
+    public void runtimeCheck(MethodBody methodBody, VarInst varInst, Action lookupAssign) {
         methodBody.append(() -> {
+            // obj.getClass() != lookup.lookupClass()
             MethodInvokeAction getClass = new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS).setInstance(varInst);
             MethodInvokeAction lookupClass = new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS).setInstance(this);
-            return Action.ifNotEq(getClass, lookupClass, lookupAssign, checkMh);
+            return new AnyConditionJumpAction(Arrays.asList(Condition.isNull(this), Condition.notEq(getClass, lookupClass)),
+                    lookupAssign, null);
         });
     }
 

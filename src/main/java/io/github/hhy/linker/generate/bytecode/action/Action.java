@@ -18,10 +18,6 @@ public interface Action {
         };
     }
 
-    static JneAction ifNotEq(Action left, Action rift, Action ifBlock, Action elseBlock) {
-        return new JneAction(left, rift, ifBlock, elseBlock);
-    }
-
     static Action throwNullException(String nullerr) {
         return body -> {
             MethodVisitor mv = body.getWriter();
