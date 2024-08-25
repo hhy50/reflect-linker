@@ -95,4 +95,13 @@ public class AsmUtil {
         write.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NoSuchMethodError", "<init>", "(Ljava/lang/String;)V", false);
         write.visitInsn(Opcodes.ATHROW);
     }
+
+    /***
+     * 是否是基本数据类型
+     * @param type
+     * @return
+     */
+    public static boolean isPrimitiveType(Type type) {
+        return type.getSort() <= Type.DOUBLE;
+    }
 }

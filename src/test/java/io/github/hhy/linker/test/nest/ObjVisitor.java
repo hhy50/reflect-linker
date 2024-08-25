@@ -41,4 +41,10 @@ public interface ObjVisitor {
 
     @Field.Setter("a.c.str")
     void setStr2(String str2);
+
+    @Field.Getter("a.d")
+    Object getD();
+
+    @Field.Setter("a.d")
+    void setD(int d);
 }

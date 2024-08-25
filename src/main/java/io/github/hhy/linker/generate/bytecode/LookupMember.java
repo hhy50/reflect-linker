@@ -12,11 +12,9 @@ import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
-import static io.github.hhy.linker.generate.bytecode.vars.VarInst.OBJECT_GET_CLASS;
 
 public class LookupMember extends Member {
 
-    public static final MethodHolder LOOKUP_LOOKUP_CLASS = new MethodHolder(Lookup.OWNER, "lookupClass", "()Ljava/lang/Class;");
 
     private boolean isTargetLookup;
 
@@ -73,7 +71,7 @@ public class LookupMember extends Member {
 
     public void reinit(MethodBody methodBody, VarInst objectVar) {
         this.store(methodBody, new MethodInvokeAction(Runtime.LOOKUP)
-                .setArgs(new MethodInvokeAction(OBJECT_GET_CLASS).setInstance(objectVar))
+                .setArgs(new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS).setInstance(objectVar))
         );
     }
 
@@ -93,8 +91,8 @@ public class LookupMember extends Member {
      */
     public void runtimeCheck(MethodBody methodBody, VarInst varInst, JumpAction lookupAssign, JumpAction checkMh) {
         methodBody.append(() -> {
-            MethodInvokeAction getClass = new MethodInvokeAction(OBJECT_GET_CLASS).setInstance(varInst);
-            MethodInvokeAction lookupClass = new MethodInvokeAction(LOOKUP_LOOKUP_CLASS).setInstance(this);
+            MethodInvokeAction getClass = new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS).setInstance(varInst);
+            MethodInvokeAction lookupClass = new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS).setInstance(this);
             return Action.ifNotEq(getClass, lookupClass, lookupAssign, checkMh);
         });
     }

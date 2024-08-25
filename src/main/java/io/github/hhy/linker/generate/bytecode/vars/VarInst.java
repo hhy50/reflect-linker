@@ -1,7 +1,6 @@
 package io.github.hhy.linker.generate.bytecode.vars;
 
 
-import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
@@ -16,7 +15,6 @@ import org.objectweb.asm.Type;
 
 public abstract class VarInst implements LoadAction {
 
-    public static final MethodHolder OBJECT_GET_CLASS = new MethodHolder("java/lang/Object", "getClass", "()Ljava/lang/Class;");
 
     /**
      * 当前变量在局部变量表中的索引

@@ -1,9 +1,7 @@
 package io.github.hhy.linker.generate.getter;
 
 import io.github.hhy.linker.asm.AsmUtil;
-import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
-import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
@@ -14,10 +12,11 @@ import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy.linker.entity.MethodHolder.LOOKUP_FIND_GETTER_METHOD;
+import static io.github.hhy.linker.entity.MethodHolder.LOOKUP_FIND_STATIC_GETTER_METHOD;
+
 
 public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
-    private static final MethodHolder FIND_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findGetter", Lookup.FIND_GETTER_DESC);
-    private static final MethodHolder FIND_STATIC_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticGetter", Lookup.FIND_GETTER_DESC);
 
     public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef) {
         super(implClass, fieldRef);
@@ -57,7 +56,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         // mh = lookup.findGetter(ArrayList.class, "elementData", Object[].class);
-        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? FIND_STATIC_GETTER_METHOD : FIND_GETTER_METHOD);
+        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? LOOKUP_FIND_STATIC_GETTER_METHOD : LOOKUP_FIND_GETTER_METHOD);
         findGetter.setInstance(lookupMember).setArgs(LdcLoadAction.of(ownerType), LdcLoadAction.of(fieldName), LdcLoadAction.of(methodType.getReturnType()));
         mhMember.store(classImplBuilder.getClinit(), findGetter);
     }

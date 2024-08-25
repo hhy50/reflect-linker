@@ -11,7 +11,6 @@ import org.objectweb.asm.Opcodes;
 
 public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
 
-
     public RuntimeFieldGetter(String implClass, RuntimeFieldRef field) {
         super(implClass, field);
     }

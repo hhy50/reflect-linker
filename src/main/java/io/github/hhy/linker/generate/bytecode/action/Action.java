@@ -11,8 +11,15 @@ public interface Action {
 
     void apply(MethodBody body);
 
-    static JneAction ifNotEq(Action condition1, Action condition2, Action ifBlock, Action elseBlock) {
-        return new JneAction(condition1, condition2, ifBlock, elseBlock);
+    default Action onAfter(Action after) {
+        return (body) -> {
+            apply(body);
+            after.apply(body);
+        };
+    }
+
+    static JneAction ifNotEq(Action left, Action rift, Action ifBlock, Action elseBlock) {
+        return new JneAction(left, rift, ifBlock, elseBlock);
     }
 
     static Action throwNullException(String nullerr) {
@@ -24,5 +31,9 @@ public interface Action {
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
             mv.visitInsn(Opcodes.ATHROW);
         };
+    }
+
+    static Action wrap(Runnable runnable) {
+        return __ -> runnable.run();
     }
 }

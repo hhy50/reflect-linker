@@ -10,10 +10,10 @@ public interface MyArrayList {
     void add(Object o);
 
     @Field.Getter("elementData")
-    Object[] getElementData();
+    Object getElementData();
 
     @Field.Setter("elementData")
-    void setElementData(Object[] elementData);
+    void setElementData(Object elementData);
 
     @Field.Getter("modCount")
     int modCount();

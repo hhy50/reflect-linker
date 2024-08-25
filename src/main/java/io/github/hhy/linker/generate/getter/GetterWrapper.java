@@ -7,9 +7,10 @@ import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.action.TypeCastAction;
+import io.github.hhy.linker.generate.bytecode.action.UnwrapTypeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.runtime.RuntimeUtil;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -36,14 +37,9 @@ public class GetterWrapper extends MethodHandle {
         /**
          * get只需要对返回值进行转换就行
          */
-        methodBody.append(mv -> {
-            VarInst result = getter.invoke(methodBody);
-            result.checkNullPointer(methodBody, fieldRef.getFullName());
-
-            Type rType = Type.getType(methodDefine.getReturnType());
-            unwrap(methodBody, result, rType);
-            AsmUtil.areturn(mv, rType);
-        });
+        VarInst result = getter.invoke(methodBody);
+        Type rType = typecast(methodBody, result, Type.getType(methodDefine.getReturnType()));
+        AsmUtil.areturn(methodBody.getWriter(), rType);
         return null;
     }
 
@@ -54,35 +50,19 @@ public class GetterWrapper extends MethodHandle {
      * @param result
      * @param rType
      */
-    private void unwrap(MethodBody methodBody, VarInst result, Type rType) {
+    private Type typecast(MethodBody methodBody, VarInst result, Type rType) {
         if (!result.getType().equals(rType)) {
-            methodBody.append(mv -> {
-                if (rType.getSort() <= Type.DOUBLE) {
-                    // 拆箱
-                    result.load(methodBody);
-                    switch (rType.getSort()) {
-                        case Type.BYTE:
-                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapByte", RuntimeUtil.UNWRAP_BYTE_DESC, false);
-                            break;
-                        case Type.SHORT:
-                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapShort", RuntimeUtil.UNWRAP_SHORT_DESC, false);
-                            break;
-                        case Type.INT:
-                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapInt", RuntimeUtil.UNWRAP_INT_DESC, false);
-                            break;
-                        case Type.LONG:
-                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapLong", RuntimeUtil.UNWRAP_LONG_DESC, false);
-                            break;
-                    }
-                } else {
-                    // 强转
-                    result.load(methodBody);
-                    mv.visitTypeInsn(Opcodes.CHECKCAST, rType.getInternalName());
-                }
-            });
+            if (AsmUtil.isPrimitiveType(rType)) {
+                MethodVisitor mv = methodBody.getWriter();
+                // 拆箱
+                methodBody.append(() -> new UnwrapTypeAction(result, rType));
+            } else {
+                methodBody.append(() -> new TypeCastAction(result, rType));
+            }
         } else {
             result.load(methodBody);
         }
+        return rType;
     }
 
     @Override

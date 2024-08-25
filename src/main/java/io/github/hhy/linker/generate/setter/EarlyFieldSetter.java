@@ -1,7 +1,6 @@
 package io.github.hhy.linker.generate.setter;
 
 import io.github.hhy.linker.asm.AsmUtil;
-import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
@@ -16,9 +15,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
-
-    private static final MethodHolder FIND_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findSetter", Lookup.FIND_GETTER_DESC);
-    private static final MethodHolder FIND_STATIC_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticSetter", Lookup.FIND_SETTER_DESC);
 
     public EarlyFieldSetter(String implClass, EarlyFieldRef field) {
         super(implClass, field);
@@ -54,7 +50,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         MethodBody clinit = classImplBuilder.getClinit();
-        mhMember.store(clinit, new MethodInvokeAction(isStatic ? FIND_STATIC_SETTER_METHOD : FIND_SETTER_METHOD)
+        mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodHolder.LOOKUP_FIND_STATIC_SETTER_METHOD : MethodHolder.LOOKUP_FIND_SETTER_METHOD)
                 .setInstance(lookupMember)
                 .setArgs(LdcLoadAction.of(ownerType), LdcLoadAction.of(fieldName), LdcLoadAction.of(methodType.getArgumentTypes()[0])));
     }

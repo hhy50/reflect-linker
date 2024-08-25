@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 public class MethodBody {
     private final MethodVisitor writer;
     private Type methodType;
-    public int lvbIndex;
+    private int lvbIndex;
     private VarInst[] args;
 
     public MethodBody(MethodVisitor mv, Type methodType) {
@@ -37,6 +37,7 @@ public class MethodBody {
         }
     }
 
+    @Deprecated
     public void append(Consumer<MethodVisitor> interceptor) {
         interceptor.accept(this.writer);
     }
@@ -78,7 +79,9 @@ public class MethodBody {
      */
     public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
         LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
-        localVarInst.store(this, action);
+        if (action != null) {
+            localVarInst.store(this, action);
+        }
         return localVarInst;
     }
 }

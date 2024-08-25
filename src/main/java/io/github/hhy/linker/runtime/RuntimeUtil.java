@@ -15,6 +15,38 @@ public class RuntimeUtil {
 
     }
 
+    public static Object wrap(byte i) {
+        return i;
+    }
+
+    public static Object wrap(short i) {
+        return i;
+    }
+
+    public static Object wrap(int i) {
+        return i;
+    }
+
+    public static Object wrap(long i) {
+        return i;
+    }
+
+    public static Object wrap(float i) {
+        return i;
+    }
+
+    public static Object wrap(double i) {
+        return i;
+    }
+
+    public static Object wrap(char i) {
+        return i;
+    }
+
+    public static Object wrap(boolean i) {
+        return i;
+    }
+
     public static byte unwrapByte(Object obj) {
         if (obj instanceof Byte) {
             return (byte) obj;
@@ -69,6 +101,5 @@ public class RuntimeUtil {
             return (boolean) obj;
         }
         throw new ClassCastException(String.format("class '%s' not cast to boolean", obj.getClass()));
-
     }
 }

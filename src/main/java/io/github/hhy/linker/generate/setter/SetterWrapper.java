@@ -8,13 +8,11 @@ import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.action.TypeCastAction;
+import io.github.hhy.linker.generate.bytecode.action.WrapTypeAction;
+import io.github.hhy.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
-
-import java.lang.reflect.Parameter;
-
-import static org.objectweb.asm.Opcodes.CHECKCAST;
 
 public class SetterWrapper extends MethodHandle {
 
@@ -35,27 +33,24 @@ public class SetterWrapper extends MethodHandle {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        // 校验入参类型
         // 方法定义的类型
-        Parameter parameter = methodDefine.define.getParameters()[0];
-        // 字段实际类型
-        Type type = fieldRef.getType();
-        if (!type.equals(Type.getType(parameter.getType()))) {
-            methodBody.append(mv -> {
-                VarInst arg = methodBody.getArg(0);
-                arg.load(methodBody);
-                mv.visitTypeInsn(CHECKCAST, type.getInternalName());
-
-                arg = new ObjectVar(methodBody.lvbIndex++, type);
-                arg.store(methodBody);
-                methodBody.setArg(0,arg);
-            });
-        }
+//        Type parameter = Type.getType(methodDefine.define.getParameters()[0].getType());
+        typeCast(methodBody, methodBody.getArg(0), fieldRef.getType());
         setter.invoke(methodBody);
-        methodBody.append(mv -> {
-            AsmUtil.areturn(mv, Type.VOID_TYPE);
-        });
+        AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);
         return null;
+    }
+
+    private void typeCast(MethodBody methodBody, VarInst parameter, Type type) {
+        // 校验入参类型
+        if (!type.equals(parameter.getType())) {
+            LocalVarInst varInst = null;
+            if (AsmUtil.isPrimitiveType(parameter.getType())) {
+                varInst = methodBody.newLocalVar(type, fieldRef.getFullName(), new WrapTypeAction(parameter, parameter.getType()));
+            }
+            varInst = methodBody.newLocalVar(type, fieldRef.getFullName(), new TypeCastAction(varInst == null ? parameter : varInst, type));
+            methodBody.setArg(0, varInst);
+        }
     }
 
     @Override
