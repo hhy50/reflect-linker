@@ -1,11 +1,15 @@
 package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.asm.AsmClassBuilder;
+import io.github.hhy.linker.constant.Lookup;
+import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
-import io.github.hhy.linker.generate.bytecode.vars.*;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.Member;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.getter.EarlyFieldGetter;
 import io.github.hhy.linker.generate.getter.Getter;
 import io.github.hhy.linker.generate.getter.RuntimeFieldGetter;
@@ -109,7 +113,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         String lookupMemberName = fieldRef.getFullName()+"_lookup";
         if (!members.containsKey(lookupMemberName)) {
             int access = Opcodes.ACC_PUBLIC;
-            super.defineField(access, lookupMemberName, LookupVar.DESCRIPTOR, null, null);
+            super.defineField(access, lookupMemberName, Lookup.DESCRIPTOR, null, null);
             this.members.put(lookupMemberName, new LookupMember(access, implClassDesc, lookupMemberName));
         }
         return (LookupMember) members.get(lookupMemberName);
@@ -124,7 +128,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public LookupMember defineLookup(int access, Type type) {
         String memberName = type.getClassName().replace('.', '_') + "_lookup";
         if (!members.containsKey(memberName)) {
-            super.defineField(access, memberName, LookupVar.DESCRIPTOR, null, null);
+            super.defineField(access, memberName, Lookup.DESCRIPTOR, null, null);
             this.members.put(memberName, new LookupMember(access, implClassDesc, memberName, type));
         }
         return (LookupMember) members.get(memberName);
@@ -139,7 +143,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
             int access = Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC;
-            super.defineField(access, mhMemberName, MethodHandleVar.DESCRIPTOR, null, null);
+            super.defineField(access, mhMemberName, MethodHandle.DESCRIPTOR, null, null);
             this.members.put(mhMemberName, new MethodHandleMember(access, implClassDesc, mhMemberName, methodType));
         }
         return (MethodHandleMember) members.get(mhMemberName);
@@ -147,7 +151,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     public MethodHandleMember defineMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
-            super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, MethodHandleVar.DESCRIPTOR, null, null);
+            super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, MethodHandle.DESCRIPTOR, null, null);
             this.members.put(mhMemberName, new MethodHandleMember(Opcodes.ACC_PUBLIC, implClassDesc, mhMemberName, methodType));
         }
         return (MethodHandleMember) members.get(mhMemberName);

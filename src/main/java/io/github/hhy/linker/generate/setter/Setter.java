@@ -1,14 +1,14 @@
 package io.github.hhy.linker.generate.setter;
 
+import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
-import io.github.hhy.linker.generate.MethodHolder;
-import io.github.hhy.linker.generate.bytecode.vars.LookupMember;
-import io.github.hhy.linker.generate.bytecode.vars.LookupVar;
-import io.github.hhy.linker.generate.bytecode.vars.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
@@ -32,7 +32,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     }
 
     @Override
-    public ObjectVar invoke(MethodBody methodBody) {
+    public VarInst invoke(MethodBody methodBody) {
         methodBody.append(mv -> {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             methodBody.loadArgs();
@@ -42,7 +42,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     }
 
     @Override
-    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
+    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         methodBody.append(mv -> {
             lookupMember.load(methodBody); // this.lookup
             mv.visitLdcInsn(this.field.fieldName); // 'field'
@@ -61,7 +61,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
             mv.visitLdcInsn(fieldName); // 'elementData'
             adaptLdcClassType(mv, methodType.getArgumentTypes()[0]); // Object[].class
 
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LookupVar.OWNER, isStatic ? "findStaticSetter" : "findSetter", LookupVar.FIND_GETTER_DESC, false);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Lookup.OWNER, isStatic ? "findStaticSetter" : "findSetter", Lookup.FIND_GETTER_DESC, false);
             mhMember.store(clinit);
         });
     }

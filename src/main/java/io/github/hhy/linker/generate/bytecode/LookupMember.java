@@ -1,7 +1,9 @@
-package io.github.hhy.linker.generate.bytecode.vars;
+package io.github.hhy.linker.generate.bytecode;
 
 
+import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.generate.MethodBody;
+import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -28,7 +30,7 @@ public class LookupMember extends Member {
      * @param staticType
      */
     public LookupMember(int access, String owner, String lookupName, Type staticType) {
-        super(access, owner, lookupName, LookupVar.TYPE);
+        super(access, owner, lookupName, Lookup.TYPE);
         this.staticType = staticType;
     }
 
@@ -39,14 +41,14 @@ public class LookupMember extends Member {
      * @param lookupName
      */
     public LookupMember(int access, String owner, String lookupName) {
-        super(access, owner, lookupName, LookupVar.TYPE);
+        super(access, owner, lookupName, Lookup.TYPE);
         this.staticType = null;
     }
 
     public void lookupClass(MethodBody methodBody) {
         methodBody.append(mv -> {
             load(methodBody);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, LookupVar.OWNER, "lookupClass", "()Ljava/lang/Class;", false);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Lookup.OWNER, "lookupClass", "()Ljava/lang/Class;", false);
         });
     }
 
@@ -71,7 +73,7 @@ public class LookupMember extends Member {
         this.inited = true;
     }
 
-    public void reinit(MethodBody method, ObjectVar objectVar) {
+    public void reinit(MethodBody method, VarInst objectVar) {
         method.append(mv -> {
             objectVar.getClass(method);
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);

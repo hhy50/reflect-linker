@@ -93,6 +93,10 @@ public abstract class VarInst {
         });
     }
 
+    public String getName() {
+        return "slot["+lvbIndex+",type="+type.getClassName()+"]";
+    }
+
     public Type getType() {
         return type;
     }

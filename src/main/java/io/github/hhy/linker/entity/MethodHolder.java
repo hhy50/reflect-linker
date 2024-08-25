@@ -1,4 +1,4 @@
-package io.github.hhy.linker.generate;
+package io.github.hhy.linker.entity;
 
 public class MethodHolder {
 

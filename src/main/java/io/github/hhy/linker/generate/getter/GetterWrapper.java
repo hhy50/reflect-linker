@@ -5,9 +5,9 @@ import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
-import io.github.hhy.linker.generate.bytecode.vars.LookupMember;
-import io.github.hhy.linker.generate.bytecode.vars.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -32,12 +32,12 @@ public class GetterWrapper extends MethodHandle {
     }
 
     @Override
-    public ObjectVar invoke(MethodBody methodBody) {
+    public VarInst invoke(MethodBody methodBody) {
         /**
          * get只需要对返回值进行转换就行
          */
         methodBody.append(mv -> {
-            ObjectVar result = getter.invoke(methodBody);
+            VarInst result = getter.invoke(methodBody);
             result.checkNullPointer(methodBody, fieldRef.getFullName());
 
             Type rType = Type.getType(methodDefine.getReturnType());
@@ -54,7 +54,7 @@ public class GetterWrapper extends MethodHandle {
      * @param result
      * @param rType
      */
-    private void unwrap(MethodBody methodBody, ObjectVar result, Type rType) {
+    private void unwrap(MethodBody methodBody, VarInst result, Type rType) {
         if (!result.getType().equals(rType)) {
             methodBody.append(mv -> {
                 if (rType.getSort() <= Type.DOUBLE) {
@@ -86,7 +86,7 @@ public class GetterWrapper extends MethodHandle {
     }
 
     @Override
-    public void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
+    public void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         getter.mhReassign(methodBody, lookupMember, mhMember, objVar);
     }
 }

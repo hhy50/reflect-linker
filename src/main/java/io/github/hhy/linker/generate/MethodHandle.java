@@ -1,9 +1,10 @@
 package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.define.field.FieldRef;
-import io.github.hhy.linker.generate.bytecode.vars.LookupMember;
-import io.github.hhy.linker.generate.bytecode.vars.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -30,7 +31,7 @@ public abstract class MethodHandle {
      *
      * @return
      */
-    public abstract ObjectVar invoke(MethodBody methodBody);
+    public abstract VarInst invoke(MethodBody methodBody);
 
     /**
      * 初始化静态 methodhandle
@@ -60,7 +61,7 @@ public abstract class MethodHandle {
      * @param mhMember
      * @param objVar
      */
-    protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
+    protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst varInst) {
         methodBody.append((mv) -> {
             mv.visitLabel(methodBody.getCheckLookupLabel());
 
@@ -68,13 +69,13 @@ public abstract class MethodHandle {
             lookupMember.load(methodBody); // this.lookup
             mv.visitJumpInsn(IFNULL, methodBody.getLookupAssignLabel()); // this.lookup == null
 
-            objVar.getClass(methodBody);  // obj.class
+            varInst.getClass(methodBody);  // obj.class
             lookupMember.lookupClass(methodBody);
             mv.visitJumpInsn(IF_ACMPEQ, methodBody.getCheckMhLabel()); // obj.class != this.lookup.lookupClass()
 
             mv.visitLabel(methodBody.getLookupAssignLabel());
-            lookupMember.reinit(methodBody, objVar);
-            mhReassign(methodBody, lookupMember, mhMember, objVar);
+            lookupMember.reinit(methodBody, varInst);
+            mhReassign(methodBody, lookupMember, mhMember, varInst);
         });
     }
 
@@ -109,7 +110,7 @@ public abstract class MethodHandle {
         });
     }
 
-    protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
+    protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         methodBody.append(mv -> {
             Label endLabel = new Label();
 
@@ -133,5 +134,5 @@ public abstract class MethodHandle {
      * @param mhMember
      * @param objVar
      */
-    protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar);
+    protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar);
 }

@@ -6,8 +6,8 @@ import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
-import io.github.hhy.linker.generate.bytecode.vars.LookupMember;
-import io.github.hhy.linker.generate.bytecode.vars.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
@@ -34,7 +34,7 @@ public class SetterWrapper extends MethodHandle {
     }
 
     @Override
-    public ObjectVar invoke(MethodBody methodBody) {
+    public VarInst invoke(MethodBody methodBody) {
         // 校验入参类型
         // 方法定义的类型
         Parameter parameter = methodDefine.define.getParameters()[0];
@@ -59,7 +59,7 @@ public class SetterWrapper extends MethodHandle {
     }
 
     @Override
-    public void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
+    public void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         setter.mhReassign(methodBody, lookupMember, mhMember, objVar);
     }
 }

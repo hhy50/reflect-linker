@@ -1,16 +1,15 @@
 package io.github.hhy.linker.generate.getter;
 
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
-import io.github.hhy.linker.generate.MethodHolder;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
-import io.github.hhy.linker.generate.bytecode.vars.FieldVar;
-import io.github.hhy.linker.generate.bytecode.vars.LookupMember;
-import io.github.hhy.linker.generate.bytecode.vars.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
@@ -32,18 +31,15 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     }
 
     @Override
-    public ObjectVar invoke(MethodBody methodBody) {
+    public VarInst invoke(MethodBody methodBody) {
         // Object a = get_a();
         MethodInvokeAction invoker = new MethodInvokeAction(methodHolder)
                 .setInstance(LoadAction.LOAD0);
-
-        FieldVar objectVar = new FieldVar(methodBody.lvbIndex++, methodType.getReturnType(), field.fieldName);
-        objectVar.store(methodBody, invoker);
-        return objectVar;
+        return methodBody.newLocalVar(methodType.getReturnType(), field.fieldName, invoker);
     }
 
     @Override
-    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, ObjectVar objVar) {
+    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         // mh = Runtime.findGetter(lookup, "field");
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
                 .setArgs(lookupMember, LdcLoadAction.of(field.fieldName));

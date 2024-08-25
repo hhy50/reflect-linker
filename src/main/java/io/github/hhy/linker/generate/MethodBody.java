@@ -1,6 +1,8 @@
 package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.asm.AsmUtil;
+import io.github.hhy.linker.generate.bytecode.action.Action;
+import io.github.hhy.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Label;
@@ -87,5 +89,16 @@ public class MethodBody {
 
     public MethodVisitor getWriter() {
         return writer;
+    }
+
+    /**
+     *
+     * @param returnType
+     * @param fieldName
+     */
+    public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
+        LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
+        localVarInst.store(this, action);
+        return localVarInst;
     }
 }

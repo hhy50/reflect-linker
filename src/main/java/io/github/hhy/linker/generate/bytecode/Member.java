@@ -1,8 +1,9 @@
-package io.github.hhy.linker.generate.bytecode.vars;
+package io.github.hhy.linker.generate.bytecode;
 
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
+import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

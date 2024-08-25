@@ -1,7 +1,7 @@
 package io.github.hhy.linker.generate.bytecode.action;
 
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.MethodHolder;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 

@@ -1,23 +1,23 @@
 package io.github.hhy.linker.generate.getter;
 
 import io.github.hhy.linker.asm.AsmUtil;
+import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.MethodHolder;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
-import io.github.hhy.linker.generate.bytecode.vars.LookupMember;
-import io.github.hhy.linker.generate.bytecode.vars.LookupVar;
-import io.github.hhy.linker.generate.bytecode.vars.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 
 public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
-    private static final MethodHolder FIND_GETTER_METHOD = new MethodHolder(LookupVar.OWNER, "findGetter", LookupVar.FIND_GETTER_DESC);
-    private static final MethodHolder FIND_STATIC_GETTER_METHOD = new MethodHolder(LookupVar.OWNER, "findGetter", LookupVar.FIND_GETTER_DESC);
+    private static final MethodHolder FIND_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findGetter", Lookup.FIND_GETTER_DESC);
+    private static final MethodHolder FIND_STATIC_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticGetter", Lookup.FIND_GETTER_DESC);
 
     public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef) {
         super(implClass, fieldRef);
@@ -43,10 +43,10 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(mv, methodType);
-            ObjectVar objVar = getter.invoke(methodBody);
+            VarInst objVar = getter.invoke(methodBody);
 
             // mh.invoke(obj)
-            ObjectVar result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
+            VarInst result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
             result.load(methodBody);
             AsmUtil.areturn(mv, methodType.getReturnType());
         });
@@ -55,7 +55,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         // mh = lookup.findGetter(ArrayList.class, "elementData", Object[].class);
-        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? FIND_GETTER_METHOD : FIND_STATIC_GETTER_METHOD);
+        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? FIND_STATIC_GETTER_METHOD : FIND_GETTER_METHOD);
         findGetter.setInstance(lookupMember)
                 .setArgs(LdcLoadAction.of(ownerType), LdcLoadAction.of(fieldName), LdcLoadAction.of(methodType.getReturnType()));
         mhMember.store(classImplBuilder.getClinit(), findGetter);

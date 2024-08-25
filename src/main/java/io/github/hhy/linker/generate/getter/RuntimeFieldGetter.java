@@ -4,9 +4,9 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.bytecode.vars.LookupMember;
-import io.github.hhy.linker.generate.bytecode.vars.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 
 public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
@@ -29,7 +29,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(mv, methodType);
-            ObjectVar objVar = getter.invoke(methodBody);
+            VarInst objVar = getter.invoke(methodBody);
 
             if (!lookupMember.isTargetLookup()) {
                 // 校验lookup和mh
@@ -41,7 +41,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
             checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
 
             // mh.invoke(obj)
-            ObjectVar result = mhMember.invoke(methodBody, objVar);
+            VarInst result = mhMember.invoke(methodBody, objVar);
             result.load(methodBody);
             AsmUtil.areturn(mv, methodType.getReturnType());
         });

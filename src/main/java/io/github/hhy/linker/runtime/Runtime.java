@@ -1,6 +1,6 @@
 package io.github.hhy.linker.runtime;
 
-import io.github.hhy.linker.generate.MethodHolder;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;

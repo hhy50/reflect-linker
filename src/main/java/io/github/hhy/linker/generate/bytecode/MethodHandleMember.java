@@ -1,8 +1,11 @@
-package io.github.hhy.linker.generate.bytecode.vars;
+package io.github.hhy.linker.generate.bytecode;
 
 
 import io.github.hhy.linker.asm.AsmUtil;
+import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.generate.MethodBody;
+import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -18,11 +21,11 @@ public class MethodHandleMember extends Member {
      * @param mhVarName
      */
     public MethodHandleMember(int access, String owner, String mhVarName, Type methodType) {
-        super(access, owner, mhVarName, MethodHandleVar.TYPE);
+        super(access, owner, mhVarName, MethodHandle.TYPE);
         this.methodType = methodType;
     }
 
-    public ObjectVar invoke(MethodBody methodBody, ObjectVar that, VarInst... args) {
+    public VarInst invoke(MethodBody methodBody, VarInst that, VarInst... args) {
         ObjectVar result = initResultVar(methodBody);
         methodBody.append(mv -> {
             // if (mh.getClass().getName().contains("DirectMethodHandle$StaticAccessor"))
@@ -42,7 +45,7 @@ public class MethodHandleMember extends Member {
         return result;
     }
 
-    public ObjectVar invokeStatic(MethodBody methodBody, VarInst... args) {
+    public VarInst invokeStatic(MethodBody methodBody, VarInst... args) {
         ObjectVar result = initResultVar(methodBody);
         methodBody.append(mv -> {
             invokeStatic(result, methodBody, args);
@@ -50,7 +53,7 @@ public class MethodHandleMember extends Member {
         return result;
     }
 
-    public ObjectVar invokeInstance(MethodBody methodBody, ObjectVar that, VarInst... args) {
+    public VarInst invokeInstance(MethodBody methodBody, VarInst that, VarInst... args) {
         ObjectVar result = initResultVar(methodBody);
         methodBody.append(mv -> {
             invokeInstance(result, methodBody, that, args);
@@ -72,7 +75,7 @@ public class MethodHandleMember extends Member {
     private void invokeInstance(ObjectVar result, MethodBody methodBody, VarInst that, VarInst... args) {
         methodBody.append(mv -> {
             mv.visitLabel(invokeThisLabel);
-            that.checkNullPointer(methodBody, that instanceof FieldVar ? ((FieldVar) that).getFullName() : "Unknown Object");
+            that.checkNullPointer(methodBody, that.getName());
 
             load(methodBody); // mh
             that.load(methodBody); // this
