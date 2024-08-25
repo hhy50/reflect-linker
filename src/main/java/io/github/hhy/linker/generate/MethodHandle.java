@@ -92,7 +92,7 @@ public abstract class MethodHandle {
      * @param field
      */
     protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, ObjectVar objVar, FieldRef field) {
-        methodBody.append((mv) -> {
+//        methodBody.append((mv) -> {
 
             // if (obj == null)
 //            objVar.ifNull(methodBody, );
@@ -108,11 +108,11 @@ public abstract class MethodHandle {
 //            mv.visitMethodInsn(INVOKESTATIC, Runtime.OWNER, "findLookup", Runtime.FIND_LOOKUP_DESC, false); // Call Runtime.lookup()
 //            lookupMember.store(methodBody);
 //            mv.visitJumpInsn(Opcodes.GOTO, getCheckMhLabel());
-        });
+//        });
     }
 
     protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        methodBody.append(mv -> mv.visitLabel(getCheckMhLabel()));
+        methodBody.visitLabel(getCheckMhLabel());
         mhMember.ifNull(methodBody, body -> mhReassign(body, lookupMember, mhMember, objVar));
     }
 

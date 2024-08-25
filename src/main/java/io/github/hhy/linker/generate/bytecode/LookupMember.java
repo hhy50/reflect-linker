@@ -6,10 +6,10 @@ import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.JumpAction;
+import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import static io.github.hhy.linker.generate.bytecode.vars.VarInst.OBJECT_GET_CLASS;
@@ -55,13 +55,6 @@ public class LookupMember extends Member {
         this.staticType = null;
     }
 
-    public void lookupClass(MethodBody methodBody) {
-        methodBody.append(mv -> {
-            load(methodBody);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Lookup.OWNER, "lookupClass", "()Ljava/lang/Class;", false);
-        });
-    }
-
     /**
      * 初始化静态lookup, 生成以下代码
      * <pre>
@@ -71,22 +64,16 @@ public class LookupMember extends Member {
      * </pre>
      *
      * @param clinit
-     * @param type
      */
     public void staticInit(MethodBody clinit) {
         if (inited) return;
-        clinit.append(mv -> {
-            mv.visitLdcInsn(staticType);
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, Runtime.OWNER, "lookup", Runtime.LOOKUP_DESC, false);
-            store(clinit);
-        });
+        this.store(clinit, new MethodInvokeAction(Runtime.LOOKUP).setArgs(LdcLoadAction.of(staticType)));
         this.inited = true;
     }
 
     public void reinit(MethodBody methodBody, VarInst objectVar) {
         this.store(methodBody, new MethodInvokeAction(Runtime.LOOKUP)
-                .setArgs(new MethodInvokeAction(OBJECT_GET_CLASS)
-                        .setInstance(objectVar))
+                .setArgs(new MethodInvokeAction(OBJECT_GET_CLASS).setInstance(objectVar))
         );
     }
 
@@ -94,19 +81,21 @@ public class LookupMember extends Member {
      * 生成运行时校验lookup的代码
      * <pre>
      *     if (obj.getClass() != lookup.lookupClass()) {
-     *         // goto jump
+     *         // goto lookupAssign
      *     }
+     *     // goto checkMh
      * </pre>
      *
      * @param methodBody
      * @param varInst
-     * @param jump
+     * @param lookupAssign
+     * @param checkMh
      */
-    public void runtimeCheck(MethodBody methodBody, VarInst varInst, JumpAction lookupAssign, JumpAction mhCheck) {
+    public void runtimeCheck(MethodBody methodBody, VarInst varInst, JumpAction lookupAssign, JumpAction checkMh) {
         methodBody.append(() -> {
             MethodInvokeAction getClass = new MethodInvokeAction(OBJECT_GET_CLASS).setInstance(varInst);
             MethodInvokeAction lookupClass = new MethodInvokeAction(LOOKUP_LOOKUP_CLASS).setInstance(this);
-            return Action.ifNotEq(getClass, lookupClass, lookupAssign, mhCheck);
+            return Action.ifNotEq(getClass, lookupClass, lookupAssign, checkMh);
         });
     }
 

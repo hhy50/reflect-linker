@@ -1,21 +1,19 @@
 package io.github.hhy.linker.generate.setter;
 
-import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.entity.MethodHolder;
-import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
+import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static io.github.hhy.linker.asm.AsmUtil.adaptLdcClassType;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public abstract class Setter<T extends FieldRef> extends MethodHandle {
@@ -43,26 +41,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
 
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        methodBody.append(mv -> {
-            lookupMember.load(methodBody); // this.lookup
-            mv.visitLdcInsn(this.field.fieldName); // 'field'
-            mv.visitMethodInsn(INVOKESTATIC, Runtime.OWNER, "findSetter", Runtime.FIND_SETTER_DESC, false);
-            mhMember.store(methodBody);
-        });
-    }
-
-    @Override
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
-        MethodBody clinit = classImplBuilder.getClinit();
-        clinit.append(mv -> {
-            // mh = lookup.findSetter(ArrayList.class, "elementData", Object[].class);
-            lookupMember.load(clinit); // lookup
-            mv.visitLdcInsn(ownerType); // ArrayList.class,
-            mv.visitLdcInsn(fieldName); // 'elementData'
-            adaptLdcClassType(mv, methodType.getArgumentTypes()[0]); // Object[].class
-
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Lookup.OWNER, isStatic ? "findStaticSetter" : "findSetter", Lookup.FIND_GETTER_DESC, false);
-            mhMember.store(clinit);
-        });
+        mhMember.store(methodBody, new MethodInvokeAction(Runtime.FIND_SETTER)
+                .setArgs(lookupMember, LdcLoadAction.of(this.field.fieldName)));
     }
 }

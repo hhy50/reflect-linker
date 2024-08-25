@@ -3,7 +3,6 @@ package io.github.hhy.linker.generate.bytecode;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -49,23 +48,6 @@ public abstract class Member implements LoadAction {
             mv.visitVarInsn(Opcodes.ALOAD, 0); // this
             mv.visitFieldInsn(Opcodes.GETFIELD, this.owner, this.memberName, this.type.getDescriptor());
         }
-    }
-
-    @Deprecated
-    public void store(MethodBody methodBody) {
-        methodBody.append(mv -> {
-            if ((access & Opcodes.ACC_STATIC) > 0) {
-                mv.visitFieldInsn(Opcodes.PUTSTATIC, this.owner, this.memberName, this.type.getDescriptor());
-            } else {
-                // 临时变量
-                ObjectVar objectVar = new ObjectVar(methodBody.lvbIndex++, this.type);
-                objectVar.store(methodBody);
-
-                mv.visitVarInsn(Opcodes.ALOAD, 0);
-                objectVar.load(methodBody);
-                mv.visitFieldInsn(Opcodes.PUTFIELD, this.owner, this.memberName, this.type.getDescriptor());
-            }
-        });
     }
 
     /**
