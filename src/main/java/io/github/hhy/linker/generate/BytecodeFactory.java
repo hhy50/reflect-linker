@@ -5,6 +5,7 @@ import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.method.MethodRef;
 import io.github.hhy.linker.generate.getter.Getter;
 import io.github.hhy.linker.generate.getter.GetterWrapper;
+import io.github.hhy.linker.generate.invoker.Invoker;
 import io.github.hhy.linker.generate.setter.Setter;
 import io.github.hhy.linker.generate.setter.SetterWrapper;
 
@@ -40,8 +41,7 @@ public class BytecodeFactory {
             classBuilder.defineGetter(prev.getFullName(), prev);
             prev = prev.getPrev();
         }
-        return null;
-//        Setter<?> setter = classBuilder.(fieldRef.getFullName(), fieldRef);
-//        return new SetterWrapper(setter, fieldRef, methodDefine);
+        Getter<?> getter = classBuilder.defineGetter(owner.getFullName(), owner);
+        return new Invoker(getter, methodRef);
     }
 }
