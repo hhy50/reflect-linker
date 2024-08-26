@@ -7,14 +7,12 @@ import io.github.hhy.linker.generate.MethodHandle;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
+import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 public abstract class Setter<T extends FieldRef> extends MethodHandle {
 
@@ -31,10 +29,10 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        methodBody.append(mv -> {
-            mv.visitVarInsn(Opcodes.ALOAD, 0);
-            methodBody.loadArgs();
-            mv.visitMethodInsn(INVOKEVIRTUAL, methodHolder.getOwner(), methodHolder.getMethodName(), methodHolder.getDesc(), false);
+        methodBody.append(() -> {
+            return new MethodInvokeAction(methodHolder)
+                    .setInstance(LoadAction.LOAD0)
+                    .setArgs(methodBody.getArgs());
         });
         return null;
     }

@@ -57,14 +57,8 @@ public class MethodBody {
         return args[i];
     }
 
-    public void loadArgs() {
-        for (int i = 0; i < methodType.getArgumentTypes().length; i++) {
-            getArg(i).load(this);
-        }
-    }
-
-    public void setArg(int i, VarInst arg) {
-        this.args[i] = arg;
+    public VarInst[] getArgs() {
+        return args;
     }
 
     public MethodVisitor getWriter() {
@@ -84,4 +78,6 @@ public class MethodBody {
         }
         return localVarInst;
     }
+
+
 }

@@ -6,7 +6,7 @@ import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 
-public class Invoker extends MethodHandle {
+public abstract class Invoker extends MethodHandle {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {

@@ -49,7 +49,7 @@ public class SetterWrapper extends MethodHandle {
                 varInst = methodBody.newLocalVar(type, fieldRef.getFullName(), new WrapTypeAction(parameter, parameter.getType()));
             }
             varInst = methodBody.newLocalVar(type, fieldRef.getFullName(), new TypeCastAction(varInst == null ? parameter : varInst, type));
-            methodBody.setArg(0, varInst);
+            methodBody.getArgs()[0] = varInst;
         }
     }
 

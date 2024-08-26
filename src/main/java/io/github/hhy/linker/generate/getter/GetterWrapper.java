@@ -11,7 +11,6 @@ import io.github.hhy.linker.generate.bytecode.action.TypeCastAction;
 import io.github.hhy.linker.generate.bytecode.action.UnwrapTypeAction;
 import io.github.hhy.linker.generate.bytecode.action.WrapTypeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
