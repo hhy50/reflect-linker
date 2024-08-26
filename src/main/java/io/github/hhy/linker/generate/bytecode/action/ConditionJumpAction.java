@@ -24,7 +24,7 @@ public class ConditionJumpAction implements Action {
         Label elseLabel = new Label();
         Label endLabel = new Label();
 
-        condition.jump(body, ifLabel);
+        condition.jump(body, ifLabel, elseLabel, endLabel);
         mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
 
         // if {}

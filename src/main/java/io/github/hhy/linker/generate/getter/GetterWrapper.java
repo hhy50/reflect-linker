@@ -9,6 +9,7 @@ import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.action.TypeCastAction;
 import io.github.hhy.linker.generate.bytecode.action.UnwrapTypeAction;
+import io.github.hhy.linker.generate.bytecode.action.WrapTypeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -56,6 +57,8 @@ public class GetterWrapper extends MethodHandle {
                 MethodVisitor mv = methodBody.getWriter();
                 // 拆箱
                 methodBody.append(() -> new UnwrapTypeAction(result, rType));
+            } else if (AsmUtil.isPrimitiveType(result.getType())) {
+                methodBody.append(() -> new WrapTypeAction(result, result.getType()));
             } else {
                 methodBody.append(() -> new TypeCastAction(result, rType));
             }

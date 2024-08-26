@@ -19,7 +19,7 @@ public abstract class VarInst implements LoadAction {
     /**
      * 当前变量在局部变量表中的索引
      */
-    private int lvbIndex;
+    private final int lvbIndex;
 
     /**
      * 类型

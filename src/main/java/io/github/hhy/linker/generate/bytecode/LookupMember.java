@@ -9,7 +9,8 @@ import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
-import java.util.Arrays;
+import static io.github.hhy.linker.generate.bytecode.action.Condition.any;
+import static io.github.hhy.linker.generate.bytecode.action.Condition.must;
 
 
 public class LookupMember extends Member {
@@ -77,7 +78,7 @@ public class LookupMember extends Member {
     /**
      * 生成运行时校验lookup的代码
      * <pre>
-     *     if (lookup == null || obj.getClass() != lookup.lookupClass()) {
+     *     if (lookup == null || (obj != null && obj.getClass() != lookup.lookupClass())) {
      *         // goto @Label lookupAssign
      *     }
      *     // goto checkMh
@@ -86,15 +87,17 @@ public class LookupMember extends Member {
      * @param methodBody
      * @param varInst
      * @param lookupAssign
-     * @param checkMh
      */
     public void runtimeCheck(MethodBody methodBody, VarInst varInst, Action lookupAssign) {
         methodBody.append(() -> {
             // obj.getClass() != lookup.lookupClass()
             MethodInvokeAction getClass = new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS).setInstance(varInst);
             MethodInvokeAction lookupClass = new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS).setInstance(this);
-            return new AnyConditionJumpAction(Arrays.asList(Condition.isNull(this),
-                    Condition.notEq(getClass, lookupClass)),
+            return new ConditionJumpAction(
+                    any(
+                            Condition.isNull(this),
+                            must(Condition.notNull(varInst), Condition.notEq(getClass, lookupClass))
+                    ),
                     lookupAssign, null);
         });
     }
