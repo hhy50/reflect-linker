@@ -54,7 +54,6 @@ public class GetterWrapper extends MethodHandle {
     private Type typecast(MethodBody methodBody, VarInst result, Type rType) {
         if (!result.getType().equals(rType)) {
             if (AsmUtil.isPrimitiveType(rType)) {
-                MethodVisitor mv = methodBody.getWriter();
                 // 拆箱
                 methodBody.append(() -> new UnwrapTypeAction(result, rType));
             } else if (AsmUtil.isPrimitiveType(result.getType())) {
