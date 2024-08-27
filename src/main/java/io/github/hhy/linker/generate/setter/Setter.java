@@ -6,11 +6,10 @@ import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy.linker.generate.bytecode.action.RuntimeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
@@ -39,7 +38,6 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
 
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        mhMember.store(methodBody, new MethodInvokeAction(Runtime.FIND_SETTER)
-                .setArgs(lookupMember, LdcLoadAction.of(this.field.fieldName)));
+        mhMember.store(methodBody, RuntimeAction.findSetter(lookupMember, this.field.fieldName));
     }
 }

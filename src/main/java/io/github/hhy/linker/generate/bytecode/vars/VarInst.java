@@ -1,9 +1,11 @@
 package io.github.hhy.linker.generate.bytecode.vars;
 
 
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
+import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -43,6 +45,11 @@ public abstract class VarInst implements LoadAction {
         if (type.getSort() > Type.DOUBLE) {
             this.ifNull(methodBody, Action.throwNullException(nullerr));
         }
+    }
+
+    public MethodInvokeAction getThisClass() {
+        return new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS)
+                .setInstance(this);
     }
 
     /**

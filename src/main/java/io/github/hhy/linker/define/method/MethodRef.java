@@ -19,4 +19,8 @@ public class MethodRef {
     public FieldRef getOwner() {
         return owner;
     }
+
+    public String getFullName() {
+        return owner.getFullName() + "_$$_" + name;
+    }
 }

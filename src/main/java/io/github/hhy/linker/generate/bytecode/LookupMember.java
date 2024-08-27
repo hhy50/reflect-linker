@@ -6,7 +6,6 @@ import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.*;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
 import static io.github.hhy.linker.generate.bytecode.action.Condition.any;
@@ -65,14 +64,12 @@ public class LookupMember extends Member {
      */
     public void staticInit(MethodBody clinit) {
         if (inited) return;
-        this.store(clinit, new MethodInvokeAction(Runtime.LOOKUP).setArgs(LdcLoadAction.of(staticType)));
+        this.store(clinit, RuntimeAction.lookup(LdcLoadAction.of(staticType)));
         this.inited = true;
     }
 
     public void reinit(MethodBody methodBody, VarInst objectVar) {
-        this.store(methodBody, new MethodInvokeAction(Runtime.LOOKUP)
-                .setArgs(new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS).setInstance(objectVar))
-        );
+        this.store(methodBody, RuntimeAction.lookup(objectVar.getThisClass()));
     }
 
     /**
@@ -90,16 +87,21 @@ public class LookupMember extends Member {
      */
     public void runtimeCheck(MethodBody methodBody, VarInst varInst, Action lookupAssign) {
         methodBody.append(() -> {
-            // obj.getClass() != lookup.lookupClass()
-            MethodInvokeAction getClass = new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS).setInstance(varInst);
-            MethodInvokeAction lookupClass = new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS).setInstance(this);
             return new ConditionJumpAction(
                     any(
-                            Condition.isNull(this),
-                            must(Condition.notNull(varInst), Condition.notEq(getClass, lookupClass))
+                            Condition.isNull(this), // lookup == null
+                            must(
+                                    Condition.notNull(varInst), // obj != null
+                                    Condition.notEq(varInst.getThisClass(), lookupClass()) // obj.getClass() != lookup.lookupClass()
+                            )
                     ),
                     lookupAssign, null);
         });
+    }
+
+    public MethodInvokeAction lookupClass() {
+        return new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS)
+                .setInstance(this);
     }
 
     public boolean isTargetLookup() {

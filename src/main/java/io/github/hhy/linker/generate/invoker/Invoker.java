@@ -1,30 +1,26 @@
 package io.github.hhy.linker.generate.invoker;
 
+import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.method.MethodRef;
-import io.github.hhy.linker.generate.InvokeClassImplBuilder;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.generate.getter.Getter;
+import org.objectweb.asm.Type;
 
-public class Invoker extends MethodHandle {
-    private final Getter<?> owner;
-    private final MethodRef methodRef;
+public class Invoker<T extends MethodRef> extends MethodHandle {
+    protected final FieldRef owner;
+    protected final T methodRef;
+    protected Type methodType;
+    protected MethodHolder methodHolder;
 
-    public Invoker(Getter<?> owner, MethodRef methodRef) {
+    public Invoker(String implClass, FieldRef owner, T methodRef, Type methodType) {
         this.owner = owner;
         this.methodRef = methodRef;
-    }
-
-    @Override
-    protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        this.owner.define(classImplBuilder);
-//        super.define0(classImplBuilder);
-
-
-
+        this.methodType = methodType;
+        this.methodHolder = new MethodHolder(implClass, methodRef.getFullName(), methodType.getDescriptor());
     }
 
     @Override

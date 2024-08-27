@@ -29,13 +29,13 @@ public class MethodHandleMember extends Member {
         VarInst result = initResultVar(methodBody);
 
         methodBody.append(() -> {
-            MethodInvokeAction invoke = new MethodInvokeAction(MethodHolder.STRING_CONTAINS)
+            MethodInvokeAction contains = new MethodInvokeAction(MethodHolder.STRING_CONTAINS)
                     .setInstance(new MethodInvokeAction(MethodHolder.CLASS_GET_NAME)
                             .setInstance(new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS)
                                     .setInstance(this)))
                     .setArgs(LdcLoadAction.of("DirectMethodHandle$StaticAccessor"));
 
-            return new ConditionJumpAction(Condition.wrap(invoke),
+            return new ConditionJumpAction(Condition.wrap(contains),
                     (__) -> invokeStatic(result, methodBody, args),
                     (__) -> {
                         that.checkNullPointer(methodBody, that.getName());

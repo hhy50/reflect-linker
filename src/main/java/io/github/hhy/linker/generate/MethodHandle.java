@@ -1,14 +1,11 @@
 package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.define.field.FieldRef;
-import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.action.Action;
-import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy.linker.generate.bytecode.action.RuntimeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
 public abstract class MethodHandle {
@@ -84,9 +81,7 @@ public abstract class MethodHandle {
      */
     protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, VarInst objVar, FieldRef field) {
         objVar.ifNull(methodBody, (__) -> {
-            lookupMember.store(methodBody, new MethodInvokeAction(Runtime.FIND_LOOKUP)
-                    .setArgs(new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS)
-                            .setInstance(prevLookupMember), LdcLoadAction.of(field.fieldName)));
+            lookupMember.store(methodBody, RuntimeAction.findLookup(prevLookupMember, field.fieldName));
         });
     }
 
