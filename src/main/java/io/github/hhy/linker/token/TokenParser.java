@@ -8,9 +8,11 @@ import java.util.Iterator;
 
 public class TokenParser {
 
+    static Tokens EMPTY = new Tokens();
+
     public Tokens parse(String tokensStr) {
         if (tokensStr == null || (tokensStr = tokensStr.trim()).length() == 0) {
-            return null;
+            return EMPTY;
         }
 
         Tokens tokens = new Tokens();

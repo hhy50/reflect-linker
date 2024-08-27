@@ -33,7 +33,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), this.methodType);
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, owner.declaredType, method.getName(), methodType, method.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, owner.getDeclaredType(), method.getName(), methodType, method.isStatic());
 
         // 定义当前方法的invoker
         classImplBuilder

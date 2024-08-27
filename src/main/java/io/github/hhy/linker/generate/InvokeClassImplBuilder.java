@@ -1,7 +1,6 @@
 package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.asm.AsmClassBuilder;
-import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
@@ -26,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
-    private String bindTarget;
+    private Class<?> bindTarget;
     private final String implClassDesc;
     private MethodBody clinit;
     private final Map<String, Getter> getters;
@@ -42,7 +41,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     private void init() {
-        EarlyFieldRef target = new EarlyFieldRef(null, null, "target", Type.getType(AsmUtil.toTypeDesc(bindTarget)));
+        EarlyFieldRef target = new EarlyFieldRef(null, null, "target", bindTarget);
         TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
 
         LookupMember lookupMember = this.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, target.getType());
@@ -53,9 +52,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         this.getters.put(target.getFullName(), targetFieldGetter);
     }
 
-    public InvokeClassImplBuilder setTarget(String bindTarget) {
+    public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
         this.bindTarget = bindTarget;
-        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget}, null, "")
+        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget.getName()}, null, "")
                 .accept(mv -> {
                     mv.visitVarInsn(Opcodes.ALOAD, 0);
                     mv.visitVarInsn(Opcodes.ALOAD, 1);

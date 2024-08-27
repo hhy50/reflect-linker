@@ -16,52 +16,56 @@ public class EarlyFieldRef extends FieldRef {
 
     /**
      * objDeclaredType
-     * 生明的类型
+     * 声明的类的类型
      */
-    public Type declaredType;
+    private Type declaredType;
 
     /**
      * objRealType
      * 指定的类型
      */
-    public Type realType;
+//    public Type objRealType;
 
     /**
      * 字段类型
      */
-    public Type fieldType;
+    private final Class<?> fieldTypeClass;
+    private final Type fieldType;
+
 
     /**
      * 是否是静态字段
      */
-    public boolean isStatic;
+    private boolean isStatic;
 
     public EarlyFieldRef(FieldRef prev, Field field) {
         super(prev, prev.getFullName(), field.getName());
-        this.declaredType = Type.getType(field.getDeclaringClass());
-        this.realType = this.declaredType;
+        this.fieldTypeClass = field.getDeclaringClass();
+        this.declaredType = Type.getType(this.fieldTypeClass);
         this.fieldType = Type.getType(field.getType());
         this.isStatic = Modifier.isStatic(field.getModifiers());
     }
 
-    public EarlyFieldRef(FieldRef prev, Field field, Type objRealType) {
-        super(prev, prev.getFullName(), field.getName());
-        this.declaredType = Type.getType(field.getDeclaringClass());
-        this.realType = objRealType;
-        this.fieldType = Type.getType(field.getType());
-        this.isStatic = Modifier.isStatic(field.getModifiers());
-    }
+//    public EarlyFieldRef(FieldRef prev, Field field, Type objRealType) {
+//        super(prev, prev.getFullName(), field.getName());
+//        this.declaredType = Type.getType(field.getDeclaringClass());
+//        this.objRealType = objRealType;
+//        this.fieldType = Type.getType(field.getType());
+//        this.isStatic = Modifier.isStatic(field.getModifiers());
+//    }
 
     /**
      * 仅能表示target
+     *
      * @param prev
      * @param objName
      * @param fieldName
      * @param realType
      */
-    public EarlyFieldRef(FieldRef prev, String objName, String fieldName, Type realType) {
+    public EarlyFieldRef(FieldRef prev, String objName, String fieldName, Class<?> fieldTypeClass) {
         super(prev, objName, fieldName);
-        this.fieldType = realType;
+        this.fieldTypeClass = fieldTypeClass;
+        this.fieldType = Type.getType(fieldTypeClass);
     }
 
     public boolean isStatic() {
@@ -71,5 +75,17 @@ public class EarlyFieldRef extends FieldRef {
     @Override
     public Type getType() {
         return this.fieldType;
+    }
+
+    public Type getDeclaredType() {
+        return this.declaredType;
+    }
+
+    public Class<?> getFieldTypeClass() {
+        return this.fieldTypeClass;
+    }
+
+    public String getFieldTypeName() {
+        return this.fieldTypeClass.getName();
     }
 }

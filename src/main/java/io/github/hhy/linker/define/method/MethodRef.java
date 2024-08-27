@@ -6,6 +6,7 @@ import io.github.hhy.linker.define.field.FieldRef;
 public class MethodRef {
     protected FieldRef owner;
     protected String name;
+    protected String superClass;
 
     public MethodRef(FieldRef owner, String name) {
         this.owner = owner;

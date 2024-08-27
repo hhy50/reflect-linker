@@ -5,6 +5,6 @@ import java.util.List;
 
 public class InvokeClassDefine {
     public Class<?> define;
-    public String targetClass;
+    public Class<?> targetClass;
     public List<MethodDefine> methodDefines;
 }

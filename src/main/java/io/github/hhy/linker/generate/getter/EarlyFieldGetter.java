@@ -30,14 +30,14 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // 定义上一层字段的lookup, 必须要用declaredType
-        LookupMember lookupMember = classImplBuilder.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, field.declaredType);
+        LookupMember lookupMember = classImplBuilder.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, field.getDeclaredType());
         // init lookup
         lookupMember.staticInit(clinit);
 
         // 定义当前字段的getter mh
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, field.declaredType, field.fieldName, methodType, field.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, field.getDeclaredType(), field.fieldName, methodType, field.isStatic());
 
         // 定义当前字段的getter
         classImplBuilder
