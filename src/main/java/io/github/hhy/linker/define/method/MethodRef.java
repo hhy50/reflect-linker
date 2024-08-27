@@ -2,11 +2,15 @@ package io.github.hhy.linker.define.method;
 
 import io.github.hhy.linker.define.field.FieldRef;
 
+
 public class MethodRef {
-    private FieldRef owner;
-    private String name;
-    private String[] args;
-    private String returnType;
+    protected FieldRef owner;
+    protected String name;
+
+    public MethodRef(FieldRef owner, String name) {
+        this.owner = owner;
+        this.name = name;
+    }
 
     public FieldRef getOwner() {
         return owner;
@@ -16,11 +20,7 @@ public class MethodRef {
         return name;
     }
 
-    public String[] getArgs() {
-        return args;
-    }
-
     public String getFullName() {
-        return owner.getFullName() + "_$$_" + name;
+        return owner.getFullName()+"_$$_"+name;
     }
 }

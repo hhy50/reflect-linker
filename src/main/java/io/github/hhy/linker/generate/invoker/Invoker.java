@@ -1,6 +1,5 @@
 package io.github.hhy.linker.generate.invoker;
 
-import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.method.MethodRef;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
@@ -11,14 +10,12 @@ import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
-public class Invoker<T extends MethodRef> extends MethodHandle {
+public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     protected final T method;
-    protected Type methodType;
     protected MethodHolder methodHolder;
 
-    public Invoker(String implClass, T method) {
+    public Invoker(String implClass, T method, Type methodType) {
         this.method = method;
-        this.methodType = Type.getMethodType(Type.VOID_TYPE);
         this.methodHolder = new MethodHolder(implClass, "invoke_"+method.getFullName(), methodType.getDescriptor());
     }
 

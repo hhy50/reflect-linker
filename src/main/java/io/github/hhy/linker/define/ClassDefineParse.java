@@ -1,7 +1,6 @@
 package io.github.hhy.linker.define;
 
 import io.github.hhy.linker.annotations.Target;
-import io.github.hhy.linker.annotations.Typed;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
@@ -17,11 +16,16 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static io.github.hhy.linker.util.ClassUtil.getTypeDefines;
 
 public class ClassDefineParse {
 
+    private static final String FIRST_OBJ_NAME = "target";
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
     public static InvokeClassDefine parseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
@@ -32,16 +36,16 @@ public class ClassDefineParse {
         if (classLoader == null) {
             classLoader = ClassLoader.getSystemClassLoader();
         }
-        Class<?> targetClass = classLoader.loadClass(bindAnno.value());
-        return doParseClass(define, targetClass);
+        return doParseClass(define, bindAnno.value(), classLoader);
     }
 
-    public static InvokeClassDefine doParseClass(Class<?> define, Class<?> targetClass) throws ParseException, ClassNotFoundException {
+    public static InvokeClassDefine doParseClass(Class<?> define, String targetClass, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
         Map<String, String> typeDefines = getTypeDefines(define);
-        EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, null, "target", Type.getType(targetClass));
+//        EarlyFieldRef targetFieldRef = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, Type.getType(targetClass));
         List<MethodDefine> methodDefines = new ArrayList<>();
+
         for (Method declaredMethod : define.getDeclaredMethods()) {
-            methodDefines.add(parseMethod(targetClass, declaredMethod, targetFieldRef, typeDefines));
+            methodDefines.add(parseMethod(targetClass, declaredMethod, classLoader, typeDefines));
         }
 
         InvokeClassDefine classDefine = new InvokeClassDefine();
@@ -52,25 +56,13 @@ public class ClassDefineParse {
     }
 
     /**
-     * 从接口类上面获取提前定义好的类型
-     *
-     * @param define
-     * @param <T>
-     * @return
-     */
-    private static <T> Map<String, String> getTypeDefines(Class<T> define) {
-        Typed[] declaredAnnotations = define.getDeclaredAnnotationsByType(Typed.class);
-        return Arrays.stream(declaredAnnotations).collect(Collectors.toMap(Typed::name, Typed::type));
-    }
-
-    /**
-     * @param targetClass
+     * @param targetClassName
      * @param method
-     * @param targetFieldRef
+     * @param classLoader
      * @param typedDefines
      * @return
      */
-    public static MethodDefine parseMethod(Class<?> targetClass, Method method, EarlyFieldRef targetFieldRef, Map<String, String> typedDefines) throws ClassNotFoundException {
+    public static MethodDefine parseMethod(String targetClassName, Method method, ClassLoader classLoader, Map<String, String> typedDefines) throws ClassNotFoundException {
         verify(method);
 
         String fieldExpr = null;
@@ -82,15 +74,18 @@ public class ClassDefineParse {
             fieldExpr = Util.getOrElseDefault(setter.value(), method.getName());
         }
 
+        // copy
+        typedDefines = new HashMap<>(typedDefines);
+        typedDefines.putAll(getTypeDefines(method));
+
+        Class<?> targetClass = classLoader.loadClass(typedDefines.getOrDefault(FIRST_OBJ_NAME, targetClassName));
         MethodDefine methodDefine = new MethodDefine(method);
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
-            methodDefine.fieldRef = parseFieldExpr(targetClass, targetFieldRef, tokens, typedDefines);
+            methodDefine.fieldRef = parseFieldExpr(targetClass, classLoader, tokens, typedDefines);
         } else {
-            io.github.hhy.linker.annotations.Method.Name methodNameAnn
-                    = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
-            io.github.hhy.linker.annotations.Method.InvokeSuper superClass
-                    = method.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
+            io.github.hhy.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
+            io.github.hhy.linker.annotations.Method.InvokeSuper superClass = method.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
 //            io.github.hhy.linker.annotations.Method.DynamicSign dynamicSign = method
 //                    .getAnnotation(io.github.hhy.linker.annotations.Method.DynamicSign.class);
             // 校验方法是否存在
@@ -124,8 +119,7 @@ public class ClassDefineParse {
             throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is setter method,its return value must be of type void, and the parameter length must be 1");
         }
 
-        io.github.hhy.linker.annotations.Method.Name methodNameAnn
-                = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
+        io.github.hhy.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
         // @Field 和 @Method相关的注解不能同时存在
         if ((getter != null || setter != null) & (methodNameAnn != null)) {
             throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
@@ -136,17 +130,13 @@ public class ClassDefineParse {
      * 解析目标字段
      *
      * @param targetClass
-     * @param targetFieldRef
      * @param tokens
      * @param typedDefines
      * @return
      */
-    private static FieldRef parseFieldExpr(Class<?> targetClass, final EarlyFieldRef targetFieldRef,
-                                           final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
-        ClassLoader classLoader = Optional.ofNullable(targetClass.getClassLoader()).orElse(ClassLoader.getSystemClassLoader());
-
+    private static FieldRef parseFieldExpr(Class<?> targetClass, ClassLoader classLoader, final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
         Class<?> currentType = targetClass;
-        FieldRef lastField = targetFieldRef;
+        FieldRef lastField = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, Type.getType(targetClass));
         String fullField = null;
         for (Token token : tokens) {
             fullField = fullField == null ? token.value() : (fullField+"."+token.value());

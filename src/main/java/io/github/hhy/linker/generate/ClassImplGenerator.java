@@ -8,6 +8,7 @@ import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
@@ -19,7 +20,7 @@ public class ClassImplGenerator {
 
     public static Class<?> generateImplClass(InvokeClassDefine defineClass) {
         Class<?> define = defineClass.define;
-        Class<?> targetClass = defineClass.targetClass;
+        String targetClass = defineClass.targetClass;
         String implClassName = define.getName()+"$impl";
         InvokeClassImplBuilder classBuilder = AsmUtil
                 .defineImplClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
@@ -30,7 +31,6 @@ public class ClassImplGenerator {
 
         for (MethodDefine methodDefine : methodDefines) {
             Method method = methodDefine.define;
-
             classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null, null)
                     .accept(mv -> {
                         generateMethodImpl(classBuilder, mv, methodDefine);
@@ -46,11 +46,9 @@ public class ClassImplGenerator {
             mh = BytecodeFactory.generateGetter(classBuilder, methodDefine, methodDefine.fieldRef);
         } else if (methodDefine.hasSetter()) {
             mh = BytecodeFactory.generateSetter(classBuilder, methodDefine, methodDefine.fieldRef);
-        }
-//        else if (methodDefine.methodRef != null) {
-//            mh = BytecodeFactory.generateInvoker(classBuilder, methodDefine, methodDefine.methodRef);
-//        }
-        else {
+        } else if (methodDefine.methodRef != null) {
+            mh = BytecodeFactory.generateInvoker(classBuilder, methodDefine, methodDefine.methodRef);
+        } else {
             AsmUtil.throwNoSuchMethod(mv, methodDefine.define.getName());
         }
         if (mh != null) {

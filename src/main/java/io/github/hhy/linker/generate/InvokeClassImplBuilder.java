@@ -1,6 +1,7 @@
 package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.asm.AsmClassBuilder;
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
@@ -25,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
-    private Class<?> bindTarget;
+    private String bindTarget;
     private final String implClassDesc;
     private MethodBody clinit;
     private final Map<String, Getter> getters;
@@ -41,7 +42,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     private void init() {
-        EarlyFieldRef target = new EarlyFieldRef(null, null, "target", Type.getType(bindTarget));
+        EarlyFieldRef target = new EarlyFieldRef(null, null, "target", Type.getType(AsmUtil.toTypeDesc(bindTarget)));
         TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
 
         LookupMember lookupMember = this.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, target.getType());
@@ -52,9 +53,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         this.getters.put(target.getFullName(), targetFieldGetter);
     }
 
-    public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
+    public InvokeClassImplBuilder setTarget(String bindTarget) {
         this.bindTarget = bindTarget;
-        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget.getName()}, null, "")
+        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget}, null, "")
                 .accept(mv -> {
                     mv.visitVarInsn(Opcodes.ALOAD, 0);
                     mv.visitVarInsn(Opcodes.ALOAD, 1);
@@ -67,6 +68,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     /**
      * 定义Getter
+     *
      * @param fieldName
      * @param fieldRef
      * @return
@@ -83,6 +85,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     /**
      * 获取getter
+     *
      * @param fieldName
      * @return
      */
@@ -102,12 +105,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     /**
      * 定义运行时的lookup
+     *
      * @param fieldRef
      * @return
      */
     public LookupMember defineLookup(FieldRef fieldRef) {
         if (fieldRef instanceof EarlyFieldRef) {
-            return defineLookup(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, fieldRef.getType());
+            return defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, fieldRef.getType());
         }
 
         String lookupMemberName = fieldRef.getFullName()+"_lookup";
@@ -121,12 +125,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     /**
      * 定义指定类型的lookup字段
+     *
      * @param access
      * @param type
      * @return
      */
     public LookupMember defineLookup(int access, Type type) {
-        String memberName = type.getClassName().replace('.', '_') + "_lookup";
+        String memberName = type.getClassName().replace('.', '_')+"_lookup";
         if (!members.containsKey(memberName)) {
             super.defineField(access, memberName, Lookup.DESCRIPTOR, null, null);
             this.members.put(memberName, new LookupMember(access, implClassDesc, memberName, type));
@@ -136,13 +141,14 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     /**
      * 定义静态的methodHandle
+     *
      * @param mhMemberName
      * @param methodType
      * @return
      */
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
-            int access = Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC;
+            int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
             super.defineField(access, mhMemberName, MethodHandle.DESCRIPTOR, null, null);
             this.members.put(mhMemberName, new MethodHandleMember(access, implClassDesc, mhMemberName, methodType));
         }
