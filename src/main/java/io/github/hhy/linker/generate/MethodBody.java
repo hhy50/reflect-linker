@@ -13,14 +13,12 @@ import java.util.function.Supplier;
 
 public class MethodBody {
     private final MethodVisitor writer;
-    private Type methodType;
     private int lvbIndex;
     private VarInst[] args;
 
     public MethodBody(MethodVisitor mv, Type methodType) {
         Type[] argumentTypes = methodType.getArgumentTypes();
         this.writer = mv;
-        this.methodType = methodType;
         this.lvbIndex = AsmUtil.calculateLvbOffset(false, argumentTypes);
         this.args = new VarInst[argumentTypes.length];
 

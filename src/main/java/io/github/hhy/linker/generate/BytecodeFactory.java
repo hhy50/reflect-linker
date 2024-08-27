@@ -35,13 +35,13 @@ public class BytecodeFactory {
 
     public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, MethodRef methodRef) {
         FieldRef owner = methodRef.getOwner();
+        classBuilder.defineGetter(owner.getFullName(), owner);
 
         FieldRef prev = owner.getPrev();
         while (prev != null) {
             classBuilder.defineGetter(prev.getFullName(), prev);
             prev = prev.getPrev();
         }
-//        Getter<?> getter = classBuilder.defineGetter(owner.getFullName(), owner);
-        return new EarlyMethodInvoker(classBuilder.getClassName(), owner, methodRef);
+        return new EarlyMethodInvoker(classBuilder.getClassName(), methodRef);
     }
 }

@@ -8,16 +8,16 @@ public class MethodRef {
     private String[] args;
     private String returnType;
 
+    public FieldRef getOwner() {
+        return owner;
+    }
+
     public String getName() {
         return name;
     }
 
     public String[] getArgs() {
         return args;
-    }
-
-    public FieldRef getOwner() {
-        return owner;
     }
 
     public String getFullName() {
