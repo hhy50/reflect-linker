@@ -1,14 +1,14 @@
 package io.github.hhy.linker.generate.invoker;
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.MethodHandle;
-import io.github.hhy.linker.generate.bytecode.LookupMember;
-import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.MethodHandleDecorator;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
+import org.objectweb.asm.Type;
 
-public class InvokerDecorator extends MethodHandle {
+public class InvokerDecorator extends MethodHandleDecorator {
 
     protected Invoker<?> realInvoker;
     private final MethodDefine methodDefine;
@@ -25,11 +25,11 @@ public class InvokerDecorator extends MethodHandle {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        return null;
-    }
+        typecastArgs(methodBody, methodBody.getArgs(), new Type[0]);
 
-    @Override
-    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        throw new RuntimeException("Decorator not impl mhReassign() method");
+        VarInst result = realInvoker.invoke(methodBody);
+        Type rType = typecastResult(methodBody, result, Type.getType(methodDefine.define.getReturnType()));
+        AsmUtil.areturn(methodBody.getWriter(), rType);
+        return null;
     }
 }

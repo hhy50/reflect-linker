@@ -61,6 +61,9 @@ public abstract class FieldRef {
     }
 
     public String getFullName() {
+        if (fullName == null) {
+            return getUniqueName();
+        }
         return fullName;
     }
 }
