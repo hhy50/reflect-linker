@@ -12,9 +12,9 @@ import io.github.hhy.linker.token.Token;
 import io.github.hhy.linker.token.TokenParser;
 import io.github.hhy.linker.token.Tokens;
 import io.github.hhy.linker.util.ClassUtil;
+import io.github.hhy.linker.util.ReflectUtil;
 import io.github.hhy.linker.util.StringUtil;
 import io.github.hhy.linker.util.Util;
-import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -44,8 +44,8 @@ public class ClassDefineParse {
         List<MethodDefine> methodDefines = new ArrayList<>();
 
         EarlyFieldRef targetField = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, targetClass);
-        for (Method declaredMethod : define.getDeclaredMethods()) {
-            methodDefines.add(parseMethod(targetField, classLoader, declaredMethod, typeDefines));
+        for (Method defineMethod : define.getDeclaredMethods()) {
+            methodDefines.add(parseMethod(targetField, classLoader, defineMethod, typeDefines));
         }
 
         InvokeClassDefine classDefine = new InvokeClassDefine();
@@ -58,54 +58,73 @@ public class ClassDefineParse {
     /**
      * @param targetClassRef
      * @param classLoader
-     * @param method
+     * @param defineMethod
      * @param typedDefines
      * @return
      */
-    public static MethodDefine parseMethod(EarlyFieldRef targetClassRef, ClassLoader classLoader, Method method, Map<String, String> typedDefines) throws ClassNotFoundException {
-        verify(method);
+    public static MethodDefine parseMethod(EarlyFieldRef targetClassRef, ClassLoader classLoader, Method defineMethod, Map<String, String> typedDefines) throws ClassNotFoundException {
+        verify(defineMethod);
 
         String fieldExpr = null;
-        io.github.hhy.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Getter.class);
-        io.github.hhy.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Setter.class);
+        io.github.hhy.linker.annotations.Field.Getter getter = defineMethod.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Getter.class);
+        io.github.hhy.linker.annotations.Field.Setter setter = defineMethod.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Setter.class);
         if (getter != null) {
-            fieldExpr = Util.getOrElseDefault(getter.value(), method.getName());
+            fieldExpr = Util.getOrElseDefault(getter.value(), defineMethod.getName());
         } else if (setter != null) {
-            fieldExpr = Util.getOrElseDefault(setter.value(), method.getName());
+            fieldExpr = Util.getOrElseDefault(setter.value(), defineMethod.getName());
         }
 
         // copy
         typedDefines = new HashMap<>(typedDefines);
-        typedDefines.putAll(getTypeDefines(method));
+        typedDefines.putAll(getTypeDefines(defineMethod));
 
         String targetClassName = typedDefines.get(FIRST_OBJ_NAME);
         if (StringUtil.isNotEmpty(targetClassName) && !Objects.equals(targetClassName, targetClassRef.getFieldTypeName())) {
             targetClassRef = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, classLoader.loadClass(targetClassName));
         }
-        MethodDefine methodDefine = new MethodDefine(method);
+        MethodDefine methodDefine = new MethodDefine(defineMethod);
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
             methodDefine.fieldRef = parseFieldExpr(targetClassRef, classLoader, tokens, typedDefines);
         } else {
-            io.github.hhy.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
-            io.github.hhy.linker.annotations.Method.InvokeSuper superClass = method.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
-            String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), method.getName());
+            io.github.hhy.linker.annotations.Method.Name methodNameAnn = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
+            io.github.hhy.linker.annotations.Method.InvokeSuper superClass = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
+            String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), defineMethod.getName());
             int i;
             if ((i = methodName.lastIndexOf('.')) != -1) {
                 fieldExpr = methodName.substring(0, i);
-                methodName = methodName.substring(i+1);
+                methodName = methodName.substring(i + 1);
             }
-            methodDefine.methodRef = parseMethodExpr(targetClassRef, classLoader, method, methodName, TOKEN_PARSER.parse(fieldExpr), typedDefines);
+            methodDefine.methodRef = parseMethodExpr(targetClassRef, classLoader, defineMethod, methodName, TOKEN_PARSER.parse(fieldExpr), typedDefines);
         }
         return methodDefine;
     }
 
-    private static MethodRef parseMethodExpr(EarlyFieldRef targetTargetRef, ClassLoader classLoader, Method method, String name, final Tokens fieldTokens, Map<String, String> typedDefines) throws ClassNotFoundException {
+    private static MethodRef parseMethodExpr(EarlyFieldRef targetTargetRef, ClassLoader classLoader, Method defineMethod, String name, final Tokens fieldTokens, Map<String, String> typedDefines) throws ClassNotFoundException {
         FieldRef owner = parseFieldExpr(targetTargetRef, classLoader, fieldTokens, typedDefines);
         if (owner instanceof EarlyFieldRef) {
-            Type type = owner.getType();
-
+            Class<?> ownerClass = ((EarlyFieldRef) owner).getFieldTypeClass();
+            List<Method> methods = ReflectUtil.getMethods(ownerClass, name);
+            Method method = matchMethod(methods, defineMethod.getParameterTypes());
+            if (method == null && typedDefines.containsKey(owner.getFullName())) {
+                throw new ParseException("can not find method " + name + " in class " + ownerClass.getName());
+            }
         }
+        return null;
+    }
+
+    private static Method matchMethod(List<Method> methods, Class<?>[] parameters) {
+        List<Method> matches = new ArrayList<>();
+        for (Method method : methods) {
+            if (method.getParameters().length != parameters.length) continue;
+            if (ClassUtil.deepEquals(method.getParameterTypes(), parameters)) {
+                return method;
+            }
+            if (ClassUtil.polymorphismMatch(method.getParameterTypes(), parameters)) {
+                matches.add(method);
+            }
+        }
+        if (matches.size() > 0) return matches.get(0);
         return null;
     }
 
@@ -140,14 +159,10 @@ public class ClassDefineParse {
                 }
                 currentType = assignedType;
                 lastField = new EarlyFieldRef(lastField, currentField);
-//                lastField = new EarlyFieldRef(lastField, currentField, Type.getType(assignedType));
             } else {
-                if (currentField == null) {
-                    lastField = new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
-                    continue;
-                }
-                lastField = new EarlyFieldRef(lastField, currentField);
+                lastField = currentField != null ? new EarlyFieldRef(lastField, currentField) : new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
             }
+            lastField.setFullName(fullField);
         }
         return lastField;
     }
@@ -167,28 +182,28 @@ public class ClassDefineParse {
         io.github.hhy.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Setter.class);
         // Field.Setter和@Field.Getter只能有一个
         if (getter != null && setter != null) {
-            throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] cannot have two annotations @Field.getter and @Field.setter");
+            throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations @Field.getter and @Field.setter");
         }
         if (getter != null) {
             if (StringUtil.isEmpty(getter.value())) {
-                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method, must be specified field-expression");
+                throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
             }
             if (method.getReturnType() == void.class || method.getParameters().length > 0) {
-                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method,its return value cannot be of type void, and the parameter length must be 0");
+                throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method,its return value cannot be of type void, and the parameter length must be 0");
             }
         } else if (setter != null) {
             if (StringUtil.isEmpty(setter.value())) {
-                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method, must be specified field-expression");
+                throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
             }
             if (method.getReturnType() != void.class || method.getParameters().length != 1) {
-                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is setter method,its return value must be of type void, and the parameter length must be 1");
+                throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is setter method,its return value must be of type void, and the parameter length must be 1");
             }
         }
 
         io.github.hhy.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
         // @Field 和 @Method相关的注解不能同时存在
         if ((getter != null || setter != null) & (methodNameAnn != null)) {
-            throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
+            throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
         }
     }
 }

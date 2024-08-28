@@ -46,9 +46,9 @@ public class SetterWrapper extends MethodHandle {
         if (!type.equals(parameter.getType())) {
             LocalVarInst varInst = null;
             if (AsmUtil.isPrimitiveType(parameter.getType())) {
-                varInst = methodBody.newLocalVar(type, fieldRef.getFullName(), new WrapTypeAction(parameter, parameter.getType()));
+                varInst = methodBody.newLocalVar(type, fieldRef.getUniqueName(), new WrapTypeAction(parameter, parameter.getType()));
             }
-            varInst = methodBody.newLocalVar(type, fieldRef.getFullName(), new TypeCastAction(varInst == null ? parameter : varInst, type));
+            varInst = methodBody.newLocalVar(type, fieldRef.getUniqueName(), new TypeCastAction(varInst == null ? parameter : varInst, type));
             methodBody.getArgs()[0] = varInst;
         }
     }

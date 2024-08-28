@@ -23,7 +23,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         EarlyFieldRef owner = (EarlyFieldRef) method.getOwner();
-        Getter<?> getter = classImplBuilder.defineGetter(owner.getFullName(), owner);
+        Getter<?> getter = classImplBuilder.defineGetter(owner.getUniqueName(), owner);
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();

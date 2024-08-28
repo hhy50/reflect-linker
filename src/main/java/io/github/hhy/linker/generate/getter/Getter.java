@@ -27,7 +27,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         this.implClass = implClass;
         this.field = field;
         this.methodType = Type.getMethodType(field.getType());
-        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getFullName(), this.methodType.getDescriptor());
+        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
     @Override

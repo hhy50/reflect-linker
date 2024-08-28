@@ -22,6 +22,6 @@ public class MethodRef {
     }
 
     public String getFullName() {
-        return owner.getFullName()+"_$$_"+name;
+        return owner.getUniqueName()+"_$$_"+name;
     }
 }

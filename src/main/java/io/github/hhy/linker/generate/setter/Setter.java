@@ -23,7 +23,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     public Setter(String implClass, T field) {
         this.field = field;
         this.methodType = Type.getMethodType(Type.VOID_TYPE, field.getType());
-        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "set_"+field.getFullName(), this.methodType.getDescriptor());
+        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
     @Override

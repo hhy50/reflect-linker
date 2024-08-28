@@ -12,12 +12,14 @@ public abstract class FieldRef {
     /**
      * 对象名
      */
-    public String objName;
+    private String objName;
 
     /**
      * 字段名
      */
     public String fieldName;
+
+    private String fullName;
 
     /**
      * 上一级字段
@@ -30,20 +32,20 @@ public abstract class FieldRef {
         this.fieldName = name;
     }
 
-    public String getFullName() {
+    public String getUniqueName() {
         String prefix = "";
         if (prev != null) {
-            prefix = prev.getFullName()+"_$_";
+            prefix = prev.getUniqueName()+"_$_";
         }
         return prefix+fieldName;
     }
 
     public String getGetterName() {
-        return getFullName()+"_getter_mh";
+        return getUniqueName()+"_getter_mh";
     }
 
     public String getSetterName() {
-        return getFullName()+"_setter_mh";
+        return getUniqueName()+"_setter_mh";
     }
 
     public Type getType() {
@@ -52,5 +54,13 @@ public abstract class FieldRef {
 
     public FieldRef getPrev() {
         return prev;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getFullName() {
+        return fullName;
     }
 }

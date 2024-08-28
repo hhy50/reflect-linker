@@ -16,7 +16,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 
     public TargetFieldGetter(String implClass, EarlyFieldRef targetFieldRef) {
         super(implClass, targetFieldRef);
-        this.targetField = new FieldHolder(ClassUtil.className2path(implClass), field.getFullName(), ObjectVar.TYPE.getDescriptor());
+        this.targetField = new FieldHolder(ClassUtil.className2path(implClass), field.getUniqueName(), ObjectVar.TYPE.getDescriptor());
     }
 
     @Override

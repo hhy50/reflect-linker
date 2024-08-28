@@ -22,7 +22,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
     @Override
     public final void define0(InvokeClassImplBuilder classImplBuilder) {
-        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getFullName());
+        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();

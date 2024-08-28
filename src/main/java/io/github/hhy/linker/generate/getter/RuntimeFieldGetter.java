@@ -17,7 +17,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
 
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
-        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getFullName());
+        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
         getter.define(classImplBuilder);
 
         // 先定义上一层字段的lookup

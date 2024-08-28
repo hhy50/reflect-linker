@@ -39,7 +39,7 @@ public class EarlyFieldRef extends FieldRef {
     private boolean isStatic;
 
     public EarlyFieldRef(FieldRef prev, Field field) {
-        super(prev, prev.getFullName(), field.getName());
+        super(prev, prev.getUniqueName(), field.getName());
         this.fieldTypeClass = field.getDeclaringClass();
         this.declaredType = Type.getType(this.fieldTypeClass);
         this.fieldType = Type.getType(field.getType());

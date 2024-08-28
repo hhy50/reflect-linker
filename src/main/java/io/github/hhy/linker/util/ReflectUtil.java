@@ -2,6 +2,8 @@ package io.github.hhy.linker.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReflectUtil {
     public static Method getMethod(Class<?> clazz, String methodName) {
@@ -28,5 +30,22 @@ public class ReflectUtil {
             return getField(clazz.getSuperclass(), fieldName);
         }
         return null;
+    }
+
+    public static List<Method> getMethods(Class<?> clazz, String methodName) {
+        if (clazz == null) {
+            return null;
+        }
+
+        List<Method> methods = new ArrayList<>();
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getName().equals(methodName)) {
+                methods.add(method);
+            }
+        }
+        if (clazz.getSuperclass() != Object.class) {
+            methods.addAll(getMethods(clazz.getSuperclass(), methodName));
+        }
+        return methods;
     }
 }

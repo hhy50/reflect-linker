@@ -49,7 +49,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         lookupMember.staticInit(this.getClinit());
 
         this.members.put(lookupMember.getMemberName(), lookupMember);
-        this.getters.put(target.getFullName(), targetFieldGetter);
+        this.getters.put(target.getUniqueName(), targetFieldGetter);
     }
 
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
@@ -113,7 +113,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
             return defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, fieldRef.getType());
         }
 
-        String lookupMemberName = fieldRef.getFullName()+"_lookup";
+        String lookupMemberName = fieldRef.getUniqueName()+"_lookup";
         if (!members.containsKey(lookupMemberName)) {
             int access = Opcodes.ACC_PUBLIC;
             super.defineField(access, lookupMemberName, Lookup.DESCRIPTOR, null, null);

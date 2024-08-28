@@ -29,7 +29,7 @@ public class MethodDefine {
 
     public String getName() {
         if (fieldRef != null) {
-            return fieldRef.getFullName();
+            return fieldRef.getUniqueName();
         }
         return define.getName();
     }

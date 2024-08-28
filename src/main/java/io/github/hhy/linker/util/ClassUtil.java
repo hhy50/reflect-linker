@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ClassUtil {
@@ -19,7 +20,7 @@ public class ClassUtil {
     }
 
     public static String toSimpleName(String className) {
-        return className.substring(className.lastIndexOf(".")+1);
+        return className.substring(className.lastIndexOf(".") + 1);
     }
 
     /**
@@ -56,5 +57,27 @@ public class ClassUtil {
             return Arrays.stream(declaredAnnotations).collect(Collectors.toMap(Typed::name, Typed::type));
         }
         return Collections.emptyMap();
+    }
+
+    public static boolean deepEquals(Class<?>[] classes1, Class<?>[] classes2) {
+        if (classes1.length != classes2.length) return false;
+        for (int i = 0; i < classes1.length; i++) {
+            if (!Objects.equals(classes1[i].getName(), classes2[i].getName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean polymorphismMatch(Class<?>[] classes1, Class<?>[] classes2) {
+        if (classes1.length != classes2.length) return false;
+        for (int i = 0; i < classes1.length; i++) {
+            if (isAssignableFrom(classes2[i], classes1[i]) || isAssignableFrom(classes1[i], classes2[i])) {
+
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 }
