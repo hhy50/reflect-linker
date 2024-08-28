@@ -8,7 +8,7 @@ public class LocalVarInst extends VarInst {
 
     public LocalVarInst(int lvbIndex, Type type, String varName) {
         super(lvbIndex, type);
-        this.varName = varName;
+        this.varName = varName == null ? "var" + lvbIndex : varName;
     }
 
     @Override
