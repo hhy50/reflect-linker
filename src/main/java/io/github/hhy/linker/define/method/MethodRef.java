@@ -1,6 +1,8 @@
 package io.github.hhy.linker.define.method;
 
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import org.objectweb.asm.Type;
 
 
 public class MethodRef {
@@ -23,5 +25,13 @@ public class MethodRef {
 
     public String getFullName() {
         return owner.getUniqueName()+"_$$_"+name;
+    }
+
+    public String getSuperClass() {
+        return superClass;
+    }
+
+    public Type[] getArgsType() {
+        return new Type[] {ObjectVar.TYPE};
     }
 }

@@ -1,7 +1,7 @@
 package io.github.hhy.linker.generate.invoker;
 
-import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.MethodDefine;
+import io.github.hhy.linker.define.method.MethodRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandleDecorator;
@@ -25,11 +25,13 @@ public class InvokerDecorator extends MethodHandleDecorator {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        typecastArgs(methodBody, methodBody.getArgs(), new Type[0]);
+        MethodRef methodRef = methodDefine.methodRef;
+        Type[] argsType = methodRef.getArgsType();
 
+        typecastArgs(methodBody, methodBody.getArgs(), argsType);
         VarInst result = realInvoker.invoke(methodBody);
-        Type rType = typecastResult(methodBody, result, Type.getType(methodDefine.define.getReturnType()));
-        AsmUtil.areturn(methodBody.getWriter(), rType);
+        typecastResult(methodBody, result, methodDefine.define.getReturnType());
+//
         return null;
     }
 }

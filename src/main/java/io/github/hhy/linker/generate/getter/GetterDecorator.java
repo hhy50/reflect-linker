@@ -35,8 +35,10 @@ public class GetterDecorator extends MethodHandleDecorator {
          * get只需要对返回值进行转换就行
          */
         VarInst result = getter.invoke(methodBody);
-        Type rType = typecastResult(methodBody, result, Type.getType(methodDefine.getReturnType()));
-        AsmUtil.areturn(methodBody.getWriter(), rType);
+
+        Type expect = Type.getType(methodDefine.getReturnType());
+        typecastResult(methodBody, result, methodDefine.getReturnType());
+        AsmUtil.areturn(methodBody.getWriter(), expect);
         return null;
     }
 

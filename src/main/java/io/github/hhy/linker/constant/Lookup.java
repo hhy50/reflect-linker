@@ -7,4 +7,6 @@ public class Lookup {
     public static final String DESCRIPTOR = "Ljava/lang/invoke/MethodHandles$Lookup;";
     public static final Type TYPE = Type.getType(DESCRIPTOR);
     public static final String FIND_XETTER_DESC = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;)"+MethodHandle.DESCRIPTOR;
+    public static final String FIND_VIRTUAL = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;)"+MethodHandle.DESCRIPTOR;
+    public static final String FIND_SPECIAL = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/Class;)"+MethodHandle.DESCRIPTOR;
 }

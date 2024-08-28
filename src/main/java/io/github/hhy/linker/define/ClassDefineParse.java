@@ -6,7 +6,7 @@ import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.define.method.EarlyMethodRef;
 import io.github.hhy.linker.define.method.MethodRef;
-import io.github.hhy.linker.exceptions.ClassTypeNotMuchException;
+import io.github.hhy.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
 import io.github.hhy.linker.token.Token;
@@ -159,7 +159,7 @@ public class ClassDefineParse {
             }
             if (assignedType != null && currentField != null) {
                 if (!ClassUtil.isAssignableFrom(assignedType, currentField.getType())) {
-                    throw new ClassTypeNotMuchException(assignedType.getName(), currentField.getType().getName());
+                    throw new ClassTypeNotMatchException(assignedType.getName(), currentField.getType().getName());
                 }
                 currentType = assignedType;
                 lastField = new EarlyFieldRef(lastField, currentField);

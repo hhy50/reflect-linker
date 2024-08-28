@@ -24,4 +24,8 @@ public class EarlyMethodRef extends MethodRef {
     public Type getMethodType() {
         return this.methodType;
     }
+
+    public Type[] getArgsType() {
+        return this.methodType.getArgumentTypes();
+    }
 }

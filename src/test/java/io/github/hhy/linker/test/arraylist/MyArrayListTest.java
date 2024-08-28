@@ -18,5 +18,16 @@ public class MyArrayListTest {
 
         Assert.assertTrue(list instanceof TargetProvider);
         Assert.assertTrue(objects == list.getElementData());
+
+        System.out.println(list.add(1));
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        list.add("5");
+        Assert.assertEquals(objects[0], 1);
+        Assert.assertEquals(objects[1], 2);
+        Assert.assertEquals(objects[2], 3);
+        Assert.assertEquals(objects[3], 4);
+        Assert.assertEquals(objects[4], "5");
     }
 }

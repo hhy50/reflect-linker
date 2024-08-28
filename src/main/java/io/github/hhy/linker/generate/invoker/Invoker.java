@@ -7,6 +7,7 @@ import io.github.hhy.linker.generate.MethodHandle;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
 public abstract class Invoker<T extends MethodRef> extends MethodHandle {
@@ -17,14 +18,15 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     public Invoker(String implClass, T method, Type methodType) {
         this.method = method;
         this.methodType = methodType;
-        this.methodHolder = new MethodHolder(implClass, "invoke_" + method.getFullName(), methodType.getDescriptor());
+        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "invoke_" + method.getFullName(), methodType.getDescriptor());
     }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // Object a = get_a();
         MethodInvokeAction invoker = new MethodInvokeAction(methodHolder)
-                .setInstance(LoadAction.LOAD0);
+                .setInstance(LoadAction.LOAD0)
+                .setArgs(methodBody.getArgs());
         return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
     }
 }

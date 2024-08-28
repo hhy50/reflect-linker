@@ -5,6 +5,7 @@ import io.github.hhy.linker.generate.MethodBody;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 
 public interface Condition {
@@ -34,6 +35,16 @@ public interface Condition {
 
             MethodVisitor mv = body.getWriter();
             mv.visitJumpInsn(Opcodes.IF_ACMPNE, ifLabel);
+        };
+    }
+
+    public static Condition instanceOf(Action obj, Type expectType) {
+        return (body, ifLabel, elseLabel, endLabel) -> {
+            obj.apply(body);
+
+            MethodVisitor mv = body.getWriter();
+            mv.visitTypeInsn(Opcodes.INSTANCEOF, expectType.getInternalName());
+            mv.visitJumpInsn(Opcodes.IFNE, ifLabel);
         };
     }
 

@@ -15,6 +15,8 @@ import io.github.hhy.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy.linker.generate.bytecode.action.Action.asClassList;
+
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     private Type methodType;
 
@@ -36,7 +38,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), this.methodType);
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, owner.getDeclaredType(), method.getName(), methodType, method.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, owner.getType(), method.getName(), methodType, method.isStatic());
 
         // 定义当前方法的invoker
         classImplBuilder
@@ -49,7 +51,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                     }
 
                     // mh.invoke(obj)
-                    VarInst result = method.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
+                    VarInst result = method.isStatic() ? mhMember.invokeStatic(methodBody, methodBody.getArgs()) : mhMember.invokeInstance(methodBody, objVar, methodBody.getArgs());
                     if (result != null) {
                         result.load(methodBody);
                     }
@@ -59,10 +61,18 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+        String superClass = this.method.getSuperClass();
+        boolean invokeSpecial = superClass != null;
+
         MethodBody clinit = classImplBuilder.getClinit();
-        mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodHolder.LOOKUP_FIND_STATIC_SETTER_METHOD : MethodHolder.LOOKUP_FIND_SETTER_METHOD)
+        mhMember.store(clinit, new MethodInvokeAction(invokeSpecial ? MethodHolder.LOOKUP_FIND_FINDSPECIAL : MethodHolder.LOOKUP_FIND_FINDVIRTUAL)
                 .setInstance(lookupMember)
-                .setArgs(LdcLoadAction.of(ownerType), LdcLoadAction.of(fieldName), LdcLoadAction.of(methodType.getArgumentTypes()[0])));
+                .setArgs(LdcLoadAction.of(ownerType),
+                        LdcLoadAction.of(fieldName),
+                        new MethodInvokeAction(MethodHolder.METHOD_TYPE)
+                                .setArgs(LdcLoadAction.of(methodType.getReturnType()), asClassList(methodType.getArgumentTypes()))
+                )
+        );
     }
 
     @Override

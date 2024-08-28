@@ -20,7 +20,7 @@ public class ClassUtil {
     }
 
     public static String toSimpleName(String className) {
-        return className.substring(className.lastIndexOf(".") + 1);
+        return className.substring(className.lastIndexOf(".")+1);
     }
 
     /**
@@ -79,5 +79,19 @@ public class ClassUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * 是否是基本数据类型的包装类
+     *
+     * @param clazz
+     * @return
+     */
+    public static boolean isWrapClass(Class<?> clazz) {
+        if (clazz == Integer.class || clazz == Long.class || clazz == Short.class || clazz == Byte.class
+                || clazz == Float.class || clazz == Double.class || clazz == Boolean.class || clazz == Character.class) {
+            return true;
+        }
+        return clazz == Object.class;
     }
 }
