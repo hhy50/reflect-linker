@@ -2,11 +2,15 @@ package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.define.method.EarlyMethodRef;
 import io.github.hhy.linker.define.method.MethodRef;
 import io.github.hhy.linker.generate.getter.Getter;
-import io.github.hhy.linker.generate.getter.GetterWrapper;
+import io.github.hhy.linker.generate.getter.GetterDecorator;
+import io.github.hhy.linker.generate.invoker.EarlyMethodInvoker;
+import io.github.hhy.linker.generate.invoker.Invoker;
+import io.github.hhy.linker.generate.invoker.InvokerDecorator;
 import io.github.hhy.linker.generate.setter.Setter;
-import io.github.hhy.linker.generate.setter.SetterWrapper;
+import io.github.hhy.linker.generate.setter.SetterDecorator;
 
 
 public class BytecodeFactory {
@@ -18,7 +22,7 @@ public class BytecodeFactory {
             prev = prev.getPrev();
         }
         Getter<?> getter = classBuilder.defineGetter(fieldRef.getUniqueName(), fieldRef);
-        return new GetterWrapper(getter, fieldRef, methodDefine.define);
+        return new GetterDecorator(getter, fieldRef, methodDefine.define);
     }
 
     public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef fieldRef) {
@@ -29,7 +33,7 @@ public class BytecodeFactory {
         }
 
         Setter<?> setter = classBuilder.defineSetter(fieldRef.getUniqueName(), fieldRef);
-        return new SetterWrapper(setter, fieldRef, methodDefine);
+        return new SetterDecorator(setter, fieldRef, methodDefine);
     }
 
     public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, MethodRef methodRef) {
@@ -41,6 +45,7 @@ public class BytecodeFactory {
             classBuilder.defineGetter(prev.getUniqueName(), prev);
             prev = prev.getPrev();
         }
-        return null;
+        Invoker<?> invoker = new EarlyMethodInvoker(classBuilder.getClassName(), (EarlyMethodRef) methodRef);
+        return new InvokerDecorator(classBuilder.getClassName(), invoker, methodDefine);
     }
 }

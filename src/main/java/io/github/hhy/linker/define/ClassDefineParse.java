@@ -4,6 +4,7 @@ import io.github.hhy.linker.annotations.Target;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
+import io.github.hhy.linker.define.method.EarlyMethodRef;
 import io.github.hhy.linker.define.method.MethodRef;
 import io.github.hhy.linker.exceptions.ClassTypeNotMuchException;
 import io.github.hhy.linker.exceptions.ParseException;
@@ -82,6 +83,8 @@ public class ClassDefineParse {
         if (StringUtil.isNotEmpty(targetClassName) && !Objects.equals(targetClassName, targetClassRef.getFieldTypeName())) {
             targetClassRef = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, classLoader.loadClass(targetClassName));
         }
+        targetClassRef.setFullName(FIRST_OBJ_NAME);
+
         MethodDefine methodDefine = new MethodDefine(defineMethod);
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
@@ -109,6 +112,7 @@ public class ClassDefineParse {
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
                 throw new ParseException("can not find method " + name + " in class " + ownerClass.getName());
             }
+            return new EarlyMethodRef(owner, method);
         }
         return null;
     }

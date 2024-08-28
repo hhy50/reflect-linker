@@ -8,7 +8,6 @@ import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;

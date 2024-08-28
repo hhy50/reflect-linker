@@ -15,13 +15,13 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
-public class GetterWrapper extends MethodHandle {
+public class GetterDecorator extends MethodHandle {
 
-    private Getter getter;
+    private Getter<?> getter;
     private final FieldRef fieldRef;
     private final Method methodDefine;
 
-    public GetterWrapper(Getter getter, FieldRef fieldRef, Method methodDefine) {
+    public GetterDecorator(Getter getter, FieldRef fieldRef, Method methodDefine) {
         this.getter = getter;
         this.fieldRef = fieldRef;
         this.methodDefine = methodDefine;
@@ -68,6 +68,6 @@ public class GetterWrapper extends MethodHandle {
 
     @Override
     public void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        getter.mhReassign(methodBody, lookupMember, mhMember, objVar);
+        throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 }

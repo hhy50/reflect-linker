@@ -8,10 +8,10 @@ public class MethodHolder {
     public static final MethodHolder OBJECT_GET_CLASS = new MethodHolder("java/lang/Object", "getClass", "()Ljava/lang/Class;");
     public static final MethodHolder CLASS_GET_NAME = new MethodHolder("java/lang/Class", "getName", "()Ljava/lang/String;");
     public static final MethodHolder LOOKUP_LOOKUP_CLASS = new MethodHolder(Lookup.OWNER, "lookupClass", "()Ljava/lang/Class;");
-    public static final MethodHolder LOOKUP_FIND_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findGetter", Lookup.FIND_GETTER_DESC);
-    public static final MethodHolder LOOKUP_FIND_STATIC_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticGetter", Lookup.FIND_GETTER_DESC);
-    public static final MethodHolder LOOKUP_FIND_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findSetter", Lookup.FIND_GETTER_DESC);
-    public static final MethodHolder LOOKUP_FIND_STATIC_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticSetter", Lookup.FIND_SETTER_DESC);
+    public static final MethodHolder LOOKUP_FIND_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findGetter", Lookup.FIND_XETTER_DESC);
+    public static final MethodHolder LOOKUP_FIND_STATIC_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticGetter", Lookup.FIND_XETTER_DESC);
+    public static final MethodHolder LOOKUP_FIND_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findSetter", Lookup.FIND_XETTER_DESC);
+    public static final MethodHolder LOOKUP_FIND_STATIC_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticSetter", Lookup.FIND_XETTER_DESC);
 
     private final String owner;
     private final String methodName;

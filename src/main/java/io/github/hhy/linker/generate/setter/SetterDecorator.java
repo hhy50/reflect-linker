@@ -14,13 +14,13 @@ import io.github.hhy.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
-public class SetterWrapper extends MethodHandle {
+public class SetterDecorator extends MethodHandle {
 
     private Setter setter;
     private final FieldRef fieldRef;
     private final MethodDefine methodDefine;
 
-    public SetterWrapper(Setter setter, FieldRef fieldRef, MethodDefine methodDefine) {
+    public SetterDecorator(Setter setter, FieldRef fieldRef, MethodDefine methodDefine) {
         this.setter = setter;
         this.fieldRef = fieldRef;
         this.methodDefine = methodDefine;
@@ -34,7 +34,6 @@ public class SetterWrapper extends MethodHandle {
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // 方法定义的类型
-//        Type parameter = Type.getType(methodDefine.define.getParameters()[0].getType());
         typeCast(methodBody, methodBody.getArg(0), fieldRef.getType());
         setter.invoke(methodBody);
         AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);
@@ -55,6 +54,6 @@ public class SetterWrapper extends MethodHandle {
 
     @Override
     public void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        setter.mhReassign(methodBody, lookupMember, mhMember, objVar);
+        throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 }

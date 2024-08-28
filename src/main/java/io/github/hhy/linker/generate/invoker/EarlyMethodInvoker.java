@@ -3,10 +3,13 @@ package io.github.hhy.linker.generate.invoker;
 import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.method.EarlyMethodRef;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
+import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
@@ -54,5 +57,19 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                 });
     }
 
+    @Override
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+        MethodBody clinit = classImplBuilder.getClinit();
+        mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodHolder.LOOKUP_FIND_STATIC_SETTER_METHOD : MethodHolder.LOOKUP_FIND_SETTER_METHOD)
+                .setInstance(lookupMember)
+                .setArgs(LdcLoadAction.of(ownerType), LdcLoadAction.of(fieldName), LdcLoadAction.of(methodType.getArgumentTypes()[0])));
+    }
 
+    @Override
+    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
+        // mh = Runtime.findGetter(lookup, "field");
+//        MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
+//                .setArgs(lookupMember, LdcLoadAction.of(field.fieldName));
+//        mhMember.store(methodBody, findGetter);
+    }
 }
