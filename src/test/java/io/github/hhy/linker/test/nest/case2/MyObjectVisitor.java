@@ -25,7 +25,7 @@ public interface MyObjectVisitor {
     int getAge();
 
     @Field.Setter("user.age")
-    void setAge(int age);
+    void setAge(Integer age);
 
     @Field.Getter("user.address")
     String getAddress();
@@ -34,7 +34,7 @@ public interface MyObjectVisitor {
     void setAddress(String address);
 
     @Typed(name = "user", type = "io.github.hhy.linker.test.nest.case2.UserVo")
-    @Method.InvokeSuper
+    @Method.InvokeSuper("io.github.hhy.linker.test.nest.case2.User")
     @Method.Name("user.getName")
     String getSuperName();
 }

@@ -118,4 +118,38 @@ public class AsmUtil {
                 || className.equals("java.lang.Short") || className.equals("java.lang.Integer") || className.equals("java.lang.Float")
                 || className.equals("java.lang.Long") || className.equals("java.lang.Double");
     }
+
+    /**
+     * 获取对应类型的基本数据类型
+     * @param type
+     * @return
+     */
+    public static Type getPrimitiveType(Type type) {
+        // 获取对应类型的基本数据类型
+        if (type.getClassName().equals("java.lang.Boolean")) {
+            return Type.BOOLEAN_TYPE;
+        }
+        if (type.getClassName().equals("java.lang.Character")) {
+            return Type.CHAR_TYPE;
+        }
+        if (type.getClassName().equals("java.lang.Byte")) {
+            return Type.BYTE_TYPE;
+        }
+        if (type.getClassName().equals("java.lang.Short")) {
+            return Type.SHORT_TYPE;
+        }
+        if (type.getClassName().equals("java.lang.Integer")) {
+            return Type.INT_TYPE;
+        }
+        if (type.getClassName().equals("java.lang.Float")) {
+            return Type.FLOAT_TYPE;
+        }
+        if (type.getClassName().equals("java.lang.Long")) {
+            return Type.LONG_TYPE;
+        }
+        if (type.getClassName().equals("java.lang.Double")) {
+            return Type.DOUBLE_TYPE;
+        }
+        return null;
+    }
 }

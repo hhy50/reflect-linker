@@ -1,5 +1,6 @@
 package io.github.hhy.linker.generate.bytecode.action;
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.RuntimeUtil;
@@ -18,8 +19,9 @@ public class UnwrapTypeAction implements Action {
     public void apply(MethodBody body) {
         obj.apply(body);
 
+        Type primitiveType = AsmUtil.getPrimitiveType(obj.getType());
         MethodVisitor mv = body.getWriter();
-        switch (obj.getType().getSort()) {
+        switch (primitiveType.getSort()) {
             case Type.BYTE:
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapByte", RuntimeUtil.UNWRAP_BYTE_DESC, false);
                 break;
