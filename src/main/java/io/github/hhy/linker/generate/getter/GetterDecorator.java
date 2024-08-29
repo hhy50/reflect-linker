@@ -7,6 +7,7 @@ import io.github.hhy.linker.generate.MethodHandleDecorator;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
@@ -34,7 +35,7 @@ public class GetterDecorator extends MethodHandleDecorator {
          */
         VarInst result = getter.invoke(methodBody);
 
-        result = typecast(methodBody, result, methodDefine.getReturnType());
+        result = typecast(methodBody, result, Type.getType(methodDefine.getReturnType()));
         result.returnThis(methodBody);
         return null;
     }

@@ -32,7 +32,7 @@ public class InvokerDecorator extends MethodHandleDecorator {
         VarInst result = realInvoker.invoke(methodBody);
 
         Class<?> expectType = methodDefine.define.getReturnType();
-        VarInst newVar = typecast(methodBody, result, expectType);
+        VarInst newVar = typecast(methodBody, result, Type.getType(expectType));
         newVar.returnThis(methodBody);
 
         return null;

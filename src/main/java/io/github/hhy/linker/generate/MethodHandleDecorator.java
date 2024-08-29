@@ -4,11 +4,11 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.exceptions.TypeNotMatchException;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.action.*;
-import io.github.hhy.linker.generate.bytecode.vars.LocalVarInst;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy.linker.generate.bytecode.action.ConditionJumpAction;
+import io.github.hhy.linker.generate.bytecode.action.TypeCastAction;
+import io.github.hhy.linker.generate.bytecode.action.UnwrapTypeAction;
+import io.github.hhy.linker.generate.bytecode.action.WrapTypeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
 import static io.github.hhy.linker.generate.bytecode.action.Action.throwTypeCastException;
@@ -22,20 +22,13 @@ public abstract class MethodHandleDecorator extends MethodHandle {
         throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 
-    protected void typecastArgs(MethodBody methodBody, VarInst[] args, Type[] realTypes) {
+    protected void typecastArgs(MethodBody methodBody, VarInst[] args, Type[] expectTypes) {
         // 校验入参类型
         for (int i = 0; i < args.length; i++) {
-            Type argType = args[i].getType();
-            Type realType = realTypes[i];
+            Type expectType = expectTypes[i];
 
-            if (!argType.equals(realType)) {
-                LocalVarInst varInst = null;
-                if (AsmUtil.isPrimitiveType(argType)) {
-                    varInst = methodBody.newLocalVar(ObjectVar.TYPE, null, new WrapTypeAction(args[i]));
-                }
-                varInst = methodBody.newLocalVar(realTypes[i], null, new TypeCastAction(varInst == null ? args[i] : varInst, realType));
-                methodBody.getArgs()[0] = varInst;
-            }
+            VarInst newArg = typecast(methodBody, args[i], expectType);
+            methodBody.getArgs()[i] = newArg;
         }
     }
 
@@ -46,10 +39,9 @@ public abstract class MethodHandleDecorator extends MethodHandle {
      *
      * @param methodBody
      * @param varInst
-     * @param expectTypeClass 预期的类型
+     * @param expectType 预期的类型
      */
-    protected VarInst typecast(MethodBody methodBody, VarInst varInst, Class<?> expectTypeClass) {
-        Type expectType = Type.getType(expectTypeClass);
+    protected VarInst typecast(MethodBody methodBody, VarInst varInst, Type expectType) {
         boolean r1 = AsmUtil.isPrimitiveType(expectType);
         boolean r2 = AsmUtil.isPrimitiveType(varInst.getType());
         if (r1 && r2) {
@@ -62,7 +54,7 @@ public abstract class MethodHandleDecorator extends MethodHandle {
         // 拆装箱
         if (r1 && AsmUtil.isWrapType(varInst.getType())) {
             return methodBody.newLocalVar(expectType, new UnwrapTypeAction(varInst));
-        } else if (r2 && ClassUtil.isWrapClass(expectTypeClass)) {
+        } else if (r2 && (AsmUtil.isWrapType(expectType) || expectType.getClassName().equals(Object.class.getName()))) {
             return methodBody.newLocalVar(expectType, new WrapTypeAction(varInst).onAfter(new TypeCastAction(null, expectType)));
         }
 
