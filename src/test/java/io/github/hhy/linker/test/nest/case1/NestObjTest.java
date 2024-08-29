@@ -1,4 +1,4 @@
-package io.github.hhy.linker.test.nest;
+package io.github.hhy.linker.test.nest.case1;
 
 import io.github.hhy.linker.LinkerFactory;
 import io.github.hhy.linker.exceptions.LinkerException;

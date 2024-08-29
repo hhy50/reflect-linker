@@ -106,21 +106,41 @@ public class ClassDefineParse {
         FieldRef owner = parseFieldExpr(targetTargetRef, classLoader, fieldTokens, typedDefines);
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getFieldTypeClass();
-            List<Method> methods = ReflectUtil.getMethods(ownerClass, name);
-            io.github.hhy.linker.annotations.Method.InvokeSuper superClass = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
+            io.github.hhy.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
+            String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
 
-            Method method = matchMethod(methods, superClass != null ? superClass.value() : null, defineMethod.getParameterTypes());
+            Method method = matchMethod(ownerClass, name, superClass, defineMethod.getParameterTypes());
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
                 throw new ParseException("can not find method "+name+" in class "+ownerClass.getName());
             }
-            return new EarlyMethodRef(owner, method);
+            MethodRef methodRef = new EarlyMethodRef(owner, method);
+            if (superClass != null) {
+                methodRef.setSuperClass(method.getDeclaringClass());
+            }
+            return methodRef;
         }
         return null;
     }
 
-    private static Method matchMethod(List<Method> methods, String ownerClass, Class<?>[] parameters) {
+    private static Method matchMethod(Class<?> clazz, String name, String superClass, Class<?>[] parameters) {
+        // 指定了调用super， 但是没有指定具体哪个super
+        if (superClass != null && superClass.equals("")) {
+            superClass = null;
+            clazz = clazz.getSuperclass();
+        }
+
+        while (clazz != null && superClass != null) {
+            if (clazz.getName().equals(superClass)) {
+                break;
+            }
+            clazz = clazz.getSuperclass();
+        }
+        if (clazz == null) {
+            return null;
+        }
+
         List<Method> matches = new ArrayList<>();
-        for (Method method : methods) {
+        for (Method method : ReflectUtil.getMethods(clazz, name)) {
             if (method.getParameters().length != parameters.length) continue;
             if (ClassUtil.deepEquals(method.getParameterTypes(), parameters)) {
                 return method;
@@ -163,7 +183,7 @@ public class ClassDefineParse {
                     throw new ClassTypeNotMatchException(assignedType.getName(), currentField.getType().getName());
                 }
                 currentType = assignedType;
-                lastField = new EarlyFieldRef(lastField, currentField);
+                lastField = new EarlyFieldRef(lastField, currentField, assignedType);
             } else {
                 lastField = currentField != null ? new EarlyFieldRef(lastField, currentField) : new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
             }

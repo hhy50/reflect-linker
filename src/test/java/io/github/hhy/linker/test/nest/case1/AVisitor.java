@@ -1,9 +1,9 @@
-package io.github.hhy.linker.test.nest;
+package io.github.hhy.linker.test.nest.case1;
 
 import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Target;
 
-@Target.Bind("io.github.hhy.linker.test.nest.A")
+@Target.Bind("io.github.hhy.linker.test.nest.case1.A")
 public interface AVisitor {
     @Field.Getter("a")
     Object getA();

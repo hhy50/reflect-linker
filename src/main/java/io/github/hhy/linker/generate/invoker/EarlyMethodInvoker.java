@@ -8,6 +8,7 @@ import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
@@ -61,16 +62,17 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
-        String superClass = this.method.getSuperClass();
+        Class<?> superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null;
+        Action loadSuperClass = invokeSpecial ? LdcLoadAction.of(Type.getType(superClass)) : Action.empty();
 
         MethodBody clinit = classImplBuilder.getClinit();
         mhMember.store(clinit, new MethodInvokeAction(invokeSpecial ? MethodHolder.LOOKUP_FIND_FINDSPECIAL : MethodHolder.LOOKUP_FIND_FINDVIRTUAL)
                 .setInstance(lookupMember)
                 .setArgs(LdcLoadAction.of(ownerType),
                         LdcLoadAction.of(fieldName),
-                        new MethodInvokeAction(MethodHolder.METHOD_TYPE)
-                                .setArgs(LdcLoadAction.of(methodType.getReturnType()), asClassList(methodType.getArgumentTypes()))
+                        new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), asClassList(methodType.getArgumentTypes())),
+                        loadSuperClass
                 )
         );
     }

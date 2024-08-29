@@ -1,11 +1,11 @@
-package io.github.hhy.linker.test.nest;
+package io.github.hhy.linker.test.nest.case1;
 
 import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Target;
 import io.github.hhy.linker.annotations.Typed;
 
-@Typed(name = "a", type = "io.github.hhy.linker.test.nest.A2")
-@Target.Bind("io.github.hhy.linker.test.nest.Obj")
+@Typed(name = "a", type = "io.github.hhy.linker.test.nest.case1.A2")
+@Target.Bind("io.github.hhy.linker.test.nest.case1.Obj")
 public interface ObjVisitor2 {
     @Field.Getter("a")
     Object getA();

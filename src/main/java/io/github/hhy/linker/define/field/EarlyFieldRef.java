@@ -46,13 +46,13 @@ public class EarlyFieldRef extends FieldRef {
         this.isStatic = Modifier.isStatic(field.getModifiers());
     }
 
-//    public EarlyFieldRef(FieldRef prev, Field field, Type objRealType) {
-//        super(prev, prev.getFullName(), field.getName());
-//        this.declaredType = Type.getType(field.getDeclaringClass());
-//        this.objRealType = objRealType;
-//        this.fieldType = Type.getType(field.getType());
-//        this.isStatic = Modifier.isStatic(field.getModifiers());
-//    }
+    public EarlyFieldRef(FieldRef prev, Field field, Class<?> objRealType) {
+        super(prev, prev.getUniqueName(), field.getName());
+        this.declaredType = Type.getType(field.getDeclaringClass());
+        this.fieldTypeClass = objRealType;
+        this.fieldType = Type.getType(field.getType());
+        this.isStatic = Modifier.isStatic(field.getModifiers());
+    }
 
     /**
      * 仅能表示target

@@ -8,7 +8,7 @@ import org.objectweb.asm.Type;
 public class MethodRef {
     protected FieldRef owner;
     protected String name;
-    protected String superClass;
+    protected Class<?> superClass;
 
     public MethodRef(FieldRef owner, String name) {
         this.owner = owner;
@@ -27,8 +27,12 @@ public class MethodRef {
         return owner.getUniqueName()+"_$$_"+name;
     }
 
-    public String getSuperClass() {
+    public Class<?> getSuperClass() {
         return superClass;
+    }
+
+    public void setSuperClass(Class<?> superClass) {
+        this.superClass = superClass;
     }
 
     public Type[] getArgsType() {

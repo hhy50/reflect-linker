@@ -43,7 +43,7 @@ public class ReflectUtil {
                 methods.add(method);
             }
         }
-        if (clazz.getSuperclass() != Object.class) {
+        if (clazz.getSuperclass() != null) {
             methods.addAll(getMethods(clazz.getSuperclass(), methodName));
         }
         return methods;
