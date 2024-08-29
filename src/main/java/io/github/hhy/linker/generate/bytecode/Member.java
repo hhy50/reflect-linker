@@ -7,8 +7,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-
 public abstract class Member implements LoadAction {
 
     private int access;
@@ -64,13 +62,5 @@ public abstract class Member implements LoadAction {
             action.apply(methodBody);
             mv.visitFieldInsn(Opcodes.PUTFIELD, this.owner, this.memberName, this.type.getDescriptor());
         }
-    }
-
-    public void getClassName(MethodBody methodBody) {
-        methodBody.append(mv -> {
-            load(methodBody);
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Class", "getName", "()Ljava/lang/String;", false);
-        });
     }
 }

@@ -4,10 +4,7 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.exceptions.TypeNotMatchException;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.action.ConditionJumpAction;
-import io.github.hhy.linker.generate.bytecode.action.TypeCastAction;
-import io.github.hhy.linker.generate.bytecode.action.UnwrapTypeAction;
-import io.github.hhy.linker.generate.bytecode.action.WrapTypeAction;
+import io.github.hhy.linker.generate.bytecode.action.*;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -55,14 +52,14 @@ public abstract class MethodHandleDecorator extends MethodHandle {
         if (r1 && AsmUtil.isWrapType(varInst.getType())) {
             return methodBody.newLocalVar(expectType, new UnwrapTypeAction(varInst));
         } else if (r2 && (AsmUtil.isWrapType(expectType) || expectType.getClassName().equals(Object.class.getName()))) {
-            return methodBody.newLocalVar(expectType, new WrapTypeAction(varInst).onAfter(new TypeCastAction(null, expectType)));
+            return methodBody.newLocalVar(expectType, new WrapTypeAction(varInst).onAfter(new TypeCastAction(Action.stackTop(), expectType)));
         }
 
         if (r1 == r2) {
             VarInst expectVar = methodBody.newLocalVar(expectType, null);
             methodBody.append(() -> new ConditionJumpAction(
                     instanceOf(varInst, expectType),
-                    (body) -> expectVar.store(body, new TypeCastAction(varInst, expectType)),
+                    expectVar.store(new TypeCastAction(varInst, expectType)),
                     throwTypeCastException(varInst.getType(), expectType))
             );
             return expectVar;

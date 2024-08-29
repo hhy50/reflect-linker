@@ -69,14 +69,16 @@ public abstract class VarInst implements LoadAction {
      *
      * @return
      */
-    public void store(MethodBody methodBody) {
-        methodBody.append(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex));
+    public Action store(Action action) {
+        return body -> {
+            MethodVisitor mv = body.getWriter();
+            action.apply(body);
+            mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
+        };
     }
 
-    public void store(MethodBody body, Action action) {
-        MethodVisitor mv = body.getWriter();
-        action.apply(body);
-        mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
+    public void store(MethodBody methodBody) {
+        methodBody.append(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex));
     }
 
     public String getName() {

@@ -14,6 +14,16 @@ import java.util.Arrays;
  */
 public interface Action {
 
+    Action EMPTY = (__) -> {};
+
+    static Action stackTop() {
+        return empty();
+    }
+
+    static Action empty() {
+        return EMPTY;
+    }
+
     void apply(MethodBody body);
 
     default Action onAfter(Action after) {

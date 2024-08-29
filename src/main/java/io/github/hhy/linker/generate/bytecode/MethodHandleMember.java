@@ -5,10 +5,7 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.bytecode.action.Condition;
-import io.github.hhy.linker.generate.bytecode.action.ConditionJumpAction;
-import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy.linker.generate.bytecode.action.*;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -63,11 +60,7 @@ public class MethodHandleMember extends Member {
                 new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
                         .setInstance(this)
                         .setArgs(args)
-                        .onAfter((__) -> {
-                            if (result != null) {
-                                result.store(methodBody);
-                            }
-                        })
+                        .onAfter(result == null ? Action.empty() : result.store(Action.stackTop()))
         );
     }
 

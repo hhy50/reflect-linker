@@ -16,9 +16,7 @@ public class TypeCastAction implements Action {
 
     @Override
     public void apply(MethodBody body) {
-        if (obj != null) {
-            obj.apply(body);
-        }
+        obj.apply(body);
         MethodVisitor mv = body.getWriter();
         mv.visitTypeInsn(Opcodes.CHECKCAST, type.getInternalName());
     }

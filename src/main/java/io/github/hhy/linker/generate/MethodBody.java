@@ -71,7 +71,7 @@ public class MethodBody {
     public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
         LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
         if (action != null) {
-            localVarInst.store(this, action);
+            this.append(() -> localVarInst.store(action));
         }
         return localVarInst;
     }
