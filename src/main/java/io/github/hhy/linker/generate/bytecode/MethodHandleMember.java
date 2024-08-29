@@ -74,11 +74,7 @@ public class MethodHandleMember extends Member {
                 new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor()))
                         .setInstance(this)
                         .setArgs(newArgs)
-                        .onAfter((__) -> {
-                            if (result != null) {
-                                result.store(methodBody);
-                            }
-                        })
+                        .onAfter(result == null ? Action.empty() : result.store(Action.stackTop()))
         );
     }
 

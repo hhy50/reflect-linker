@@ -35,6 +35,16 @@ public abstract class VarInst implements LoadAction {
     }
 
     /**
+     * load 到栈上
+     *
+     * @return
+     */
+    @Override
+    public void load(MethodBody methodBody) {
+        methodBody.append(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
+    }
+
+    /**
      * 检查是否为空， 如果变量为空就抛出空指针
      * <pre>
      *     if (var == null) {
@@ -54,17 +64,6 @@ public abstract class VarInst implements LoadAction {
     }
 
     /**
-     * load 到栈上
-     *
-     * @return
-     */
-
-    @Override
-    public void load(MethodBody methodBody) {
-        methodBody.append(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
-    }
-
-    /**
      * store到局部变量表
      *
      * @return
@@ -75,10 +74,6 @@ public abstract class VarInst implements LoadAction {
             action.apply(body);
             mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
         };
-    }
-
-    public void store(MethodBody methodBody) {
-        methodBody.append(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex));
     }
 
     public String getName() {
