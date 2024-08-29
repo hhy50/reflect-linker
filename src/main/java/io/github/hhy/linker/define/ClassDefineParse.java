@@ -91,12 +91,11 @@ public class ClassDefineParse {
             methodDefine.fieldRef = parseFieldExpr(targetClassRef, classLoader, tokens, typedDefines);
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
-            io.github.hhy.linker.annotations.Method.InvokeSuper superClass = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
             String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), defineMethod.getName());
             int i;
             if ((i = methodName.lastIndexOf('.')) != -1) {
                 fieldExpr = methodName.substring(0, i);
-                methodName = methodName.substring(i + 1);
+                methodName = methodName.substring(i+1);
             }
             methodDefine.methodRef = parseMethodExpr(targetClassRef, classLoader, defineMethod, methodName, TOKEN_PARSER.parse(fieldExpr), typedDefines);
         }
@@ -108,16 +107,18 @@ public class ClassDefineParse {
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getFieldTypeClass();
             List<Method> methods = ReflectUtil.getMethods(ownerClass, name);
-            Method method = matchMethod(methods, defineMethod.getParameterTypes());
+            io.github.hhy.linker.annotations.Method.InvokeSuper superClass = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
+
+            Method method = matchMethod(methods, superClass != null ? superClass.value() : null, defineMethod.getParameterTypes());
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
-                throw new ParseException("can not find method " + name + " in class " + ownerClass.getName());
+                throw new ParseException("can not find method "+name+" in class "+ownerClass.getName());
             }
             return new EarlyMethodRef(owner, method);
         }
         return null;
     }
 
-    private static Method matchMethod(List<Method> methods, Class<?>[] parameters) {
+    private static Method matchMethod(List<Method> methods, String ownerClass, Class<?>[] parameters) {
         List<Method> matches = new ArrayList<>();
         for (Method method : methods) {
             if (method.getParameters().length != parameters.length) continue;
@@ -186,28 +187,28 @@ public class ClassDefineParse {
         io.github.hhy.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy.linker.annotations.Field.Setter.class);
         // Field.Setter和@Field.Getter只能有一个
         if (getter != null && setter != null) {
-            throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations @Field.getter and @Field.setter");
+            throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] cannot have two annotations @Field.getter and @Field.setter");
         }
         if (getter != null) {
             if (StringUtil.isEmpty(getter.value())) {
-                throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
+                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method, must be specified field-expression");
             }
             if (method.getReturnType() == void.class || method.getParameters().length > 0) {
-                throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method,its return value cannot be of type void, and the parameter length must be 0");
+                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method,its return value cannot be of type void, and the parameter length must be 0");
             }
         } else if (setter != null) {
             if (StringUtil.isEmpty(setter.value())) {
-                throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
+                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method, must be specified field-expression");
             }
             if (method.getReturnType() != void.class || method.getParameters().length != 1) {
-                throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "] is setter method,its return value must be of type void, and the parameter length must be 1");
+                throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"] is setter method,its return value must be of type void, and the parameter length must be 1");
             }
         }
 
         io.github.hhy.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
         // @Field 和 @Method相关的注解不能同时存在
         if ((getter != null || setter != null) & (methodNameAnn != null)) {
-            throw new VerifyException("class [" + method.getDeclaringClass() + "@" + method.getName() + "], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
+            throw new VerifyException("class ["+method.getDeclaringClass()+"@"+method.getName()+"], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
         }
     }
 }

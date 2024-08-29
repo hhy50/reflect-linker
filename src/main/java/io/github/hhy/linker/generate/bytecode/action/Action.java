@@ -67,14 +67,13 @@ public interface Action {
             // BIPUSH, -128 <--> 127
             mv.visitIntInsn(Opcodes.BIPUSH, actions.length);
             mv.visitTypeInsn(Opcodes.ANEWARRAY, arrType.getInternalName());
-            mv.visitInsn(Opcodes.DUP);
-
             for (int i = 0; i < actions.length; i++) {
+                mv.visitInsn(Opcodes.DUP);
                 mv.visitIntInsn(Opcodes.BIPUSH, i);
                 actions[i].apply(body);
                 mv.visitInsn(arrType.getOpcode(Opcodes.IASTORE));
 
-                if (i != actions.length-1) mv.visitInsn(Opcodes.DUP);
+//                if (i != actions.length-1) mv.visitInsn(Opcodes.DUP);
             }
         };
     }
