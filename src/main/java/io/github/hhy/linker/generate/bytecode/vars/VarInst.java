@@ -1,6 +1,7 @@
 package io.github.hhy.linker.generate.bytecode.vars;
 
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
@@ -69,9 +70,7 @@ public abstract class VarInst implements LoadAction {
      * @return
      */
     public void store(MethodBody methodBody) {
-        methodBody.append(mv -> {
-            mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
-        });
+        methodBody.append(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex));
     }
 
     public void store(MethodBody body, Action action) {
@@ -81,10 +80,15 @@ public abstract class VarInst implements LoadAction {
     }
 
     public String getName() {
-        return "slot["+lvbIndex+",type="+type.getClassName()+"]";
+        return "slot[" + lvbIndex + ",type=" + type.getClassName() + "]";
     }
 
     public Type getType() {
         return type;
+    }
+
+    public void returnThis(MethodBody methodBody) {
+        load(methodBody);
+        AsmUtil.areturn(methodBody.getWriter(), type);
     }
 }

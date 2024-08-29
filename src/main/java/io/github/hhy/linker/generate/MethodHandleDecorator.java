@@ -4,10 +4,7 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.exceptions.TypeNotMatchException;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.action.ConditionJumpAction;
-import io.github.hhy.linker.generate.bytecode.action.TypeCastAction;
-import io.github.hhy.linker.generate.bytecode.action.UnwrapTypeAction;
-import io.github.hhy.linker.generate.bytecode.action.WrapTypeAction;
+import io.github.hhy.linker.generate.bytecode.action.*;
 import io.github.hhy.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
@@ -48,45 +45,37 @@ public abstract class MethodHandleDecorator extends MethodHandle {
      * 对象类型 -> 对象类型 = 强转
      *
      * @param methodBody
-     * @param result
+     * @param varInst
      * @param expectTypeClass 预期的类型
      */
-    protected void typecastResult(MethodBody methodBody, VarInst result, Class<?> expectTypeClass) {
+    protected VarInst typecast(MethodBody methodBody, VarInst varInst, Class<?> expectTypeClass) {
         Type expectType = Type.getType(expectTypeClass);
         boolean r1 = AsmUtil.isPrimitiveType(expectType);
-        boolean r2 = AsmUtil.isPrimitiveType(result.getType());
-        boolean castSuccess = false;
-
+        boolean r2 = AsmUtil.isPrimitiveType(varInst.getType());
         if (r1 && r2) {
-            if (result.getType().getOpcode(ILOAD) == expectType.getOpcode(ILOAD)) {
-                result.load(methodBody);
-                castSuccess = true;
+            if (varInst.getType().getOpcode(ILOAD) == expectType.getOpcode(ILOAD)) {
+                return varInst;
             }
-        } else {
-            if (r1 && AsmUtil.isWrapType(result.getType())) {
-                methodBody.append(() -> new UnwrapTypeAction(result));
-                castSuccess = true;
-            } else if (r2 && ClassUtil.isWrapClass(expectTypeClass)) {
-                methodBody.append(() -> new WrapTypeAction(result)
-                        .onAfter(new TypeCastAction(null, expectType)));
-                castSuccess = true;
-            }
+            throw new TypeNotMatchException(varInst.getType(), expectType);
         }
-        if (castSuccess) {
-            AsmUtil.areturn(methodBody.getWriter(), expectType);
-            return;
+
+        // 拆装箱
+        if (r1 && AsmUtil.isWrapType(varInst.getType())) {
+            return methodBody.newLocalVar(expectType, new UnwrapTypeAction(varInst));
+        } else if (r2 && ClassUtil.isWrapClass(expectTypeClass)) {
+            return methodBody.newLocalVar(expectType, new WrapTypeAction(varInst).onAfter(new TypeCastAction(null, expectType)));
         }
 
         if (r1 == r2) {
+            VarInst expectVar = methodBody.newLocalVar(expectType, null);
             methodBody.append(() -> new ConditionJumpAction(
-                    instanceOf(result, expectType),
-                    (body) -> {
-                        body.append(() -> new TypeCastAction(result, expectType).onAfter((__) -> AsmUtil.areturn(body.getWriter(), expectType)));
-                    },
-                    throwTypeCastException(result.getType(), expectType))
+                    instanceOf(varInst, expectType),
+                    (body) -> expectVar.store(body, new TypeCastAction(varInst, expectType)),
+                    throwTypeCastException(varInst.getType(), expectType))
             );
+            return expectVar;
         } else {
-            throw new TypeNotMatchException(result.getType(), expectType);
+            throw new TypeNotMatchException(varInst.getType(), expectType);
         }
     }
 }

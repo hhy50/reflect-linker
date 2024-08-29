@@ -1,6 +1,5 @@
 package io.github.hhy.linker.generate.getter;
 
-import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
@@ -8,7 +7,6 @@ import io.github.hhy.linker.generate.MethodHandleDecorator;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
@@ -36,9 +34,8 @@ public class GetterDecorator extends MethodHandleDecorator {
          */
         VarInst result = getter.invoke(methodBody);
 
-        Type expect = Type.getType(methodDefine.getReturnType());
-        typecastResult(methodBody, result, methodDefine.getReturnType());
-        AsmUtil.areturn(methodBody.getWriter(), expect);
+        result = typecast(methodBody, result, methodDefine.getReturnType());
+        result.returnThis(methodBody);
         return null;
     }
 

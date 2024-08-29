@@ -64,7 +64,6 @@ public class MethodBody {
     }
 
     /**
-     *
      * @param type
      * @param fieldName
      * @param action
@@ -77,5 +76,7 @@ public class MethodBody {
         return localVarInst;
     }
 
-
+    public LocalVarInst newLocalVar(Type type, Action action) {
+        return newLocalVar(type, null, action);
+    }
 }

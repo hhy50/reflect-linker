@@ -5,10 +5,15 @@ import io.github.hhy.linker.define.BytecodeClassLoader;
 import io.github.hhy.linker.define.InvokeClassDefine;
 import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
+import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.List;
 
@@ -36,6 +41,11 @@ public class ClassImplGenerator {
                     });
         }
         byte[] bytecode = classBuilder.end().toBytecode();
+        try {
+            Files.write(new File("/Users/hanhaiyang/IdeaProjects/reflect-linker/target/"+ ClassUtil.toSimpleName(implClassName)+".class").toPath(), bytecode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return classLoader.load(implClassName, bytecode);
     }
 

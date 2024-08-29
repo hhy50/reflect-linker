@@ -1,6 +1,5 @@
 package io.github.hhy.linker.generate.getter;
 
-import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
@@ -51,8 +50,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
                     // mh.invoke(obj)
                     VarInst result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
-                    result.load(methodBody);
-                    AsmUtil.areturn(mv, methodType.getReturnType());
+                    result.returnThis(methodBody);
                 });
     }
 

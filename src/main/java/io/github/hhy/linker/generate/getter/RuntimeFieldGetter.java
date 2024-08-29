@@ -1,6 +1,5 @@
 package io.github.hhy.linker.generate.getter;
 
-import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
@@ -40,8 +39,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
 
             // mh.invoke(obj)
             VarInst result = mhMember.invoke(methodBody, objVar);
-            result.load(methodBody);
-            AsmUtil.areturn(mv, methodType.getReturnType());
+            result.returnThis(methodBody);
         });
     }
 }

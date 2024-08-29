@@ -2,7 +2,6 @@ package io.github.hhy.linker.test.nest;
 
 import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Target;
-import io.github.hhy.linker.annotations.Typed;
 
 @Target.Bind("io.github.hhy.linker.test.nest.Obj")
 public interface ObjVisitor {
