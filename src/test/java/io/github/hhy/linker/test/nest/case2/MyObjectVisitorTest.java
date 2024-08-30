@@ -13,6 +13,7 @@ public class MyObjectVisitorTest {
     public void test1() throws LinkerException {
         MyObject myObject = new MyObject();
         MyObjectVisitor linker = LinkerFactory.createLinker(MyObjectVisitor.class, myObject);
+
         linker.setUser(new UserVo());
         linker.setName("linker");
         linker.setAge(18);

@@ -20,7 +20,7 @@ public class LookupMember extends Member {
     /**
      * lookupClass
      */
-    private Type staticType;
+    private final Type staticType;
 
     /**
      * 防止多次静态初始化

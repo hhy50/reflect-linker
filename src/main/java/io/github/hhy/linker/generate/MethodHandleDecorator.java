@@ -39,6 +39,10 @@ public abstract class MethodHandleDecorator extends MethodHandle {
      * @param expectType 预期的类型
      */
     protected VarInst typecast(MethodBody methodBody, VarInst varInst, Type expectType) {
+        if (varInst.getType().equals(expectType)) {
+            return varInst;
+        }
+
         boolean r1 = AsmUtil.isPrimitiveType(expectType);
         boolean r2 = AsmUtil.isPrimitiveType(varInst.getType());
         if (r1 && r2) {
