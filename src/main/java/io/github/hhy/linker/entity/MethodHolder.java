@@ -14,7 +14,7 @@ public class MethodHolder {
     public static final MethodHolder LOOKUP_FIND_STATIC_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticSetter", Lookup.FIND_XETTER_DESC);
     public static final MethodHolder LOOKUP_FIND_FINDVIRTUAL = new MethodHolder(Lookup.OWNER, "findVirtual", Lookup.FIND_VIRTUAL);
     public static final MethodHolder LOOKUP_FIND_FINDSPECIAL = new MethodHolder(Lookup.OWNER, "findSpecial", Lookup.FIND_SPECIAL);
-    public static final MethodHolder METHOD_TYPE = new MethodHolder("java/lang/invoke/MethodType", "methodType", "(Ljava/lang/Class;Ljava/util/List;)Ljava/lang/invoke/MethodType;");
+    public static final MethodHolder METHOD_TYPE = new MethodHolder("java/lang/invoke/MethodType", "methodType", "(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;");
     public static final MethodHolder ARRAYS_ASLIST = new MethodHolder("java/util/Arrays", "asList", "([Ljava/lang/Object;)Ljava/util/List;");
 
     private final String owner;

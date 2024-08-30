@@ -16,7 +16,9 @@ import io.github.hhy.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static io.github.hhy.linker.generate.bytecode.action.Action.asClassList;
+import java.util.Arrays;
+
+import static io.github.hhy.linker.generate.bytecode.action.Action.asArray;
 
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     private Type methodType;
@@ -64,17 +66,25 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         Class<?> superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null;
-        Action loadSuperClass = invokeSpecial ? LdcLoadAction.of(Type.getType(superClass)) : Action.empty();
-
         MethodBody clinit = classImplBuilder.getClinit();
-        mhMember.store(clinit, new MethodInvokeAction(invokeSpecial ? MethodHolder.LOOKUP_FIND_FINDSPECIAL : MethodHolder.LOOKUP_FIND_FINDVIRTUAL)
-                .setInstance(lookupMember)
-                .setArgs(LdcLoadAction.of(ownerType),
-                        LdcLoadAction.of(fieldName),
-                        new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), asClassList(methodType.getArgumentTypes())),
-                        loadSuperClass
-                )
-        );
+
+        MethodInvokeAction findXXX;
+        Action argsType = asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
+        if (invokeSpecial) {
+            findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDSPECIAL).setArgs(
+                    LdcLoadAction.of(Type.getType(superClass)),
+                    LdcLoadAction.of(fieldName),
+                    new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
+                    LdcLoadAction.of(ownerType)
+            );
+        } else {
+            findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDVIRTUAL).setArgs(
+                    LdcLoadAction.of(ownerType),
+                    LdcLoadAction.of(fieldName),
+                    new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
+            );
+        }
+        mhMember.store(clinit, findXXX.setInstance(lookupMember));
     }
 
     @Override

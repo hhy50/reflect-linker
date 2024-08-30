@@ -22,6 +22,7 @@ public class MyObjectVisitorTest {
         Assert.assertEquals("linker", linker.getSuperName());
         Assert.assertEquals(myObject.getUser().getAge(), linker.getAge());
         Assert.assertEquals("china", linker.getAddress());
+        System.out.println(linker.superToString());
     }
 
     @Test

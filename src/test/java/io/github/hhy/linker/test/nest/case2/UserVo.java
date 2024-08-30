@@ -4,7 +4,6 @@ public class UserVo extends User {
 
     private String address;
 
-    @Override
     public String getName() {
         return super.name+"-vo";
     }

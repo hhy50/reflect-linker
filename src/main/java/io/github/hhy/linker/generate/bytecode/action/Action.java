@@ -72,13 +72,7 @@ public interface Action {
                 mv.visitIntInsn(Opcodes.BIPUSH, i);
                 actions[i].apply(body);
                 mv.visitInsn(arrType.getOpcode(Opcodes.IASTORE));
-
-//                if (i != actions.length-1) mv.visitInsn(Opcodes.DUP);
             }
         };
-    }
-
-    static Action asClassList(Type[] types) {
-        return asList(Arrays.stream(types).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
     }
 }
