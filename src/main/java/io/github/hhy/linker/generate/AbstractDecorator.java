@@ -6,25 +6,33 @@ import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.action.*;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy.linker.util.AnnotationUtils;
+import io.github.hhy.linker.util.StringUtil;
 import org.objectweb.asm.Type;
 
 import static io.github.hhy.linker.generate.bytecode.action.Action.throwTypeCastException;
 import static io.github.hhy.linker.generate.bytecode.action.Condition.instanceOf;
 import static org.objectweb.asm.Opcodes.ILOAD;
 
-public abstract class MethodHandleDecorator extends MethodHandle {
+public abstract class AbstractDecorator extends MethodHandle {
 
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 
-    protected void typecastArgs(MethodBody methodBody, VarInst[] args, Type[] expectTypes) {
+    protected void typecastArgs(MethodBody methodBody, VarInst[] args, Class<?>[] parameterTypes, Type[] expectTypes) {
         // 校验入参类型
         for (int i = 0; i < args.length; i++) {
+            VarInst arg = args[i];
             Type expectType = expectTypes[i];
 
-            VarInst newArg = typecast(methodBody, args[i], expectType);
+            String bindClass = AnnotationUtils.getBind(parameterTypes[i]);
+            if (StringUtil.isNotEmpty(bindClass)) {
+                arg = methodBody.newLocalVar(Type.getType(AsmUtil.toTypeDesc(bindClass)), arg.getTarget());
+            }
+
+            VarInst newArg = typecast(methodBody, arg, expectType);
             methodBody.getArgs()[i] = newArg;
         }
     }
@@ -36,7 +44,7 @@ public abstract class MethodHandleDecorator extends MethodHandle {
      *
      * @param methodBody
      * @param varInst
-     * @param expectType 预期的类型
+     * @param expectType    预期的类型
      */
     protected VarInst typecast(MethodBody methodBody, VarInst varInst, Type expectType) {
         if (varInst.getType().equals(expectType)) {

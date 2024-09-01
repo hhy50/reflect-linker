@@ -44,7 +44,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         EarlyFieldRef target = new EarlyFieldRef(null, null, "target", bindTarget);
         TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
 
-        LookupMember lookupMember = this.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, target.getType());
+        LookupMember lookupMember = this.defineTypedLookup(target.getType());
         lookupMember.isTarget(true);
         lookupMember.staticInit(this.getClinit());
 
@@ -110,7 +110,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public LookupMember defineLookup(FieldRef fieldRef) {
         if (fieldRef instanceof EarlyFieldRef) {
-            return defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, fieldRef.getType());
+            return defineTypedLookup(fieldRef.getType());
         }
 
         String lookupMemberName = fieldRef.getUniqueName()+"_lookup";
@@ -125,13 +125,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * 定义指定类型的lookup字段
      *
-     * @param access
      * @param type
      * @return
      */
-    public LookupMember defineLookup(int access, Type type) {
+    public LookupMember defineTypedLookup(Type type) {
         String memberName = type.getClassName().replace('.', '_')+"_lookup";
         if (!members.containsKey(memberName)) {
+            int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
             super.defineField(access, memberName, Lookup.DESCRIPTOR, null, null);
             this.members.put(memberName, new LookupMember(access, implClassDesc, memberName, type));
         }
@@ -147,7 +147,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
-            int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
+            int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
             super.defineField(access, mhMemberName, MethodHandle.DESCRIPTOR, null, null);
             this.members.put(mhMemberName, new MethodHandleMember(access, implClassDesc, mhMemberName, methodType));
         }

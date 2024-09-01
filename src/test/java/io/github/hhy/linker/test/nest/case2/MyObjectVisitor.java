@@ -3,7 +3,7 @@ package io.github.hhy.linker.test.nest.case2;
 import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Method;
 import io.github.hhy.linker.annotations.Target;
-import io.github.hhy.linker.annotations.Typed;
+import io.github.hhy.linker.test.MyInteger;
 
 
 @Target.Bind("io.github.hhy.linker.test.nest.case2.MyObject")
@@ -25,7 +25,7 @@ public interface MyObjectVisitor {
     int getAge();
 
     @Field.Setter("user.age")
-    void setAge(Integer age);
+    void setAge(MyInteger age);
 
     @Field.Getter("user.address")
     String getAddress();

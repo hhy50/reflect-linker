@@ -16,6 +16,7 @@ public class MethodHolder {
     public static final MethodHolder LOOKUP_FIND_FINDSPECIAL = new MethodHolder(Lookup.OWNER, "findSpecial", Lookup.FIND_SPECIAL);
     public static final MethodHolder METHOD_TYPE = new MethodHolder("java/lang/invoke/MethodType", "methodType", "(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;");
     public static final MethodHolder ARRAYS_ASLIST = new MethodHolder("java/util/Arrays", "asList", "([Ljava/lang/Object;)Ljava/util/List;");
+    public static final MethodHolder DEFAULT_PROVIDER_GET_TARGET = new MethodHolder("io/github/hhy/linker/define/provider/DefaultTargetProviderImpl", "getTarget", "()Ljava/lang/Object;");
 
     private final String owner;
     private final String methodName;

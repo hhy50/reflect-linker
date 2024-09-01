@@ -2,11 +2,13 @@ package io.github.hhy.linker.generate.bytecode.vars;
 
 
 import io.github.hhy.linker.asm.AsmUtil;
+import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy.linker.generate.bytecode.action.TypeCastAction;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -77,7 +79,7 @@ public abstract class VarInst implements LoadAction {
     }
 
     public String getName() {
-        return "slot[" + lvbIndex + ",type=" + type.getClassName() + "]";
+        return "slot["+lvbIndex+",type="+type.getClassName()+"]";
     }
 
     public Type getType() {
@@ -87,5 +89,20 @@ public abstract class VarInst implements LoadAction {
     public void returnThis(MethodBody methodBody) {
         load(methodBody);
         AsmUtil.areturn(methodBody.getWriter(), type);
+    }
+
+    /**
+     * @return
+     */
+    public Action getTarget() {
+        Type providerType = Type.getType(DefaultTargetProviderImpl.class);
+        if (this.type.equals(providerType)) {
+            return new MethodInvokeAction(MethodHolder.DEFAULT_PROVIDER_GET_TARGET)
+                    .setInstance(this);
+        } else {
+            return new TypeCastAction(this, providerType)
+                    .onAfter(new MethodInvokeAction(MethodHolder.DEFAULT_PROVIDER_GET_TARGET)
+                            .setInstance(Action.stackTop()));
+        }
     }
 }

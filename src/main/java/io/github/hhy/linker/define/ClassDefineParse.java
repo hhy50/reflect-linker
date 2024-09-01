@@ -25,6 +25,7 @@ import static io.github.hhy.linker.util.ClassUtil.getTypeDefines;
 
 public class ClassDefineParse {
 
+    private static final Map<String, InvokeClassDefine> PARSED = new HashMap<>();
     private static final String FIRST_OBJ_NAME = "target";
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
@@ -41,6 +42,11 @@ public class ClassDefineParse {
     }
 
     public static InvokeClassDefine doParseClass(Class<?> define, Class<?> targetClass, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
+        InvokeClassDefine defineClass = PARSED.get(define.getName());
+        if (defineClass != null){
+            return defineClass;
+        }
+
         Map<String, String> typeDefines = getTypeDefines(define);
         List<MethodDefine> methodDefines = new ArrayList<>();
 
@@ -53,6 +59,8 @@ public class ClassDefineParse {
         classDefine.define = define;
         classDefine.targetClass = targetClass;
         classDefine.methodDefines = methodDefines;
+
+        PARSED.put(define.getName(), classDefine);
         return classDefine;
     }
 

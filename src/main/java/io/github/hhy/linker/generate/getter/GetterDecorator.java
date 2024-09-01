@@ -1,17 +1,19 @@
 package io.github.hhy.linker.generate.getter;
 
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.generate.AbstractDecorator;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.MethodHandleDecorator;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy.linker.util.AnnotationUtils;
+import io.github.hhy.linker.util.StringUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
-public class GetterDecorator extends MethodHandleDecorator {
+public class GetterDecorator extends AbstractDecorator {
 
     private Getter<?> getter;
     private final FieldRef fieldRef;
@@ -34,9 +36,17 @@ public class GetterDecorator extends MethodHandleDecorator {
          * get只需要对返回值进行转换就行
          */
         VarInst result = getter.invoke(methodBody);
-
-        result = typecast(methodBody, result, Type.getType(methodDefine.getReturnType()));
+        String bindClass = AnnotationUtils.getBind(methodDefine.getReturnType());
+        if (StringUtil.isNotEmpty(bindClass)) {
+            result = wrapLinker(methodBody, result, methodDefine.getReturnType());
+        } else {
+            result = typecast(methodBody, result, Type.getType(methodDefine.getReturnType()));
+        }
         result.returnThis(methodBody);
+        return null;
+    }
+
+    private VarInst wrapLinker(MethodBody methodBody, VarInst result, Class<?> linkerClass) {
         return null;
     }
 

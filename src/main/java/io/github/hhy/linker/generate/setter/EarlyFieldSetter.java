@@ -27,7 +27,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
         MethodBody clinit = classImplBuilder.getClinit();
         // 定义上一层字段的lookup, 必须要用declaredType
-        LookupMember lookupMember = classImplBuilder.defineLookup(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, field.getDeclaredType());
+        LookupMember lookupMember = classImplBuilder.defineTypedLookup(field.getDeclaredType());
         // init lookup
         lookupMember.staticInit(clinit);
 

@@ -2,13 +2,13 @@ package io.github.hhy.linker.generate.invoker;
 
 import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.define.method.MethodRef;
+import io.github.hhy.linker.generate.AbstractDecorator;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.MethodHandleDecorator;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
-public class InvokerDecorator extends MethodHandleDecorator {
+public class InvokerDecorator extends AbstractDecorator {
 
     protected Invoker<?> realInvoker;
     private final MethodDefine methodDefine;
@@ -28,7 +28,7 @@ public class InvokerDecorator extends MethodHandleDecorator {
         MethodRef methodRef = methodDefine.methodRef;
         Type[] argsType = methodRef.getArgsType();
 
-        typecastArgs(methodBody, methodBody.getArgs(), argsType);
+        typecastArgs(methodBody, methodBody.getArgs(), methodDefine.define.getParameterTypes(), argsType);
         VarInst result = realInvoker.invoke(methodBody);
 
         Class<?> expectType = methodDefine.define.getReturnType();
