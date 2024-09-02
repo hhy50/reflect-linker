@@ -1,10 +1,10 @@
 package io.github.hhy.linker;
 
 import io.github.hhy.linker.define.ClassDefineParse;
-import io.github.hhy.linker.define.InvokeClassDefine;
+import io.github.hhy.linker.define.InterfaceClassDefine;
+import io.github.hhy.linker.define.cl.SysLinkerClassLoader;
 import io.github.hhy.linker.exceptions.LinkerException;
 import io.github.hhy.linker.generate.ClassImplGenerator;
-import io.github.hhy.linker.sys.LinkerClassLoader;
 
 import java.lang.reflect.Constructor;
 
@@ -16,8 +16,13 @@ public class LinkerFactory {
         }
 
         try {
-            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, target.getClass().getClassLoader());
-            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass, target.getClass().getClassLoader());
+            ClassLoader classLoader = target.getClass().getClassLoader();
+            if (classLoader == null) {
+                classLoader = ClassLoader.getSystemClassLoader();
+            }
+
+            InterfaceClassDefine defineClass = ClassDefineParse.parseClass(define, classLoader);
+            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass, classLoader);
             Constructor<?> constructor = implClass.getConstructors()[0];
             return (T) constructor.newInstance(target);
         } catch (Exception e) {
@@ -25,13 +30,9 @@ public class LinkerFactory {
         }
     }
 
-    public static <T, U> T createStaticLinker(Class<T> define, Class<U> targetClass) throws LinkerException {
-        return createStaticLinker(define, targetClass.getClassLoader());
-    }
-
     public static <T> T createStaticLinker(Class<T> define, ClassLoader classLoader) throws LinkerException {
         try {
-            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, classLoader);
+            InterfaceClassDefine defineClass = ClassDefineParse.parseClass(define, classLoader);
             Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass, classLoader);
 
             Constructor<?> constructor = implClass.getConstructors()[0];
@@ -43,8 +44,8 @@ public class LinkerFactory {
 
     static <T> T createSysLinker(Class<T> define, Object obj) throws LinkerException {
         try {
-            InvokeClassDefine defineClass = ClassDefineParse.parseClass(define, ClassLoader.getSystemClassLoader());
-            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass, ClassLoader.getSystemClassLoader());
+            InterfaceClassDefine defineClass = ClassDefineParse.parseClass(define, SysLinkerClassLoader.getInstance());
+            Class<?> implClass = ClassImplGenerator.generateImplClass(defineClass, SysLinkerClassLoader.getInstance());
 
             Constructor<?> constructor = implClass.getConstructors()[0];
             return (T) constructor.newInstance(obj);

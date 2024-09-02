@@ -11,7 +11,7 @@ public class StaticTest {
 
     @Test
     public void test1() throws LinkerException {
-        MyStaticClass myObj = LinkerFactory.createStaticLinker(MyStaticClass.class, StaticClass.class);
+        MyStaticClass myObj = LinkerFactory.createStaticLinker(MyStaticClass.class, StaticClass.class.getClassLoader());
         Assert.assertNotNull(myObj.getObjAaa2());
         Assert.assertTrue(myObj.getA() == StaticClass.getA());
         Assert.assertTrue(myObj.getA() == StaticClass.getA());

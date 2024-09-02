@@ -25,24 +25,21 @@ import static io.github.hhy.linker.util.ClassUtil.getTypeDefines;
 
 public class ClassDefineParse {
 
-    private static final Map<String, InvokeClassDefine> PARSED = new HashMap<>();
+    private static final Map<String, InterfaceClassDefine> PARSED = new HashMap<>();
     private static final String FIRST_OBJ_NAME = "target";
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
-    public static InvokeClassDefine parseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
+    public static InterfaceClassDefine parseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
         Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
         if (bindAnno == null || bindAnno.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
-        }
-        if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
         }
         Class<?> targetClass = classLoader.loadClass(bindAnno.value());
         return doParseClass(define, targetClass, classLoader);
     }
 
-    public static InvokeClassDefine doParseClass(Class<?> define, Class<?> targetClass, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
-        InvokeClassDefine defineClass = PARSED.get(define.getName());
+    public static InterfaceClassDefine doParseClass(Class<?> define, Class<?> targetClass, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
+        InterfaceClassDefine defineClass = PARSED.get(define.getName());
         if (defineClass != null){
             return defineClass;
         }
@@ -55,11 +52,7 @@ public class ClassDefineParse {
             methodDefines.add(parseMethod(targetField, classLoader, defineMethod, typeDefines));
         }
 
-        InvokeClassDefine classDefine = new InvokeClassDefine();
-        classDefine.define = define;
-        classDefine.targetClass = targetClass;
-        classDefine.methodDefines = methodDefines;
-
+        InterfaceClassDefine classDefine = new InterfaceClassDefine(define, targetClass, methodDefines);
         PARSED.put(define.getName(), classDefine);
         return classDefine;
     }

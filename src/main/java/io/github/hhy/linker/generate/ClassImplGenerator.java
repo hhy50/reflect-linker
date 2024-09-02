@@ -2,7 +2,7 @@ package io.github.hhy.linker.generate;
 
 import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.BytecodeClassLoader;
-import io.github.hhy.linker.define.InvokeClassDefine;
+import io.github.hhy.linker.define.InterfaceClassDefine;
 import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import org.objectweb.asm.MethodVisitor;
@@ -16,17 +16,18 @@ import java.util.List;
 
 public class ClassImplGenerator {
 
-    private static final BytecodeClassLoader classLoader = new BytecodeClassLoader();
-
-    public static Class<?> generateImplClass(InvokeClassDefine defineClass) {
-        Class<?> define = defineClass.define;
-        Class<?> targetClass = defineClass.targetClass;
+    public static Class<?> generateImplClass(InterfaceClassDefine defineClass, final ClassLoader cl) {
+        if (cl == null) {
+            throw new IllegalArgumentException("classLoader must not be null");
+        }
+        Class<?> define = defineClass.getDefine();
+        Class<?> targetClass = defineClass.getTargetClass();
         String implClassName = define.getName()+"$impl";
         InvokeClassImplBuilder classBuilder = AsmUtil
                 .defineImplClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
                 .setTarget(targetClass);
 
-        List<MethodDefine> methodDefines = defineClass.methodDefines;
+        List<MethodDefine> methodDefines = defineClass.getMethodDefines();
         methodDefines.sort(Comparator.comparing(MethodDefine::getName));
 
         for (MethodDefine methodDefine : methodDefines) {
@@ -37,7 +38,7 @@ public class ClassImplGenerator {
                     });
         }
         byte[] bytecode = classBuilder.end().toBytecode();
-        return classLoader.load(implClassName, bytecode);
+        return BytecodeClassLoader.load(cl, implClassName, bytecode);
     }
 
     private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodVisitor mv, MethodDefine methodDefine) {
