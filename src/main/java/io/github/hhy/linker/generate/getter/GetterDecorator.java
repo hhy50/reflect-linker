@@ -36,12 +36,7 @@ public class GetterDecorator extends AbstractDecorator {
          * get只需要对返回值进行转换就行
          */
         VarInst result = getter.invoke(methodBody);
-        String bindClass = AnnotationUtils.getBind(methodDefine.getReturnType());
-        if (StringUtil.isNotEmpty(bindClass)) {
-            result = wrapLinker(methodBody, result, methodDefine.getReturnType());
-        } else {
-            result = typecast(methodBody, result, Type.getType(methodDefine.getReturnType()));
-        }
+        result = typecastResult(methodBody, result, methodDefine.getReturnType());
         result.returnThis(methodBody);
         return null;
     }

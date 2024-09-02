@@ -53,6 +53,14 @@ public interface Action {
         };
     }
 
+    static Action returnNull() {
+        return body -> {
+            MethodVisitor mv = body.getWriter();
+            mv.visitInsn(Opcodes.ACONST_NULL);
+            mv.visitInsn(Opcodes.ARETURN);
+        };
+    }
+
     static Action asList(Action... actions) {
         return body -> {
             body.append(() -> new MethodInvokeAction(MethodHolder.ARRAYS_ASLIST).setArgs(asArray(ObjectVar.TYPE, actions)));

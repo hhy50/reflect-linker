@@ -16,16 +16,17 @@ public class MyObjectVisitorTest {
         MyObjectVisitor linker = LinkerFactory.createLinker(MyObjectVisitor.class, myObject);
         MyInteger age = LinkerFactory.createLinker(MyInteger.class, 18);
 
-        linker.setUser(new UserVo());
+        linker.setUser(LinkerFactory.createLinker(UserVisitor.class, new UserVo()));
         linker.setName("linker");
         linker.setAge(age);
         linker.setAddress("china");
 
         Assert.assertEquals(myObject.getUser().getName(), linker.getName()+"-vo");
         Assert.assertEquals("linker", linker.getSuperName());
-        Assert.assertEquals(myObject.getUser().getAge(), linker.getAge());
+        Assert.assertEquals(age, linker.getAge());
         Assert.assertEquals("china", linker.getAddress());
         System.out.println(linker.superToString());
+        System.out.println(linker.getUser());
     }
 
     @Test

@@ -38,6 +38,18 @@ public abstract class AbstractDecorator extends MethodHandle {
         }
     }
 
+    protected VarInst typecastResult(MethodBody methodBody, VarInst varInst, Class<?> resultTypeClass) {
+        Type expectType = Type.getType(resultTypeClass);
+        String bindClass = AnnotationUtils.getBind(resultTypeClass);
+        varInst = typecast(methodBody, varInst, StringUtil.isNotEmpty(bindClass)
+                ? Type.getType(AsmUtil.toTypeDesc(bindClass)) : expectType);
+        if (StringUtil.isNotEmpty(bindClass)) {
+            varInst = methodBody.newLocalVar(expectType, new CreateLinkerAction(expectType, varInst));
+        }
+        return varInst;
+    }
+
+
     /**
      * 基本数据类型 -> 对象类型 = 装箱
      * 对象类型 -> 基本数据类型 = 拆箱
@@ -45,7 +57,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      *
      * @param methodBody
      * @param varInst
-     * @param expectType    预期的类型
+     * @param expectType 预期的类型
      */
     protected VarInst typecast(MethodBody methodBody, VarInst varInst, Type expectType) {
         if (varInst.getType().equals(expectType)) {

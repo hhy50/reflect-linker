@@ -10,10 +10,10 @@ import io.github.hhy.linker.test.MyInteger;
 public interface MyObjectVisitor {
 
     @Field.Getter("user")
-    User getUser();
+    UserVisitor getUser();
 
     @Field.Setter("user")
-    void setUser(User user);
+    void setUser(UserVisitor user);
 
     @Field.Getter("user.name")
     String getName();
@@ -22,7 +22,7 @@ public interface MyObjectVisitor {
     void setName(String name);
 
     @Field.Getter("user.age")
-    int getAge();
+    MyInteger getAge();
 
     @Field.Setter("user.age")
     void setAge(MyInteger age);
