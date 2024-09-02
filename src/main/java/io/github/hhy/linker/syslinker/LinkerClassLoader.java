@@ -1,4 +1,4 @@
-package io.github.hhy.linker.sys;
+package io.github.hhy.linker.syslinker;
 
 import io.github.hhy.linker.annotations.Target;
 

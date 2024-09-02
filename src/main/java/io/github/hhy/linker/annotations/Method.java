@@ -30,4 +30,10 @@ public interface Method {
     public @interface InvokeSuper {
         String value() default "";
     }
+
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    public @interface Constructor {
+    }
 }

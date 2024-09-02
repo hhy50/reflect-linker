@@ -4,7 +4,7 @@ package io.github.hhy.linker.define;
 import io.github.hhy.linker.AccessTool;
 import io.github.hhy.linker.define.cl.SysLinkerClassLoader;
 import io.github.hhy.linker.exceptions.LinkerException;
-import io.github.hhy.linker.sys.LinkerClassLoader;
+import io.github.hhy.linker.syslinker.LinkerClassLoader;
 
 import java.util.HashMap;
 import java.util.Map;
