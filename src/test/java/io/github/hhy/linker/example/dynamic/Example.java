@@ -16,13 +16,17 @@ class B {
 }
 
 class A2 extends A {
-    private B b;
+    public B b;
     public A2(B b) {
         this.b = b;
     }
 }
 class MyObject {
     private A a;
+
+    public String getBval() {
+        return ((A2)a).b.getVal();
+    }
 }
 
 @Target.Bind("io.github.hhy.linker.example.dynamic.MyObject")
@@ -33,9 +37,11 @@ interface MyObjectVisitor {
     @Field.Getter("a.b")
     B getB();
 
+    String getBval();
+
     @Typed(name = "a", type = "io.github.hhy.linker.example.dynamic.A2")
     @Method.Name("a.b.getVal")
-    String getBval();
+    String getBval2();
 }
 
 class Example {
@@ -47,6 +53,7 @@ class Example {
         System.out.println(myObjVisitor.getB().val);
         System.out.println(myObjVisitor.getB().getVal());
         System.out.println(myObjVisitor.getBval());
+        System.out.println(myObjVisitor.getBval2());
 
         // do something
     }
