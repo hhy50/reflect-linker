@@ -94,15 +94,20 @@ public abstract class VarInst implements LoadAction {
     /**
      * @return
      */
-    public Action getTarget() {
-        Type providerType = Type.getType(DefaultTargetProviderImpl.class);
-        if (this.type.equals(providerType)) {
-            return new MethodInvokeAction(MethodHolder.DEFAULT_PROVIDER_GET_TARGET)
-                    .setInstance(this);
+    public Action getTarget(Type providerType) {
+        Type defaultType = Type.getType(DefaultTargetProviderImpl.class);
+        if (this.type.equals(defaultType)) {
+            return Action.multi(
+                    new MethodInvokeAction(MethodHolder.DEFAULT_PROVIDER_GET_TARGET).setInstance(this),
+                    new TypeCastAction(Action.stackTop(), providerType)
+            );
         } else {
-            return new TypeCastAction(this, providerType)
-                    .onAfter(new MethodInvokeAction(MethodHolder.DEFAULT_PROVIDER_GET_TARGET)
-                            .setInstance(Action.stackTop()));
+            return Action.multi(
+                    new TypeCastAction(this, defaultType)
+                            .onAfter(new MethodInvokeAction(MethodHolder.DEFAULT_PROVIDER_GET_TARGET)
+                                    .setInstance(Action.stackTop())),
+                    new TypeCastAction(Action.stackTop(), providerType)
+            );
         }
     }
 }

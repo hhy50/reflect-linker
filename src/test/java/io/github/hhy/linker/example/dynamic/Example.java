@@ -29,10 +29,15 @@ class MyObject {
     }
 }
 
+@Target.Bind("io.github.hhy.linker.example.dynamic.A")
+interface AVisitor {
+
+}
+
 @Target.Bind("io.github.hhy.linker.example.dynamic.MyObject")
 interface MyObjectVisitor {
     @Field.Setter("a")
-    void setA(A val);
+    void setA(AVisitor val);
 
     @Field.Getter("a.b")
     B getB();
@@ -48,7 +53,7 @@ class Example {
     public static void main(String[] args) throws LinkerException {
         MyObject myObj = new MyObject();
         MyObjectVisitor myObjVisitor = LinkerFactory.createLinker(MyObjectVisitor.class, myObj);
-        myObjVisitor.setA(new A2(new B()));
+        myObjVisitor.setA(LinkerFactory.createLinker(AVisitor.class, new A2(new B())));
 
         System.out.println(myObjVisitor.getB().val);
         System.out.println(myObjVisitor.getB().getVal());

@@ -29,7 +29,8 @@ public abstract class AbstractDecorator extends MethodHandle {
 
             String bindClass = AnnotationUtils.getBind(parameterTypes[i]);
             if (StringUtil.isNotEmpty(bindClass)) {
-                arg = methodBody.newLocalVar(Type.getType(AsmUtil.toTypeDesc(bindClass)), arg.getTarget());
+                Type type = Type.getType(AsmUtil.toTypeDesc(bindClass));
+                arg = methodBody.newLocalVar(Type.getType(AsmUtil.toTypeDesc(bindClass)), arg.getTarget(type));
             }
 
             VarInst newArg = typecast(methodBody, arg, expectType);

@@ -73,4 +73,12 @@ public interface Action {
             }
         };
     }
+
+    static Action multi(Action... actions) {
+        return body -> {
+            for (Action action : actions) {
+                action.apply(body);
+            }
+        };
+    }
 }
