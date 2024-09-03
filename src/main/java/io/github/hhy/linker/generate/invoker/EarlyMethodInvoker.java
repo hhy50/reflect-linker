@@ -64,7 +64,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
-        Class<?> superClass = this.method.getSuperClass();
+        String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null;
         MethodBody clinit = classImplBuilder.getClinit();
 
@@ -72,7 +72,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         Action argsType = asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
         if (invokeSpecial) {
             findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDSPECIAL).setArgs(
-                    LdcLoadAction.of(Type.getType(superClass)),
+                    LdcLoadAction.of(Type.getType(AsmUtil.toTypeDesc(superClass))),
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
                     LdcLoadAction.of(ownerType)

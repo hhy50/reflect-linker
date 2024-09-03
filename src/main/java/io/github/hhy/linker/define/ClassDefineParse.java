@@ -6,20 +6,20 @@ import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.define.method.EarlyMethodRef;
 import io.github.hhy.linker.define.method.MethodRef;
+import io.github.hhy.linker.define.method.RuntimeMethodRef;
 import io.github.hhy.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy.linker.exceptions.ParseException;
 import io.github.hhy.linker.exceptions.VerifyException;
 import io.github.hhy.linker.token.Token;
 import io.github.hhy.linker.token.TokenParser;
 import io.github.hhy.linker.token.Tokens;
-import io.github.hhy.linker.util.ClassUtil;
-import io.github.hhy.linker.util.ReflectUtil;
-import io.github.hhy.linker.util.StringUtil;
-import io.github.hhy.linker.util.Util;
+import io.github.hhy.linker.util.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.github.hhy.linker.util.ClassUtil.getTypeDefines;
 
@@ -40,7 +40,7 @@ public class ClassDefineParse {
 
     public static InterfaceClassDefine doParseClass(Class<?> define, Class<?> targetClass, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
         InterfaceClassDefine defineClass = PARSED.get(define.getName());
-        if (defineClass != null){
+        if (defineClass != null) {
             return defineClass;
         }
 
@@ -105,25 +105,32 @@ public class ClassDefineParse {
 
     private static MethodRef parseMethodExpr(EarlyFieldRef targetTargetRef, ClassLoader classLoader, Method defineMethod, String name, final Tokens fieldTokens, Map<String, String> typedDefines) throws ClassNotFoundException {
         FieldRef owner = parseFieldExpr(targetTargetRef, classLoader, fieldTokens, typedDefines);
+        String[] argsType = Arrays.stream(defineMethod.getParameters())
+                .map(item -> {
+                    String typed = AnnotationUtils.getTyped(item);
+                    return StringUtil.isNotEmpty(typed) ? typed : item.getType().getName();
+                }).toArray(String[]::new);
+
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getFieldTypeClass();
             io.github.hhy.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
             String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
 
-            Method method = matchMethod(ownerClass, name, superClass, defineMethod.getParameterTypes());
+            Method method = matchMethod(ownerClass, name, superClass, argsType);
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
                 throw new ParseException("can not find method "+name+" in class "+ownerClass.getName());
             }
-            MethodRef methodRef = new EarlyMethodRef(owner, method);
+            MethodRef methodRef = method == null ? new RuntimeMethodRef(owner, name, argsType) : new EarlyMethodRef(owner, method);
             if (superClass != null) {
-                methodRef.setSuperClass(method.getDeclaringClass());
+                if (method != null) methodRef.setSuperClass(method.getDeclaringClass().getName());
+                else methodRef.setSuperClass(superClass);
             }
             return methodRef;
         }
-        return null;
+        return new RuntimeMethodRef(owner, name, argsType);
     }
 
-    private static Method matchMethod(Class<?> clazz, String name, String superClass, Class<?>[] parameters) {
+    private static Method matchMethod(Class<?> clazz, String name, String superClass, String[] argTypes) {
         // 指定了调用super， 但是没有指定具体哪个super
         if (superClass != null && superClass.equals("")) {
             superClass = null;
@@ -142,11 +149,9 @@ public class ClassDefineParse {
 
         List<Method> matches = new ArrayList<>();
         for (Method method : ReflectUtil.getMethods(clazz, name)) {
-            if (method.getParameters().length != parameters.length) continue;
-            if (ClassUtil.deepEquals(method.getParameterTypes(), parameters)) {
-                return method;
-            }
-            if (ClassUtil.polymorphismMatch(method.getParameterTypes(), parameters)) {
+            Parameter[] parameters = method.getParameters();
+            if (parameters.length != argTypes.length) continue;
+            if (ClassUtil.polymorphismMatch(parameters, argTypes)) {
                 matches.add(method);
             }
         }

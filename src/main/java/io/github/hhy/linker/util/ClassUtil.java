@@ -4,10 +4,10 @@ package io.github.hhy.linker.util;
 import io.github.hhy.linker.annotations.Typed;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ClassUtil {
@@ -31,9 +31,14 @@ public class ClassUtil {
      * @return
      */
     public static boolean isAssignableFrom(Class<?> child, Class<?> parent) {
+        return isAssignableFrom(child, parent.getName());
+    }
+
+    public static boolean isAssignableFrom(Class<?> child, String parent) {
+        if (child.getName().equals(parent)) return true;
         Class<?> superclass = child.getSuperclass();
         while (superclass != null && superclass != Object.class) {
-            if (superclass == parent) {
+            if (superclass.getName().equals(parent)) {
                 return true;
             }
             superclass = superclass.getSuperclass();
@@ -59,39 +64,13 @@ public class ClassUtil {
         return Collections.emptyMap();
     }
 
-    public static boolean deepEquals(Class<?>[] classes1, Class<?>[] classes2) {
-        if (classes1.length != classes2.length) return false;
-        for (int i = 0; i < classes1.length; i++) {
-            if (!Objects.equals(classes1[i].getName(), classes2[i].getName())) {
+    public static boolean polymorphismMatch(Parameter[] parameters, String[] argTypes) {
+        if (parameters.length != argTypes.length) return false;
+        for (int i = 0; i < parameters.length; i++) {
+            if (!isAssignableFrom(parameters[i].getType(), argTypes[i])) {
                 return false;
             }
         }
         return true;
-    }
-
-    public static boolean polymorphismMatch(Class<?>[] classes1, Class<?>[] classes2) {
-        if (classes1.length != classes2.length) return false;
-        for (int i = 0; i < classes1.length; i++) {
-            if (isAssignableFrom(classes2[i], classes1[i]) || isAssignableFrom(classes1[i], classes2[i])) {
-
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * 是否是基本数据类型的包装类
-     *
-     * @param clazz
-     * @return
-     */
-    public static boolean isWrapClass(Class<?> clazz) {
-        if (clazz == Integer.class || clazz == Long.class || clazz == Short.class || clazz == Byte.class
-                || clazz == Float.class || clazz == Double.class || clazz == Boolean.class || clazz == Character.class) {
-            return true;
-        }
-        return clazz == Object.class;
     }
 }

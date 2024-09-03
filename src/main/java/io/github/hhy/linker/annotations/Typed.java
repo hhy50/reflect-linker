@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER})
 public @interface Typed {
-    String name();
+    String name() default "";
     String type();
 }

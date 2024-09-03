@@ -11,4 +11,8 @@ public class UserVo extends User {
     public String getAddress() {
         return address;
     }
+
+    public String getName2() {
+        return name;
+    }
 }

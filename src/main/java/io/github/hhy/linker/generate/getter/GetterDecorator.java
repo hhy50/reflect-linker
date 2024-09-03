@@ -7,9 +7,6 @@ import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.util.AnnotationUtils;
-import io.github.hhy.linker.util.StringUtil;
-import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
