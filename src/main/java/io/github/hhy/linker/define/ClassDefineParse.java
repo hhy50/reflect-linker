@@ -19,7 +19,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static io.github.hhy.linker.util.ClassUtil.getTypeDefines;
 
@@ -49,6 +48,7 @@ public class ClassDefineParse {
 
         EarlyFieldRef targetField = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, targetClass);
         for (Method defineMethod : define.getDeclaredMethods()) {
+            if (defineMethod.isDefault()) continue;
             methodDefines.add(parseMethod(targetField, classLoader, defineMethod, typeDefines));
         }
 

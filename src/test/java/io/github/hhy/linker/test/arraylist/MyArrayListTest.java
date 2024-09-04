@@ -29,5 +29,6 @@ public class MyArrayListTest {
         Assert.assertEquals(objects[2], 3);
         Assert.assertEquals(objects[3], 4);
         Assert.assertEquals(objects[4], "5");
+        Assert.assertEquals(list.size(), 5);
     }
 }

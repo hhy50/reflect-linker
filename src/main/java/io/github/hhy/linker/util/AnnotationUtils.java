@@ -11,12 +11,8 @@ public class AnnotationUtils {
         return bindAnno == null ? null : bindAnno.value();
     }
 
-    public static String getTyped(Object obj) {
-        if (obj instanceof Parameter) {
-            Parameter parameter = (Parameter) obj;
-            Typed typedAnno = parameter.getDeclaredAnnotation(Typed.class);
-            return typedAnno != null ? typedAnno.name() : null;
-        }
-        return null;
+    public static String getTyped(Parameter parameter) {
+        Typed typedAnno = parameter.getDeclaredAnnotation(Typed.class);
+        return typedAnno != null ? typedAnno.name() : null;
     }
 }
