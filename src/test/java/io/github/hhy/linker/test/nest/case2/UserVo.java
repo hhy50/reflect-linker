@@ -12,7 +12,15 @@ public class UserVo extends User {
         return address;
     }
 
-    public String getName2() {
-        return name;
+    private String getName2() {
+        return "name2";
+    }
+
+    private String getName3() {
+        return "name3";
+    }
+
+    public String getName4() {
+        return "name4";
     }
 }

@@ -6,6 +6,9 @@ import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.define.field.EarlyFieldRef;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
+import io.github.hhy.linker.define.method.EarlyMethodRef;
+import io.github.hhy.linker.define.method.MethodRef;
+import io.github.hhy.linker.define.method.RuntimeMethodRef;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.Member;
@@ -14,6 +17,9 @@ import io.github.hhy.linker.generate.getter.EarlyFieldGetter;
 import io.github.hhy.linker.generate.getter.Getter;
 import io.github.hhy.linker.generate.getter.RuntimeFieldGetter;
 import io.github.hhy.linker.generate.getter.TargetFieldGetter;
+import io.github.hhy.linker.generate.invoker.EarlyMethodInvoker;
+import io.github.hhy.linker.generate.invoker.Invoker;
+import io.github.hhy.linker.generate.invoker.RuntimeMethodInvoker;
 import io.github.hhy.linker.generate.setter.EarlyFieldSetter;
 import io.github.hhy.linker.generate.setter.RuntimeFieldSetter;
 import io.github.hhy.linker.generate.setter.Setter;
@@ -28,8 +34,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     private Class<?> bindTarget;
     private final String implClassDesc;
     private MethodBody clinit;
-    private final Map<String, Getter> getters;
-    private final Map<String, Setter> setters;
+    private final Map<String, Getter<?>> getters;
+    private final Map<String, Setter<?>> setters;
+    private final Map<String, Invoker<?>> invokers;
     private final Map<String, Member> members;
 
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
@@ -37,6 +44,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         this.implClassDesc = ClassUtil.className2path(this.getClassName());
         this.getters = new HashMap<>();
         this.setters = new HashMap<>();
+        this.invokers = new HashMap<>();
         this.members = new HashMap<>();
     }
 
@@ -102,18 +110,24 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         });
     }
 
+    public Invoker<?> defineInvoker(MethodRef methodRef) {
+        Invoker<?> invoker = invokers.get(methodRef.getFullName());
+        if (invoker == null) {
+            invoker = methodRef instanceof EarlyMethodRef ? new EarlyMethodInvoker(getClassName(), (EarlyMethodRef) methodRef)
+                    : new RuntimeMethodInvoker(getClassName(), (RuntimeMethodRef) methodRef);
+            invokers.put(methodRef.getFullName(), invoker);
+        }
+        return invoker;
+    }
+
     /**
      * 定义运行时的lookup
      *
      * @param fieldRef
      * @return
      */
-    public LookupMember defineLookup(FieldRef fieldRef) {
-        if (fieldRef instanceof EarlyFieldRef) {
-            return defineTypedLookup(fieldRef.getType());
-        }
-
-        String lookupMemberName = fieldRef.getUniqueName()+"_lookup";
+    public LookupMember defineRuntimeLookup(FieldRef fieldRef) {
+        String lookupMemberName = fieldRef.getUniqueName()+"_runtime_lookup";
         if (!members.containsKey(lookupMemberName)) {
             int access = Opcodes.ACC_PUBLIC;
             super.defineField(access, lookupMemberName, Lookup.DESCRIPTOR, null, null);

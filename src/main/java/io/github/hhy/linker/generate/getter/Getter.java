@@ -20,7 +20,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     protected final T field;
     protected final String implClass;
     protected MethodHolder methodHolder;
-
+    protected LookupMember lookupMember;
     protected Type methodType;
 
     public Getter(String implClass, T field) {
@@ -44,5 +44,9 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
                 .setArgs(lookupMember, LdcLoadAction.of(field.fieldName));
         mhMember.store(methodBody, findGetter);
+    }
+
+    public LookupMember getLookupMember() {
+        return lookupMember;
     }
 }

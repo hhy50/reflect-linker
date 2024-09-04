@@ -40,7 +40,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         lookupMember.staticInit(clinit);
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), this.methodType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), this.methodType);
         initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, owner.getType(), method.getName(), methodType, method.isStatic());
 
         // 定义当前方法的invoker
@@ -72,7 +72,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         Action argsType = asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
         if (invokeSpecial) {
             findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDSPECIAL).setArgs(
-                    LdcLoadAction.of(Type.getType(AsmUtil.toTypeDesc(superClass))),
+                    LdcLoadAction.of(AsmUtil.getType(superClass)),
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
                     LdcLoadAction.of(ownerType)
@@ -85,13 +85,5 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
             );
         }
         mhMember.store(clinit, findXXX.setInstance(lookupMember));
-    }
-
-    @Override
-    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        // mh = Runtime.findGetter(lookup, "field");
-//        MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
-//                .setArgs(lookupMember, LdcLoadAction.of(field.fieldName));
-//        mhMember.store(methodBody, findGetter);
     }
 }

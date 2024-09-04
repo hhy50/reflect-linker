@@ -39,6 +39,14 @@ public interface MyObjectVisitor {
     @Method.Name("user.getName")
     String getSuperName();
 
+    // runtime
+    @Method.Name("user.getName2")
+    String getName2();
+//    @Method.Name("user.getName3")
+//    String getName3();
+//    @Method.Name("user.getName4")
+//    String getName4();
+
 //    @Typed(name = "user", type = "io.github.hhy.linker.test.nest.case2.UserVo")
     @Method.InvokeSuper("java.lang.Object")
     @Method.Name("user.toString")

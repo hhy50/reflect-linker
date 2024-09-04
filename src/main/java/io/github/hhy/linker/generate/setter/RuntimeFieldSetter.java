@@ -24,10 +24,9 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
         getter.define(classImplBuilder);
 
         // 先定义上一层字段的lookup
-        LookupMember lookupMember = classImplBuilder.defineLookup(field.getPrev());
+        LookupMember lookupMember = classImplBuilder.defineRuntimeLookup(field.getPrev());
         // 定义当前字段的mh
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(), methodType);
-
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(mv, methodType);
@@ -35,8 +34,7 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
 
             if (!lookupMember.isTargetLookup()) {
                 // 校验lookup和mh
-                LookupMember preLookup = classImplBuilder.defineLookup(field.getPrev().getPrev());
-                staticCheckLookup(methodBody, preLookup, lookupMember, objVar, field.getPrev());
+                staticCheckLookup(methodBody, getter.getLookupMember(), lookupMember, objVar, field.getPrev());
                 checkLookup(methodBody, lookupMember, mhMember, objVar);
             }
             checkMethodHandle(methodBody, lookupMember, mhMember, objVar);

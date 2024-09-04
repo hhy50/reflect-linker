@@ -152,4 +152,33 @@ public class AsmUtil {
         }
         return null;
     }
+
+    public static Type getType(String clazz) {
+        // 判断是否是基本数据类
+        if (clazz.equals("byte")) {
+            return Type.BYTE_TYPE;
+        }
+        if (clazz.equals("short")) {
+            return Type.SHORT_TYPE;
+        }
+        if (clazz.equals("int")) {
+            return Type.INT_TYPE;
+        }
+        if (clazz.equals("long")) {
+            return Type.LONG_TYPE;
+        }
+        if (clazz.equals("float")) {
+            return Type.FLOAT_TYPE;
+        }
+        if (clazz.equals("double")) {
+            return Type.DOUBLE_TYPE;
+        }
+        if (clazz.equals("boolean")) {
+            return Type.BOOLEAN_TYPE;
+        }
+        if (clazz.equals("char")) {
+            return Type.CHAR_TYPE;
+        }
+        return Type.getType(toTypeDesc(clazz));
+    }
 }

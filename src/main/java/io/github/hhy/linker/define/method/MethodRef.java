@@ -1,11 +1,10 @@
 package io.github.hhy.linker.define.method;
 
 import io.github.hhy.linker.define.field.FieldRef;
-import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 
-public class MethodRef {
+public abstract class MethodRef {
     protected FieldRef owner;
 
     /**
@@ -35,6 +34,10 @@ public class MethodRef {
         return owner.getUniqueName()+"_$$_"+name;
     }
 
+    public String getInvokerName() {
+        return getFullName()+"_invoker_mh";
+    }
+
     public String getSuperClass() {
         return superClass;
     }
@@ -43,7 +46,5 @@ public class MethodRef {
         this.superClass = superClass;
     }
 
-    public Type[] getArgsType() {
-        return new Type[] {ObjectVar.TYPE};
-    }
+    public abstract Type[] getArgsType();
 }

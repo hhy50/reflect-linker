@@ -16,8 +16,10 @@ public class Runtime {
     public static String OWNER = "io/github/hhy/linker/runtime/Runtime";
     public static String FIND_GETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     public static final MethodHolder FIND_GETTER = new MethodHolder(Runtime.OWNER, "findGetter", Runtime.FIND_GETTER_DESC);
     public static final MethodHolder FIND_SETTER = new MethodHolder(Runtime.OWNER, "findSetter", Runtime.FIND_SETTER_DESC);
+    public static final MethodHolder FIND_METHOD = new MethodHolder(Runtime.OWNER, "findMethod", Runtime.FIND_METHOD_DESC);
     public static final MethodHolder FIND_LOOKUP = new MethodHolder(Runtime.OWNER, "findLookup", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;");
     public static final MethodHolder LOOKUP = new MethodHolder(Runtime.OWNER, "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;");
 
@@ -85,8 +87,14 @@ public class Runtime {
      * @param methodName
      * @return
      */
-    public static MethodHandle findInvokeVirtual(MethodHandles.Lookup lookup, Object obj, String methodName) throws IllegalAccessException {
-        Method method = ReflectUtil.getMethod(obj.getClass(), methodName);
+    public static MethodHandle findMethod(MethodHandles.Lookup lookup, String methodName, String superClass, String[] argsType) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        Method method = ReflectUtil.matchMethod(lookup.lookupClass(), methodName, superClass, argsType);
+        if (method == null) {
+            throw new NoSuchMethodException("not found method '"+methodName+"' in class "+lookup.lookupClass().getName());
+        }
+        if (lookup.lookupClass() != method.getDeclaringClass() && !method.isAccessible()) {
+            lookup = lookup(method.getDeclaringClass());
+        }
         return lookup.unreflect(method);
     }
 }

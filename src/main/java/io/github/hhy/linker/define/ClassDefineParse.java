@@ -17,7 +17,6 @@ import io.github.hhy.linker.util.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.*;
 
 import static io.github.hhy.linker.util.ClassUtil.getTypeDefines;
@@ -108,56 +107,36 @@ public class ClassDefineParse {
         String[] argsType = Arrays.stream(defineMethod.getParameters())
                 .map(item -> {
                     String typed = AnnotationUtils.getTyped(item);
-                    return StringUtil.isNotEmpty(typed) ? typed : item.getType().getName();
+                    if (StringUtil.isNotEmpty(typed)) {
+                        return typed;
+                    }
+                    String bind = AnnotationUtils.getBind(item.getType());
+                    if (StringUtil.isNotEmpty(bind)) {
+                        return bind;
+                    }
+                    return item.getType().getName();
                 }).toArray(String[]::new);
+        Class<?> returnClass = defineMethod.getReturnType();
 
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getFieldTypeClass();
             io.github.hhy.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
             String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
 
-            Method method = matchMethod(ownerClass, name, superClass, argsType);
+            Method method = ReflectUtil.matchMethod(ownerClass, name, superClass, argsType);
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
                 throw new ParseException("can not find method "+name+" in class "+ownerClass.getName());
             }
-            MethodRef methodRef = method == null ? new RuntimeMethodRef(owner, name, argsType) : new EarlyMethodRef(owner, method);
+            MethodRef methodRef = method == null ? new RuntimeMethodRef(owner, name, argsType, returnClass) : new EarlyMethodRef(owner, method);
             if (superClass != null) {
                 if (method != null) methodRef.setSuperClass(method.getDeclaringClass().getName());
                 else methodRef.setSuperClass(superClass);
             }
             return methodRef;
         }
-        return new RuntimeMethodRef(owner, name, argsType);
+        return new RuntimeMethodRef(owner, name, argsType, returnClass);
     }
 
-    private static Method matchMethod(Class<?> clazz, String name, String superClass, String[] argTypes) {
-        // 指定了调用super， 但是没有指定具体哪个super
-        if (superClass != null && superClass.equals("")) {
-            superClass = null;
-            clazz = clazz.getSuperclass();
-        }
-
-        while (clazz != null && superClass != null) {
-            if (clazz.getName().equals(superClass)) {
-                break;
-            }
-            clazz = clazz.getSuperclass();
-        }
-        if (clazz == null) {
-            return null;
-        }
-
-        List<Method> matches = new ArrayList<>();
-        for (Method method : ReflectUtil.getMethods(clazz, name)) {
-            Parameter[] parameters = method.getParameters();
-            if (parameters.length != argTypes.length) continue;
-            if (ClassUtil.polymorphismMatch(parameters, argTypes)) {
-                matches.add(method);
-            }
-        }
-        if (matches.size() > 0) return matches.get(0);
-        return null;
-    }
 
     /**
      * 解析目标字段

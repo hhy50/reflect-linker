@@ -22,6 +22,13 @@ public interface Action {
         return EMPTY;
     }
 
+    static Action loadNull() {
+        return (body) -> {
+            MethodVisitor mv = body.getWriter();
+            mv.visitInsn(Opcodes.ACONST_NULL);
+        };
+    }
+
     void apply(MethodBody body);
 
     default Action onAfter(Action after) {

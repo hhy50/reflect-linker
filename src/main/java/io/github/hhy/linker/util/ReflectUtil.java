@@ -2,6 +2,7 @@ package io.github.hhy.linker.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,5 +48,34 @@ public class ReflectUtil {
             methods.addAll(getMethods(clazz.getSuperclass(), methodName));
         }
         return methods;
+    }
+
+    public static Method matchMethod(Class<?> clazz, String name, String superClass, String[] argTypes) {
+        // 指定了调用super， 但是没有指定具体哪个super
+        if (superClass != null && superClass.equals("")) {
+            superClass = null;
+            clazz = clazz.getSuperclass();
+        }
+
+        while (clazz != null && superClass != null) {
+            if (clazz.getName().equals(superClass)) {
+                break;
+            }
+            clazz = clazz.getSuperclass();
+        }
+        if (clazz == null) {
+            return null;
+        }
+
+        List<Method> matches = new ArrayList<>();
+        for (Method method : ReflectUtil.getMethods(clazz, name)) {
+            Parameter[] parameters = method.getParameters();
+            if (parameters.length != argTypes.length) continue;
+            if (ClassUtil.polymorphismMatch(parameters, argTypes)) {
+                matches.add(method);
+            }
+        }
+        if (matches.size() > 0) return matches.get(0);
+        return null;
     }
 }

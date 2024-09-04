@@ -4,6 +4,8 @@ import io.github.hhy.linker.define.method.MethodRef;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.MethodHandle;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
+import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
@@ -28,5 +30,10 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
         return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
+    }
+
+    @Override
+    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
+
     }
 }
