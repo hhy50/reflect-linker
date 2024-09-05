@@ -40,7 +40,11 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
             checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
 
             // mh.invoke(obj, fieldValue)
-            VarInst vold = mhMember.invoke(methodBody, objVar, methodBody.getArg(0));
+            if (field.isDesignateStatic()) {
+                VarInst vold = field.isStatic() ? mhMember.invokeStatic(methodBody, methodBody.getArg(0)) : mhMember.invokeInstance(methodBody, objVar, methodBody.getArg(0));
+            } else {
+                mhMember.invoke(methodBody, objVar, methodBody.getArg(0));
+            }
             AsmUtil.areturn(mv, Type.VOID_TYPE);
         });
     }

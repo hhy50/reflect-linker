@@ -5,8 +5,12 @@ import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
-import io.github.hhy.linker.generate.bytecode.action.*;
+import io.github.hhy.linker.generate.bytecode.action.Action;
+import io.github.hhy.linker.generate.bytecode.action.Condition;
+import io.github.hhy.linker.generate.bytecode.action.ConditionJumpAction;
+import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.Type;
 
 public class MethodHandleMember extends Member {
@@ -26,11 +30,8 @@ public class MethodHandleMember extends Member {
         VarInst result = initResultVar(methodBody);
 
         methodBody.append(() -> {
-            MethodInvokeAction contains = new MethodInvokeAction(MethodHolder.STRING_CONTAINS)
-                    .setInstance(new MethodInvokeAction(MethodHolder.CLASS_GET_NAME)
-                            .setInstance(new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS)
-                                    .setInstance(this)))
-                    .setArgs(LdcLoadAction.of("DirectMethodHandle$StaticAccessor"));
+            MethodInvokeAction contains = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
+                    .setArgs(this);
 
             return new ConditionJumpAction(Condition.wrap(contains),
                     (__) -> invokeStatic(result, methodBody, args),

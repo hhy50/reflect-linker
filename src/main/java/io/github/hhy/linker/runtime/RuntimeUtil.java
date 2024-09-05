@@ -1,10 +1,18 @@
 package io.github.hhy.linker.runtime;
 
 
+import io.github.hhy.linker.AccessTool;
+import io.github.hhy.linker.entity.MethodHolder;
+import io.github.hhy.linker.exceptions.LinkerException;
+import io.github.hhy.linker.syslinker.DirectMethodHandleLinker;
 import org.objectweb.asm.Type;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Modifier;
 
 public class RuntimeUtil {
     public static final String RUNTIME_UTIL_OWNER = "io/github/hhy/linker/runtime/RuntimeUtil";
+    public static final MethodHolder IS_STATIC = new MethodHolder(RUNTIME_UTIL_OWNER, "isStatic", "(Ljava/lang/invoke/MethodHandle;)Z");
     public static final String UNWRAP_BYTE_DESC = "(Ljava/lang/Object;)"+Type.BYTE_TYPE;
     public static final String UNWRAP_SHORT_DESC = "(Ljava/lang/Object;)"+Type.SHORT;
     public static final String UNWRAP_INT_DESC = "(Ljava/lang/Object;)"+Type.INT_TYPE;
@@ -16,7 +24,11 @@ public class RuntimeUtil {
 
     public static void checkNull(Object obj) {
 
+    }
 
+    public static boolean isStatic(MethodHandle methodHandle) throws LinkerException {
+        DirectMethodHandleLinker mh  = AccessTool.createSysLinker(DirectMethodHandleLinker.class, methodHandle);
+        return Modifier.isStatic(mh.modifiers());
     }
 
     public static Object wrap(byte i) {

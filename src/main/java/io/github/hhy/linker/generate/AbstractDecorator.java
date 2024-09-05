@@ -74,8 +74,8 @@ public abstract class AbstractDecorator extends MethodHandle {
         }
 
         // 拆装箱
-        if (r1 && AsmUtil.isWrapType(varInst.getType())) {
-            return methodBody.newLocalVar(expectType, new UnwrapTypeAction(varInst));
+        if (r1 && (AsmUtil.isWrapType(varInst.getType()) || varInst.getType().getClassName().equals(Object.class.getName()))) {
+            return methodBody.newLocalVar(expectType, new UnwrapTypeAction(varInst, expectType));
         } else if (r2 && (AsmUtil.isWrapType(expectType) || expectType.getClassName().equals(Object.class.getName()))) {
             return methodBody.newLocalVar(expectType, new WrapTypeAction(varInst).onAfter(new TypeCastAction(Action.stackTop(), expectType)));
         }

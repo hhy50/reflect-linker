@@ -4,7 +4,7 @@ package io.github.hhy.linker.define;
 import io.github.hhy.linker.AccessTool;
 import io.github.hhy.linker.define.cl.SysLinkerClassLoader;
 import io.github.hhy.linker.exceptions.LinkerException;
-import io.github.hhy.linker.syslinker.LinkerClassLoader;
+import io.github.hhy.linker.syslinker.ClassLoaderLinker;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ public class BytecodeClassLoader{
             if (classLoader instanceof SysLinkerClassLoader) {
                 return clNameSpace.computeIfAbsent(className, n -> ((SysLinkerClassLoader) classLoader).load(className, bytecode));
             } else {
-                LinkerClassLoader clLinker = AccessTool.createSysLinker(LinkerClassLoader.class, classLoader);
+                ClassLoaderLinker clLinker = AccessTool.createSysLinker(ClassLoaderLinker.class, classLoader);
                 return clNameSpace.computeIfAbsent(className, n -> clLinker.defineClass(className, bytecode, 0, bytecode.length));
             }
         } catch (LinkerException e) {

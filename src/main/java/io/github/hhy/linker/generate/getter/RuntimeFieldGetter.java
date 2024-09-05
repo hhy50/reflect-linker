@@ -35,7 +35,12 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
             checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
 
             // mh.invoke(obj)
-            VarInst result = mhMember.invoke(methodBody, objVar);
+            VarInst result;
+            if (field.isDesignateStatic()) {
+                result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
+            } else {
+                result = mhMember.invoke(methodBody, objVar);
+            }
             result.returnThis(methodBody);
         });
     }

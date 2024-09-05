@@ -88,7 +88,10 @@ public class ClassDefineParse {
         MethodDefine methodDefine = new MethodDefine(defineMethod);
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
-            methodDefine.fieldRef = parseFieldExpr(targetClassRef, classLoader, tokens, typedDefines);
+            methodDefine.fieldRef = parseFieldExpr(targetClassRef, classLoader, methodDefine.define, tokens, typedDefines);
+            if (AnnotationUtils.isRuntime(methodDefine.define)) {
+                methodDefine.fieldRef = methodDefine.fieldRef.toRuntime();
+            }
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
             String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), defineMethod.getName());
@@ -103,7 +106,7 @@ public class ClassDefineParse {
     }
 
     private static MethodRef parseMethodExpr(EarlyFieldRef targetTargetRef, ClassLoader classLoader, Method defineMethod, String name, final Tokens fieldTokens, Map<String, String> typedDefines) throws ClassNotFoundException {
-        FieldRef owner = parseFieldExpr(targetTargetRef, classLoader, fieldTokens, typedDefines);
+        FieldRef owner = parseFieldExpr(targetTargetRef, classLoader, defineMethod, fieldTokens, typedDefines);
         String[] argsType = Arrays.stream(defineMethod.getParameters())
                 .map(item -> {
                     String typed = AnnotationUtils.getTyped(item);
@@ -118,6 +121,9 @@ public class ClassDefineParse {
                 }).toArray(String[]::new);
         Class<?> returnClass = defineMethod.getReturnType();
 
+        if (AnnotationUtils.isRuntime(defineMethod)) {
+            owner = owner.toRuntime();
+        }
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getFieldTypeClass();
             io.github.hhy.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
@@ -142,11 +148,13 @@ public class ClassDefineParse {
      * 解析目标字段
      *
      * @param targetFieldRef
+     * @param methodDefine
      * @param tokens
      * @param typedDefines
      * @return
      */
-    private static FieldRef parseFieldExpr(EarlyFieldRef targetFieldRef, ClassLoader classLoader, final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
+    private static FieldRef parseFieldExpr(EarlyFieldRef targetFieldRef, ClassLoader classLoader, Method defineMethod, final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
+        Map<String, Boolean> staticFields = AnnotationUtils.getDesignateStaticFields(defineMethod);
         Class<?> currentType = targetFieldRef.getFieldTypeClass();
         FieldRef lastField = targetFieldRef;
         String fullField = null;
@@ -154,23 +162,34 @@ public class ClassDefineParse {
             fullField = fullField == null ? token.value() : (fullField+"."+token.value());
             if (lastField instanceof RuntimeFieldRef) {
                 lastField = new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
-                continue;
-            }
-            Field currentField = token.getField(currentType);
-            currentType = currentField == null ? null : currentField.getType();
-
-            Class<?> assignedType = null;
-            if (typedDefines.containsKey(fullField)) {
-                assignedType = classLoader.loadClass(typedDefines.get(fullField));
-            }
-            if (assignedType != null && currentField != null) {
-                if (!ClassUtil.isAssignableFrom(assignedType, currentField.getType())) {
-                    throw new ClassTypeNotMatchException(assignedType.getName(), currentField.getType().getName());
-                }
-                currentType = assignedType;
-                lastField = new EarlyFieldRef(lastField, currentField, assignedType);
             } else {
-                lastField = currentField != null ? new EarlyFieldRef(lastField, currentField) : new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
+                Field currentField = token.getField(currentType);
+                currentType = currentField == null ? null : currentField.getType();
+
+                Class<?> assignedType = null;
+                // 是否提前定义了好了类型
+                if (typedDefines.containsKey(token.value())) {
+                    assignedType = classLoader.loadClass(typedDefines.get(token.value()));
+                }
+                if (typedDefines.containsKey(fullField)) {
+                    assignedType = classLoader.loadClass(typedDefines.get(fullField));
+                }
+                if (assignedType != null && currentField != null) {
+                    if (!ClassUtil.isAssignableFrom(assignedType, currentField.getType())) {
+                        throw new ClassTypeNotMatchException(assignedType.getName(), currentField.getType().getName());
+                    }
+                    currentType = assignedType;
+                    lastField = new EarlyFieldRef(lastField, currentField, assignedType);
+                } else {
+                    lastField = currentField != null ? new EarlyFieldRef(lastField, currentField) : new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
+                }
+            }
+            if (lastField instanceof RuntimeFieldRef) {
+                if (staticFields.containsKey(fullField)) {
+                    ((RuntimeFieldRef) lastField).designateStatic(staticFields.get(token.value()));
+                } else if (staticFields.containsKey(token.value())) {
+                    ((RuntimeFieldRef) lastField).designateStatic(staticFields.get(token.value()));
+                }
             }
             lastField.setFullName(fullField);
         }

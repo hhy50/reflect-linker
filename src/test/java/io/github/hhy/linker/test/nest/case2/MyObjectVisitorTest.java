@@ -27,8 +27,8 @@ public class MyObjectVisitorTest {
         Assert.assertEquals(age, linker.getAge());
         Assert.assertEquals("china", linker.getAddress());
         Assert.assertEquals("name2", linker.getName2());
-//        Assert.assertEquals("name3", linker.getName3());
-//        Assert.assertEquals("name4", linker.getName4());
+        Assert.assertEquals("name3", linker.getName3());
+        Assert.assertEquals("name4", linker.getName4());
         System.out.println(linker.superToString());
         System.out.println(linker.getUser());
     }

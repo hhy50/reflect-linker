@@ -4,7 +4,7 @@ import io.github.hhy.linker.annotations.Target;
 
 
 @Target.Bind("java.lang.ClassLoader")
-public interface LinkerClassLoader {
+public interface ClassLoaderLinker {
 
     /**
      *

@@ -66,4 +66,11 @@ public abstract class FieldRef {
         }
         return fullName;
     }
+
+    public FieldRef toRuntime() {
+        if (this instanceof RuntimeFieldRef) {
+            return this;
+        }
+        return new RuntimeFieldRef(this.getPrev(), this.objName, this.fieldName);
+    }
 }

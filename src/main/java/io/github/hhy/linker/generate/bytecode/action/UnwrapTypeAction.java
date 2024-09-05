@@ -10,16 +10,22 @@ import org.objectweb.asm.Type;
 
 public class UnwrapTypeAction implements Action {
     private final VarInst obj;
+    private final Type primitiveType;
 
     public UnwrapTypeAction(VarInst obj) {
         this.obj = obj;
+        this.primitiveType = AsmUtil.getPrimitiveType(obj.getType());
+    }
+
+    public UnwrapTypeAction(VarInst obj, Type primitiveType) {
+        this.obj = obj;
+        this.primitiveType = primitiveType;
     }
 
     @Override
     public void apply(MethodBody body) {
         obj.apply(body);
 
-        Type primitiveType = AsmUtil.getPrimitiveType(obj.getType());
         MethodVisitor mv = body.getWriter();
         switch (primitiveType.getSort()) {
             case Type.BYTE:
