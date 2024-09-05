@@ -108,7 +108,7 @@ public class LookupMember extends Member {
         return this.isTargetLookup;
     }
 
-    public void isTarget(boolean b) {
+    public void setTargetLookup(boolean b) {
         this.isTargetLookup = b;
     }
 }

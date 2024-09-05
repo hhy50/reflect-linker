@@ -2,7 +2,6 @@ package io.github.hhy.linker.test.nest.case2;
 
 import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Method;
-import io.github.hhy.linker.annotations.Runtime;
 import io.github.hhy.linker.annotations.Target;
 import io.github.hhy.linker.test.MyInteger;
 

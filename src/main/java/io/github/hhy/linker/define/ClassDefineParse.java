@@ -126,33 +126,32 @@ public class ClassDefineParse {
         }
         io.github.hhy.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
         String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
+        Method method = null;
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getFieldTypeClass();
-            Method method = ReflectUtil.matchMethod(ownerClass, name, superClass, argsType);
+            method = ReflectUtil.matchMethod(ownerClass, name, superClass, argsType);
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
                 throw new ParseException("can not find method "+name+" in class "+ownerClass.getName());
             }
-            MethodRef methodRef = method == null ? new RuntimeMethodRef(owner, name, argsType, returnClass) : new EarlyMethodRef(owner, method);
-            if (superClass != null) {
-                if (method != null) methodRef.setSuperClass(method.getDeclaringClass().getName());
-                else methodRef.setSuperClass(superClass);
-            }
-            return methodRef;
         }
-        RuntimeMethodRef methodRef = new RuntimeMethodRef(owner, name, argsType, returnClass);
-        methodRef.setSuperClass(superClass);
+        MethodRef methodRef = method == null ? new RuntimeMethodRef(owner, name, argsType, returnClass) : new EarlyMethodRef(owner, method);
+        if (superClass != null) {
+            if (method != null) methodRef.setSuperClass(method.getDeclaringClass().getName());
+            else methodRef.setSuperClass(superClass);
+        }
         return methodRef;
     }
 
 
     /**
      * 解析目标字段
-     *
      * @param targetFieldRef
-     * @param methodDefine
+     * @param classLoader
+     * @param defineMethod
      * @param tokens
      * @param typedDefines
      * @return
+     * @throws ClassNotFoundException
      */
     private static FieldRef parseFieldExpr(EarlyFieldRef targetFieldRef, ClassLoader classLoader, Method defineMethod, final Tokens tokens, Map<String, String> typedDefines) throws ClassNotFoundException {
         Map<String, Boolean> staticFields = AnnotationUtils.getDesignateStaticFields(defineMethod);

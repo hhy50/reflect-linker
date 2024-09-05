@@ -25,7 +25,9 @@ public class ClassImplGenerator {
         String implClassName = define.getName()+"$impl";
         InvokeClassImplBuilder classBuilder = AsmUtil
                 .defineImplClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
-                .setTarget(targetClass);
+                .setDefine(define)
+                .setTarget(targetClass)
+                .init();
 
         List<MethodDefine> methodDefines = defineClass.getMethodDefines();
         methodDefines.sort(Comparator.comparing(MethodDefine::getName));

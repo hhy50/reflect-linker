@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
+    private Class<?> defineClass;
     private Class<?> bindTarget;
     private final String implClassDesc;
     private MethodBody clinit;
@@ -48,16 +49,17 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         this.members = new HashMap<>();
     }
 
-    private void init() {
+    public InvokeClassImplBuilder init() {
         EarlyFieldRef target = new EarlyFieldRef(null, null, "target", bindTarget);
-        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
+        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), defineClass, target);
 
-        LookupMember lookupMember = this.defineTypedLookup(target.getType());
-        lookupMember.isTarget(true);
-        lookupMember.staticInit(this.getClinit());
-
-        this.members.put(lookupMember.getMemberName(), lookupMember);
         this.getters.put(target.getUniqueName(), targetFieldGetter);
+        return this;
+    }
+
+    public InvokeClassImplBuilder setDefine(Class<?> defineClass) {
+        this.defineClass = defineClass;
+        return this;
     }
 
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
@@ -69,7 +71,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
                     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ClassUtil.className2path(DefaultTargetProviderImpl.class.getName()), "<init>", "(Ljava/lang/Object;)V", false);
                     mv.visitInsn(Opcodes.RETURN);
                 });
-        init();
         return this;
     }
 
