@@ -95,6 +95,6 @@ public class Runtime {
         if (lookup.lookupClass() != method.getDeclaringClass() && !method.isAccessible()) {
             lookup = lookup(method.getDeclaringClass());
         }
-        return lookup.unreflect(method);
+        return superClass == null ? lookup.unreflect(method) :lookup.unreflectSpecial(method, lookup.lookupClass());
     }
 }

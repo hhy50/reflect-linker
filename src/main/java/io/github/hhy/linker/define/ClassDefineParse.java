@@ -124,11 +124,10 @@ public class ClassDefineParse {
         if (AnnotationUtils.isRuntime(defineMethod)) {
             owner = owner.toRuntime();
         }
+        io.github.hhy.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
+        String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getFieldTypeClass();
-            io.github.hhy.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy.linker.annotations.Method.InvokeSuper.class);
-            String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
-
             Method method = ReflectUtil.matchMethod(ownerClass, name, superClass, argsType);
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
                 throw new ParseException("can not find method "+name+" in class "+ownerClass.getName());
@@ -140,7 +139,9 @@ public class ClassDefineParse {
             }
             return methodRef;
         }
-        return new RuntimeMethodRef(owner, name, argsType, returnClass);
+        RuntimeMethodRef methodRef = new RuntimeMethodRef(owner, name, argsType, returnClass);
+        methodRef.setSuperClass(superClass);
+        return methodRef;
     }
 
 

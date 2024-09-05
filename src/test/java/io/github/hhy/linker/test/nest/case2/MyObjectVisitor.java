@@ -2,8 +2,8 @@ package io.github.hhy.linker.test.nest.case2;
 
 import io.github.hhy.linker.annotations.Field;
 import io.github.hhy.linker.annotations.Method;
+import io.github.hhy.linker.annotations.Runtime;
 import io.github.hhy.linker.annotations.Target;
-import io.github.hhy.linker.annotations.Typed;
 import io.github.hhy.linker.test.MyInteger;
 
 
@@ -34,7 +34,8 @@ public interface MyObjectVisitor {
     @Field.Setter("user.address")
     void setAddress(String address);
 
-    @Typed(name = "user", type = "io.github.hhy.linker.test.nest.case2.UserVo")
+//    @Typed(name = "user", type = "io.github.hhy.linker.test.nest.case2.UserVo")
+//    @Runtime
     @Method.InvokeSuper
     @Method.Name("user.getName")
     String getSuperName();

@@ -27,7 +27,7 @@ public class RuntimeUtil {
     }
 
     public static boolean isStatic(MethodHandle methodHandle) throws LinkerException {
-        DirectMethodHandleLinker mh  = AccessTool.createSysLinker(DirectMethodHandleLinker.class, methodHandle);
+        DirectMethodHandleLinker mh = AccessTool.createSysLinker(DirectMethodHandleLinker.class, methodHandle);
         return Modifier.isStatic(mh.modifiers());
     }
 

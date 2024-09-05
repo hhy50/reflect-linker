@@ -13,7 +13,6 @@ public class MyObjectVisitorTest {
     @Test
     public void test1() throws LinkerException {
         MyObject myObject = new MyObject();
-//        MyObjectVisitor linker = new MyObjectVisitor$impl(myObject);
         MyObjectVisitor linker = LinkerFactory.createLinker(MyObjectVisitor.class, myObject);
         MyInteger age = LinkerFactory.createLinker(MyInteger.class, 18);
 
