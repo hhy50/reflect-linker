@@ -11,15 +11,9 @@ public class RuntimeAction {
                         .setInstance(lookup), LdcLoadAction.of(fieldName));
     }
 
-
     public static MethodInvokeAction lookup(Action action) {
         return new MethodInvokeAction(Runtime.LOOKUP)
                 .setArgs(action);
-    }
-
-    public static MethodInvokeAction lookupWithCl(Action clLoadAction, String className) {
-        return new MethodInvokeAction(Runtime.LOOKUP2)
-                .setArgs(clLoadAction, LdcLoadAction.of(className));
     }
 
     public static MethodInvokeAction findSetter(LookupMember lookupMember, String fieldName) {

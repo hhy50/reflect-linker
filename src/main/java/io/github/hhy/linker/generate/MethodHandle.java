@@ -1,11 +1,17 @@
 package io.github.hhy.linker.generate;
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.FieldRef;
+import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.action.Action;
+import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
+import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.action.RuntimeAction;
+import io.github.hhy.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
 public abstract class MethodHandle {
@@ -35,7 +41,7 @@ public abstract class MethodHandle {
      * @param classImplBuilder
      * @param mhMember
      * @param lookupMember
-     * @param ownerType
+     * @param clAction
      * @param fieldName
      * @param methodType
      * @param isStatic
@@ -101,4 +107,28 @@ public abstract class MethodHandle {
      * @param objVar
      */
     protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar);
+
+    protected class PreClassLoad implements Action {
+        private InvokeClassImplBuilder classImplBuilder;
+        private Type type;
+        private LocalVarInst clazzVar;
+
+        public PreClassLoad(InvokeClassImplBuilder classImplBuilder, Type type) {
+            this.classImplBuilder = classImplBuilder;
+            this.type = type;
+        }
+
+        @Override
+        public void apply(MethodBody body) {
+            if (this.clazzVar == null) {
+                Action cl = new MethodInvokeAction(MethodHolder.GET_CLASS_LOADER)
+                        .setInstance(
+                                LdcLoadAction.of(AsmUtil.getType(classImplBuilder.getClassName()))
+                        );
+                this.clazzVar = body.newLocalVar(Type.getType(Class.class), new MethodInvokeAction(Runtime.GET_CLASS)
+                        .setArgs(cl, LdcLoadAction.of(type.getClassName())));
+            }
+            clazzVar.load(body);
+        }
+    }
 }

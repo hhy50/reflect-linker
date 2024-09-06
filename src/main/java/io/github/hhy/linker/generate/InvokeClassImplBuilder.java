@@ -27,11 +27,11 @@ import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
-    private Class<?> defineClass;
     private Class<?> bindTarget;
     private final String implClassDesc;
     private MethodBody clinit;
@@ -57,14 +57,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return this;
     }
 
-    public InvokeClassImplBuilder setDefine(Class<?> defineClass) {
-        this.defineClass = defineClass;
-        return this;
-    }
-
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
         this.bindTarget = bindTarget;
-        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{bindTarget.getName()}, null, "")
+        String argsType = Modifier.isPublic(bindTarget.getModifiers()) ? bindTarget.getName() : "java.lang.Object";
+        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{argsType}, null, "")
                 .accept(mv -> {
                     mv.visitVarInsn(Opcodes.ALOAD, 0);
                     mv.visitVarInsn(Opcodes.ALOAD, 1);
@@ -140,11 +136,11 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * 定义指定类型的lookup字段
      *
-     * @param type
+     * @param staticType
      * @return
      */
-    public LookupMember defineTypedLookup(Class<?> staticType) {
-        String memberName = staticType.getName().replace('.', '_')+"_lookup";
+    public LookupMember defineTypedLookup(Type staticType) {
+        String memberName = staticType.getClassName().replace('.', '_')+"_lookup";
         if (!members.containsKey(memberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
             super.defineField(access, memberName, Lookup.DESCRIPTOR, null, null);

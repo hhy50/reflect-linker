@@ -37,6 +37,14 @@ public abstract class Member implements LoadAction {
         return memberName;
     }
 
+    public int getAccess() {
+        return access;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
     @Override
     public void load(MethodBody methodBody) {
         MethodVisitor mv = methodBody.getWriter();

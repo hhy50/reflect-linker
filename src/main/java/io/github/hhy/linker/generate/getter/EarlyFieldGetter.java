@@ -5,11 +5,14 @@ import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.lang.reflect.Modifier;
 
 import static io.github.hhy.linker.entity.MethodHolder.LOOKUP_FIND_GETTER_METHOD;
 import static io.github.hhy.linker.entity.MethodHolder.LOOKUP_FIND_STATIC_GETTER_METHOD;
@@ -26,15 +29,19 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
         getter.define(classImplBuilder);
 
+        Type declaredType = Type.getType(field.getDeclaredType());
         MethodBody clinit = classImplBuilder.getClinit();
+        Action classLoadAc = Modifier.isPublic(field.getDeclaredType().getModifiers()) ? LdcLoadAction.of(declaredType) : new PreClassLoad(classImplBuilder, declaredType);
+
         // 定义上一层字段的lookup, 必须要用declaredType
-        this.lookupMember = classImplBuilder.defineTypedLookup(field.getDeclaredType());
+        this.lookupMember = classImplBuilder.defineTypedLookup(declaredType);
         // init lookup
-        this.lookupMember.staticInit(clinit);
+        this.lookupMember.staticInit(clinit, classLoadAc);
+
         // 定义当前字段的getter mh
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, Type.getType(field.getDeclaredType()), field.fieldName, methodType, field.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, declaredType, field.fieldName, methodType, field.isStatic());
         // 定义当前字段的getter
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")

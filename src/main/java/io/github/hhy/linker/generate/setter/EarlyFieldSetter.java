@@ -7,12 +7,15 @@ import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.lang.reflect.Modifier;
 
 public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
@@ -25,15 +28,19 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
         getter.define(classImplBuilder);
 
+        Type declaredType = Type.getType(field.getDeclaredType());
         MethodBody clinit = classImplBuilder.getClinit();
+        Action classLoadAc = Modifier.isPublic(field.getDeclaredType().getModifiers()) ? LdcLoadAction.of(declaredType) : new PreClassLoad(classImplBuilder, declaredType);
+
         // 定义上一层字段的lookup, 必须要用declaredType
-        LookupMember lookupMember = classImplBuilder.defineTypedLookup(field.getDeclaredType());
+        LookupMember lookupMember = classImplBuilder.defineTypedLookup(declaredType);
         // init lookup
-        lookupMember.staticInit(clinit);
+        lookupMember.staticInit(clinit, classLoadAc);
+
         // 定义当前字段的 setter
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, Type.getType(field.getDeclaredType()), field.fieldName, methodType, field.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, declaredType, field.fieldName, methodType, field.isStatic());
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(mv, methodType);

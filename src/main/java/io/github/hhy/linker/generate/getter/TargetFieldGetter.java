@@ -5,10 +5,14 @@ import io.github.hhy.linker.entity.FieldHolder;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.FieldLoadAction;
+import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.util.ClassUtil;
+import org.objectweb.asm.Type;
+
+import java.lang.reflect.Modifier;
 
 
 public class TargetFieldGetter extends Getter<EarlyFieldRef> {
@@ -30,9 +34,13 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 //            this.lookupMember = classImplBuilder.defineRuntimeLookup(field);
 //            classImplBuilder
         }
-        this.lookupMember = classImplBuilder.defineTypedLookup(field.getClassType());
+
+        MethodBody clinit = classImplBuilder.getClinit();
+        Type targetType = Type.getType(field.getClassType());
+        this.lookupMember = classImplBuilder.defineTypedLookup(targetType);
         this.lookupMember.setTargetLookup(true);
-        this.lookupMember.staticInit(classImplBuilder.getClinit());
+        this.lookupMember.staticInit(clinit, Modifier.isPublic(field.getClassType().getModifiers())
+                ? LdcLoadAction.of(targetType) : new PreClassLoad(classImplBuilder, targetType));
     }
 
     @Override

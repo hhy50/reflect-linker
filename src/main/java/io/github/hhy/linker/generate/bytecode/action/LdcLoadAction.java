@@ -19,6 +19,8 @@ public class LdcLoadAction implements LoadAction {
         MethodVisitor mv = body.getWriter();
         if (ldcConstVar instanceof Type) {
             adaptLdcClassType(mv, (Type) ldcConstVar);
+        } else if (ldcConstVar instanceof Class) {
+            adaptLdcClassType(mv, Type.getType((Class) ldcConstVar));
         } else {
             mv.visitLdcInsn(ldcConstVar);
         }

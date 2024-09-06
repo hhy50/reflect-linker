@@ -15,4 +15,8 @@ public class LocalVarInst extends VarInst {
     public String getName() {
         return varName+"[type="+type.getClassName()+"]";
     }
+
+    public void load() {
+
+    }
 }

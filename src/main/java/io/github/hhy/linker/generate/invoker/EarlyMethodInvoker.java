@@ -16,6 +16,7 @@ import io.github.hhy.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 import static io.github.hhy.linker.generate.bytecode.action.Action.asArray;
@@ -34,14 +35,18 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         Getter<?> getter = classImplBuilder.defineGetter(owner.getUniqueName(), owner);
         getter.define(classImplBuilder);
 
+        Type ownerType = Type.getType(owner.getClassType());
         MethodBody clinit = classImplBuilder.getClinit();
+        Action classLoadAc = Modifier.isPublic(owner.getClassType().getModifiers()) ? LdcLoadAction.of(ownerType)
+                : new PreClassLoad(classImplBuilder, ownerType);
+
         // init lookup
-        LookupMember lookupMember = classImplBuilder.defineTypedLookup(owner.getClassType());
-        lookupMember.staticInit(clinit);
+        LookupMember lookupMember = classImplBuilder.defineTypedLookup(ownerType);
+        lookupMember.staticInit(clinit, classLoadAc);
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), this.methodType);
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, owner.getType(), method.getName(), methodType, method.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, ownerType, method.getName(), methodType, method.isStatic());
 
         // 定义当前方法的invoker
         classImplBuilder
