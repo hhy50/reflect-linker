@@ -9,6 +9,5 @@ public interface Target {
     @java.lang.annotation.Target(ElementType.TYPE)
     public @interface Bind {
         String value();
-        boolean runtime() default false;
     }
 }

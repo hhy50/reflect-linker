@@ -22,6 +22,7 @@ public class Runtime {
     public static final MethodHolder FIND_METHOD = new MethodHolder(Runtime.OWNER, "findMethod", Runtime.FIND_METHOD_DESC);
     public static final MethodHolder FIND_LOOKUP = new MethodHolder(Runtime.OWNER, "findLookup", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;");
     public static final MethodHolder LOOKUP = new MethodHolder(Runtime.OWNER, "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;");
+    public static final MethodHolder LOOKUP2 = new MethodHolder(Runtime.OWNER, "lookup", "(Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;");
 
     public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {
@@ -32,6 +33,10 @@ public class Runtime {
             }
         }
         return null;
+    }
+
+    public static MethodHandles.Lookup lookup(ClassLoader cl, String callerClassName) throws InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+        return lookup(cl.loadClass(callerClassName));
     }
 
     public static MethodHandles.Lookup findLookup(Class<?> clazz, String fieldName) throws InvocationTargetException, InstantiationException, IllegalAccessException {

@@ -18,6 +18,7 @@ public class MethodHolder {
     public static final MethodHolder ARRAYS_ASLIST = new MethodHolder("java/util/Arrays", "asList", "([Ljava/lang/Object;)Ljava/util/List;");
     public static final MethodHolder DEFAULT_PROVIDER_GET_TARGET = new MethodHolder("io/github/hhy/linker/define/provider/DefaultTargetProviderImpl", "getTarget", "()Ljava/lang/Object;");
     public static final MethodHolder LINKER_FACTORY_CREATE_LINKER = new MethodHolder("io/github/hhy/linker/LinkerFactory", "createLinker", "(Ljava/lang/Class;Ljava/lang/Object;)Ljava/lang/Object;");
+    public static final MethodHolder GET_CLASS_LOADER = new MethodHolder("java/lang/Class", "getClassLoader", "()Ljava/lang/ClassLoader;");
 
     private final String owner;
     private final String methodName;

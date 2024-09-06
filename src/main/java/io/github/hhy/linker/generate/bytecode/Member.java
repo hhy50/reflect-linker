@@ -9,22 +9,22 @@ import org.objectweb.asm.Type;
 
 public abstract class Member implements LoadAction {
 
-    private int access;
+    protected int access;
 
     /**
      * 所属类
      */
-    private String owner;
+    protected String owner;
 
     /**
      * 成员名称
      */
-    private String memberName;
+    protected String memberName;
 
     /**
      * 类型
      */
-    private Type type;
+    protected Type type;
 
     public Member(int access, String owner, String memberName, Type type) {
         this.access = access;

@@ -34,7 +34,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         // 定义当前字段的getter mh
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, field.getDeclaredType(), field.fieldName, methodType, field.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, Type.getType(field.getDeclaredType()), field.fieldName, methodType, field.isStatic());
         // 定义当前字段的getter
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")

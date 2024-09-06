@@ -8,24 +8,21 @@ import io.github.hhy.linker.generate.bytecode.action.FieldLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy.linker.util.AnnotationUtils;
 import io.github.hhy.linker.util.ClassUtil;
 
 
 public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 
-    private final boolean isRuntime;
     private final FieldHolder targetField;
 
-    public TargetFieldGetter(String implClass, Class<?> defineClass, EarlyFieldRef targetFieldRef) {
+    public TargetFieldGetter(String implClass, EarlyFieldRef targetFieldRef) {
         super(implClass, targetFieldRef);
         this.targetField = new FieldHolder(ClassUtil.className2path(implClass), field.getUniqueName(), ObjectVar.TYPE.getDescriptor());
-        this.isRuntime = AnnotationUtils.isRuntime(defineClass);
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        if (!this.isRuntime) {
+        if (false) {
 //            this.lookupMember = classImplBuilder.defineTypedLookup(field.getType());
 //            this.lookupMember.setTargetLookup(true);
 //            this.lookupMember.staticInit(classImplBuilder.getClinit());
@@ -33,7 +30,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 //            this.lookupMember = classImplBuilder.defineRuntimeLookup(field);
 //            classImplBuilder
         }
-        this.lookupMember = classImplBuilder.defineTypedLookup(field.getType());
+        this.lookupMember = classImplBuilder.defineTypedLookup(field.getClassType());
         this.lookupMember.setTargetLookup(true);
         this.lookupMember.staticInit(classImplBuilder.getClinit());
     }

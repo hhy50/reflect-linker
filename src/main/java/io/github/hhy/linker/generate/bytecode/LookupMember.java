@@ -1,6 +1,7 @@
 package io.github.hhy.linker.generate.bytecode;
 
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.constant.Lookup;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
@@ -8,20 +9,16 @@ import io.github.hhy.linker.generate.bytecode.action.*;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Modifier;
+
 import static io.github.hhy.linker.generate.bytecode.action.Condition.any;
 import static io.github.hhy.linker.generate.bytecode.action.Condition.must;
 
 
 public class LookupMember extends Member {
 
-
     private boolean isTargetLookup;
-
-    /**
-     * lookupClass
-     */
-    private final Type staticType;
-
+    private final Class<?> staticType;
     /**
      * 防止多次静态初始化
      */
@@ -35,7 +32,7 @@ public class LookupMember extends Member {
      * @param lookupName
      * @param staticType
      */
-    public LookupMember(int access, String owner, String lookupName, Type staticType) {
+    public LookupMember(int access, String owner, String lookupName, Class<?> staticType) {
         super(access, owner, lookupName, Lookup.TYPE);
         this.staticType = staticType;
     }
@@ -63,8 +60,14 @@ public class LookupMember extends Member {
      * @param clinit
      */
     public void staticInit(MethodBody clinit) {
+        if (staticType == null) {
+            return;
+        }
         if (inited) return;
-        this.store(clinit, RuntimeAction.lookup(LdcLoadAction.of(staticType)));
+        this.store(clinit, Modifier.isPublic(staticType.getModifiers())
+                ? RuntimeAction.lookup(LdcLoadAction.of(Type.getType(staticType)))
+                : RuntimeAction.lookupWithCl(new MethodInvokeAction(MethodHolder.GET_CLASS_LOADER)
+                        .setInstance(LdcLoadAction.of(AsmUtil.getType(owner))), staticType.getName()));
         this.inited = true;
     }
 

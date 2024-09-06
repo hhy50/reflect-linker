@@ -51,7 +51,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     public InvokeClassImplBuilder init() {
         EarlyFieldRef target = new EarlyFieldRef(null, null, "target", bindTarget);
-        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), defineClass, target);
+        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
 
         this.getters.put(target.getUniqueName(), targetFieldGetter);
         return this;
@@ -143,12 +143,12 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @param type
      * @return
      */
-    public LookupMember defineTypedLookup(Type type) {
-        String memberName = type.getClassName().replace('.', '_')+"_lookup";
+    public LookupMember defineTypedLookup(Class<?> staticType) {
+        String memberName = staticType.getName().replace('.', '_')+"_lookup";
         if (!members.containsKey(memberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
             super.defineField(access, memberName, Lookup.DESCRIPTOR, null, null);
-            this.members.put(memberName, new LookupMember(access, implClassDesc, memberName, type));
+            this.members.put(memberName, new LookupMember(access, implClassDesc, memberName, staticType));
         }
         return (LookupMember) members.get(memberName);
     }
