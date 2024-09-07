@@ -15,8 +15,6 @@ import io.github.hhy.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Modifier;
-
 public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
     public EarlyFieldSetter(String implClass, EarlyFieldRef field) {
@@ -28,22 +26,23 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
         getter.define(classImplBuilder);
 
-        Type declaredType = Type.getType(field.getDeclaredType());
         MethodBody clinit = classImplBuilder.getClinit();
-        Action classLoadAc = Modifier.isPublic(field.getDeclaredType().getModifiers()) ? LdcLoadAction.of(declaredType) : new PreClassLoad(classImplBuilder, declaredType);
+        Type declaredType = Type.getType(field.getDeclaredType());
+        Action classLoadAction = getClassLoadAction(declaredType);
 
         // 定义上一层字段的lookup, 必须要用declaredType
-        LookupMember lookupMember = classImplBuilder.defineTypedLookup(declaredType);
+        LookupMember lookupMember = classImplBuilder.defineTypedLookup(declaredType.getClassName());
         // init lookup
-        lookupMember.staticInit(clinit, classLoadAc);
+        lookupMember.staticInit(clinit, classLoadAction);
 
         // 定义当前字段的 setter
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, declaredType, field.fieldName, methodType, field.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, classLoadAction, field.fieldName, methodType, field.isStatic());
+
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
-            MethodBody methodBody = new MethodBody(mv, methodType);
+            MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
             if (!field.isStatic()) {
                 objVar.checkNullPointer(methodBody, objVar.getName());
@@ -56,10 +55,10 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
     }
 
     @Override
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Action ownerClassLoad, String fieldName, Type methodType, boolean isStatic) {
         MethodBody clinit = classImplBuilder.getClinit();
         mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodHolder.LOOKUP_FIND_STATIC_SETTER_METHOD : MethodHolder.LOOKUP_FIND_SETTER_METHOD)
                 .setInstance(lookupMember)
-                .setArgs(LdcLoadAction.of(ownerType), LdcLoadAction.of(fieldName), LdcLoadAction.of(methodType.getArgumentTypes()[0])));
+                .setArgs(ownerClassLoad, LdcLoadAction.of(fieldName), getClassLoadAction(methodType.getArgumentTypes()[0])));
     }
 }

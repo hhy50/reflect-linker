@@ -15,27 +15,12 @@ import static io.github.hhy.linker.generate.bytecode.action.Condition.must;
 public class LookupMember extends Member {
 
     private boolean isTargetLookup;
-    private final Type staticType;
     /**
      * 防止多次静态初始化
      */
     private boolean inited;
 
     /**
-     * 拥有静态类型的构造
-     *
-     * @param access
-     * @param owner
-     * @param lookupName
-     * @param staticType
-     */
-    public LookupMember(int access, String owner, String lookupName, Type staticType) {
-        super(access, owner, lookupName, Lookup.TYPE);
-        this.staticType = staticType;
-    }
-
-    /**
-     * 没有静态类型的构造， 只能在运行时初始化
      *
      * @param access
      * @param owner
@@ -43,7 +28,6 @@ public class LookupMember extends Member {
      */
     public LookupMember(int access, String owner, String lookupName) {
         super(access, owner, lookupName, Lookup.TYPE);
-        this.staticType = null;
     }
 
     /**
@@ -57,13 +41,17 @@ public class LookupMember extends Member {
      * @param clinit
      */
     public void staticInit(MethodBody clinit, Action classLoadAc) {
-        if (staticType == null) {
-            return;
-        }
         if (inited) return;
         this.store(clinit, RuntimeAction.lookup(classLoadAc));
         this.inited = true;
     }
+
+    public void staticInit(MethodBody clinit, Type staticType) {
+        if (inited) return;
+        this.store(clinit, RuntimeAction.lookup(LdcLoadAction.of(staticType)));
+        this.inited = true;
+    }
+
 
     public void reinit(MethodBody methodBody, VarInst objectVar) {
         this.store(methodBody, RuntimeAction.lookup(objectVar.getThisClass()));

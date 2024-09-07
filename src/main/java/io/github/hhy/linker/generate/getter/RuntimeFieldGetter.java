@@ -24,7 +24,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
-            MethodBody methodBody = new MethodBody(mv, methodType);
+            MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
 
             if (!lookupMember.isTargetLookup()) {

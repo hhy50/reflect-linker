@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 
 
 public class Runtime {
-
     public static String OWNER = "io/github/hhy/linker/runtime/Runtime";
     public static String FIND_GETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
@@ -23,6 +22,20 @@ public class Runtime {
     public static final MethodHolder FIND_LOOKUP = new MethodHolder(Runtime.OWNER, "findLookup", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;");
     public static final MethodHolder LOOKUP = new MethodHolder(Runtime.OWNER, "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;");
     public static final MethodHolder GET_CLASS = new MethodHolder(Runtime.OWNER, "getClass", "(Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/Class;");
+
+//    private static final LookupLinker LOOKUP_LINKER;
+//
+//    static {
+//        try {
+//            LOOKUP_LINKER = AccessTool.createSysLinker(LookupLinker.class, null);
+//        } catch (LinkerException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
+//    public static MethodHandles.Lookup lookup(Class<?> callerClass) {
+//        return LOOKUP_LINKER.lookupImpl();
+//    }
 
     public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {

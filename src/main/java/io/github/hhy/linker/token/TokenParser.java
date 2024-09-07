@@ -1,7 +1,6 @@
 package io.github.hhy.linker.token;
 
 
-
 import io.github.hhy.linker.exceptions.ParseException;
 
 import java.util.Iterator;
@@ -54,7 +53,8 @@ public class TokenParser {
             for (int i = pos; i < tokenSymbols.length; i++) {
                 if ((tokenSymbols[i] >= 'a' && tokenSymbols[i] <= 'z')
                         || (tokenSymbols[i] >= 'A' && tokenSymbols[i] <= 'Z')
-                        || (tokenSymbols[i] >= '0' && tokenSymbols[i] <= '9')) {
+                        || (tokenSymbols[i] >= '0' && tokenSymbols[i] <= '9')
+                        || tokenSymbols[i] == '_' || tokenSymbols[i] == '$') {
                     continue;
                 } else if (tokenSymbols[i] == INDEX_ACCESS_START_SYMBOL) {
                     owner = tokenStr.substring(pos, i);

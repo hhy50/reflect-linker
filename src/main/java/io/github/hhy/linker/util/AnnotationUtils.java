@@ -26,6 +26,10 @@ public class AnnotationUtils {
         return method.getDeclaredAnnotation(Runtime.class) != null;
     }
 
+    public static boolean isRuntime(Class<?> clazz) {
+        return clazz.getDeclaredAnnotation(Runtime.class) != null;
+    }
+
     public static Map<String, Boolean> getDesignateStaticFields(Method method) {
         Static[] staticAnnos =  method.getAnnotationsByType(Static.class);
         if (staticAnnos == null) {

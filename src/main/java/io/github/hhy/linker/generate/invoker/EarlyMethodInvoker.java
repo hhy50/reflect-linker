@@ -16,7 +16,6 @@ import io.github.hhy.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 import static io.github.hhy.linker.generate.bytecode.action.Action.asArray;
@@ -35,24 +34,23 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         Getter<?> getter = classImplBuilder.defineGetter(owner.getUniqueName(), owner);
         getter.define(classImplBuilder);
 
-        Type ownerType = Type.getType(owner.getClassType());
         MethodBody clinit = classImplBuilder.getClinit();
-        Action classLoadAc = Modifier.isPublic(owner.getClassType().getModifiers()) ? LdcLoadAction.of(ownerType)
-                : new PreClassLoad(classImplBuilder, ownerType);
+        Type ownerType = Type.getType(owner.getClassType());
+        Action ownerClassLoad = getClassLoadAction(ownerType);
 
         // init lookup
-        LookupMember lookupMember = classImplBuilder.defineTypedLookup(ownerType);
-        lookupMember.staticInit(clinit, classLoadAc);
+        LookupMember lookupMember = classImplBuilder.defineTypedLookup(ownerType.getClassName());
+        lookupMember.staticInit(clinit, ownerClassLoad);
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), this.methodType);
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, ownerType, method.getName(), methodType, method.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, ownerClassLoad, method.getName(), methodType, method.isStatic());
 
         // 定义当前方法的invoker
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
                 .accept(mv -> {
-                    MethodBody methodBody = new MethodBody(mv, methodType);
+                    MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
                     VarInst objVar = getter.invoke(methodBody);
                     if (!method.isStatic()) {
                         objVar.checkNullPointer(methodBody, objVar.getName());
@@ -68,7 +66,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     }
 
     @Override
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Action ownerClassLoad, String fieldName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null;
         MethodBody clinit = classImplBuilder.getClinit();
@@ -80,11 +78,11 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                     LdcLoadAction.of(AsmUtil.getType(superClass)),
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
-                    LdcLoadAction.of(ownerType)
+                    ownerClassLoad
             );
         } else {
             findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDVIRTUAL).setArgs(
-                    LdcLoadAction.of(ownerType),
+                    ownerClassLoad,
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
             );

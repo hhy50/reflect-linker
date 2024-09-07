@@ -38,7 +38,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
                 .accept(mv -> {
-                    MethodBody methodBody = new MethodBody(mv, methodType);
+                    MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
                     VarInst ownerVar = ownerGetter.invoke(methodBody);
 
                     if (!lookupMember.isTargetLookup()) {

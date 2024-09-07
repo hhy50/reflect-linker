@@ -38,15 +38,16 @@ public abstract class MethodHandle {
     /**
      * 初始化静态 methodhandle
      *
+     * @param clAction
      * @param classImplBuilder
      * @param mhMember
      * @param lookupMember
-     * @param clAction
+     * @param ownerClassLoad
      * @param fieldName
      * @param methodType
      * @param isStatic
      */
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Action ownerClassLoad, String fieldName, Type methodType, boolean isStatic) {
 
     }
 
@@ -95,6 +96,10 @@ public abstract class MethodHandle {
         mhMember.ifNull(methodBody, body -> mhReassign(body, lookupMember, mhMember, objVar));
     }
 
+    protected Action getClassLoadAction(Type type) {
+        return new DynamicClassLoad(type);
+    }
+
     /**
      * mh 重新赋值字节码逻辑
      * <pre>
@@ -108,19 +113,22 @@ public abstract class MethodHandle {
      */
     protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar);
 
-    protected class PreClassLoad implements Action {
-        private InvokeClassImplBuilder classImplBuilder;
+    protected class DynamicClassLoad implements Action {
         private Type type;
         private LocalVarInst clazzVar;
 
-        public PreClassLoad(InvokeClassImplBuilder classImplBuilder, Type type) {
-            this.classImplBuilder = classImplBuilder;
+        public DynamicClassLoad(Type type) {
             this.type = type;
         }
 
         @Override
         public void apply(MethodBody body) {
+            if (AsmUtil.isPrimitiveType(type)) {
+                LdcLoadAction.of(type).load(body);
+                return;
+            }
             if (this.clazzVar == null) {
+                InvokeClassImplBuilder classImplBuilder = body.getClassBuilder();
                 Action cl = new MethodInvokeAction(MethodHolder.GET_CLASS_LOADER)
                         .setInstance(
                                 LdcLoadAction.of(AsmUtil.getType(classImplBuilder.getClassName()))

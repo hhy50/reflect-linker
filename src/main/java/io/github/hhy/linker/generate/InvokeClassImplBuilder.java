@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InvokeClassImplBuilder extends AsmClassBuilder {
+    private Class<?> defineClass;
     private Class<?> bindTarget;
     private final String implClassDesc;
     private MethodBody clinit;
@@ -51,9 +52,14 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     public InvokeClassImplBuilder init() {
         EarlyFieldRef target = new EarlyFieldRef(null, null, "target", bindTarget);
-        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
+        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), defineClass, target);
 
         this.getters.put(target.getUniqueName(), targetFieldGetter);
+        return this;
+    }
+
+    public InvokeClassImplBuilder setDefine(Class<?> define) {
+        this.defineClass = define;
         return this;
     }
 
@@ -139,12 +145,12 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @param staticType
      * @return
      */
-    public LookupMember defineTypedLookup(Type staticType) {
-        String memberName = staticType.getClassName().replace('.', '_')+"_lookup";
+    public LookupMember defineTypedLookup(String className) {
+        String memberName = className.replace('.', '_')+"_lookup";
         if (!members.containsKey(memberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
             super.defineField(access, memberName, Lookup.DESCRIPTOR, null, null);
-            this.members.put(memberName, new LookupMember(access, implClassDesc, memberName, staticType));
+            this.members.put(memberName, new LookupMember(access, implClassDesc, memberName));
         }
         return (LookupMember) members.get(memberName);
     }
@@ -179,7 +185,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
                     .getMethodVisitor();
         }
         if (clinit == null) {
-            clinit = new MethodBody(clinitMethodWriter, Type.getMethodType(Type.VOID_TYPE));
+            clinit = new MethodBody(this, clinitMethodWriter, Type.getMethodType(Type.VOID_TYPE));
         }
         return clinit;
     }

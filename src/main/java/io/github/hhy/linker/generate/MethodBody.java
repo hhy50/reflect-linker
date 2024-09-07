@@ -12,13 +12,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class MethodBody {
+    private final InvokeClassImplBuilder classBuilder;
     private final MethodVisitor writer;
     private int lvbIndex;
     private VarInst[] args;
 
-    public MethodBody(MethodVisitor mv, Type methodType) {
-        Type[] argumentTypes = methodType.getArgumentTypes();
+    public MethodBody(InvokeClassImplBuilder classBuilder, MethodVisitor mv, Type methodType) {
+        this.classBuilder = classBuilder;
         this.writer = mv;
+        Type[] argumentTypes = methodType.getArgumentTypes();
         this.lvbIndex = AsmUtil.calculateLvbOffset(false, argumentTypes);
         this.args = new VarInst[argumentTypes.length];
 
@@ -46,7 +48,7 @@ public class MethodBody {
     }
 
     /**
-     * 根据参数生命的顺序， 获取第几个参数
+     * 根据参数声明的顺序， 获取第几个参数
      *
      * @param i
      * @return
@@ -78,5 +80,9 @@ public class MethodBody {
 
     public LocalVarInst newLocalVar(Type type, Action action) {
         return newLocalVar(type, null, action);
+    }
+
+    public InvokeClassImplBuilder getClassBuilder() {
+        return classBuilder;
     }
 }
