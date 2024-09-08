@@ -1,5 +1,6 @@
 package io.github.hhy.linker.generate.getter;
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
@@ -9,6 +10,7 @@ import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import io.github.hhy.linker.util.ClassUtil;
@@ -26,7 +28,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     public Getter(String implClass, T field) {
         this.implClass = implClass;
         this.field = field;
-        this.methodType = Type.getMethodType(field.getType());
+        this.methodType = Type.getMethodType(AsmUtil.isPrimitiveType(field.getType())? field.getType():ObjectVar.TYPE);
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 

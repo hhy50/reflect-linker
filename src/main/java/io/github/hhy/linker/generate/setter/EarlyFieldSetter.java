@@ -38,7 +38,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         // 定义当前字段的 setter
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, classLoadAction, field.fieldName, methodType, field.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, classLoadAction, field.fieldName, Type.getMethodType(Type.VOID_TYPE, field.getType()), field.isStatic());
 
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {

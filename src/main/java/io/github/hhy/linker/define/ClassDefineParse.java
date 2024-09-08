@@ -92,6 +92,9 @@ public class ClassDefineParse {
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
             methodDefine.fieldRef = parseFieldExpr(firstField, classLoader, tokens, AnnotationUtils.getDesignateStaticFields(method), typedDefines);
+            if (AnnotationUtils.isRuntime(method)) {
+                methodDefine.fieldRef = methodDefine.fieldRef.toRuntime();
+            }
         } else {
             io.github.hhy.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy.linker.annotations.Method.Name.class);
             String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), methodDefine.getName());
@@ -122,7 +125,6 @@ public class ClassDefineParse {
                     return item.getType().getName();
                 }).toArray(String[]::new);
         Class<?> returnClass = defineMethod.getReturnType();
-
         if (AnnotationUtils.isRuntime(defineMethod)) {
             owner = owner.toRuntime();
         }
