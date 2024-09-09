@@ -4,14 +4,12 @@ import io.github.hhy.linker.AccessTool;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.exceptions.LinkerException;
 import io.github.hhy.linker.syslinker.LookupLinker;
+import io.github.hhy.linker.syslinker.MethodHandleLinker;
 import io.github.hhy.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 
 
 public class Runtime {
@@ -37,20 +35,24 @@ public class Runtime {
         }
     }
 
-    public static MethodHandles.Lookup lookup(Class<?> callerClass) {
-        return LOOKUP_LINKER.lookupImpl();
-    }
-
-//    public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-//        for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {
+    public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {
 //            if (constructor.getParameterCount() == 2) {
 //                constructor.setAccessible(true);
 //                return (MethodHandles.Lookup) constructor.newInstance(callerClass,
 //                        MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE);
+//            } else if (constructor.getParameterCount() == 3) {
+                MethodHandleLinker mhLinker = null;
+                try {
+                    mhLinker = AccessTool.createSysLinker(MethodHandleLinker.class, null);
+                } catch (LinkerException e) {
+                    throw new RuntimeException(e);
+                }
+                mhLinker.privateLookupIn(callerClass, null);
 //            }
-//        }
-//        return null;
-//    }
+        }
+        return null;
+    }
 
     public static Class<?> getClass(ClassLoader cl, String callerClassName) throws ClassNotFoundException {
         if (callerClassName.endsWith("[]")) {

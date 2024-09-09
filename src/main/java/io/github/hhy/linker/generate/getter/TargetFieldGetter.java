@@ -39,18 +39,19 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
             this.lookupMember.setTargetLookup(true);
             this.lookupMember.staticInit(clinit, new DynamicClassLoad(targetType));
         } else {
+            String mName = "getTarget";
+            Type mType = Type.getMethodType(ObjectVar.TYPE);
             this.lookupMember = classImplBuilder.defineRuntimeLookup(field);
             this.lookupMember.setTargetLookup(true);
-
-            Type mType = Type.getMethodType(ObjectVar.TYPE);
-            classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, "getTarget", mType.getDescriptor(), null, null)
+            this.getTarget = new MethodHolder(this.targetField.getOwner(), mName, mType.getDescriptor());
+            classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, mName, mType.getDescriptor(), null, null)
                     .accept(mv -> {
                         MethodBody methodBody = new MethodBody(classImplBuilder, mv, mType);
-                        VarInst targetVar = methodBody.newLocalVar(mType.getReturnType(), new DynamicClassLoad(targetType));
+                        VarInst targetVar = methodBody.newLocalVar(ObjectVar.TYPE, "target",
+                                new FieldLoadAction(targetField).setInstance(LoadAction.LOAD0));
                         checkLookup(methodBody, lookupMember, null, targetVar);
                         targetVar.returnThis(methodBody);
                     });
-            this.getTarget = new MethodHolder(this.targetField.getOwner(), "getTarget", mType.getDescriptor());
         }
     }
 
@@ -65,7 +66,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     }
 
     @Override
-    protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember _1_, VarInst varInst) {
+    protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember _nil_, VarInst varInst) {
         varInst.ifNull(methodBody,
                 (__) -> lookupMember.reinit(methodBody, getClassLoadAction(Type.getType(field.getClassType()))),
                 (__) -> lookupMember.reinit(methodBody, varInst.getThisClass()));
