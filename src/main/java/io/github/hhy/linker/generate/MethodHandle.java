@@ -66,7 +66,7 @@ public abstract class MethodHandle {
      */
     protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst varInst) {
         Action reinitLookup = (__) -> {
-            lookupMember.reinit(methodBody, varInst);
+            lookupMember.reinit(methodBody, varInst.getThisClass());
             this.mhReassign(methodBody, lookupMember, mhMember, varInst);
         };
         lookupMember.runtimeCheck(methodBody, varInst, reinitLookup);

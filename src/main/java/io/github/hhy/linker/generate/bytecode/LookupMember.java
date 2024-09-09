@@ -53,8 +53,8 @@ public class LookupMember extends Member {
     }
 
 
-    public void reinit(MethodBody methodBody, VarInst objectVar) {
-        this.store(methodBody, RuntimeAction.lookup(objectVar.getThisClass()));
+    public void reinit(MethodBody methodBody, Action typeLoadAction) {
+        this.store(methodBody, RuntimeAction.lookup(typeLoadAction));
     }
 
     /**
