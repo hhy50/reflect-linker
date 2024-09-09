@@ -36,15 +36,14 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
         MethodBody clinit = classImplBuilder.getClinit();
         Type ownerType = Type.getType(owner.getClassType());
-        Action ownerClassLoad = getClassLoadAction(ownerType);
 
         // init lookup
         LookupMember lookupMember = classImplBuilder.defineTypedLookup(ownerType.getClassName());
-        lookupMember.staticInit(clinit, ownerClassLoad);
+        lookupMember.staticInit(clinit, getClassLoadAction(ownerType));
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), this.methodType);
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, ownerClassLoad, method.getName(), methodType, method.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, ownerType, method.getName(), methodType, method.isStatic());
 
         // 定义当前方法的invoker
         classImplBuilder
@@ -66,7 +65,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     }
 
     @Override
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Action ownerClassLoad, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null;
         MethodBody clinit = classImplBuilder.getClinit();
@@ -78,11 +77,11 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                     LdcLoadAction.of(AsmUtil.getType(superClass)),
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
-                    ownerClassLoad
+                    getClassLoadAction(ownerType)
             );
         } else {
             findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDVIRTUAL).setArgs(
-                    ownerClassLoad,
+                    getClassLoadAction(ownerType),
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
             );

@@ -18,6 +18,6 @@ public class WrapTypeAction implements Action {
         obj.load(body);
 
         MethodVisitor mv = body.getWriter();
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "wrap", "("+obj.getType().getDescriptor()+")Ljava/lang/Object;", false);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap", "("+obj.getType().getDescriptor()+")Ljava/lang/Object;", false);
     }
 }

@@ -29,28 +29,28 @@ public class UnwrapTypeAction implements Action {
         MethodVisitor mv = body.getWriter();
         switch (primitiveType.getSort()) {
             case Type.BYTE:
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapByte", RuntimeUtil.UNWRAP_BYTE_DESC, false);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "unwrapByte", RuntimeUtil.UNWRAP_BYTE_DESC, false);
                 break;
             case Type.SHORT:
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapShort", RuntimeUtil.UNWRAP_SHORT_DESC, false);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "unwrapShort", RuntimeUtil.UNWRAP_SHORT_DESC, false);
                 break;
             case Type.INT:
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapInt", RuntimeUtil.UNWRAP_INT_DESC, false);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "unwrapInt", RuntimeUtil.UNWRAP_INT_DESC, false);
                 break;
             case Type.LONG:
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapLong", RuntimeUtil.UNWRAP_LONG_DESC, false);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "unwrapLong", RuntimeUtil.UNWRAP_LONG_DESC, false);
                 break;
             case Type.FLOAT:
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapFloat", RuntimeUtil.UNWRAP_FLOAT_DESC, false);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "unwrapFloat", RuntimeUtil.UNWRAP_FLOAT_DESC, false);
                 break;
             case Type.DOUBLE:
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapDouble", RuntimeUtil.UNWRAP_DOUBLE_DESC, false);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "unwrapDouble", RuntimeUtil.UNWRAP_DOUBLE_DESC, false);
                 break;
             case Type.CHAR:
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapChar", RuntimeUtil.UNWRAP_CHAR_DESC, false);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "unwrapChar", RuntimeUtil.UNWRAP_CHAR_DESC, false);
                 break;
             case Type.BOOLEAN:
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.RUNTIME_UTIL_OWNER, "unwrapBool", RuntimeUtil.UNWRAP_BOOL_DESC, false);
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "unwrapBool", RuntimeUtil.UNWRAP_BOOL_DESC, false);
                 break;
             default:
                 break;

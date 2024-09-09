@@ -5,7 +5,6 @@ import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy.linker.generate.bytecode.action.Action;
 import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
@@ -29,17 +28,16 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
         MethodBody clinit = classImplBuilder.getClinit();
         Type declaredType = Type.getType(field.getDeclaredType());
-        Action declaredClassLoad = getClassLoadAction(declaredType);
 
         // 定义上一层字段的lookup, 必须要用declaredType
         this.lookupMember = classImplBuilder.defineTypedLookup(declaredType.getClassName());
         // init lookup
-        this.lookupMember.staticInit(clinit, declaredClassLoad);
+        this.lookupMember.staticInit(clinit, getClassLoadAction(declaredType));
 
         // 定义当前字段的getter mh
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, declaredClassLoad, field.fieldName, Type.getMethodType(field.getType()), field.isStatic());
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, declaredType, field.fieldName, Type.getMethodType(field.getType()), field.isStatic());
         // 定义当前字段的getter
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
@@ -58,10 +56,10 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember,
-                                          Action ownerClassLoad, String fieldName, Type methodType, boolean isStatic) {
+                                          Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         // mh = lookup.findGetter(ArrayList.class, "elementData", Object[].class);
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? LOOKUP_FIND_STATIC_GETTER_METHOD : LOOKUP_FIND_GETTER_METHOD);
-        findGetter.setInstance(lookupMember).setArgs(ownerClassLoad, LdcLoadAction.of(fieldName), getClassLoadAction(methodType.getReturnType()));
+        findGetter.setInstance(lookupMember).setArgs(getClassLoadAction(ownerType), LdcLoadAction.of(fieldName), getClassLoadAction(methodType.getReturnType()));
         mhMember.store(classImplBuilder.getClinit(), findGetter);
     }
 }

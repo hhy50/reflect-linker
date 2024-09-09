@@ -5,10 +5,7 @@ import io.github.hhy.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 
 
 public class Runtime {
@@ -49,6 +46,9 @@ public class Runtime {
     }
 
     public static Class<?> getClass(ClassLoader cl, String callerClassName) throws ClassNotFoundException {
+        if (callerClassName.endsWith("[]")) {
+            return Array.newInstance(cl.loadClass(callerClassName.substring(0, callerClassName.length()-2)), 0).getClass();
+        }
         return cl.loadClass(callerClassName);
     }
 
@@ -101,7 +101,6 @@ public class Runtime {
     /**
      * 获取 MethodHandle.method
      *
-     * @param obj
      * @param methodName
      * @return
      */

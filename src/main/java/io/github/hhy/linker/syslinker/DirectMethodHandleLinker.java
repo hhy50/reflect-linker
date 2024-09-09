@@ -14,5 +14,5 @@ public interface DirectMethodHandleLinker {
     int modifiers();
 
     @Field.Getter("member")
-    MethodNameLinker getMember();
+    MemberNameLinker getMember();
 }

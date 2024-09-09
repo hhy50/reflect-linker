@@ -42,12 +42,12 @@ public abstract class MethodHandle {
      * @param classImplBuilder
      * @param mhMember
      * @param lookupMember
-     * @param ownerClassLoad
+     * @param ownerType
      * @param fieldName
      * @param methodType
      * @param isStatic
      */
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Action ownerClassLoad, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
 
     }
 

@@ -5,14 +5,16 @@ import io.github.hhy.linker.AccessTool;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.exceptions.LinkerException;
 import io.github.hhy.linker.syslinker.DirectMethodHandleLinker;
+import io.github.hhy.linker.syslinker.MemberNameLinker;
+import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Modifier;
 
 public class RuntimeUtil {
-    public static final String RUNTIME_UTIL_OWNER = "io/github/hhy/linker/runtime/RuntimeUtil";
-    public static final MethodHolder IS_STATIC = new MethodHolder(RUNTIME_UTIL_OWNER, "isStatic", "(Ljava/lang/invoke/MethodHandle;)Z");
+    public static final String OWNER = "io/github/hhy/linker/runtime/RuntimeUtil";
+    public static final MethodHolder IS_STATIC = new MethodHolder(OWNER, "isStatic", "(Ljava/lang/invoke/MethodHandle;)Z");
     public static final String UNWRAP_BYTE_DESC = "(Ljava/lang/Object;)"+Type.BYTE_TYPE;
     public static final String UNWRAP_SHORT_DESC = "(Ljava/lang/Object;)"+Type.SHORT;
     public static final String UNWRAP_INT_DESC = "(Ljava/lang/Object;)"+Type.INT_TYPE;
@@ -21,6 +23,7 @@ public class RuntimeUtil {
     public static final String UNWRAP_DOUBLE_DESC = "(Ljava/lang/Object;)"+Type.DOUBLE_TYPE;
     public static final String UNWRAP_CHAR_DESC = "(Ljava/lang/Object;)"+Type.CHAR_TYPE;
     public static final String UNWRAP_BOOL_DESC = "(Ljava/lang/Object;)"+Type.BOOLEAN_TYPE;
+    public static final MethodHolder TYPE_MATCH = new MethodHolder(OWNER, "typeMatch", "(Ljava/lang/Class;Ljava/lang/String;)Z");
 
     public static void checkNull(Object obj) {
 
@@ -28,7 +31,15 @@ public class RuntimeUtil {
 
     public static boolean isStatic(MethodHandle methodHandle) throws LinkerException {
         DirectMethodHandleLinker mh = AccessTool.createSysLinker(DirectMethodHandleLinker.class, methodHandle);
-        return Modifier.isStatic(mh.modifiers());
+        MemberNameLinker member = mh.getMember();
+        return Modifier.isStatic(member.modifiers());
+    }
+
+    public static boolean typeMatch(Class<?> clazz, String type) {
+        if (clazz.isArray()) {
+            return clazz.getCanonicalName().equals(type);
+        }
+        return ClassUtil.isAssignableFrom(clazz, type);
     }
 
     public static Object wrap(byte i) {
