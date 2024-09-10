@@ -14,7 +14,6 @@ import static io.github.hhy.linker.generate.bytecode.action.Condition.must;
 
 public class LookupMember extends Member {
 
-    private boolean isTargetLookup;
     /**
      * 防止多次静态初始化
      */
@@ -87,13 +86,5 @@ public class LookupMember extends Member {
     public MethodInvokeAction lookupClass() {
         return new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS)
                 .setInstance(this);
-    }
-
-    public boolean isTargetLookup() {
-        return this.isTargetLookup;
-    }
-
-    public void setTargetLookup(boolean b) {
-        this.isTargetLookup = b;
     }
 }

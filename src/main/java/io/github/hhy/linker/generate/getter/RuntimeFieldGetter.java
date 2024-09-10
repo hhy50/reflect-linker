@@ -28,10 +28,12 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
             MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
 
-            LookupMember prevLookup = getter.lookupMember;
-            // 校验lookup和mh
-            staticCheckLookup(methodBody, prevLookup, lookupMember, objVar, field.getPrev());
-            checkLookup(methodBody, lookupMember, mhMember, objVar);
+            if (!getter.isTargetGetter()) {
+                // 校验lookup和mh
+                LookupMember prevLookup = getter.lookupMember;
+                staticCheckLookup(methodBody, prevLookup, lookupMember, objVar, field.getPrev());
+                checkLookup(methodBody, lookupMember, mhMember, objVar);
+            }
             checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
 
             // mh.invoke(obj)

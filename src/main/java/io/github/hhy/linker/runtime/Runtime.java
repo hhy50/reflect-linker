@@ -1,6 +1,9 @@
 package io.github.hhy.linker.runtime;
 
+import io.github.hhy.linker.AccessTool;
 import io.github.hhy.linker.entity.MethodHolder;
+import io.github.hhy.linker.exceptions.LinkerException;
+import io.github.hhy.linker.syslinker.MethodHandleLinker;
 import io.github.hhy.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
@@ -20,7 +23,15 @@ public class Runtime {
     public static final MethodHolder LOOKUP = new MethodHolder(Runtime.OWNER, "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;");
     public static final MethodHolder GET_CLASS = new MethodHolder(Runtime.OWNER, "getClass", "(Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/Class;");
 
+    public static final MethodHandleLinker mhl;
 
+    static {
+        try {
+            mhl = AccessTool.createSysLinker(MethodHandleLinker.class, null);
+        } catch (LinkerException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {

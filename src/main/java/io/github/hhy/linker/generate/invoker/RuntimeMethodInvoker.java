@@ -41,10 +41,12 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                     MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
                     VarInst ownerVar = ownerGetter.invoke(methodBody);
 
-                    LookupMember prevLookup = ownerGetter.getLookupMember();
-                    // 校验lookup和mh
-                    staticCheckLookup(methodBody, prevLookup, lookupMember, ownerVar, owner.getPrev());
-                    checkLookup(methodBody, lookupMember, mhMember, ownerVar);
+                    if (!ownerGetter.isTargetGetter()) {
+                        // 校验lookup和mh
+                        LookupMember prevLookup = ownerGetter.getLookupMember();
+                        staticCheckLookup(methodBody, prevLookup, lookupMember, ownerVar, owner);
+                        checkLookup(methodBody, lookupMember, mhMember, ownerVar);
+                    }
                     checkMethodHandle(methodBody, lookupMember, mhMember, ownerVar);
 
                     // mh.invoke(obj)

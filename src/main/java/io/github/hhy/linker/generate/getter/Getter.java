@@ -51,4 +51,8 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     public LookupMember getLookupMember() {
         return lookupMember;
     }
+
+    public boolean isTargetGetter() {
+        return false;
+    }
 }

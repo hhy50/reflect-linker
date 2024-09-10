@@ -36,13 +36,11 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
             MethodBody clinit = classImplBuilder.getClinit();
 
             this.lookupMember = classImplBuilder.defineTypedLookup(targetType.getClassName());
-            this.lookupMember.setTargetLookup(true);
             this.lookupMember.staticInit(clinit, new DynamicClassLoad(targetType));
         } else {
             String mName = "getTarget";
             Type mType = Type.getMethodType(ObjectVar.TYPE);
             this.lookupMember = classImplBuilder.defineRuntimeLookup(field);
-            this.lookupMember.setTargetLookup(true);
             this.getTarget = new MethodHolder(this.targetField.getOwner(), mName, mType.getDescriptor());
             classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, mName, mType.getDescriptor(), null, null)
                     .accept(mv -> {
@@ -70,5 +68,10 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         varInst.ifNull(methodBody,
                 (__) -> lookupMember.reinit(methodBody, getClassLoadAction(Type.getType(field.getClassType()))),
                 (__) -> lookupMember.reinit(methodBody, varInst.getThisClass()));
+    }
+
+    @Override
+    public boolean isTargetGetter() {
+        return true;
     }
 }
