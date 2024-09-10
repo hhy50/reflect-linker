@@ -32,11 +32,10 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
             MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
 
-            if (!lookupMember.isTargetLookup()) {
-                // 校验lookup和mh
-                staticCheckLookup(methodBody, getter.getLookupMember(), lookupMember, objVar, field.getPrev());
-                checkLookup(methodBody, lookupMember, mhMember, objVar);
-            }
+            LookupMember prevLookup = getter.getLookupMember();
+            // 校验lookup和mh
+            staticCheckLookup(methodBody, prevLookup, lookupMember, objVar, field.getPrev());
+            checkLookup(methodBody, lookupMember, mhMember, objVar);
             checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
 
             // mh.invoke(obj, fieldValue)

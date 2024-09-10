@@ -3,6 +3,7 @@ package io.github.hhy.linker.generate.getter;
 import io.github.hhy.linker.define.field.RuntimeFieldRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy.linker.generate.MethodBody;
+import io.github.hhy.linker.generate.bytecode.LookupMember;
 import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
@@ -27,11 +28,10 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
             MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
 
-            if (!lookupMember.isTargetLookup()) {
-                // 校验lookup和mh
-                staticCheckLookup(methodBody, getter.lookupMember, lookupMember, objVar, field.getPrev());
-                checkLookup(methodBody, lookupMember, mhMember, objVar);
-            }
+            LookupMember prevLookup = getter.lookupMember;
+            // 校验lookup和mh
+            staticCheckLookup(methodBody, prevLookup, lookupMember, objVar, field.getPrev());
+            checkLookup(methodBody, lookupMember, mhMember, objVar);
             checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
 
             // mh.invoke(obj)

@@ -1,10 +1,6 @@
 package io.github.hhy.linker.runtime;
 
-import io.github.hhy.linker.AccessTool;
 import io.github.hhy.linker.entity.MethodHolder;
-import io.github.hhy.linker.exceptions.LinkerException;
-import io.github.hhy.linker.syslinker.LookupLinker;
-import io.github.hhy.linker.syslinker.MethodHandleLinker;
 import io.github.hhy.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
@@ -24,32 +20,15 @@ public class Runtime {
     public static final MethodHolder LOOKUP = new MethodHolder(Runtime.OWNER, "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;");
     public static final MethodHolder GET_CLASS = new MethodHolder(Runtime.OWNER, "getClass", "(Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/Class;");
 
-    private static final LookupLinker LOOKUP_LINKER;
 
-    static {
-        try {
-            LOOKUP_LINKER = AccessTool.createSysLinker(LookupLinker.class, null);
-            LOOKUP_LINKER.lookupImpl(); // init
-        } catch (LinkerException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {
-//            if (constructor.getParameterCount() == 2) {
-//                constructor.setAccessible(true);
-//                return (MethodHandles.Lookup) constructor.newInstance(callerClass,
-//                        MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE);
-//            } else if (constructor.getParameterCount() == 3) {
-                MethodHandleLinker mhLinker = null;
-                try {
-                    mhLinker = AccessTool.createSysLinker(MethodHandleLinker.class, null);
-                } catch (LinkerException e) {
-                    throw new RuntimeException(e);
-                }
-                mhLinker.privateLookupIn(callerClass, null);
-//            }
+            if (constructor.getParameterCount() == 2) {
+                constructor.setAccessible(true);
+                return (MethodHandles.Lookup) constructor.newInstance(callerClass,
+                        MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE);
+            }
         }
         return null;
     }
