@@ -21,11 +21,9 @@ import java.util.Arrays;
 import static io.github.hhy.linker.generate.bytecode.action.Action.asArray;
 
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
-    private Type methodType;
 
     public EarlyMethodInvoker(String implClass, EarlyMethodRef methodRef) {
         super(implClass, methodRef, methodRef.getMethodType());
-        this.methodType = methodRef.getMethodType();
     }
 
     @Override
@@ -42,8 +40,8 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         lookupMember.staticInit(clinit, getClassLoadAction(ownerType));
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), this.methodType);
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, ownerType, method.getName(), methodType, method.isStatic());
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), methodType);
+        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, ownerType, method.getName(), method.getMethodType(), method.isStatic());
 
         // 定义当前方法的invoker
         classImplBuilder

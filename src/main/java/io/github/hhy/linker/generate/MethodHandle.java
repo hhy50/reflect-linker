@@ -10,6 +10,7 @@ import io.github.hhy.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.action.RuntimeAction;
 import io.github.hhy.linker.generate.bytecode.vars.LocalVarInst;
+import io.github.hhy.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
@@ -112,6 +113,21 @@ public abstract class MethodHandle {
      * @param objVar
      */
     protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar);
+
+    protected Type genericType(Type methodType) {
+        Type rType = methodType.getReturnType();
+        Type[] argsType = methodType.getArgumentTypes();
+        if (!rType.equals(Type.VOID_TYPE) && !AsmUtil.isPrimitiveType(rType)) {
+            rType = ObjectVar.TYPE;
+        }
+        for (int i = 0; i < argsType.length; i++) {
+            if (!argsType[i].equals(Type.VOID_TYPE) && !AsmUtil.isPrimitiveType(argsType[i])) {
+                argsType[i] = ObjectVar.TYPE;
+            }
+        }
+
+        return Type.getMethodType(rType, argsType);
+    }
 
     protected class DynamicClassLoad implements Action {
         private Type type;

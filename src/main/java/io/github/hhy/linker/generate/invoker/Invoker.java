@@ -17,9 +17,9 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     protected final Type methodType;
     protected MethodHolder methodHolder;
 
-    public Invoker(String implClass, T method, Type methodType) {
+    public Invoker(String implClass, T method, Type mType) {
         this.method = method;
-        this.methodType = methodType;
+        this.methodType = genericType(mType);
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "invoke_" + method.getFullName(), methodType.getDescriptor());
     }
 
