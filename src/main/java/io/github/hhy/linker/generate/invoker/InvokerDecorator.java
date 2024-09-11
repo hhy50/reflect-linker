@@ -9,6 +9,8 @@ import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy.linker.generate.bytecode.action.Action.returnNull;
+
 /**
  * <p>InvokerDecorator class.</p>
  *
@@ -49,6 +51,7 @@ public class InvokerDecorator extends AbstractDecorator {
 
         Class<?> rClassType = methodDefine.define.getReturnType();
         if (result != null && rClassType != Void.TYPE) {
+//            result.ifNull(methodBody, returnNull());
             result = typecastResult(methodBody, result, rClassType);
             result.returnThis(methodBody);
         } else {

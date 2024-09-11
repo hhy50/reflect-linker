@@ -154,11 +154,11 @@ public abstract class MethodHandle {
     protected Type genericType(Type methodType) {
         Type rType = methodType.getReturnType();
         Type[] argsType = methodType.getArgumentTypes();
-        if (!rType.equals(Type.VOID_TYPE) && !AsmUtil.isPrimitiveType(rType)) {
+        if (!rType.equals(Type.VOID_TYPE) && AsmUtil.isObjectType(rType)) {
             rType = ObjectVar.TYPE;
         }
         for (int i = 0; i < argsType.length; i++) {
-            if (!argsType[i].equals(Type.VOID_TYPE) && !AsmUtil.isPrimitiveType(argsType[i])) {
+            if (!argsType[i].equals(Type.VOID_TYPE) && AsmUtil.isObjectType(argsType[i])) {
                 argsType[i] = ObjectVar.TYPE;
             }
         }

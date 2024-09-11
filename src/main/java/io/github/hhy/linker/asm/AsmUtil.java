@@ -162,6 +162,10 @@ public class AsmUtil {
         return type.getSort() > Type.VOID && type.getSort() <= Type.DOUBLE;
     }
 
+    public static boolean isObjectType(Type type) {
+        return !isPrimitiveType(type);
+    }
+
     /**
      * 是否是包装类型
      *

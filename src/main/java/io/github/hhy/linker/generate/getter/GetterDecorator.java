@@ -1,5 +1,6 @@
 package io.github.hhy.linker.generate.getter;
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.generate.AbstractDecorator;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
@@ -9,6 +10,8 @@ import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 
 import java.lang.reflect.Method;
+
+import static io.github.hhy.linker.generate.bytecode.action.Action.returnNull;
 
 /**
  * <p>GetterDecorator class.</p>
@@ -48,6 +51,9 @@ public class GetterDecorator extends AbstractDecorator {
          * get只需要对返回值进行转换就行
          */
         VarInst result = getter.invoke(methodBody);
+//        if (AsmUtil.isObjectType(result.getType())) {
+//            result.ifNull(methodBody, returnNull());
+//        }
         result = typecastResult(methodBody, result, methodDefine.getReturnType());
         result.returnThis(methodBody);
         return null;

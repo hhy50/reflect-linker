@@ -12,7 +12,7 @@ import io.github.hhy.linker.util.AnnotationUtils;
 import io.github.hhy.linker.util.StringUtil;
 import org.objectweb.asm.Type;
 
-import static io.github.hhy.linker.generate.bytecode.action.Action.throwTypeCastException;
+import static io.github.hhy.linker.generate.bytecode.action.Action.*;
 import static org.objectweb.asm.Opcodes.ILOAD;
 
 /**
@@ -23,7 +23,9 @@ import static org.objectweb.asm.Opcodes.ILOAD;
  */
 public abstract class AbstractDecorator extends MethodHandle {
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         throw new RuntimeException("Decorator not impl mhReassign() method");
@@ -32,10 +34,10 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * <p>typecastArgs.</p>
      *
-     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
-     * @param args an array of {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} objects.
+     * @param methodBody     a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param args           an array of {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} objects.
      * @param parameterTypes an array of {@link java.lang.Class} objects.
-     * @param expectTypes an array of {@link org.objectweb.asm.Type} objects.
+     * @param expectTypes    an array of {@link org.objectweb.asm.Type} objects.
      */
     protected void typecastArgs(MethodBody methodBody, VarInst[] args, Class<?>[] parameterTypes, Type[] expectTypes) {
         // 校验入参类型
