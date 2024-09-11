@@ -6,12 +6,13 @@ import io.github.hhy.linker.constant.MethodHandle;
 import io.github.hhy.linker.entity.MethodHolder;
 import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.action.Action;
-import io.github.hhy.linker.generate.bytecode.action.Condition;
 import io.github.hhy.linker.generate.bytecode.action.ConditionJumpAction;
 import io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.Type;
+
+import static io.github.hhy.linker.generate.bytecode.action.Condition.ifTrue;
 
 /**
  * <p>MethodHandleMember class.</p>
@@ -48,10 +49,10 @@ public class MethodHandleMember extends Member {
         VarInst result = initResultVar(methodBody);
 
         methodBody.append(() -> {
-            MethodInvokeAction contains = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
+            MethodInvokeAction isStatic = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
                     .setArgs(this);
 
-            return new ConditionJumpAction(Condition.wrap(contains),
+            return new ConditionJumpAction(ifTrue(isStatic),
                     (__) -> invokeStatic(result, methodBody, args),
                     (__) -> {
                         that.checkNullPointer(methodBody, that.getName());

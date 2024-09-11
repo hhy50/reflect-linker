@@ -9,8 +9,6 @@ import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
-import static io.github.hhy.linker.generate.bytecode.action.Action.returnNull;
-
 /**
  * <p>InvokerDecorator class.</p>
  *

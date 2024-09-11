@@ -12,7 +12,8 @@ import io.github.hhy.linker.util.AnnotationUtils;
 import io.github.hhy.linker.util.StringUtil;
 import org.objectweb.asm.Type;
 
-import static io.github.hhy.linker.generate.bytecode.action.Action.*;
+import static io.github.hhy.linker.generate.bytecode.action.Action.throwTypeCastException;
+import static io.github.hhy.linker.generate.bytecode.action.Condition.*;
 import static org.objectweb.asm.Opcodes.ILOAD;
 
 /**
@@ -59,8 +60,8 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * <p>typecastResult.</p>
      *
-     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
-     * @param varInst a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @param methodBody      a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param varInst         a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      * @param resultTypeClass a {@link java.lang.Class} object.
      * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      */
@@ -85,7 +86,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      * <p>对象类型 to 对象类型 = 强转</p>
      *
      * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
-     * @param varInst a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @param varInst    a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      * @param expectType 预期的类型
      * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      */
@@ -115,11 +116,13 @@ public abstract class AbstractDecorator extends MethodHandle {
                 return varInst;
             }
             methodBody.append(() -> new ConditionJumpAction(
-                    Condition.wrap(new MethodInvokeAction(RuntimeUtil.TYPE_MATCH)
-                            .setArgs(varInst.getThisClass(), LdcLoadAction.of(expectType.getClassName()))),
-                    varInst,
-                    throwTypeCastException(varInst.getType(), expectType))
-            );
+                    must(notNull(varInst),
+                            ifFalse(new MethodInvokeAction(RuntimeUtil.TYPE_MATCH)
+                                    .setArgs(varInst.getThisClass(), LdcLoadAction.of(expectType.getClassName())))
+                    ),
+                    throwTypeCastException(varInst.getName(), expectType),
+                    null
+            ));
             return varInst;
         } else {
             throw new TypeNotMatchException(varInst.getType(), expectType);

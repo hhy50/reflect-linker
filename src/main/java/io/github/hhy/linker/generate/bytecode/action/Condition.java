@@ -55,6 +55,29 @@ public interface Condition {
     }
 
     /**
+     *
+     * <p>ifeq equals 当栈顶int类型数值等于0时跳转</p>
+     * <p>ifne not equals 当栈顶int类型数值不等于0时跳转</p>
+     *
+     * @param action a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
+     */
+    static Condition ifTrue(Action action) {
+        return (body, ifLabel, elseLabel, endLabel) -> {
+            action.apply(body);
+            body.getWriter().visitJumpInsn(Opcodes.IFNE, ifLabel);
+        };
+    }
+
+    public static Condition ifFalse(Action obj) {
+        return (body, ifLabel, elseLabel, endLabel) -> {
+            MethodVisitor mv = body.getWriter();
+            obj.apply(body);
+            mv.visitJumpInsn(Opcodes.IFEQ, ifLabel);
+        };
+    }
+
+    /**
      * <p>notEq.</p>
      *
      * @param left a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
@@ -118,21 +141,6 @@ public interface Condition {
                 mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
                 mv.visitLabel(nextIf);
             }
-        };
-    }
-
-    /**
-     *
-     * <p>ifeq equals 当栈顶int类型数值等于0时跳转</p>
-     * <p>ifne not equals 当栈顶in类型数值不等于0时跳转</p>
-     *
-     * @param action a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
-     */
-    static Condition wrap(Action action) {
-        return (body, ifLabel, elseLabel, endLabel) -> {
-            action.apply(body);
-            body.getWriter().visitJumpInsn(Opcodes.IFNE, ifLabel);
         };
     }
 }

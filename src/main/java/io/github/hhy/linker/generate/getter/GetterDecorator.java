@@ -1,6 +1,5 @@
 package io.github.hhy.linker.generate.getter;
 
-import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.generate.AbstractDecorator;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
@@ -10,8 +9,6 @@ import io.github.hhy.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 
 import java.lang.reflect.Method;
-
-import static io.github.hhy.linker.generate.bytecode.action.Action.returnNull;
 
 /**
  * <p>GetterDecorator class.</p>

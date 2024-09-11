@@ -15,8 +15,11 @@ import org.objectweb.asm.Type;
  */
 public interface Action {
 
-    /** Constant <code>EMPTY</code> */
-    Action EMPTY = (__) -> {};
+    /**
+     * Constant <code>EMPTY</code>
+     */
+    Action EMPTY = (__) -> {
+    };
 
     /**
      * <p>stackTop.</p>
@@ -88,16 +91,16 @@ public interface Action {
     /**
      * <p>throwTypeCastException.</p>
      *
-     * @param realType a {@link org.objectweb.asm.Type} object.
+     * @param objName    a {@link java.lang.Object} object.
      * @param expectType a {@link org.objectweb.asm.Type} object.
      * @return a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
      */
-    static Action throwTypeCastException(Type realType, Type expectType) {
+    static Action throwTypeCastException(String objName, Type expectType) {
         return body -> {
             MethodVisitor mv = body.getWriter();
             mv.visitTypeInsn(Opcodes.NEW, "java/lang/ClassCastException");
             mv.visitInsn(Opcodes.DUP);
-            mv.visitLdcInsn("type '"+realType.getClassName()+"' not cast to type '"+expectType.getClassName()+"'");
+            mv.visitLdcInsn("'"+objName+"' not cast to type '"+expectType.getClassName()+"'");
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ClassCastException", "<init>", "(Ljava/lang/String;)V", false);
             mv.visitInsn(Opcodes.ATHROW);
         };
