@@ -57,11 +57,6 @@ public class ClassImplGenerator {
                     });
         }
         byte[] bytecode = classBuilder.end().toBytecode();
-        try {
-            Files.write(new File("/Users/hanhaiyang/IdeaProjects/reflect-linker/target/"+ ClassUtil.toSimpleName(implClassName)+".class").toPath(), bytecode);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         return BytecodeClassLoader.load(cl, implClassName, bytecode);
     }
 
