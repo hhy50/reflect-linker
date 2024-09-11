@@ -1,5 +1,6 @@
 package io.github.hhy.linker.generate.invoker;
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.define.method.MethodRef;
 import io.github.hhy.linker.generate.AbstractDecorator;
@@ -30,9 +31,14 @@ public class InvokerDecorator extends AbstractDecorator {
 
         typecastArgs(methodBody, methodBody.getArgs(), methodDefine.define.getParameterTypes(), argsType);
         VarInst result = realInvoker.invoke(methodBody);
-        result = typecastResult(methodBody, result, methodDefine.define.getReturnType());
-        result.returnThis(methodBody);
 
+        Class<?> rClassType = methodDefine.define.getReturnType();
+        if (result != null && rClassType != Void.TYPE) {
+            result = typecastResult(methodBody, result, rClassType);
+            result.returnThis(methodBody);
+        } else {
+            AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);
+        }
         return null;
     }
 }

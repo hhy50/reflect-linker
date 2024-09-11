@@ -29,7 +29,14 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
         MethodInvokeAction invoker = new MethodInvokeAction(methodHolder)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
-        return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
+
+        Type rType = methodType.getReturnType();
+        if (rType.getSort() == Type.VOID) {
+            methodBody.append(() -> invoker);
+            return null;
+        } else {
+            return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
+        }
     }
 
     @Override

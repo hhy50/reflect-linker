@@ -19,7 +19,7 @@ public class MyArrayListTest {
         Assert.assertTrue(list instanceof TargetProvider);
         Assert.assertTrue(objects == list.getElementData());
 
-        System.out.println(list.add(1));
+        list.add(1);
         list.add(2);
         list.add(3);
         list.add(4);

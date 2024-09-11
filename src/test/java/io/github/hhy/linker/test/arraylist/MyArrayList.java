@@ -1,14 +1,17 @@
 package io.github.hhy.linker.test.arraylist;
 
 import io.github.hhy.linker.annotations.Field;
+import io.github.hhy.linker.annotations.Runtime;
 import io.github.hhy.linker.annotations.Target;
 import io.github.hhy.linker.test.MyInteger;
 
-
+@Runtime
 @Target.Bind("java.util.ArrayList")
 public interface MyArrayList {
 
-    Boolean add(Object o);
+    void add(Object o);
+    void clear();
+    void get(int i);
 
     MyInteger size();
 

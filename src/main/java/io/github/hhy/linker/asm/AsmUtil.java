@@ -102,7 +102,7 @@ public class AsmUtil {
      * @return
      */
     public static boolean isPrimitiveType(Type type) {
-        return type.getSort() <= Type.DOUBLE;
+        return type.getSort() > Type.VOID && type.getSort() <= Type.DOUBLE;
     }
 
     /**

@@ -1,5 +1,6 @@
 package io.github.hhy.linker.generate.invoker;
 
+import io.github.hhy.linker.asm.AsmUtil;
 import io.github.hhy.linker.define.field.FieldRef;
 import io.github.hhy.linker.define.method.RuntimeMethodRef;
 import io.github.hhy.linker.generate.InvokeClassImplBuilder;
@@ -51,7 +52,10 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
                     // mh.invoke(obj)
                     VarInst result = mhMember.invoke(methodBody, ownerVar, methodBody.getArgs());
-                    result.returnThis(methodBody);
+                    if (result != null) {
+                        result.load(methodBody);
+                    }
+                    AsmUtil.areturn(mv, methodType.getReturnType());
                 });
     }
 
