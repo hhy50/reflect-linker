@@ -17,6 +17,12 @@ import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
 
+/**
+ * <p>Abstract Getter class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public abstract class Getter<T extends FieldRef> extends MethodHandle {
 
     protected final T field;
@@ -25,6 +31,12 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     protected LookupMember lookupMember;
     protected Type methodType;
 
+    /**
+     * <p>Constructor for Getter.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param field a T object.
+     */
     public Getter(String implClass, T field) {
         this.implClass = implClass;
         this.field = field;
@@ -32,6 +44,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
+    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // Object a = get_a();
@@ -40,6 +53,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         return methodBody.newLocalVar(methodType.getReturnType(), field.fieldName, invoker);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         // mh = Runtime.findGetter(lookup, "field");
@@ -48,10 +62,20 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         mhMember.store(methodBody, findGetter);
     }
 
+    /**
+     * <p>Getter for the field <code>lookupMember</code>.</p>
+     *
+     * @return a {@link io.github.hhy.linker.generate.bytecode.LookupMember} object.
+     */
     public LookupMember getLookupMember() {
         return lookupMember;
     }
 
+    /**
+     * <p>isTargetGetter.</p>
+     *
+     * @return a boolean.
+     */
     public boolean isTargetGetter() {
         return false;
     }

@@ -11,12 +11,25 @@ import org.objectweb.asm.Type;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * <p>MethodBody class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class MethodBody {
     private final InvokeClassImplBuilder classBuilder;
     private final MethodVisitor writer;
     private int lvbIndex;
     private VarInst[] args;
 
+    /**
+     * <p>Constructor for MethodBody.</p>
+     *
+     * @param classBuilder a {@link io.github.hhy.linker.generate.InvokeClassImplBuilder} object.
+     * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param methodType a {@link org.objectweb.asm.Type} object.
+     */
     public MethodBody(InvokeClassImplBuilder classBuilder, MethodVisitor mv, Type methodType) {
         this.classBuilder = classBuilder;
         this.writer = mv;
@@ -37,11 +50,21 @@ public class MethodBody {
         }
     }
 
+    /**
+     * <p>append.</p>
+     *
+     * @param interceptor a {@link java.util.function.Consumer} object.
+     */
     @Deprecated
     public void append(Consumer<MethodVisitor> interceptor) {
         interceptor.accept(this.writer);
     }
 
+    /**
+     * <p>append.</p>
+     *
+     * @param interceptor a {@link java.util.function.Supplier} object.
+     */
     public void append(Supplier<Action> interceptor) {
         Action action = interceptor.get();
         action.apply(this);
@@ -50,25 +73,38 @@ public class MethodBody {
     /**
      * 根据参数声明的顺序， 获取第几个参数
      *
-     * @param i
-     * @return
+     * @param i a int.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      */
     public VarInst getArg(int i) {
         return args[i];
     }
 
+    /**
+     * <p>Getter for the field <code>args</code>.</p>
+     *
+     * @return an array of {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} objects.
+     */
     public VarInst[] getArgs() {
         return args;
     }
 
+    /**
+     * <p>Getter for the field <code>writer</code>.</p>
+     *
+     * @return a {@link org.objectweb.asm.MethodVisitor} object.
+     */
     public MethodVisitor getWriter() {
         return writer;
     }
 
     /**
-     * @param type
-     * @param fieldName
-     * @param action
+     * <p>newLocalVar.</p>
+     *
+     * @param type a {@link org.objectweb.asm.Type} object.
+     * @param fieldName a {@link java.lang.String} object.
+     * @param action a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.LocalVarInst} object.
      */
     public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
         LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
@@ -78,10 +114,22 @@ public class MethodBody {
         return localVarInst;
     }
 
+    /**
+     * <p>newLocalVar.</p>
+     *
+     * @param type a {@link org.objectweb.asm.Type} object.
+     * @param action a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.LocalVarInst} object.
+     */
     public LocalVarInst newLocalVar(Type type, Action action) {
         return newLocalVar(type, null, action);
     }
 
+    /**
+     * <p>Getter for the field <code>classBuilder</code>.</p>
+     *
+     * @return a {@link io.github.hhy.linker.generate.InvokeClassImplBuilder} object.
+     */
     public InvokeClassImplBuilder getClassBuilder() {
         return classBuilder;
     }

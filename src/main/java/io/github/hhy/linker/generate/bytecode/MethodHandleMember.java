@@ -13,19 +13,37 @@ import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.Type;
 
+/**
+ * <p>MethodHandleMember class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class MethodHandleMember extends Member {
 
     private final Type methodType;
 
     /**
-     * @param owner
-     * @param mhVarName
+     * <p>Constructor for MethodHandleMember.</p>
+     *
+     * @param owner a {@link java.lang.String} object.
+     * @param mhVarName a {@link java.lang.String} object.
+     * @param access a int.
+     * @param methodType a {@link org.objectweb.asm.Type} object.
      */
     public MethodHandleMember(int access, String owner, String mhVarName, Type methodType) {
         super(access, owner, mhVarName, MethodHandle.TYPE);
         this.methodType = methodType;
     }
 
+    /**
+     * <p>invoke.</p>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param that a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @param args a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     */
     public VarInst invoke(MethodBody methodBody, VarInst that, VarInst... args) {
         VarInst result = initResultVar(methodBody);
 
@@ -43,12 +61,27 @@ public class MethodHandleMember extends Member {
         return result;
     }
 
+    /**
+     * <p>invokeStatic.</p>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param args a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     */
     public VarInst invokeStatic(MethodBody methodBody, VarInst... args) {
         VarInst result = initResultVar(methodBody);
         invokeStatic(result, methodBody, args);
         return result;
     }
 
+    /**
+     * <p>invokeInstance.</p>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param that a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @param args a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     */
     public VarInst invokeInstance(MethodBody methodBody, VarInst that, VarInst... args) {
         VarInst result = initResultVar(methodBody);
         invokeInstance(result, methodBody, that, args);

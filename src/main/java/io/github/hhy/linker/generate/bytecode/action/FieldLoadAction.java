@@ -5,21 +5,39 @@ import io.github.hhy.linker.generate.MethodBody;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * <p>FieldLoadAction class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class FieldLoadAction implements LoadAction {
 
     private final FieldHolder fieldHolder;
     private Action instance;
 
+    /**
+     * <p>Constructor for FieldLoadAction.</p>
+     *
+     * @param fieldHolder a {@link io.github.hhy.linker.entity.FieldHolder} object.
+     */
     public FieldLoadAction(FieldHolder fieldHolder) {
         this.fieldHolder = fieldHolder;
     }
 
+    /**
+     * <p>Setter for the field <code>instance</code>.</p>
+     *
+     * @param instance a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.FieldLoadAction} object.
+     */
     public FieldLoadAction setInstance(Action instance) {
         this.instance = instance;
         return this;
     }
 
 
+    /** {@inheritDoc} */
     @Override
     public void load(MethodBody body) {
         MethodVisitor mv = body.getWriter();

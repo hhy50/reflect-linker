@@ -11,6 +11,9 @@ import java.lang.reflect.Modifier;
  * 1. target字段
  * 2. 能在上级class中找到的
  * 3. 使用@Typed注解的字段
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
  */
 public class EarlyFieldRef extends FieldRef {
 
@@ -31,6 +34,13 @@ public class EarlyFieldRef extends FieldRef {
      */
     private boolean isStatic;
 
+    /**
+     * <p>Constructor for EarlyFieldRef.</p>
+     *
+     * @param prev a {@link io.github.hhy.linker.define.field.FieldRef} object.
+     * @param field a {@link java.lang.reflect.Field} object.
+     * @param assignedType a {@link java.lang.Class} object.
+     */
     public EarlyFieldRef(FieldRef prev, Field field, Class<?> assignedType) {
         super(prev, prev.getUniqueName(), field.getName());
         this.declaredType = field.getDeclaringClass();
@@ -42,10 +52,10 @@ public class EarlyFieldRef extends FieldRef {
     /**
      * 仅能表示target
      *
-     * @param prev
-     * @param objName
-     * @param fieldName
-     * @param fieldTypeClass
+     * @param prev a {@link io.github.hhy.linker.define.field.FieldRef} object.
+     * @param objName a {@link java.lang.String} object.
+     * @param fieldName a {@link java.lang.String} object.
+     * @param fieldTypeClass a {@link java.lang.Class} object.
      */
     public EarlyFieldRef(FieldRef prev, String objName, String fieldName, Class<?> fieldTypeClass) {
         super(prev, objName, fieldName);
@@ -53,19 +63,35 @@ public class EarlyFieldRef extends FieldRef {
         this.fieldRealTypeClass = fieldTypeClass;
     }
 
+    /**
+     * <p>isStatic.</p>
+     *
+     * @return a boolean.
+     */
     public boolean isStatic() {
         return this.isStatic;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Type getType() {
         return this.fieldType;
     }
 
+    /**
+     * <p>Getter for the field <code>declaredType</code>.</p>
+     *
+     * @return a {@link java.lang.Class} object.
+     */
     public Class<?> getDeclaredType() {
         return this.declaredType;
     }
 
+    /**
+     * <p>getClassType.</p>
+     *
+     * @return a {@link java.lang.Class} object.
+     */
     public Class<?> getClassType() {
         return this.fieldRealTypeClass;
     }

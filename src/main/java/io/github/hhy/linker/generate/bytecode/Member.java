@@ -7,6 +7,12 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+/**
+ * <p>Abstract Member class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public abstract class Member implements LoadAction {
 
     protected int access;
@@ -26,6 +32,14 @@ public abstract class Member implements LoadAction {
      */
     protected Type type;
 
+    /**
+     * <p>Constructor for Member.</p>
+     *
+     * @param access a int.
+     * @param owner a {@link java.lang.String} object.
+     * @param memberName a {@link java.lang.String} object.
+     * @param type a {@link org.objectweb.asm.Type} object.
+     */
     public Member(int access, String owner, String memberName, Type type) {
         this.access = access;
         this.owner = owner;
@@ -33,18 +47,34 @@ public abstract class Member implements LoadAction {
         this.type = type;
     }
 
+    /**
+     * <p>Getter for the field <code>memberName</code>.</p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
     public String getMemberName() {
         return memberName;
     }
 
+    /**
+     * <p>Getter for the field <code>access</code>.</p>
+     *
+     * @return a int.
+     */
     public int getAccess() {
         return access;
     }
 
+    /**
+     * <p>Getter for the field <code>type</code>.</p>
+     *
+     * @return a {@link org.objectweb.asm.Type} object.
+     */
     public Type getType() {
         return type;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void load(MethodBody methodBody) {
         MethodVisitor mv = methodBody.getWriter();
@@ -57,8 +87,10 @@ public abstract class Member implements LoadAction {
     }
 
     /**
-     * @param methodBody
-     * @param action
+     * <p>store.</p>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param action a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
      */
     public void store(MethodBody methodBody, Action action) {
         MethodVisitor mv = methodBody.getWriter();

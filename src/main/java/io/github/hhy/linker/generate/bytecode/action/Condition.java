@@ -8,10 +8,30 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 
+/**
+ * <p>Condition interface.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public interface Condition {
 
+    /**
+     * <p>jump.</p>
+     *
+     * @param body a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param jumpLabel a {@link org.objectweb.asm.Label} object.
+     * @param elseLabel a {@link org.objectweb.asm.Label} object.
+     * @param endLabel a {@link org.objectweb.asm.Label} object.
+     */
     void jump(MethodBody body, Label jumpLabel, Label elseLabel, Label endLabel);
 
+    /**
+     * <p>isNull.</p>
+     *
+     * @param obj a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
+     */
     public static Condition isNull(Action obj) {
         return (body, ifLabel, elseLabel, endLabel) -> {
             MethodVisitor mv = body.getWriter();
@@ -20,6 +40,12 @@ public interface Condition {
         };
     }
 
+    /**
+     * <p>notNull.</p>
+     *
+     * @param obj a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
+     */
     public static Condition notNull(Action obj) {
         return (body, ifLabel, elseLabel, endLabel) -> {
             MethodVisitor mv = body.getWriter();
@@ -28,6 +54,13 @@ public interface Condition {
         };
     }
 
+    /**
+     * <p>notEq.</p>
+     *
+     * @param left a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @param right a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
+     */
     public static Condition notEq(Action left, Action right) {
         return (body, ifLabel, elseLabel, endLabel) -> {
             left.apply(body);
@@ -38,6 +71,13 @@ public interface Condition {
         };
     }
 
+    /**
+     * <p>instanceOf.</p>
+     *
+     * @param obj a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @param expectType a {@link org.objectweb.asm.Type} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
+     */
     public static Condition instanceOf(Action obj, Type expectType) {
         return (body, ifLabel, elseLabel, endLabel) -> {
             obj.apply(body);
@@ -50,8 +90,9 @@ public interface Condition {
 
     /**
      * 组合条件: 任意条件满足
-     * @param conditions
-     * @return
+     *
+     * @param conditions a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition any(Condition... conditions) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -64,8 +105,9 @@ public interface Condition {
 
     /**
      * 组合条件: 全部满足
-     * @param conditions
-     * @return
+     *
+     * @param conditions a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition must(Condition... conditions) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -80,10 +122,12 @@ public interface Condition {
     }
 
     /**
-     * @param action
-     * @return
-     * @ifne not equals 当栈顶in类型数值不等于0时跳转
-     * @ifeq equals 当栈顶int类型数值等于0时跳转
+     *
+     * <p>ifeq equals 当栈顶int类型数值等于0时跳转</p>
+     * <p>ifne not equals 当栈顶in类型数值不等于0时跳转</p>
+     *
+     * @param action a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
      */
     static Condition wrap(Action action) {
         return (body, ifLabel, elseLabel, endLabel) -> {

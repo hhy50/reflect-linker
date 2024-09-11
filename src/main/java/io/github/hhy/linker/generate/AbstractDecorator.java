@@ -15,13 +15,28 @@ import org.objectweb.asm.Type;
 import static io.github.hhy.linker.generate.bytecode.action.Action.throwTypeCastException;
 import static org.objectweb.asm.Opcodes.ILOAD;
 
+/**
+ * <p>Abstract AbstractDecorator class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public abstract class AbstractDecorator extends MethodHandle {
 
+    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 
+    /**
+     * <p>typecastArgs.</p>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param args an array of {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} objects.
+     * @param parameterTypes an array of {@link java.lang.Class} objects.
+     * @param expectTypes an array of {@link org.objectweb.asm.Type} objects.
+     */
     protected void typecastArgs(MethodBody methodBody, VarInst[] args, Class<?>[] parameterTypes, Type[] expectTypes) {
         // 校验入参类型
         for (int i = 0; i < args.length; i++) {
@@ -39,6 +54,14 @@ public abstract class AbstractDecorator extends MethodHandle {
         }
     }
 
+    /**
+     * <p>typecastResult.</p>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param varInst a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @param resultTypeClass a {@link java.lang.Class} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     */
     protected VarInst typecastResult(MethodBody methodBody, VarInst varInst, Class<?> resultTypeClass) {
         Type expectType = Type.getType(resultTypeClass);
         String bindClass = AnnotationUtils.getBind(resultTypeClass);
@@ -55,13 +78,14 @@ public abstract class AbstractDecorator extends MethodHandle {
 
 
     /**
-     * 基本数据类型 -> 对象类型 = 装箱
-     * 对象类型 -> 基本数据类型 = 拆箱
-     * 对象类型 -> 对象类型 = 强转
+     * <p>基本数据类型 to 对象类型 = 装箱</p>
+     * <p>对象类型 to 基本数据类型 = 拆箱</p>
+     * <p>对象类型 to 对象类型 = 强转</p>
      *
-     * @param methodBody
-     * @param varInst
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param varInst a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      * @param expectType 预期的类型
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      */
     protected VarInst typeCheck(MethodBody methodBody, VarInst varInst, Type expectType) {
         if (varInst.getType().equals(expectType)) {

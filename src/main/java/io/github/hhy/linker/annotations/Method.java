@@ -5,6 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * <p>Method interface.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public interface Method {
 
     /**

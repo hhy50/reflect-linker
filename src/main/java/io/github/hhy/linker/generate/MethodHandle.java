@@ -15,16 +15,32 @@ import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
+/**
+ * <p>Abstract MethodHandle class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public abstract class MethodHandle {
 
     protected boolean defined = false;
 
+    /**
+     * <p>define.</p>
+     *
+     * @param classImplBuilder a {@link io.github.hhy.linker.generate.InvokeClassImplBuilder} object.
+     */
     public final void define(InvokeClassImplBuilder classImplBuilder) {
         if (this.defined) return;
         define0(classImplBuilder);
         this.defined = true;
     }
 
+    /**
+     * <p>define0.</p>
+     *
+     * @param classImplBuilder a {@link io.github.hhy.linker.generate.InvokeClassImplBuilder} object.
+     */
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
 
     }
@@ -32,21 +48,21 @@ public abstract class MethodHandle {
     /**
      * 调用 mh.invoke();
      *
-     * @return
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      */
     public abstract VarInst invoke(MethodBody methodBody);
 
     /**
      * 初始化静态 methodhandle
      *
-     * @param clAction
-     * @param classImplBuilder
-     * @param mhMember
-     * @param lookupMember
-     * @param ownerType
-     * @param fieldName
-     * @param methodType
-     * @param isStatic
+     * @param classImplBuilder a {@link io.github.hhy.linker.generate.InvokeClassImplBuilder} object.
+     * @param mhMember a {@link io.github.hhy.linker.generate.bytecode.MethodHandleMember} object.
+     * @param lookupMember a {@link io.github.hhy.linker.generate.bytecode.LookupMember} object.
+     * @param ownerType a {@link org.objectweb.asm.Type} object.
+     * @param fieldName a {@link java.lang.String} object.
+     * @param methodType a {@link org.objectweb.asm.Type} object.
+     * @param isStatic a boolean.
      */
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
 
@@ -60,10 +76,10 @@ public abstract class MethodHandle {
      * }
      * </pre>
      *
-     * @param methodBody
-     * @param lookupMember
-     * @param mhMember
-     * @param varInst
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param lookupMember a {@link io.github.hhy.linker.generate.bytecode.LookupMember} object.
+     * @param mhMember a {@link io.github.hhy.linker.generate.bytecode.MethodHandleMember} object.
+     * @param varInst a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      */
     protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst varInst) {
         Action reinitLookup = (__) -> {
@@ -82,10 +98,11 @@ public abstract class MethodHandle {
      * }
      * </pre>
      *
-     * @param methodBody
-     * @param lookupMember
-     * @param objVar
-     * @param field
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param lookupMember a {@link io.github.hhy.linker.generate.bytecode.LookupMember} object.
+     * @param objVar a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     * @param field a {@link io.github.hhy.linker.define.field.FieldRef} object.
+     * @param prevLookupMember a {@link io.github.hhy.linker.generate.bytecode.LookupMember} object.
      */
     protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, VarInst objVar, FieldRef field) {
         objVar.ifNull(methodBody, (__) -> {
@@ -93,10 +110,24 @@ public abstract class MethodHandle {
         });
     }
 
+    /**
+     * <p>checkMethodHandle.</p>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param lookupMember a {@link io.github.hhy.linker.generate.bytecode.LookupMember} object.
+     * @param mhMember a {@link io.github.hhy.linker.generate.bytecode.MethodHandleMember} object.
+     * @param objVar a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     */
     protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         mhMember.ifNull(methodBody, body -> mhReassign(body, lookupMember, mhMember, objVar));
     }
 
+    /**
+     * <p>getClassLoadAction.</p>
+     *
+     * @param type a {@link org.objectweb.asm.Type} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     */
     protected Action getClassLoadAction(Type type) {
         return new DynamicClassLoad(type);
     }
@@ -107,13 +138,19 @@ public abstract class MethodHandle {
      *     mh = Runtime.findGetter(lookup, "c");
      * </pre>
      *
-     * @param methodBody
-     * @param lookupMember
-     * @param mhMember
-     * @param objVar
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param lookupMember a {@link io.github.hhy.linker.generate.bytecode.LookupMember} object.
+     * @param mhMember a {@link io.github.hhy.linker.generate.bytecode.MethodHandleMember} object.
+     * @param objVar a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
      */
     protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar);
 
+    /**
+     * <p>genericType.</p>
+     *
+     * @param methodType a {@link org.objectweb.asm.Type} object.
+     * @return a {@link org.objectweb.asm.Type} object.
+     */
     protected Type genericType(Type methodType) {
         Type rType = methodType.getReturnType();
         Type[] argsType = methodType.getArgumentTypes();

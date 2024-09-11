@@ -5,10 +5,22 @@ import io.github.hhy.linker.exceptions.ParseException;
 
 import java.util.Iterator;
 
+/**
+ * <p>TokenParser class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class TokenParser {
 
     static Tokens EMPTY = new Tokens();
 
+    /**
+     * <p>parse.</p>
+     *
+     * @param tokensStr a {@link java.lang.String} object.
+     * @return a {@link io.github.hhy.linker.token.Tokens} object.
+     */
     public Tokens parse(String tokensStr) {
         if (tokensStr == null || (tokensStr = tokensStr.trim()).length() == 0) {
             return EMPTY;

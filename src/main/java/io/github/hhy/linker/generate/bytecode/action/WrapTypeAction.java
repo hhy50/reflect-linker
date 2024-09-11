@@ -6,13 +6,25 @@ import io.github.hhy.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * <p>WrapTypeAction class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class WrapTypeAction implements Action {
     private final VarInst obj;
 
+    /**
+     * <p>Constructor for WrapTypeAction.</p>
+     *
+     * @param obj a {@link io.github.hhy.linker.generate.bytecode.vars.VarInst} object.
+     */
     public WrapTypeAction(VarInst obj) {
         this.obj = obj;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void apply(MethodBody body) {
         obj.load(body);

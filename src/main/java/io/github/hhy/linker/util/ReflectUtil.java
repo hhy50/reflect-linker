@@ -6,7 +6,20 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>ReflectUtil class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class ReflectUtil {
+    /**
+     * <p>getMethod.</p>
+     *
+     * @param clazz a {@link java.lang.Class} object.
+     * @param methodName a {@link java.lang.String} object.
+     * @return a {@link java.lang.reflect.Method} object.
+     */
     public static Method getMethod(Class<?> clazz, String methodName) {
         if (clazz == null) {
             return null;
@@ -20,6 +33,13 @@ public class ReflectUtil {
         return null;
     }
 
+    /**
+     * <p>getField.</p>
+     *
+     * @param clazz a {@link java.lang.Class} object.
+     * @param fieldName a {@link java.lang.String} object.
+     * @return a {@link java.lang.reflect.Field} object.
+     */
     public static Field getField(Class<?> clazz, String fieldName) {
         if (clazz == null) {
             return null;
@@ -33,6 +53,13 @@ public class ReflectUtil {
         return null;
     }
 
+    /**
+     * <p>getMethods.</p>
+     *
+     * @param clazz a {@link java.lang.Class} object.
+     * @param methodName a {@link java.lang.String} object.
+     * @return a {@link java.util.List} object.
+     */
     public static List<Method> getMethods(Class<?> clazz, String methodName) {
         if (clazz == null) {
             return null;
@@ -50,6 +77,15 @@ public class ReflectUtil {
         return methods;
     }
 
+    /**
+     * <p>matchMethod.</p>
+     *
+     * @param clazz a {@link java.lang.Class} object.
+     * @param name a {@link java.lang.String} object.
+     * @param superClass a {@link java.lang.String} object.
+     * @param argTypes an array of {@link java.lang.String} objects.
+     * @return a {@link java.lang.reflect.Method} object.
+     */
     public static Method matchMethod(Class<?> clazz, String name, String superClass, String[] argTypes) {
         // 指定了调用super， 但是没有指定具体哪个super
         if (superClass != null && superClass.equals("")) {

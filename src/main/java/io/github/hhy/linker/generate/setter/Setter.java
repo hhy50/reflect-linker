@@ -15,6 +15,12 @@ import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
+/**
+ * <p>Abstract Setter class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public abstract class Setter<T extends FieldRef> extends MethodHandle {
 
     protected final T field;
@@ -22,12 +28,19 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
 
     protected Type methodType;
 
+    /**
+     * <p>Constructor for Setter.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param field a T object.
+     */
     public Setter(String implClass, T field) {
         this.field = field;
         this.methodType = Type.getMethodType(Type.VOID_TYPE, AsmUtil.isPrimitiveType(field.getType())? field.getType():ObjectVar.TYPE);
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
+    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         methodBody.append(() -> {
@@ -38,6 +51,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         mhMember.store(methodBody, RuntimeAction.findSetter(lookupMember, this.field.fieldName));

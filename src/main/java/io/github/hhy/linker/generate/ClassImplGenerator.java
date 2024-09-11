@@ -5,17 +5,34 @@ import io.github.hhy.linker.define.BytecodeClassLoader;
 import io.github.hhy.linker.define.InterfaceClassDefine;
 import io.github.hhy.linker.define.MethodDefine;
 import io.github.hhy.linker.define.provider.DefaultTargetProviderImpl;
+import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.util.Comparator;
 import java.util.List;
 
 
+/**
+ * <p>ClassImplGenerator class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class ClassImplGenerator {
 
+    /**
+     * <p>generateImplClass.</p>
+     *
+     * @param defineClass a {@link io.github.hhy.linker.define.InterfaceClassDefine} object.
+     * @param cl a {@link java.lang.ClassLoader} object.
+     * @return a {@link java.lang.Class} object.
+     */
     public static Class<?> generateImplClass(InterfaceClassDefine defineClass, final ClassLoader cl) {
         if (cl == null) {
             throw new IllegalArgumentException("classLoader must not be null");
@@ -40,6 +57,11 @@ public class ClassImplGenerator {
                     });
         }
         byte[] bytecode = classBuilder.end().toBytecode();
+        try {
+            Files.write(new File("/Users/hanhaiyang/IdeaProjects/reflect-linker/target/"+ ClassUtil.toSimpleName(implClassName)+".class").toPath(), bytecode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return BytecodeClassLoader.load(cl, implClassName, bytecode);
     }
 

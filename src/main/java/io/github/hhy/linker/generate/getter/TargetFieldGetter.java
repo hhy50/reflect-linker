@@ -18,17 +18,31 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 
+/**
+ * <p>TargetFieldGetter class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     private final Class<?> defineClass;
     private final FieldHolder targetField;
     private MethodHolder getTarget;
 
+    /**
+     * <p>Constructor for TargetFieldGetter.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param defineClass a {@link java.lang.Class} object.
+     * @param targetFieldRef a {@link io.github.hhy.linker.define.field.EarlyFieldRef} object.
+     */
     public TargetFieldGetter(String implClass, Class<?> defineClass, EarlyFieldRef targetFieldRef) {
         super(implClass, targetFieldRef);
         this.defineClass = defineClass;
         this.targetField = new FieldHolder(ClassUtil.className2path(implClass), field.getUniqueName(), ObjectVar.TYPE.getDescriptor());
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         Type targetType = Type.getType(field.getClassType());
@@ -53,6 +67,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         if (AnnotationUtils.isRuntime(defineClass)) {
@@ -63,6 +78,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         );
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember _nil_, VarInst varInst) {
         varInst.ifNull(methodBody,
@@ -70,6 +86,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
                 (__) -> lookupMember.reinit(methodBody, varInst.getThisClass()));
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isTargetGetter() {
         return true;

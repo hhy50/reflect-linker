@@ -16,8 +16,10 @@ import org.objectweb.asm.Type;
 /**
  * VarInstance
  * 生成可以复用的字节码
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
  */
-
 public abstract class VarInst implements LoadAction {
 
 
@@ -31,15 +33,21 @@ public abstract class VarInst implements LoadAction {
      */
     protected Type type;
 
+    /**
+     * <p>Constructor for VarInst.</p>
+     *
+     * @param lvbIndex a int.
+     * @param type a {@link org.objectweb.asm.Type} object.
+     */
     public VarInst(int lvbIndex, Type type) {
         this.lvbIndex = lvbIndex;
         this.type = type;
     }
 
     /**
-     * load 到栈上
+     * {@inheritDoc}
      *
-     * @return
+     * load 到栈上
      */
     @Override
     public void load(MethodBody methodBody) {
@@ -53,6 +61,9 @@ public abstract class VarInst implements LoadAction {
      *         throw new NullPointerException(nullerr);
      *     }
      * </pre>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     * @param nullerr a {@link java.lang.String} object.
      */
     public void checkNullPointer(MethodBody methodBody, String nullerr) {
         if (type.getSort() > Type.DOUBLE) {
@@ -60,6 +71,11 @@ public abstract class VarInst implements LoadAction {
         }
     }
 
+    /**
+     * <p>getThisClass.</p>
+     *
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.MethodInvokeAction} object.
+     */
     public MethodInvokeAction getThisClass() {
         return new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS)
                 .setInstance(this);
@@ -68,7 +84,8 @@ public abstract class VarInst implements LoadAction {
     /**
      * store到局部变量表
      *
-     * @return
+     * @param action a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
      */
     public Action store(Action action) {
         return body -> {
@@ -78,21 +95,39 @@ public abstract class VarInst implements LoadAction {
         };
     }
 
+    /**
+     * <p>getName.</p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
     public String getName() {
         return "slot["+lvbIndex+",type="+type.getClassName()+"]";
     }
 
+    /**
+     * <p>Getter for the field <code>type</code>.</p>
+     *
+     * @return a {@link org.objectweb.asm.Type} object.
+     */
     public Type getType() {
         return type;
     }
 
+    /**
+     * <p>returnThis.</p>
+     *
+     * @param methodBody a {@link io.github.hhy.linker.generate.MethodBody} object.
+     */
     public void returnThis(MethodBody methodBody) {
         load(methodBody);
         AsmUtil.areturn(methodBody.getWriter(), type);
     }
 
     /**
-     * @return
+     * <p>getTarget.</p>
+     *
+     * @param providerType a {@link org.objectweb.asm.Type} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
      */
     public Action getTarget(Type providerType) {
         Type defaultType = Type.getType(DefaultTargetProviderImpl.class);

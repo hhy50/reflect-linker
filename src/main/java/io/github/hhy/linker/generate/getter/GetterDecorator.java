@@ -10,23 +10,38 @@ import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 
 import java.lang.reflect.Method;
 
+/**
+ * <p>GetterDecorator class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class GetterDecorator extends AbstractDecorator {
 
     private Getter<?> getter;
     private final FieldRef fieldRef;
     private final Method methodDefine;
 
+    /**
+     * <p>Constructor for GetterDecorator.</p>
+     *
+     * @param getter a {@link io.github.hhy.linker.generate.getter.Getter} object.
+     * @param fieldRef a {@link io.github.hhy.linker.define.field.FieldRef} object.
+     * @param methodDefine a {@link java.lang.reflect.Method} object.
+     */
     public GetterDecorator(Getter getter, FieldRef fieldRef, Method methodDefine) {
         this.getter = getter;
         this.fieldRef = fieldRef;
         this.methodDefine = methodDefine;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         getter.define(classImplBuilder);
     }
 
+    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         /**
@@ -42,6 +57,7 @@ public class GetterDecorator extends AbstractDecorator {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         throw new RuntimeException("Decorator not impl mhReassign() method");

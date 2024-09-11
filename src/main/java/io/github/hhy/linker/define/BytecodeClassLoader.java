@@ -9,10 +9,24 @@ import io.github.hhy.linker.syslinker.ClassLoaderLinker;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <p>BytecodeClassLoader class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class BytecodeClassLoader{
 
     private static final Map<ClassLoader, Map<String, Class<?>>> NAMESPACE = new HashMap<>();
 
+    /**
+     * <p>load.</p>
+     *
+     * @param classLoader a {@link java.lang.ClassLoader} object.
+     * @param className a {@link java.lang.String} object.
+     * @param bytecode an array of {@link byte} objects.
+     * @return a {@link java.lang.Class} object.
+     */
     public synchronized static Class<?> load(ClassLoader classLoader, String className, byte[] bytecode) {
         Map<String, Class<?>> clNameSpace = NAMESPACE.computeIfAbsent(classLoader, cl -> new HashMap<>());
         try {

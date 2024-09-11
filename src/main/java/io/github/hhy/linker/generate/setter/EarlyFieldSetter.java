@@ -14,12 +14,25 @@ import io.github.hhy.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+/**
+ * <p>EarlyFieldSetter class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
+    /**
+     * <p>Constructor for EarlyFieldSetter.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param field a {@link io.github.hhy.linker.define.field.EarlyFieldRef} object.
+     */
     public EarlyFieldSetter(String implClass, EarlyFieldRef field) {
         super(implClass, field);
     }
 
+    /** {@inheritDoc} */
     @Override
     public final void define0(InvokeClassImplBuilder classImplBuilder) {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
@@ -52,6 +65,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         });
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         MethodBody clinit = classImplBuilder.getClinit();

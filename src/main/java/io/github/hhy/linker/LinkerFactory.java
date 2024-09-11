@@ -8,8 +8,23 @@ import io.github.hhy.linker.generate.ClassImplGenerator;
 
 import java.lang.reflect.Constructor;
 
+/**
+ * <p>LinkerFactory class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class LinkerFactory {
 
+    /**
+     * <p>createLinker.</p>
+     *
+     * @param define a {@link java.lang.Class} object.
+     * @param target a {@link java.lang.Object} object.
+     * @param <T> a T object.
+     * @return a T object.
+     * @throws io.github.hhy.linker.exceptions.LinkerException if any.
+     */
     public static <T> T createLinker(Class<T> define, Object target) throws LinkerException {
         if (target == null) {
             throw new NullPointerException("target");
@@ -30,6 +45,15 @@ public class LinkerFactory {
         }
     }
 
+    /**
+     * <p>createStaticLinker.</p>
+     *
+     * @param define a {@link java.lang.Class} object.
+     * @param classLoader a {@link java.lang.ClassLoader} object.
+     * @param <T> a T object.
+     * @return a T object.
+     * @throws io.github.hhy.linker.exceptions.LinkerException if any.
+     */
     public static <T> T createStaticLinker(Class<T> define, ClassLoader classLoader) throws LinkerException {
         try {
             InterfaceClassDefine defineClass = ClassDefineParse.parseClass(define, classLoader);

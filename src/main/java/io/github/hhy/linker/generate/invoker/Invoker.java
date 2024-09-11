@@ -12,17 +12,31 @@ import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
+/**
+ * <p>Abstract Invoker class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     protected final T method;
     protected final Type methodType;
     protected MethodHolder methodHolder;
 
+    /**
+     * <p>Constructor for Invoker.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param method a T object.
+     * @param mType a {@link org.objectweb.asm.Type} object.
+     */
     public Invoker(String implClass, T method, Type mType) {
         this.method = method;
         this.methodType = genericType(mType);
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "invoke_" + method.getFullName(), methodType.getDescriptor());
     }
 
+    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // Object a = get_a();
@@ -39,6 +53,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
 

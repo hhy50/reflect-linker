@@ -15,12 +15,25 @@ import static io.github.hhy.linker.entity.MethodHolder.LOOKUP_FIND_GETTER_METHOD
 import static io.github.hhy.linker.entity.MethodHolder.LOOKUP_FIND_STATIC_GETTER_METHOD;
 
 
+/**
+ * <p>EarlyFieldGetter class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
+    /**
+     * <p>Constructor for EarlyFieldGetter.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param fieldRef a {@link io.github.hhy.linker.define.field.EarlyFieldRef} object.
+     */
     public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef) {
         super(implClass, fieldRef);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
@@ -54,6 +67,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
                 });
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember,
                                           Type ownerType, String fieldName, Type methodType, boolean isStatic) {

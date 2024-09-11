@@ -1,12 +1,23 @@
 package io.github.hhy.linker.token;
 
 
+/**
+ * <p>Tokens class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class Tokens implements Iterable<Token> {
 
     private Token head;
 
     private Token tail;
 
+    /**
+     * <p>add.</p>
+     *
+     * @param token a {@link io.github.hhy.linker.token.Token} object.
+     */
     public void add(Token token) {
         if (head == null) {
             head = token;
@@ -17,6 +28,7 @@ public class Tokens implements Iterable<Token> {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Iterator iterator() {
         return new Iterator();

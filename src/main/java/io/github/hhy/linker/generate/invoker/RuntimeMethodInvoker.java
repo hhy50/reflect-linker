@@ -19,12 +19,25 @@ import org.objectweb.asm.Type;
 import java.util.Arrays;
 
 
+/**
+ * <p>RuntimeMethodInvoker class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
+    /**
+     * <p>Constructor for RuntimeMethodInvoker.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param methodRef a {@link io.github.hhy.linker.define.method.RuntimeMethodRef} object.
+     */
     public RuntimeMethodInvoker(String implClass, RuntimeMethodRef methodRef) {
         super(implClass, methodRef, methodRef.getMethodType());
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef owner = method.getOwner();
@@ -59,6 +72,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                 });
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         String superClass = method.getSuperClass();

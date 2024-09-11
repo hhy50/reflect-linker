@@ -9,21 +9,36 @@ import io.github.hhy.linker.generate.MethodBody;
 import io.github.hhy.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
+/**
+ * <p>InvokerDecorator class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class InvokerDecorator extends AbstractDecorator {
 
     protected Invoker<?> realInvoker;
     private final MethodDefine methodDefine;
 
+    /**
+     * <p>Constructor for InvokerDecorator.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param realInvoker a {@link io.github.hhy.linker.generate.invoker.Invoker} object.
+     * @param methodDefine a {@link io.github.hhy.linker.define.MethodDefine} object.
+     */
     public InvokerDecorator(String implClass, Invoker<?> realInvoker, MethodDefine methodDefine) {
         this.realInvoker = realInvoker;
         this.methodDefine = methodDefine;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         this.realInvoker.define(classImplBuilder);
     }
 
+    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         MethodRef methodRef = methodDefine.methodRef;

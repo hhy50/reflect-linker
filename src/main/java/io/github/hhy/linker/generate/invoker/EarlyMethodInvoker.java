@@ -20,12 +20,25 @@ import java.util.Arrays;
 
 import static io.github.hhy.linker.generate.bytecode.action.Action.asArray;
 
+/**
+ * <p>EarlyMethodInvoker class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
+    /**
+     * <p>Constructor for EarlyMethodInvoker.</p>
+     *
+     * @param implClass a {@link java.lang.String} object.
+     * @param methodRef a {@link io.github.hhy.linker.define.method.EarlyMethodRef} object.
+     */
     public EarlyMethodInvoker(String implClass, EarlyMethodRef methodRef) {
         super(implClass, methodRef, methodRef.getMethodType());
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         EarlyFieldRef owner = (EarlyFieldRef) method.getOwner();
@@ -62,6 +75,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                 });
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();

@@ -10,30 +10,61 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * <p>ClassUtil class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ */
 public class ClassUtil {
+    /**
+     * <p>className2path.</p>
+     *
+     * @param clazz a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
+     */
     public static String className2path(String clazz) {
         return clazz.replace('.', '/');
     }
 
+    /**
+     * <p>classpath2name.</p>
+     *
+     * @param clazz a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
+     */
     public static String classpath2name(String clazz) {
         return clazz.replace('/', '.');
     }
 
+    /**
+     * <p>toSimpleName.</p>
+     *
+     * @param className a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
+     */
     public static String toSimpleName(String className) {
         return className.substring(className.lastIndexOf(".")+1);
     }
 
     /**
-     * 验证是否有父子关系
+     * <p>isAssignableFrom.</p>
      *
-     * @param child
-     * @param parent
-     * @return
+     * @param child a {@link java.lang.Class} object.
+     * @param parent a {@link java.lang.Class} object.
+     * @return a boolean.
      */
     public static boolean isAssignableFrom(Class<?> child, Class<?> parent) {
         return isAssignableFrom(child, parent.getName());
     }
 
+    /**
+     * <p>isAssignableFrom.</p>
+     *
+     * @param child a {@link java.lang.Class} object.
+     * @param parent a {@link java.lang.String} object.
+     * @return a boolean.
+     */
     public static boolean isAssignableFrom(Class<?> child, String parent) {
         if (child.getName().equals(parent)) return true;
         Class<?> superclass = child.getSuperclass();
@@ -47,11 +78,11 @@ public class ClassUtil {
     }
 
     /**
-     * 从接口类上面获取提前定义好的类型
+     * <p>getTypeDefines.</p>
      *
-     * @param define
-     * @param <T>
-     * @return
+     * @param define a {@link java.lang.Object} object.
+     * @param <T> a T object.
+     * @return a {@link java.util.Map} object.
      */
     public static <T> Map<String, String> getTypeDefines(Object define) {
         if (define instanceof Class) {
@@ -64,6 +95,13 @@ public class ClassUtil {
         return Collections.emptyMap();
     }
 
+    /**
+     * <p>polymorphismMatch.</p>
+     *
+     * @param parameters an array of {@link java.lang.reflect.Parameter} objects.
+     * @param argTypes an array of {@link java.lang.String} objects.
+     * @return a boolean.
+     */
     public static boolean polymorphismMatch(Parameter[] parameters, String[] argTypes) {
         if (parameters.length != argTypes.length) return false;
         for (int i = 0; i < parameters.length; i++) {
