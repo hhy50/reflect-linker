@@ -6,9 +6,21 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
+/**
+ * <p>NestObjTest class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ * @since 1.0.0
+ */
 public class NestObjTest {
 
 
+    /**
+     * <p>test1.</p>
+     *
+     * @throws io.github.hhy.linker.exceptions.LinkerException if any.
+     */
     @Test
     public void test1() throws LinkerException {
         // get
@@ -56,6 +68,11 @@ public class NestObjTest {
         Assert.assertEquals(obj.getD(), d);
     }
 
+    /**
+     * <p>test2.</p>
+     *
+     * @throws io.github.hhy.linker.exceptions.LinkerException if any.
+     */
     @Test
     public void test2() throws LinkerException {
         // get

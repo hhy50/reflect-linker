@@ -40,31 +40,6 @@ public class ClassDefineParse {
      * @param classLoader a {@link java.lang.ClassLoader} object.
      * @return a {@link io.github.hhy.linker.define.InterfaceClassDefine} object.
      * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
      * @throws java.lang.ClassNotFoundException if any.
      */
     public static InterfaceClassDefine parseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
@@ -83,31 +58,6 @@ public class ClassDefineParse {
      * @param targetClass a {@link java.lang.Class} object.
      * @param classLoader a {@link java.lang.ClassLoader} object.
      * @return a {@link io.github.hhy.linker.define.InterfaceClassDefine} object.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
-     * @throws io.github.hhy.linker.exceptions.ParseException if any.
      * @throws io.github.hhy.linker.exceptions.ParseException if any.
      * @throws java.lang.ClassNotFoundException if any.
      */

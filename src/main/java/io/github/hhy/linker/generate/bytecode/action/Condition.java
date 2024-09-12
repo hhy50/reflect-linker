@@ -69,6 +69,12 @@ public interface Condition {
         };
     }
 
+    /**
+     * <p>ifFalse.</p>
+     *
+     * @param obj a {@link io.github.hhy.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy.linker.generate.bytecode.action.Condition} object.
+     */
     public static Condition ifFalse(Action obj) {
         return (body, ifLabel, elseLabel, endLabel) -> {
             MethodVisitor mv = body.getWriter();

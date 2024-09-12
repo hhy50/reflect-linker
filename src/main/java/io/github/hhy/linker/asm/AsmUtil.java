@@ -162,6 +162,12 @@ public class AsmUtil {
         return type.getSort() > Type.VOID && type.getSort() <= Type.DOUBLE;
     }
 
+    /**
+     * <p>isObjectType.</p>
+     *
+     * @param type a {@link org.objectweb.asm.Type} object.
+     * @return a boolean.
+     */
     public static boolean isObjectType(Type type) {
         return !isPrimitiveType(type);
     }

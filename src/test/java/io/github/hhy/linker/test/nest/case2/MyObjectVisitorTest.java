@@ -7,9 +7,21 @@ import io.github.hhy.linker.test.MyInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * <p>MyObjectVisitorTest class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ * @since 1.0.0
+ */
 public class MyObjectVisitorTest {
 
 
+    /**
+     * <p>test1.</p>
+     *
+     * @throws io.github.hhy.linker.exceptions.LinkerException if any.
+     */
     @Test
     public void test1() throws LinkerException {
         MyObject myObject = new MyObject();
@@ -32,6 +44,11 @@ public class MyObjectVisitorTest {
         System.out.println(linker.getUser());
     }
 
+    /**
+     * <p>test2.</p>
+     *
+     * @throws io.github.hhy.linker.exceptions.LinkerException if any.
+     */
     @Test
     public void test2() throws LinkerException {
         MyObject myObject = new MyObject();

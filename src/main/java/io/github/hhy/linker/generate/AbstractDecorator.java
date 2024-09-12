@@ -24,9 +24,7 @@ import static org.objectweb.asm.Opcodes.ILOAD;
  */
 public abstract class AbstractDecorator extends MethodHandle {
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
         throw new RuntimeException("Decorator not impl mhReassign() method");
