@@ -10,25 +10,10 @@ import io.github.hhy.linker.exceptions.LinkerException;
 class A { }
 class B {
     String val = "this is b'val";
-    /**
-     * <p>Getter for the field <code>val</code>.</p>
-     *
-     * @return a {@link java.lang.String} object.
-     */
     public String getVal() {
         return val;
-    /**
-     * <p>Constructor for A2.</p>
-     *
-     * @param b a {@link io.github.hhy.linker.example.dynamic.B} object.
-     */
     }
 }
-/**
- * <p>getBval.</p>
- *
- * @return a {@link java.lang.String} object.
- */
 
 class A2 extends A {
     public B b;
@@ -36,40 +21,14 @@ class A2 extends A {
         this.b = b;
     }
 }
-/**
- * <p>setA.</p>
- *
- * @param val a {@link io.github.hhy.linker.example.dynamic.AVisitor} object.
- */
 class MyObject {
     private A a;
 
-    /**
-     * <p>getB.</p>
-     *
-     * @return a {@link io.github.hhy.linker.example.dynamic.B} object.
-     */
     public String getBval() {
-        /**
-         * <p>main.</p>
-         *
-         * @param args an array of {@link java.lang.String} objects.
-         * @throws io.github.hhy.linker.exceptions.LinkerException if any.
-         */
         return ((A2)a).b.getVal();
     }
-/**
- * <p>getBval.</p>
- *
- * @return a {@link java.lang.String} object.
- */
 }
 
-/**
- * <p>getBval2.</p>
- *
- * @return a {@link java.lang.String} object.
- */
 @Target.Bind("io.github.hhy.linker.example.dynamic.A")
 interface AVisitor {
 
