@@ -50,7 +50,7 @@ class User {
 class UserWrap {
     private User user;
 }
-@Target.Bind("io.github.hhy.linker.example.nest.UserWrap")
+@Target.Bind("io.github.hhy50.linker.example.nest.UserWrap")
 interface UserVisitor {
     @Field.Getter("user")
     User getUser();
@@ -100,7 +100,7 @@ class A2 extends A {
 class MyObject {
     private A a;
 }
-@Target.Bind("io.github.hhy.linker.example.dynamic.MyObject")
+@Target.Bind("io.github.hhy50.linker.example.dynamic.MyObject")
 interface MyObjectVisitor {
     @Field.Setter("a")
     void setA(A val);
@@ -124,13 +124,13 @@ class Example {
 
 如果您非常在意执行性能, 可以使用`@Typed`指定`A class`的类型, 将`B field`变为已知的字段
 ```java
-//@Typed(name = "a", type = "io.github.hhy.linker.example.dynamic.A2") // 也可以声明在这里
-@Target.Bind("io.github.hhy.linker.example.dynamic.MyObject")
+//@Typed(name = "a", type = "io.github.hhy50.linker.example.dynamic.A2") // 也可以声明在这里
+@Target.Bind("io.github.hhy50.linker.example.dynamic.MyObject")
 interface MyObjectVisitor {
     @Field.Setter("a")
     void setA(A val);
 
-    @Typed(name = "a", type = "io.github.hhy.linker.example.dynamic.A2")
+    @Typed(name = "a", type = "io.github.hhy50.linker.example.dynamic.A2")
     @Field.Getter("a.b")
     B getB();
 }
