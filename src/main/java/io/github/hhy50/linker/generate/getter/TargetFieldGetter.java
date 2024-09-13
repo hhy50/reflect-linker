@@ -85,10 +85,4 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
                 (__) -> lookupMember.reinit(methodBody, getClassLoadAction(Type.getType(field.getClassType()))),
                 (__) -> lookupMember.reinit(methodBody, varInst.getThisClass()));
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean isTargetGetter() {
-        return true;
-    }
 }

@@ -242,7 +242,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
                     .getMethodVisitor();
         }
         if (clinit == null) {
-            clinit = new MethodBody(this, clinitMethodWriter, Type.getMethodType(Type.VOID_TYPE));
+            clinit = new MethodBody(this, clinitMethodWriter, Type.getMethodType(Type.VOID_TYPE), true);
         }
         return clinit;
     }

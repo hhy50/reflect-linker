@@ -18,15 +18,10 @@ import org.objectweb.asm.Type;
 public class LookupMember extends Member {
 
     /**
-     * 防止多次静态初始化
-     */
-    private boolean inited;
-
-    /**
      * <p>Constructor for LookupMember.</p>
      *
-     * @param access a int.
-     * @param owner a {@link java.lang.String} object.
+     * @param access     a int.
+     * @param owner      a {@link java.lang.String} object.
      * @param lookupName a {@link java.lang.String} object.
      */
     public LookupMember(int access, String owner, String lookupName) {
@@ -41,32 +36,28 @@ public class LookupMember extends Member {
      * }
      * </pre>
      *
-     * @param clinit a {@link MethodBody} object.
+     * @param clinit      a {@link MethodBody} object.
      * @param classLoadAc a {@link Action} object.
      */
     public void staticInit(MethodBody clinit, Action classLoadAc) {
-        if (inited) return;
         this.store(clinit, RuntimeAction.lookup(classLoadAc));
-        this.inited = true;
     }
 
     /**
      * <p>staticInit.</p>
      *
-     * @param clinit a {@link MethodBody} object.
+     * @param clinit     a {@link MethodBody} object.
      * @param staticType a {@link org.objectweb.asm.Type} object.
      */
     public void staticInit(MethodBody clinit, Type staticType) {
-        if (inited) return;
         this.store(clinit, RuntimeAction.lookup(LdcLoadAction.of(staticType)));
-        this.inited = true;
     }
 
 
     /**
      * <p>reinit.</p>
      *
-     * @param methodBody a {@link MethodBody} object.
+     * @param methodBody     a {@link MethodBody} object.
      * @param typeLoadAction a {@link Action} object.
      */
     public void reinit(MethodBody methodBody, Action typeLoadAction) {
@@ -76,8 +67,8 @@ public class LookupMember extends Member {
     /**
      * 生成运行时校验lookup的代码
      *
-     * @param methodBody a {@link MethodBody} object.
-     * @param varInst a {@link VarInst} object.
+     * @param methodBody   a {@link MethodBody} object.
+     * @param varInst      a {@link VarInst} object.
      * @param lookupAssign a {@link Action} object.
      */
     public void runtimeCheck(MethodBody methodBody, VarInst varInst, Action lookupAssign) {
@@ -87,17 +78,10 @@ public class LookupMember extends Member {
          * }
          * // goto checkMh
          */
-        methodBody.append(() -> {
-            return new ConditionJumpAction(
-                    Condition.any(
-                            Condition.isNull(this), // lookup == null
-                            Condition.must(
-                                    Condition.notNull(varInst), // obj != null
-                                    Condition.notEq(varInst.getThisClass(), lookupClass()) // obj.getClass() != lookup.lookupClass()
-                            )
-                    ),
-                    lookupAssign, null);
-        });
+        methodBody.append(() -> new ConditionJumpAction(
+                Condition.isNull(this),
+                lookupAssign, null)
+        );
     }
 
     /**

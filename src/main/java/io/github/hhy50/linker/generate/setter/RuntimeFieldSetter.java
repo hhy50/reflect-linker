@@ -24,13 +24,15 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
      * <p>Constructor for RuntimeFieldSetter.</p>
      *
      * @param implClass a {@link java.lang.String} object.
-     * @param field a {@link RuntimeFieldRef} object.
+     * @param field     a {@link RuntimeFieldRef} object.
      */
     public RuntimeFieldSetter(String implClass, RuntimeFieldRef field) {
         super(implClass, field);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final void define0(InvokeClassImplBuilder classImplBuilder) {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
@@ -45,9 +47,8 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
             MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
 
-            if (!getter.isTargetGetter()) {
-                // 校验lookup和mh
-                LookupMember prevLookup = getter.getLookupMember();
+            LookupMember prevLookup = getter.getLookupMember();
+            if (lookupMember != prevLookup) {
                 staticCheckLookup(methodBody, prevLookup, lookupMember, objVar, field.getPrev());
                 checkLookup(methodBody, lookupMember, mhMember, objVar);
             }

@@ -31,10 +31,14 @@ public class MethodBody {
      * @param methodType a {@link org.objectweb.asm.Type} object.
      */
     public MethodBody(InvokeClassImplBuilder classBuilder, MethodVisitor mv, Type methodType) {
+        this(classBuilder, mv, methodType, false);
+    }
+
+    public MethodBody(InvokeClassImplBuilder classBuilder, MethodVisitor mv, Type methodType, boolean isStatic) {
         this.classBuilder = classBuilder;
         this.writer = mv;
         Type[] argumentTypes = methodType.getArgumentTypes();
-        this.lvbIndex = AsmUtil.calculateLvbOffset(false, argumentTypes);
+        this.lvbIndex = AsmUtil.calculateLvbOffset(isStatic, argumentTypes);
         this.args = new VarInst[argumentTypes.length];
 
         initArgsTable(argumentTypes);

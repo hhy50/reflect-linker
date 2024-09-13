@@ -3,7 +3,7 @@ package io.github.hhy50.linker.runtime;
 import io.github.hhy50.linker.AccessTool;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.exceptions.LinkerException;
-import io.github.hhy50.linker.syslinker.MethodHandleLinker;
+import io.github.hhy50.linker.syslinker.LookupLinker;
 import io.github.hhy50.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
@@ -40,11 +40,11 @@ public class Runtime {
     public static final MethodHolder GET_CLASS = new MethodHolder(Runtime.OWNER, "getClass", "(Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/Class;");
 
     /** Constant <code>mhl</code> */
-    public static final MethodHandleLinker mhl;
+    public static final LookupLinker LOOKUP_LINKER;
 
     static {
         try {
-            mhl = AccessTool.createSysLinker(MethodHandleLinker.class, null);
+            LOOKUP_LINKER = AccessTool.createSysLinker(LookupLinker.class, null);
         } catch (LinkerException e) {
             throw new RuntimeException(e);
         }
@@ -67,6 +67,7 @@ public class Runtime {
                         MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE);
             }
         }
+//        return LOOKUP_LINKER.lookupImpl();
         return null;
     }
 
