@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate.getter;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.LookupMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
@@ -32,32 +32,35 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
         getter.define(classImplBuilder);
 
-        // 先定义上一层字段的lookup
-        LookupMember lookupMember = classImplBuilder.defineRuntimeLookup(field.getPrev());
+        //this.typeMember.store(clinit, getClassLoadAction(field.getType()));
+
+        // 保存当前字段类型
+        this.typeMember = classImplBuilder.defineClassTypeMember(field.getUniqueName(), null);
         // 定义当前字段的mh
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
 
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
-            MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
-            VarInst objVar = getter.invoke(methodBody);
+            MethodBody body = new MethodBody(classImplBuilder, mv, methodType);
+            VarInst objVar = getter.invoke(body);
 
-            LookupMember prevLookup = getter.lookupMember;
-            if (this.lookupMember != prevLookup) {
-                checkLookup(methodBody, lookupMember, mhMember, objVar);
-                staticCheckLookup(methodBody, prevLookup, lookupMember, field.getPrev());
-            }
+            ClassTypeMember ownerType = getter.getTypeMember();
+            VarInst lookup = ownerType.getLookup(body);
+            checkMethodHandle(body, lookup, mhMember, objVar);
 
-            checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
-
+//            LookupMember prevLookup = getter.lookupMember;
+//            if (this.lookupMember != prevLookup) {
+//                checkLookup(methodBody, lookupMember, mhMember, objVar);
+//                staticCheckLookup(methodBody, prevLookup, lookupMember, field.getPrev());
+//            }
             // mh.invoke(obj)
             VarInst result;
             if (field.isDesignateStatic()) {
-                result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
+                result = field.isStatic() ? mhMember.invokeStatic(body) : mhMember.invokeInstance(body, objVar);
             } else {
-                result = mhMember.invoke(methodBody, objVar);
+                result = mhMember.invoke(body, objVar);
             }
-            result.returnThis(methodBody);
+            result.returnThis(body);
         });
     }
 }

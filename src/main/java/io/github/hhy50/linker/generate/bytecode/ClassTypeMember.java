@@ -33,13 +33,28 @@ public class ClassTypeMember extends Member {
         this.classImplBuilder = classImplBuilder;
     }
 
-//    public void staticInit(MethodBody body, Action action) {
-//        // TODO
-//        this.store(body, action);
-//    }
-
     public VarInst getLookup(MethodBody body) {
         return body.newLocalVar(LookupVar.TYPE, new MethodInvokeAction(Runtime.LOOKUP)
                 .setArgs(this));
+    }
+
+    /**
+     * <pre>
+     *     if(obj != null) {
+     *         class = obj.getClass();
+     *     } else {
+     *         class = Runtime.getClass('');
+     *     }
+     * </pre>
+     *
+     * @param body
+     * @param var
+     * @param classLoadAction
+     */
+    public void init(MethodBody body, VarInst var, Action classLoadAction) {
+        var.ifNull(body,
+                (__) -> store(body, classLoadAction),
+                (__) -> store(body, var.getThisClass())
+        );
     }
 }

@@ -10,11 +10,9 @@ import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
-import io.github.hhy50.linker.generate.bytecode.LookupMember;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.vars.ClassVar;
-import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.getter.EarlyFieldGetter;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.RuntimeFieldGetter;
@@ -52,11 +50,11 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * <p>Constructor for InvokeClassImplBuilder.</p>
      *
-     * @param access a int.
-     * @param className a {@link java.lang.String} object.
-     * @param superName a {@link java.lang.String} object.
+     * @param access     a int.
+     * @param className  a {@link java.lang.String} object.
+     * @param superName  a {@link java.lang.String} object.
      * @param interfaces an array of {@link java.lang.String} objects.
-     * @param signature a {@link java.lang.String} object.
+     * @param signature  a {@link java.lang.String} object.
      */
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
@@ -114,7 +112,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * 定义Getter
      *
      * @param fieldName a {@link java.lang.String} object.
-     * @param fieldRef a {@link FieldRef} object.
+     * @param fieldRef  a {@link FieldRef} object.
      * @return a {@link Getter} object.
      */
     public Getter<?> defineGetter(String fieldName, FieldRef fieldRef) {
@@ -141,7 +139,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * <p>defineSetter.</p>
      *
      * @param fieldName a {@link java.lang.String} object.
-     * @param fieldRef a {@link FieldRef} object.
+     * @param fieldRef  a {@link FieldRef} object.
      * @return a {@link Setter} object.
      */
     public Setter<?> defineSetter(String fieldName, FieldRef fieldRef) {
@@ -171,42 +169,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * 定义运行时的lookup
-     *
-     * @param fieldRef a {@link FieldRef} object.
-     * @return a {@link LookupMember} object.
-     */
-    public LookupMember defineRuntimeLookup(FieldRef fieldRef) {
-        String lookupMemberName = fieldRef.getUniqueName()+"_runtime_lookup";
-        if (!members.containsKey(lookupMemberName)) {
-            int access = Opcodes.ACC_PUBLIC;
-            super.defineField(access, lookupMemberName, LookupVar.DESCRIPTOR, null, null);
-            this.members.put(lookupMemberName, new LookupMember(access, implClassDesc, lookupMemberName));
-        }
-        return (LookupMember) members.get(lookupMemberName);
-    }
-
-    /**
-     * 定义指定类型的lookup字段
-     *
-     * @param className a {@link java.lang.String} object.
-     * @return a {@link LookupMember} object.
-     */
-    public LookupMember defineTypedLookup(String className) {
-        String memberName = className.replace('.', '_')+"_lookup";
-        if (!members.containsKey(memberName)) {
-            int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            super.defineField(access, memberName, LookupVar.DESCRIPTOR, null, null);
-            this.members.put(memberName, new LookupMember(access, implClassDesc, memberName));
-        }
-        return (LookupMember) members.get(memberName);
-    }
-
-    /**
      * 定义静态的methodHandle
      *
      * @param mhMemberName a {@link java.lang.String} object.
-     * @param methodType a {@link org.objectweb.asm.Type} object.
+     * @param methodType   a {@link org.objectweb.asm.Type} object.
      * @return a {@link MethodHandleMember} object.
      */
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
@@ -222,7 +188,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * <p>defineMethodHandle.</p>
      *
      * @param mhMemberName a {@link java.lang.String} object.
-     * @param methodType a {@link org.objectweb.asm.Type} object.
+     * @param methodType   a {@link org.objectweb.asm.Type} object.
      * @return a {@link MethodHandleMember} object.
      */
     public MethodHandleMember defineMethodHandle(String mhMemberName, Type methodType) {
@@ -249,16 +215,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return clinit;
     }
 
-    public ClassTypeMember defineTypedClass(FieldRef field) {
-        String mName = field.getUniqueName()+"_$_class";
-        if (field instanceof EarlyFieldRef) {
-            mName = field.getType().getClassName() + "_$_class";
-        }
-
+    public ClassTypeMember defineClassTypeMember(String mName, Type type) {
+        mName = mName.replace('.', '_')+"_$_class_type";
         if (!members.containsKey(mName)) {
-            super.defineField(Opcodes.ACC_PUBLIC, mName, ClassVar.TYPE.getDescriptor(), null, null);
+            int access = type == null ? Opcodes.ACC_PUBLIC : Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
+            super.defineField(access, mName, ClassVar.TYPE.getDescriptor(), null, null);
 
-            ClassTypeMember classTypeMember = new ClassTypeMember(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, implClassDesc, mName, field);
+            ClassTypeMember classTypeMember = new ClassTypeMember(access, implClassDesc, mName, type);
             classTypeMember.setClassImplBuilder(this);
             this.members.put(mName, classTypeMember);
 

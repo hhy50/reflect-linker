@@ -1,12 +1,11 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.LookupMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
@@ -39,21 +38,15 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        EarlyFieldRef owner = (EarlyFieldRef) method.getOwner();
-        Getter<?> getter = classImplBuilder.defineGetter(owner.getUniqueName(), owner);
+//        EarlyFieldRef owner = (EarlyFieldRef) method.getOwner();
+        Getter<?> getter = classImplBuilder.getGetter(method.getOwner().getUniqueName());
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();
-        Type ownerType = Type.getType(owner.getClassType());
-
-        // init lookup
-        LookupMember lookupMember = classImplBuilder.defineTypedLookup(ownerType.getClassName());
-        lookupMember.staticInit(clinit, getClassLoadAction(ownerType));
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), methodType);
-        initStaticMethodHandle(classImplBuilder, mhMember, lookupMember, ownerType, method.getName(), method.getMethodType(), method.isStatic());
-
+        initStaticMethodHandle(clinit, mhMember, getter.getTypeMember(), method.getName(), method.getMethodType(), method.isStatic());
         // 定义当前方法的invoker
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
@@ -75,10 +68,10 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
     /** {@inheritDoc} */
     @Override
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember ownerClassMember, String fieldName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null;
-        MethodBody clinit = classImplBuilder.getClinit();
+        VarInst lookupVar = ownerClassMember.getLookup(clinit);
 
         MethodInvokeAction findXXX;
         Action argsType = Action.asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
@@ -87,15 +80,15 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                     LdcLoadAction.of(AsmUtil.getType(superClass)),
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
-                    getClassLoadAction(ownerType)
+                    ownerClassMember
             );
         } else {
             findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDVIRTUAL).setArgs(
-                    getClassLoadAction(ownerType),
+                    ownerClassMember,
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
             );
         }
-        mhMember.store(clinit, findXXX.setInstance(lookupMember));
+        mhMember.store(clinit, findXXX.setInstance(lookupVar));
     }
 }

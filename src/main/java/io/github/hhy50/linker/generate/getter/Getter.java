@@ -6,7 +6,6 @@ import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
-import io.github.hhy50.linker.generate.bytecode.LookupMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
@@ -56,10 +55,10 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
 
     /** {@inheritDoc} */
     @Override
-    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
+    protected void mhReassign(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar) {
         // mh = Runtime.findGetter(lookup, "field");
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
-                .setArgs(lookupMember, LdcLoadAction.of(field.fieldName));
+                .setArgs(lookupVar, LdcLoadAction.of(field.fieldName));
         mhMember.store(methodBody, findGetter);
     }
 

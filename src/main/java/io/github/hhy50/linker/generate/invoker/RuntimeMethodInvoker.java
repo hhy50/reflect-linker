@@ -5,7 +5,7 @@ import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.LookupMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
@@ -44,8 +44,6 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         Getter<?> ownerGetter = classImplBuilder.defineGetter(owner.getUniqueName(), owner);
         ownerGetter.define(classImplBuilder);
 
-        // 先定义上一层字段的lookup
-        LookupMember lookupMember = classImplBuilder.defineRuntimeLookup(owner);
         // 定义当前字段的mh
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), methodType);
         // 定义当前方法的invoker
@@ -55,12 +53,8 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                     MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
                     VarInst ownerVar = ownerGetter.invoke(methodBody);
 
-                    LookupMember prevLookup = ownerGetter.getLookupMember();
-                    if (lookupMember != prevLookup) {
-                        checkLookup(methodBody, lookupMember, mhMember, ownerVar);
-                        staticCheckLookup(methodBody, prevLookup, lookupMember, owner);
-                    }
-                    checkMethodHandle(methodBody, lookupMember, mhMember, ownerVar);
+                    ClassTypeMember ownerClass = ownerGetter.getTypeMember();
+                    checkMethodHandle(methodBody, ownerClass.getLookup(methodBody), mhMember, ownerVar);
 
                     // mh.invoke(obj)
                     VarInst result = mhMember.invoke(methodBody, ownerVar, methodBody.getArgs());
@@ -73,11 +67,11 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
     /** {@inheritDoc} */
     @Override
-    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
+    protected void mhReassign(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar) {
         String superClass = method.getSuperClass();
         Action superClassLoad = superClass != null ? LdcLoadAction.of(superClass) : Action.loadNull();
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_METHOD)
-                .setArgs(lookupMember, objVar.getThisClass(),
+                .setArgs(lookupVar, objVar.getThisClass(),
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
                         Action.asArray(Type.getType(String.class), Arrays.stream(method.getArgsType())

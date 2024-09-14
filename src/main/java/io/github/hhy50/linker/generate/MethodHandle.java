@@ -3,6 +3,7 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.LookupMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
@@ -56,15 +57,15 @@ public abstract class MethodHandle {
     /**
      * 初始化静态 methodhandle
      *
-     * @param clinit a {@link MethodBody} object.
-     * @param mhMember a {@link MethodHandleMember} object.
-     * @param lookupVar a {@link VarInst} object.
-     * @param ownerType a {@link org.objectweb.asm.Type} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @param methodType a {@link org.objectweb.asm.Type} object.
-     * @param isStatic a boolean.
+     * @param clinit           a {@link MethodBody} object.
+     * @param mhMember         a {@link MethodHandleMember} object.
+     * @param lookupVar        a {@link VarInst} object.
+     * @param ownerClassMember a {@link Type} object.
+     * @param fieldName        a {@link String} object.
+     * @param methodType       a {@link Type} object.
+     * @param isStatic         a boolean.
      */
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, VarInst lookupVar, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember ownerClass, String fieldName, Type methodType, boolean isStatic) {
 
     }
 
@@ -81,12 +82,12 @@ public abstract class MethodHandle {
      * @param mhMember a {@link MethodHandleMember} object.
      * @param varInst a {@link VarInst} object.
      */
-    protected void checkLookup(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst varInst) {
-        Action reinitLookup = (__) -> {
-            lookupMember.reinit(methodBody, varInst.getThisClass());
-            this.mhReassign(methodBody, lookupMember, mhMember, varInst);
-        };
-        lookupMember.runtimeCheck(methodBody, varInst, reinitLookup);
+    protected void checkLookup(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst varInst) {
+//        Action reinitLookup = (__) -> {
+//            lookupMember.reinit(methodBody, varInst.getThisClass());
+//            this.mhReassign(methodBody, lookupMember, mhMember, varInst);
+//        };
+//        lookupMember.runtimeCheck(methodBody, varInst, reinitLookup);
     }
 
     /**
@@ -117,8 +118,8 @@ public abstract class MethodHandle {
      * @param mhMember a {@link MethodHandleMember} object.
      * @param objVar a {@link VarInst} object.
      */
-    protected void checkMethodHandle(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
-        mhMember.ifNull(methodBody, body -> mhReassign(body, lookupMember, mhMember, objVar));
+    protected void checkMethodHandle(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar) {
+        mhMember.ifNull(methodBody, body -> mhReassign(body, lookupVar, mhMember, objVar));
     }
 
     /**
@@ -138,11 +139,11 @@ public abstract class MethodHandle {
      * </pre>
      *
      * @param methodBody a {@link MethodBody} object.
-     * @param lookupMember a {@link LookupMember} object.
-     * @param mhMember a {@link MethodHandleMember} object.
-     * @param objVar a {@link VarInst} object.
+     * @param lookupVar  a {@link LookupMember} object.
+     * @param mhMember   a {@link MethodHandleMember} object.
+     * @param objVar     a {@link VarInst} object.
      */
-    protected abstract void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar);
+    protected abstract void mhReassign(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar);
 
     /**
      * <p>genericType.</p>

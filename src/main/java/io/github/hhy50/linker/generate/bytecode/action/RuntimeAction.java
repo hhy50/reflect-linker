@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.bytecode.LookupMember;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 
 /**
@@ -42,8 +43,8 @@ public class RuntimeAction {
      * @param fieldName a {@link java.lang.String} object.
      * @return a {@link MethodInvokeAction} object.
      */
-    public static MethodInvokeAction findSetter(LookupMember lookupMember, String fieldName) {
+    public static MethodInvokeAction findSetter(VarInst lookupVar, String fieldName) {
         return new MethodInvokeAction(Runtime.FIND_SETTER)
-                .setArgs(lookupMember, LdcLoadAction.of(fieldName));
+                .setArgs(lookupVar, LdcLoadAction.of(fieldName));
     }
 }

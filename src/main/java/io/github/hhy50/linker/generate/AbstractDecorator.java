@@ -2,7 +2,6 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.exceptions.TypeNotMatchException;
-import io.github.hhy50.linker.generate.bytecode.LookupMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -24,7 +23,7 @@ public abstract class AbstractDecorator extends MethodHandle {
 
     /** {@inheritDoc} */
     @Override
-    protected void mhReassign(MethodBody methodBody, LookupMember lookupMember, MethodHandleMember mhMember, VarInst objVar) {
+    protected void mhReassign(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar) {
         throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 

@@ -4,7 +4,7 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.LookupMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
@@ -38,8 +38,6 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
         getter.define(classImplBuilder);
 
-        // 先定义上一层字段的lookup
-        LookupMember lookupMember = classImplBuilder.defineRuntimeLookup(field.getPrev());
         // 定义当前字段的mh
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(), methodType);
         // 定义当前字段的getter
@@ -47,12 +45,8 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
             MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
 
-            LookupMember prevLookup = getter.getLookupMember();
-            if (lookupMember != prevLookup) {
-                checkLookup(methodBody, lookupMember, mhMember, objVar);
-                staticCheckLookup(methodBody, prevLookup, lookupMember, field.getPrev());
-            }
-            checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
+            ClassTypeMember ownerClass = getter.getTypeMember();
+            checkMethodHandle(methodBody, ownerClass.getLookup(methodBody), mhMember, objVar);
 
             // mh.invoke(obj, fieldValue)
             if (field.isDesignateStatic()) {
