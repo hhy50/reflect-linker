@@ -1,10 +1,10 @@
 package io.github.hhy50.linker.generate.bytecode;
 
 
-import io.github.hhy50.linker.constant.Lookup;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -25,7 +25,7 @@ public class LookupMember extends Member {
      * @param lookupName a {@link java.lang.String} object.
      */
     public LookupMember(int access, String owner, String lookupName) {
-        super(access, owner, lookupName, Lookup.TYPE);
+        super(access, owner, lookupName, LookupVar.TYPE);
     }
 
     /**
@@ -79,7 +79,7 @@ public class LookupMember extends Member {
          * // goto checkMh
          */
         methodBody.append(() -> new ConditionJumpAction(
-                Condition.isNull(this),
+                Condition.must(Condition.isNull(this), Condition.notNull(varInst)),
                 lookupAssign, null)
         );
     }

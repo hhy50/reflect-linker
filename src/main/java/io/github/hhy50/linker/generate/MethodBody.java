@@ -112,6 +112,9 @@ public class MethodBody {
      */
     public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
         LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
+        if (type.getSort() == Type.LONG || type.getSort() == Type.DOUBLE) {
+            lvbIndex++;
+        }
         if (action != null) {
             this.append(() -> localVarInst.store(action));
         }

@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
-import io.github.hhy50.linker.constant.Lookup;
 import io.github.hhy50.linker.constant.MethodHandle;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
@@ -10,9 +9,12 @@ import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.LookupMember;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.vars.ClassVar;
+import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.getter.EarlyFieldGetter;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.RuntimeFieldGetter;
@@ -178,7 +180,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         String lookupMemberName = fieldRef.getUniqueName()+"_runtime_lookup";
         if (!members.containsKey(lookupMemberName)) {
             int access = Opcodes.ACC_PUBLIC;
-            super.defineField(access, lookupMemberName, Lookup.DESCRIPTOR, null, null);
+            super.defineField(access, lookupMemberName, LookupVar.DESCRIPTOR, null, null);
             this.members.put(lookupMemberName, new LookupMember(access, implClassDesc, lookupMemberName));
         }
         return (LookupMember) members.get(lookupMemberName);
@@ -194,7 +196,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         String memberName = className.replace('.', '_')+"_lookup";
         if (!members.containsKey(memberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            super.defineField(access, memberName, Lookup.DESCRIPTOR, null, null);
+            super.defineField(access, memberName, LookupVar.DESCRIPTOR, null, null);
             this.members.put(memberName, new LookupMember(access, implClassDesc, memberName));
         }
         return (LookupMember) members.get(memberName);
@@ -245,5 +247,23 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
             clinit = new MethodBody(this, clinitMethodWriter, Type.getMethodType(Type.VOID_TYPE), true);
         }
         return clinit;
+    }
+
+    public ClassTypeMember defineTypedClass(FieldRef field) {
+        String mName = field.getUniqueName()+"_$_class";
+        if (field instanceof EarlyFieldRef) {
+            mName = field.getType().getClassName() + "_$_class";
+        }
+
+        if (!members.containsKey(mName)) {
+            super.defineField(Opcodes.ACC_PUBLIC, mName, ClassVar.TYPE.getDescriptor(), null, null);
+
+            ClassTypeMember classTypeMember = new ClassTypeMember(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, implClassDesc, mName, field);
+            classTypeMember.setClassImplBuilder(this);
+            this.members.put(mName, classTypeMember);
+
+            return classTypeMember;
+        }
+        return (ClassTypeMember) members.get(mName);
     }
 }

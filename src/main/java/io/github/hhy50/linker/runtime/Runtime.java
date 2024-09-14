@@ -25,7 +25,7 @@ public class Runtime {
     /** Constant <code>FIND_SETTER_DESC="(Ljava/lang/invoke/MethodHandles$Lookup"{trunked}</code> */
     public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     /** Constant <code>FIND_METHOD_DESC="(Ljava/lang/invoke/MethodHandles$Lookup"{trunked}</code> */
-    public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     /** Constant <code>FIND_GETTER</code> */
     public static final MethodHolder FIND_GETTER = new MethodHolder(Runtime.OWNER, "findGetter", Runtime.FIND_GETTER_DESC);
     /** Constant <code>FIND_SETTER</code> */
@@ -172,16 +172,11 @@ public class Runtime {
      * @return a {@link java.lang.invoke.MethodHandle} object.
      * @throws java.lang.IllegalAccessException if any.
      * @throws java.lang.NoSuchMethodException if any.
-     * @throws java.lang.reflect.InvocationTargetException if any.
-     * @throws java.lang.InstantiationException if any.
      */
-    public static MethodHandle findMethod(MethodHandles.Lookup lookup, String methodName, String superClass, String[] argsType) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-        Method method = ReflectUtil.matchMethod(lookup.lookupClass(), methodName, superClass, argsType);
+    public static MethodHandle findMethod(MethodHandles.Lookup lookup, Class<?> clazz, String methodName, String superClass, String[] argsType) throws IllegalAccessException, NoSuchMethodException {
+        Method method = ReflectUtil.matchMethod(clazz, methodName, superClass, argsType);
         if (method == null) {
-            throw new NoSuchMethodException("not found method '"+methodName+"' in class "+lookup.lookupClass().getName());
-        }
-        if (lookup.lookupClass() != method.getDeclaringClass() && !method.isAccessible()) {
-            lookup = lookup(method.getDeclaringClass());
+            throw new NoSuchMethodException("not found method '"+methodName+"' in class "+clazz.getName());
         }
         return superClass == null ? lookup.unreflect(method) : lookup.unreflectSpecial(method, lookup.lookupClass());
     }

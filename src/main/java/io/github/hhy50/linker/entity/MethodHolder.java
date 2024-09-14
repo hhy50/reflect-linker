@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.entity;
 
-import io.github.hhy50.linker.constant.Lookup;
+import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 
 /**
  * <p>MethodHolder class.</p>
@@ -17,19 +17,19 @@ public class MethodHolder {
     /** Constant <code>CLASS_GET_NAME</code> */
     public static final MethodHolder CLASS_GET_NAME = new MethodHolder("java/lang/Class", "getName", "()Ljava/lang/String;");
     /** Constant <code>LOOKUP_LOOKUP_CLASS</code> */
-    public static final MethodHolder LOOKUP_LOOKUP_CLASS = new MethodHolder(Lookup.OWNER, "lookupClass", "()Ljava/lang/Class;");
+    public static final MethodHolder LOOKUP_LOOKUP_CLASS = new MethodHolder(LookupVar.OWNER, "lookupClass", "()Ljava/lang/Class;");
     /** Constant <code>LOOKUP_FIND_GETTER_METHOD</code> */
-    public static final MethodHolder LOOKUP_FIND_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findGetter", Lookup.FIND_XETTER_DESC);
+    public static final MethodHolder LOOKUP_FIND_GETTER_METHOD = new MethodHolder(LookupVar.OWNER, "findGetter", LookupVar.FIND_XETTER_DESC);
     /** Constant <code>LOOKUP_FIND_STATIC_GETTER_METHOD</code> */
-    public static final MethodHolder LOOKUP_FIND_STATIC_GETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticGetter", Lookup.FIND_XETTER_DESC);
+    public static final MethodHolder LOOKUP_FIND_STATIC_GETTER_METHOD = new MethodHolder(LookupVar.OWNER, "findStaticGetter", LookupVar.FIND_XETTER_DESC);
     /** Constant <code>LOOKUP_FIND_SETTER_METHOD</code> */
-    public static final MethodHolder LOOKUP_FIND_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findSetter", Lookup.FIND_XETTER_DESC);
+    public static final MethodHolder LOOKUP_FIND_SETTER_METHOD = new MethodHolder(LookupVar.OWNER, "findSetter", LookupVar.FIND_XETTER_DESC);
     /** Constant <code>LOOKUP_FIND_STATIC_SETTER_METHOD</code> */
-    public static final MethodHolder LOOKUP_FIND_STATIC_SETTER_METHOD = new MethodHolder(Lookup.OWNER, "findStaticSetter", Lookup.FIND_XETTER_DESC);
+    public static final MethodHolder LOOKUP_FIND_STATIC_SETTER_METHOD = new MethodHolder(LookupVar.OWNER, "findStaticSetter", LookupVar.FIND_XETTER_DESC);
     /** Constant <code>LOOKUP_FIND_FINDVIRTUAL</code> */
-    public static final MethodHolder LOOKUP_FIND_FINDVIRTUAL = new MethodHolder(Lookup.OWNER, "findVirtual", Lookup.FIND_VIRTUAL);
+    public static final MethodHolder LOOKUP_FIND_FINDVIRTUAL = new MethodHolder(LookupVar.OWNER, "findVirtual", LookupVar.FIND_VIRTUAL);
     /** Constant <code>LOOKUP_FIND_FINDSPECIAL</code> */
-    public static final MethodHolder LOOKUP_FIND_FINDSPECIAL = new MethodHolder(Lookup.OWNER, "findSpecial", Lookup.FIND_SPECIAL);
+    public static final MethodHolder LOOKUP_FIND_FINDSPECIAL = new MethodHolder(LookupVar.OWNER, "findSpecial", LookupVar.FIND_SPECIAL);
     /** Constant <code>METHOD_TYPE</code> */
     public static final MethodHolder METHOD_TYPE = new MethodHolder("java/lang/invoke/MethodType", "methodType", "(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;");
     /** Constant <code>ARRAYS_ASLIST</code> */

@@ -41,6 +41,9 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         MethodBody clinit = classImplBuilder.getClinit();
         Type declaredType = Type.getType(field.getDeclaredType());
 
+        this.typeMember = classImplBuilder.defineTypedClass(field);
+        this.typeMember.store(clinit, getClassLoadAction(field.getType()));
+
         // 定义上一层字段的lookup, 必须要用declaredType
         LookupMember lookupMember = classImplBuilder.defineTypedLookup(declaredType.getClassName());
         // init lookup

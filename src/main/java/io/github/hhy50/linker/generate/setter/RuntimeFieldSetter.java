@@ -49,8 +49,8 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
 
             LookupMember prevLookup = getter.getLookupMember();
             if (lookupMember != prevLookup) {
-                staticCheckLookup(methodBody, prevLookup, lookupMember, objVar, field.getPrev());
                 checkLookup(methodBody, lookupMember, mhMember, objVar);
+                staticCheckLookup(methodBody, prevLookup, lookupMember, field.getPrev());
             }
             checkMethodHandle(methodBody, lookupMember, mhMember, objVar);
 

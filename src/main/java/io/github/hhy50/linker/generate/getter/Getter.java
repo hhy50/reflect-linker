@@ -5,6 +5,7 @@ import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.LookupMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
@@ -28,8 +29,8 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     protected final T field;
     protected final String implClass;
     protected MethodHolder methodHolder;
-    protected LookupMember lookupMember;
     protected Type methodType;
+    protected ClassTypeMember typeMember;
 
     /**
      * <p>Constructor for Getter.</p>
@@ -40,7 +41,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     public Getter(String implClass, T field) {
         this.implClass = implClass;
         this.field = field;
-        this.methodType = Type.getMethodType(AsmUtil.isPrimitiveType(field.getType())? field.getType(): ObjectVar.TYPE);
+        this.methodType = Type.getMethodType(AsmUtil.isPrimitiveType(field.getType()) ? field.getType(): ObjectVar.TYPE);
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
@@ -62,12 +63,8 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         mhMember.store(methodBody, findGetter);
     }
 
-    /**
-     * <p>Getter for the field <code>lookupMember</code>.</p>
-     *
-     * @return a {@link LookupMember} object.
-     */
-    public LookupMember getLookupMember() {
-        return lookupMember;
+
+    public ClassTypeMember getTypeMember() {
+        return this.typeMember;
     }
 }

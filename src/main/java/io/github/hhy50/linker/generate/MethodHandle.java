@@ -56,15 +56,15 @@ public abstract class MethodHandle {
     /**
      * 初始化静态 methodhandle
      *
-     * @param classImplBuilder a {@link InvokeClassImplBuilder} object.
+     * @param clinit a {@link MethodBody} object.
      * @param mhMember a {@link MethodHandleMember} object.
-     * @param lookupMember a {@link LookupMember} object.
+     * @param lookupVar a {@link VarInst} object.
      * @param ownerType a {@link org.objectweb.asm.Type} object.
      * @param fieldName a {@link java.lang.String} object.
      * @param methodType a {@link org.objectweb.asm.Type} object.
      * @param isStatic a boolean.
      */
-    protected void initStaticMethodHandle(InvokeClassImplBuilder classImplBuilder, MethodHandleMember mhMember, LookupMember lookupMember, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, VarInst lookupVar, Type ownerType, String fieldName, Type methodType, boolean isStatic) {
 
     }
 
@@ -100,12 +100,11 @@ public abstract class MethodHandle {
      *
      * @param methodBody a {@link MethodBody} object.
      * @param lookupMember a {@link LookupMember} object.
-     * @param objVar a {@link VarInst} object.
      * @param field a {@link FieldRef} object.
      * @param prevLookupMember a {@link LookupMember} object.
      */
-    protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, VarInst objVar, FieldRef field) {
-        objVar.ifNull(methodBody, (__) -> {
+    protected void staticCheckLookup(MethodBody methodBody, LookupMember prevLookupMember, LookupMember lookupMember, FieldRef field) {
+        lookupMember.ifNull(methodBody, (__) -> {
             lookupMember.store(methodBody, RuntimeAction.findLookup(prevLookupMember, field.fieldName));
         });
     }

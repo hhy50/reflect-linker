@@ -57,8 +57,8 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
                     LookupMember prevLookup = ownerGetter.getLookupMember();
                     if (lookupMember != prevLookup) {
-                        staticCheckLookup(methodBody, prevLookup, lookupMember, ownerVar, owner);
                         checkLookup(methodBody, lookupMember, mhMember, ownerVar);
+                        staticCheckLookup(methodBody, prevLookup, lookupMember, owner);
                     }
                     checkMethodHandle(methodBody, lookupMember, mhMember, ownerVar);
 
@@ -77,7 +77,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         String superClass = method.getSuperClass();
         Action superClassLoad = superClass != null ? LdcLoadAction.of(superClass) : Action.loadNull();
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_METHOD)
-                .setArgs(lookupMember,
+                .setArgs(lookupMember, objVar.getThisClass(),
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
                         Action.asArray(Type.getType(String.class), Arrays.stream(method.getArgsType())
