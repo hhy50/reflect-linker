@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.setter;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -35,16 +36,19 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
     /** {@inheritDoc} */
     @Override
     public final void define0(InvokeClassImplBuilder classImplBuilder) {
-        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
+        FieldRef prevField = field.getPrev();
+        Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();
-        ClassTypeMember declaredClass = getter.getTypeMember();
+        ClassTypeMember ownerType = classImplBuilder.defineClassTypeMember(prevField.getUniqueName(), prevField.getType());
+        ownerType.store(clinit, getClassLoadAction(prevField.getType()));
 
         // 定义当前字段的 setter
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), this.methodType);
         // init methodHandle
-        initStaticMethodHandle(clinit, mhMember, declaredClass, field.fieldName, field.getType(), field.isStatic());
+        initStaticMethodHandle(clinit, mhMember, ownerType, field.fieldName, field.getType(), field.isStatic());
+
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);

@@ -45,7 +45,7 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
             MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(methodBody);
 
-            ClassTypeMember ownerClass = getter.getTypeMember();
+            ClassTypeMember ownerClass = getter.getOwnerType();
             checkMethodHandle(methodBody, ownerClass.getLookup(methodBody), mhMember, objVar);
 
             // mh.invoke(obj, fieldValue)

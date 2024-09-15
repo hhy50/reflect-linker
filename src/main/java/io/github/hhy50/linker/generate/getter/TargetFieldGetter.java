@@ -44,23 +44,14 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        Type targetType = Type.getType(field.getClassType());
-        if (!AnnotationUtils.isRuntime(defineClass)) {
-            MethodBody clinit = classImplBuilder.getClinit();
-            this.typeMember = classImplBuilder.defineClassTypeMember(field.getUniqueName(), targetType);
-            this.typeMember.store(clinit, getClassLoadAction(targetType));
-        } else {
+        if (AnnotationUtils.isRuntime(defineClass)) {
             String mName = "getTarget";
             Type mType = Type.getMethodType(ObjectVar.TYPE);
-            this.typeMember = classImplBuilder.defineClassTypeMember(field.getUniqueName(), null);
             this.getTarget = new MethodHolder(this.targetField.getOwner(), mName, mType.getDescriptor());
             classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, mName, mType.getDescriptor(), null, null)
                     .accept(mv -> {
                         MethodBody body = new MethodBody(classImplBuilder, mv, mType);
                         VarInst targetVar = body.newLocalVar(ObjectVar.TYPE, "target", new FieldLoadAction(targetField).setInstance(LoadAction.LOAD0));
-
-                        this.typeMember.init(body, targetVar, getClassLoadAction(targetType));
-                        checkLookup(body, typeMember.getLookup(body), null, targetVar);
                         targetVar.returnThis(body);
                     });
         }
@@ -69,7 +60,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        if (AnnotationUtils.isRuntime(defineClass)) {
+        if (this.getTarget != null) {
             return methodBody.newLocalVar(ObjectVar.TYPE, "target", new MethodInvokeAction(getTarget).setInstance(LoadAction.LOAD0));
         }
         return methodBody.newLocalVar(field.getType(), field.fieldName,

@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.getter;
 
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -36,19 +37,19 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
      */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
+        FieldRef prevField = field.getPrev();
+        Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();
-        ClassTypeMember declaredClass = getter.getTypeMember();
 
-        // 保存当前字段类型
-        this.typeMember = classImplBuilder.defineClassTypeMember(field.getUniqueName(), field.getType());
-        this.typeMember.store(clinit, getClassLoadAction(field.getType()));
+        // 保存上一级的字段类型
+        this.ownerType = classImplBuilder.defineClassTypeMember(prevField.getUniqueName(), prevField.getType());
+        this.ownerType.store(clinit, getClassLoadAction(prevField.getType()));
 
         // 定义当前字段的getter mh, init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
-        initStaticMethodHandle(clinit, mhMember, declaredClass, field.fieldName, field.getType(), field.isStatic());
+        initStaticMethodHandle(clinit, mhMember, ownerType, field.fieldName, field.getType(), field.isStatic());
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
                 .accept(mv -> {
@@ -73,7 +74,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         VarInst lookupVar = ownerClass.getLookup(clinit);
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodHolder.LOOKUP_FIND_STATIC_GETTER_METHOD : MethodHolder.LOOKUP_FIND_GETTER_METHOD);
         findGetter.setInstance(lookupVar)
-                .setArgs(ownerClass, LdcLoadAction.of(fieldName), this.typeMember);
+                .setArgs(ownerClass, LdcLoadAction.of(fieldName), getClassLoadAction(fieldType));
         mhMember.store(clinit, findGetter);
     }
 }

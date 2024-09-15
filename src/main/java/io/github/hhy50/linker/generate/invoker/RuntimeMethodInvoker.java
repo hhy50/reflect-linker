@@ -53,7 +53,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                     MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
                     VarInst ownerVar = ownerGetter.invoke(methodBody);
 
-                    ClassTypeMember ownerClass = ownerGetter.getTypeMember();
+                    ClassTypeMember ownerClass = ownerGetter.getOwnerType();
                     checkMethodHandle(methodBody, ownerClass.getLookup(methodBody), mhMember, ownerVar);
 
                     // mh.invoke(obj)

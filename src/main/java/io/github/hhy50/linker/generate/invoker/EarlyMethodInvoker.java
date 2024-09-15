@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.asm.AsmUtil;
+import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
@@ -38,15 +39,18 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-//        EarlyFieldRef owner = (EarlyFieldRef) method.getOwner();
-        Getter<?> getter = classImplBuilder.getGetter(method.getOwner().getUniqueName());
+        FieldRef owner = method.getOwner();
+        Getter<?> getter = classImplBuilder.getGetter(owner.getUniqueName());
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();
+        ClassTypeMember ownerType = classImplBuilder.defineClassTypeMember(owner.getUniqueName(), owner.getType());
+        ownerType.store(clinit, getClassLoadAction(owner.getType()));
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), methodType);
-        initStaticMethodHandle(clinit, mhMember, getter.getTypeMember(), method.getName(), method.getMethodType(), method.isStatic());
+        initStaticMethodHandle(clinit, mhMember, ownerType, method.getName(), method.getMethodType(), method.isStatic());
+
         // 定义当前方法的invoker
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")

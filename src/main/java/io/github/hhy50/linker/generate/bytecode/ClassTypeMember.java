@@ -16,6 +16,8 @@ public class ClassTypeMember extends Member {
 
     private InvokeClassImplBuilder classImplBuilder;
 
+    private boolean inited;
+
     /**
      * <p>Constructor for Member.</p>
      *
@@ -51,9 +53,15 @@ public class ClassTypeMember extends Member {
      * @param var
      * @param classLoadAction
      */
-    public void init(MethodBody body, VarInst var, Action classLoadAction) {
+    public void store(MethodBody body, Action classLoadAction) {
+        if (inited) return;
+        super.store(body, classLoadAction);
+        this.inited = true;
+    }
+
+    public void checkClass(MethodBody body, VarInst var, Action classLoadAction) {
         var.ifNull(body,
-                (__) -> store(body, classLoadAction),
+                classLoadAction != null ? (__) -> store(body, classLoadAction) : null,
                 (__) -> store(body, var.getThisClass())
         );
     }

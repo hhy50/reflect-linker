@@ -12,7 +12,7 @@ import io.github.hhy50.linker.test.MyInteger;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Runtime
+//@Runtime
 @Target.Bind("java.util.ArrayList")
 public interface MyArrayList {
 

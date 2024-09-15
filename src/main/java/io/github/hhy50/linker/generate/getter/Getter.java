@@ -29,7 +29,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     protected final String implClass;
     protected MethodHolder methodHolder;
     protected Type methodType;
-    protected ClassTypeMember typeMember;
+    protected ClassTypeMember ownerType;
 
     /**
      * <p>Constructor for Getter.</p>
@@ -63,7 +63,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     }
 
 
-    public ClassTypeMember getTypeMember() {
-        return this.typeMember;
+    public ClassTypeMember getOwnerType() {
+        return this.ownerType;
     }
 }
