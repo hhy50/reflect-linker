@@ -89,8 +89,8 @@ public abstract class Member implements LoadAction {
     /**
      * <p>store.</p>
      *
-     * @param methodBody a {@link MethodBody} object.
-     * @param action a {@link Action} object.
+     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     public void store(MethodBody methodBody, Action action) {
         MethodVisitor mv = methodBody.getWriter();

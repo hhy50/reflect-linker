@@ -56,7 +56,7 @@ public class RuntimeUtil {
      *
      * @param methodHandle a {@link java.lang.invoke.MethodHandle} object.
      * @return a boolean.
-     * @throws LinkerException if any.
+     * @throws io.github.hhy50.linker.exceptions.LinkerException if any.
      */
     public static boolean isStatic(MethodHandle methodHandle) throws LinkerException {
         DirectMethodHandleLinker mh = AccessTool.createSysLinker(DirectMethodHandleLinker.class, methodHandle);

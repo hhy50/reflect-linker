@@ -16,6 +16,7 @@ public interface LoadAction extends Action {
         public void load(MethodBody body) {
             body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
         }
+    /** Constant <code>LOAD0</code> */
     };
 
     /** {@inheritDoc} */
@@ -27,8 +28,8 @@ public interface LoadAction extends Action {
     /**
      * <p>ifNull.</p>
      *
-     * @param body a {@link MethodBody} object.
-     * @param ifBlock a {@link Action} object.
+     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     default void ifNull(MethodBody body, Action ifBlock) {
         body.append(() ->
@@ -39,9 +40,9 @@ public interface LoadAction extends Action {
     /**
      * <p>ifNull.</p>
      *
-     * @param body a {@link MethodBody} object.
-     * @param ifBlock a {@link Action} object.
-     * @param elseBlock a {@link Action} object.
+     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param elseBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     default void ifNull(MethodBody body, Action ifBlock, Action elseBlock) {
         body.append(() ->
@@ -52,7 +53,7 @@ public interface LoadAction extends Action {
     /**
      * <p>load.</p>
      *
-     * @param body a {@link MethodBody} object.
+     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
      */
     void load(MethodBody body);
 }

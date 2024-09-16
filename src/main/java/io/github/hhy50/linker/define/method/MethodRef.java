@@ -26,7 +26,7 @@ public abstract class MethodRef {
     /**
      * <p>Constructor for MethodRef.</p>
      *
-     * @param owner a {@link FieldRef} object.
+     * @param owner a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param name a {@link java.lang.String} object.
      */
     public MethodRef(FieldRef owner, String name) {
@@ -37,7 +37,7 @@ public abstract class MethodRef {
     /**
      * <p>Getter for the field <code>owner</code>.</p>
      *
-     * @return a {@link FieldRef} object.
+     * @return a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      */
     public FieldRef getOwner() {
         return owner;

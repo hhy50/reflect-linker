@@ -21,12 +21,13 @@ public class Runtime {
     /** Constant <code>OWNER="io/github/hhy50/linker/runtime/Runtime"</code> */
     public static String OWNER = "io/github/hhy50/linker/runtime/Runtime";
     /** Constant <code>FIND_GETTER_DESC="(Ljava/lang/invoke/MethodHandles$Lookup"{trunked}</code> */
-    public static String FIND_GETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static String FIND_GETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     /** Constant <code>FIND_SETTER_DESC="(Ljava/lang/invoke/MethodHandles$Lookup"{trunked}</code> */
-    public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     /** Constant <code>FIND_METHOD_DESC="(Ljava/lang/invoke/MethodHandles$Lookup"{trunked}</code> */
     public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     /** Constant <code>FIND_GETTER</code> */
+    public static final MethodHolder FIND_FIELD = new MethodHolder(Runtime.OWNER, "findField", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Class;");
     public static final MethodHolder FIND_GETTER = new MethodHolder(Runtime.OWNER, "findGetter", Runtime.FIND_GETTER_DESC);
     /** Constant <code>FIND_SETTER</code> */
     public static final MethodHolder FIND_SETTER = new MethodHolder(Runtime.OWNER, "findSetter", Runtime.FIND_SETTER_DESC);
@@ -86,6 +87,14 @@ public class Runtime {
         return cl.loadClass(callerClassName);
     }
 
+    public static Class<?> findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+        Field field = ReflectUtil.getField(clazz, fieldName);
+        if (field == null) {
+            throw new NoSuchFieldException("not found property '"+fieldName+"' in class '"+clazz.getName()+"'");
+        }
+        return field.getType();
+    }
+
     /**
      * <p>findLookup.</p>
      *
@@ -102,22 +111,7 @@ public class Runtime {
     }
 
     /**
-     * 获取Getter
-     *
-     * @param lookup a {@link java.lang.invoke.MethodHandles.Lookup} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @return a {@link java.lang.invoke.MethodHandle} object.
-     * @throws java.lang.IllegalAccessException if any.
-     * @throws java.lang.reflect.InvocationTargetException if any.
-     * @throws java.lang.InstantiationException if any.
-     * @throws java.lang.NoSuchFieldException if any.
-     */
-    public static MethodHandle findGetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
-        return findGetter(lookup, lookup.lookupClass(), fieldName);
-    }
-
-    /**
-     * <p>findGetter.</p>
+     * <p>获取Getter</p>
      *
      * @param lookup a {@link java.lang.invoke.MethodHandles.Lookup} object.
      * @param clazz a {@link java.lang.Class} object.
@@ -131,10 +125,7 @@ public class Runtime {
     public static MethodHandle findGetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
         Field field = ReflectUtil.getField(clazz, fieldName);
         if (field == null) {
-            throw new NoSuchFieldException("not found property '"+fieldName+"' in class '"+lookup.lookupClass().getName()+"'");
-        }
-        if (lookup.lookupClass() != field.getDeclaringClass() && !field.isAccessible()) {
-            lookup = lookup(field.getDeclaringClass());
+            throw new NoSuchFieldException("not found property '"+fieldName+"' in class '"+clazz.getName()+"'");
         }
         return lookup.unreflectGetter(field);
     }
@@ -146,18 +137,16 @@ public class Runtime {
      * @param lookup a {@link java.lang.invoke.MethodHandles.Lookup} object.
      * @param fieldName a {@link java.lang.String} object.
      * @return a {@link java.lang.invoke.MethodHandle} object.
+     * @param clazz a {@link java.lang.Class} object.
      * @throws java.lang.IllegalAccessException if any.
      * @throws java.lang.reflect.InvocationTargetException if any.
      * @throws java.lang.InstantiationException if any.
      * @throws java.lang.NoSuchFieldException if any.
      */
-    public static MethodHandle findSetter(MethodHandles.Lookup lookup, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
-        Field field = ReflectUtil.getField(lookup.lookupClass(), fieldName);
+    public static MethodHandle findSetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
+        Field field = ReflectUtil.getField(clazz, fieldName);
         if (field == null) {
-            throw new NoSuchFieldException("not found property '"+fieldName+"' in class "+lookup.lookupClass().getName());
-        }
-        if (lookup.lookupClass() != field.getDeclaringClass() && !field.isAccessible()) {
-            lookup = lookup(field.getDeclaringClass());
+            throw new NoSuchFieldException("not found property '"+fieldName+"' in class "+clazz.getName());
         }
         return lookup.unreflectSetter(field);
     }
@@ -170,6 +159,7 @@ public class Runtime {
      * @param superClass a {@link java.lang.String} object.
      * @param argsType an array of {@link java.lang.String} objects.
      * @return a {@link java.lang.invoke.MethodHandle} object.
+     * @param clazz a {@link java.lang.Class} object.
      * @throws java.lang.IllegalAccessException if any.
      * @throws java.lang.NoSuchMethodException if any.
      */
@@ -178,6 +168,6 @@ public class Runtime {
         if (method == null) {
             throw new NoSuchMethodException("not found method '"+methodName+"' in class "+clazz.getName());
         }
-        return superClass == null ? lookup.unreflect(method) : lookup.unreflectSpecial(method, lookup.lookupClass());
+        return superClass == null ? lookup.unreflect(method) : lookup.unreflectSpecial(method, clazz);
     }
 }

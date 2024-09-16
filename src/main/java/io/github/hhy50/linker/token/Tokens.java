@@ -16,7 +16,7 @@ public class Tokens implements Iterable<Token> {
     /**
      * <p>add.</p>
      *
-     * @param token a {@link Token} object.
+     * @param token a {@link io.github.hhy50.linker.token.Token} object.
      */
     public void add(Token token) {
         if (head == null) {

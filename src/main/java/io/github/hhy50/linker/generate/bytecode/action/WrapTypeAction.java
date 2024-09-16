@@ -18,7 +18,7 @@ public class WrapTypeAction implements Action {
     /**
      * <p>Constructor for WrapTypeAction.</p>
      *
-     * @param obj a {@link VarInst} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public WrapTypeAction(VarInst obj) {
         this.obj = obj;

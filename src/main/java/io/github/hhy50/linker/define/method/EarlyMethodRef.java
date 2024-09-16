@@ -20,7 +20,7 @@ public class EarlyMethodRef extends MethodRef {
     /**
      * <p>Constructor for EarlyMethodRef.</p>
      *
-     * @param owner a {@link FieldRef} object.
+     * @param owner a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param method a {@link java.lang.reflect.Method} object.
      */
     public EarlyMethodRef(FieldRef owner, Method method) {

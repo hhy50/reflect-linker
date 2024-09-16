@@ -5,7 +5,8 @@ import io.github.hhy50.linker.entity.FieldHolder;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.action.ConditionJumpAction;
 import io.github.hhy50.linker.generate.bytecode.action.FieldLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
@@ -15,6 +16,9 @@ import io.github.hhy50.linker.util.AnnotationUtils;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import static io.github.hhy50.linker.generate.bytecode.action.Condition.isNull;
+import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
 
 
 /**
@@ -31,9 +35,9 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     /**
      * <p>Constructor for TargetFieldGetter.</p>
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param defineClass a {@link java.lang.Class} object.
-     * @param targetFieldRef a {@link EarlyFieldRef} object.
+     * @param implClass      a {@link java.lang.String} object.
+     * @param defineClass    a {@link java.lang.Class} object.
+     * @param targetFieldRef a {@link io.github.hhy50.linker.define.field.EarlyFieldRef} object.
      */
     public TargetFieldGetter(String implClass, Class<?> defineClass, EarlyFieldRef targetFieldRef) {
         super(implClass, targetFieldRef);
@@ -41,23 +45,34 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         this.targetField = new FieldHolder(ClassUtil.className2path(implClass), field.getUniqueName(), ObjectVar.TYPE.getDescriptor());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         if (AnnotationUtils.isRuntime(defineClass)) {
             String mName = "getTarget";
             Type mType = Type.getMethodType(ObjectVar.TYPE);
             this.getTarget = new MethodHolder(this.targetField.getOwner(), mName, mType.getDescriptor());
+
+            this.lookupClass = classImplBuilder.defineClassTypeMember(field.toRuntime());
             classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, mName, mType.getDescriptor(), null, null)
                     .accept(mv -> {
                         MethodBody body = new MethodBody(classImplBuilder, mv, mType);
                         VarInst targetVar = body.newLocalVar(ObjectVar.TYPE, "target", new FieldLoadAction(targetField).setInstance(LoadAction.LOAD0));
+
+                        checkLookClass(body, lookupClass, targetVar);
                         targetVar.returnThis(body);
                     });
+        } else {
+            this.lookupClass = classImplBuilder.defineClassTypeMember(field);
+            this.lookupClass.store(classImplBuilder.getClinit(), getClassLoadAction(field.getType()));
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         if (this.getTarget != null) {
@@ -68,11 +83,15 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         );
     }
 
-    /** {@inheritDoc} */
     @Override
-    protected void checkLookup(MethodBody methodBody, VarInst lookupMember, MethodHandleMember _nil_, VarInst varInst) {
-//        varInst.ifNull(methodBody,
-//                (__) -> lookupMember.reinit(methodBody, getClassLoadAction(Type.getType(field.getClassType()))),
-//                (__) -> lookupMember.reinit(methodBody, varInst.getThisClass()));
+    protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst) {
+        body.append(() -> new ConditionJumpAction(
+                isNull(lookupClass),
+                new ConditionJumpAction(notNull(varInst),
+                        (__) -> lookupClass.store(__, varInst.getThisClass()),
+                        (__) -> lookupClass.store(__, getClassLoadAction(field.getType()))
+                ),
+                null
+        ));
     }
 }

@@ -19,7 +19,7 @@ public class TokenParser {
      * <p>parse.</p>
      *
      * @param tokensStr a {@link java.lang.String} object.
-     * @return a {@link Tokens} object.
+     * @return a {@link io.github.hhy50.linker.token.Tokens} object.
      */
     public Tokens parse(String tokensStr) {
         if (tokensStr == null || (tokensStr = tokensStr.trim()).length() == 0) {

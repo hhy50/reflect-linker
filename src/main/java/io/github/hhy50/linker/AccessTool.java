@@ -17,7 +17,7 @@ public class AccessTool {
      * @param obj a {@link java.lang.Object} object.
      * @param <T> a T object.
      * @return a T object.
-     * @throws LinkerException if any.
+     * @throws io.github.hhy50.linker.exceptions.LinkerException if any.
      */
     public static <T> T createSysLinker(Class<T> sysDefineClass, Object obj) throws LinkerException {
         return LinkerFactory.createSysLinker(sysDefineClass, obj);

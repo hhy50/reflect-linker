@@ -27,7 +27,7 @@ public interface DirectMethodHandleLinker {
     /**
      * <p>getMember.</p>
      *
-     * @return a {@link MemberNameLinker} object.
+     * @return a {@link io.github.hhy50.linker.syslinker.MemberNameLinker} object.
      */
     @Field.Getter("member")
     MemberNameLinker getMember();

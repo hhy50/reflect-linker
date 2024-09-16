@@ -22,10 +22,10 @@ public class BytecodeFactory {
     /**
      * <p>generateGetter.</p>
      *
-     * @param classBuilder a {@link InvokeClassImplBuilder} object.
-     * @param methodDefine a {@link MethodDefine} object.
-     * @param fieldRef a {@link FieldRef} object.
-     * @return a {@link MethodHandle} object.
+     * @param classBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param methodDefine a {@link io.github.hhy50.linker.define.MethodDefine} object.
+     * @param fieldRef a {@link io.github.hhy50.linker.define.field.FieldRef} object.
+     * @return a {@link io.github.hhy50.linker.generate.MethodHandle} object.
      */
     public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef fieldRef) {
         FieldRef prev = fieldRef.getPrev();
@@ -40,10 +40,10 @@ public class BytecodeFactory {
     /**
      * <p>generateSetter.</p>
      *
-     * @param classBuilder a {@link InvokeClassImplBuilder} object.
-     * @param methodDefine a {@link MethodDefine} object.
-     * @param fieldRef a {@link FieldRef} object.
-     * @return a {@link MethodHandle} object.
+     * @param classBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param methodDefine a {@link io.github.hhy50.linker.define.MethodDefine} object.
+     * @param fieldRef a {@link io.github.hhy50.linker.define.field.FieldRef} object.
+     * @return a {@link io.github.hhy50.linker.generate.MethodHandle} object.
      */
     public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, FieldRef fieldRef) {
         FieldRef prev = fieldRef.getPrev();
@@ -59,10 +59,10 @@ public class BytecodeFactory {
     /**
      * <p>generateInvoker.</p>
      *
-     * @param classBuilder a {@link InvokeClassImplBuilder} object.
-     * @param methodDefine a {@link MethodDefine} object.
-     * @param methodRef a {@link MethodRef} object.
-     * @return a {@link MethodHandle} object.
+     * @param classBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param methodDefine a {@link io.github.hhy50.linker.define.MethodDefine} object.
+     * @param methodRef a {@link io.github.hhy50.linker.define.method.MethodRef} object.
+     * @return a {@link io.github.hhy50.linker.generate.MethodHandle} object.
      */
     public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, MethodRef methodRef) {
         FieldRef owner = methodRef.getOwner();

@@ -29,7 +29,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     protected final String implClass;
     protected MethodHolder methodHolder;
     protected Type methodType;
-    protected ClassTypeMember ownerType;
+    protected ClassTypeMember lookupClass;
 
     /**
      * <p>Constructor for Getter.</p>
@@ -55,15 +55,20 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
 
     /** {@inheritDoc} */
     @Override
-    protected void mhReassign(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar) {
+    protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         // mh = Runtime.findGetter(lookup, "field");
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
-                .setArgs(lookupVar, LdcLoadAction.of(field.fieldName));
+                .setArgs(lookupClass.getLookup(methodBody), lookupClass, LdcLoadAction.of(field.fieldName));
         mhMember.store(methodBody, findGetter);
     }
 
 
-    public ClassTypeMember getOwnerType() {
-        return this.ownerType;
+    /**
+     * <p>Getter for the field <code>ownerType</code>.</p>
+     *
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     */
+    public ClassTypeMember getLookupClass() {
+        return this.lookupClass;
     }
 }

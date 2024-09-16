@@ -26,30 +26,35 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
      * <p>Constructor for EarlyFieldGetter.</p>
      *
      * @param implClass a {@link java.lang.String} object.
-     * @param fieldRef  a {@link EarlyFieldRef} object.
+     * @param fieldRef  a {@link io.github.hhy50.linker.define.field.EarlyFieldRef} object.
      */
     public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef) {
         super(implClass, fieldRef);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();
         Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
+        Type declaredType = Type.getType(field.getDeclaredType());
         MethodBody clinit = classImplBuilder.getClinit();
 
-        // 保存上一级的字段类型
-        this.ownerType = classImplBuilder.defineClassTypeMember(prevField.getUniqueName(), prevField.getType());
-        this.ownerType.store(clinit, getClassLoadAction(prevField.getType()));
+        // 定义lookup class
+        if (declaredType.equals(prevField.getType())) {
+            this.lookupClass = classImplBuilder.defineClassTypeMember(prevField);
+            this.lookupClass.staticInit(clinit, getClassLoadAction(prevField.getType()));
+        } else {
+            this.lookupClass = classImplBuilder.defineClassTypeMember(field.getUniqueName()+"_$declare_", declaredType);
+            this.lookupClass.staticInit(clinit, getClassLoadAction(declaredType));
+        }
 
         // 定义当前字段的getter mh, init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
-        initStaticMethodHandle(clinit, mhMember, ownerType, field.fieldName, field.getType(), field.isStatic());
+        initStaticMethodHandle(clinit, mhMember, lookupClass, field.fieldName, field.getType(), field.isStatic());
+
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
                 .accept(mv -> {
@@ -65,16 +70,13 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
                 });
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember ownerClass, String fieldName, Type fieldType, boolean isStatic) {
-        // mh = lookupVar.findGetter(ArrayList.class, "elementData", Object[].class);
-        VarInst lookupVar = ownerClass.getLookup(clinit);
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+        VarInst lookupVar = lookupClass.getLookup(clinit);
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodHolder.LOOKUP_FIND_STATIC_GETTER_METHOD : MethodHolder.LOOKUP_FIND_GETTER_METHOD);
         findGetter.setInstance(lookupVar)
-                .setArgs(ownerClass, LdcLoadAction.of(fieldName), getClassLoadAction(fieldType));
+                .setArgs(lookupClass, LdcLoadAction.of(fieldName), getClassLoadAction(fieldType));
         mhMember.store(clinit, findGetter);
     }
 }

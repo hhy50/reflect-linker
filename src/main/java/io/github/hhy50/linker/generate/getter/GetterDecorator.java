@@ -4,7 +4,6 @@ import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
 import java.lang.reflect.Method;
@@ -24,8 +23,8 @@ public class GetterDecorator extends AbstractDecorator {
     /**
      * <p>Constructor for GetterDecorator.</p>
      *
-     * @param getter a {@link Getter} object.
-     * @param fieldRef a {@link FieldRef} object.
+     * @param getter a {@link io.github.hhy50.linker.generate.getter.Getter} object.
+     * @param fieldRef a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param methodDefine a {@link java.lang.reflect.Method} object.
      */
     public GetterDecorator(Getter getter, FieldRef fieldRef, Method methodDefine) {
@@ -53,15 +52,5 @@ public class GetterDecorator extends AbstractDecorator {
         result = typecastResult(methodBody, result, methodDefine.getReturnType());
         result.returnThis(methodBody);
         return null;
-    }
-
-    private VarInst wrapLinker(MethodBody methodBody, VarInst result, Class<?> linkerClass) {
-        return null;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void mhReassign(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar) {
-        throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 }

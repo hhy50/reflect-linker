@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.exceptions.TypeNotMatchException;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -21,17 +22,12 @@ import static org.objectweb.asm.Opcodes.ILOAD;
  */
 public abstract class AbstractDecorator extends MethodHandle {
 
-    /** {@inheritDoc} */
-    @Override
-    protected void mhReassign(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar) {
-        throw new RuntimeException("Decorator not impl mhReassign() method");
-    }
 
     /**
      * <p>typecastArgs.</p>
      *
-     * @param methodBody     a {@link MethodBody} object.
-     * @param args           an array of {@link VarInst} objects.
+     * @param methodBody     a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param args           an array of {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} objects.
      * @param parameterTypes an array of {@link java.lang.Class} objects.
      * @param expectTypes    an array of {@link org.objectweb.asm.Type} objects.
      */
@@ -55,10 +51,10 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * <p>typecastResult.</p>
      *
-     * @param methodBody      a {@link MethodBody} object.
-     * @param varInst         a {@link VarInst} object.
+     * @param methodBody      a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param varInst         a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      * @param resultTypeClass a {@link java.lang.Class} object.
-     * @return a {@link VarInst} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     protected VarInst typecastResult(MethodBody methodBody, VarInst varInst, Class<?> resultTypeClass) {
         Type expectType = Type.getType(resultTypeClass);
@@ -80,10 +76,10 @@ public abstract class AbstractDecorator extends MethodHandle {
      * <p>对象类型 to 基本数据类型 = 拆箱</p>
      * <p>对象类型 to 对象类型 = 强转</p>
      *
-     * @param methodBody a {@link MethodBody} object.
-     * @param varInst    a {@link VarInst} object.
+     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param varInst    a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      * @param expectType 预期的类型
-     * @return a {@link VarInst} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     protected VarInst typeCheck(MethodBody methodBody, VarInst varInst, Type expectType) {
         if (varInst.getType().equals(expectType)) {
@@ -122,5 +118,11 @@ public abstract class AbstractDecorator extends MethodHandle {
         } else {
             throw new TypeNotMatchException(varInst.getType(), expectType);
         }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void mhReassign(MethodBody methodBody, ClassTypeMember classType, MethodHandleMember mhMember, VarInst objVar) {
+        throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 }

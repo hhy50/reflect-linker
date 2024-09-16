@@ -25,7 +25,7 @@ public class ClassImplGenerator {
     /**
      * <p>generateImplClass.</p>
      *
-     * @param defineClass a {@link InterfaceClassDefine} object.
+     * @param defineClass a {@link io.github.hhy50.linker.define.InterfaceClassDefine} object.
      * @param cl a {@link java.lang.ClassLoader} object.
      * @return a {@link java.lang.Class} object.
      */

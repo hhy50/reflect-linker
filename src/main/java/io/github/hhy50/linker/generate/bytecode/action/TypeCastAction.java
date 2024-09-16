@@ -18,7 +18,7 @@ public class TypeCastAction implements Action {
     /**
      * <p>Constructor for TypeCastAction.</p>
      *
-     * @param obj a {@link Action} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      * @param type a {@link org.objectweb.asm.Type} object.
      */
     public TypeCastAction(Action obj, Type type) {

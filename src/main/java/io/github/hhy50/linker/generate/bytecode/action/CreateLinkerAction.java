@@ -20,7 +20,7 @@ public class CreateLinkerAction implements Action {
      * <p>Constructor for CreateLinkerAction.</p>
      *
      * @param linkerType a {@link org.objectweb.asm.Type} object.
-     * @param obj a {@link VarInst} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public CreateLinkerAction(Type linkerType, VarInst obj) {
         this.linkerType = linkerType;

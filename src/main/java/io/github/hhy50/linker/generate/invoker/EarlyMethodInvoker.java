@@ -30,7 +30,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
      * <p>Constructor for EarlyMethodInvoker.</p>
      *
      * @param implClass a {@link java.lang.String} object.
-     * @param methodRef a {@link EarlyMethodRef} object.
+     * @param methodRef a {@link io.github.hhy50.linker.define.method.EarlyMethodRef} object.
      */
     public EarlyMethodInvoker(String implClass, EarlyMethodRef methodRef) {
         super(implClass, methodRef, methodRef.getMethodType());
@@ -44,8 +44,8 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();
-        ClassTypeMember ownerType = classImplBuilder.defineClassTypeMember(owner.getUniqueName(), owner.getType());
-        ownerType.store(clinit, getClassLoadAction(owner.getType()));
+        ClassTypeMember ownerType = classImplBuilder.defineClassTypeMember(owner);
+        ownerType.staticInit(clinit, getClassLoadAction(owner.getType()));
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), methodType);
@@ -72,10 +72,10 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
     /** {@inheritDoc} */
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember ownerClassMember, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null;
-        VarInst lookupVar = ownerClassMember.getLookup(clinit);
+        VarInst lookupVar = lookupClass.getLookup(clinit);
 
         MethodInvokeAction findXXX;
         Action argsType = Action.asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
@@ -84,11 +84,11 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                     LdcLoadAction.of(AsmUtil.getType(superClass)),
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
-                    ownerClassMember
+                    lookupClass
             );
         } else {
             findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDVIRTUAL).setArgs(
-                    ownerClassMember,
+                    lookupClass,
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
             );

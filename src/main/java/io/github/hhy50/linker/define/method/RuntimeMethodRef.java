@@ -21,7 +21,7 @@ public class RuntimeMethodRef extends MethodRef {
     /**
      * <p>Constructor for RuntimeMethodRef.</p>
      *
-     * @param owner a {@link FieldRef} object.
+     * @param owner a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param name a {@link java.lang.String} object.
      * @param argsType an array of {@link java.lang.String} objects.
      * @param returnType a {@link java.lang.Class} object.

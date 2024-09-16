@@ -37,7 +37,7 @@ public class EarlyFieldRef extends FieldRef {
     /**
      * <p>Constructor for EarlyFieldRef.</p>
      *
-     * @param prev a {@link FieldRef} object.
+     * @param prev a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param field a {@link java.lang.reflect.Field} object.
      * @param assignedType a {@link java.lang.Class} object.
      */
@@ -52,7 +52,7 @@ public class EarlyFieldRef extends FieldRef {
     /**
      * 仅能表示target
      *
-     * @param prev a {@link FieldRef} object.
+     * @param prev a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param objName a {@link java.lang.String} object.
      * @param fieldName a {@link java.lang.String} object.
      * @param fieldTypeClass a {@link java.lang.Class} object.

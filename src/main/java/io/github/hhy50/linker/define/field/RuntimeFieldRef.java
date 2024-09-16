@@ -21,7 +21,7 @@ public class RuntimeFieldRef extends FieldRef {
     /**
      * <p>Constructor for RuntimeFieldRef.</p>
      *
-     * @param prev a {@link FieldRef} object.
+     * @param prev a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param objName a {@link java.lang.String} object.
      * @param fieldName a {@link java.lang.String} object.
      */

@@ -42,7 +42,7 @@ public class LdcLoadAction implements LoadAction {
      * <p>of.</p>
      *
      * @param ldcConstVar a {@link java.lang.Object} object.
-     * @return a {@link LdcLoadAction} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction} object.
      */
     public static LdcLoadAction of(Object ldcConstVar) {
         return new LdcLoadAction(ldcConstVar);

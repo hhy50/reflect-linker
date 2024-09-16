@@ -6,7 +6,6 @@ import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -26,9 +25,9 @@ public class SetterDecorator extends AbstractDecorator {
     /**
      * <p>Constructor for SetterDecorator.</p>
      *
-     * @param setter a {@link Setter} object.
-     * @param fieldRef a {@link FieldRef} object.
-     * @param methodDefine a {@link MethodDefine} object.
+     * @param setter a {@link io.github.hhy50.linker.generate.setter.Setter} object.
+     * @param fieldRef a {@link io.github.hhy50.linker.define.field.FieldRef} object.
+     * @param methodDefine a {@link io.github.hhy50.linker.define.MethodDefine} object.
      */
     public SetterDecorator(Setter setter, FieldRef fieldRef, MethodDefine methodDefine) {
         this.setter = setter;
@@ -50,11 +49,5 @@ public class SetterDecorator extends AbstractDecorator {
         setter.invoke(methodBody);
         AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);
         return null;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void mhReassign(MethodBody methodBody, VarInst lookupVar, MethodHandleMember mhMember, VarInst objVar) {
-        throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 }

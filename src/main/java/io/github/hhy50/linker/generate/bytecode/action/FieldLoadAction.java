@@ -19,7 +19,7 @@ public class FieldLoadAction implements LoadAction {
     /**
      * <p>Constructor for FieldLoadAction.</p>
      *
-     * @param fieldHolder a {@link FieldHolder} object.
+     * @param fieldHolder a {@link io.github.hhy50.linker.entity.FieldHolder} object.
      */
     public FieldLoadAction(FieldHolder fieldHolder) {
         this.fieldHolder = fieldHolder;
@@ -28,8 +28,8 @@ public class FieldLoadAction implements LoadAction {
     /**
      * <p>Setter for the field <code>instance</code>.</p>
      *
-     * @param instance a {@link Action} object.
-     * @return a {@link FieldLoadAction} object.
+     * @param instance a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.FieldLoadAction} object.
      */
     public FieldLoadAction setInstance(Action instance) {
         this.instance = instance;

@@ -17,7 +17,7 @@ public class SysLinkerClassLoader extends java.lang.ClassLoader {
     /**
      * <p>getInstance.</p>
      *
-     * @return a {@link SysLinkerClassLoader} object.
+     * @return a {@link io.github.hhy50.linker.define.cl.SysLinkerClassLoader} object.
      */
     public static SysLinkerClassLoader getInstance() {
         return INSTANCE;

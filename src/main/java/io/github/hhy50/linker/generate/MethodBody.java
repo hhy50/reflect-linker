@@ -26,7 +26,7 @@ public class MethodBody {
     /**
      * <p>Constructor for MethodBody.</p>
      *
-     * @param classBuilder a {@link InvokeClassImplBuilder} object.
+     * @param classBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
      * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
      * @param methodType a {@link org.objectweb.asm.Type} object.
      */
@@ -34,6 +34,14 @@ public class MethodBody {
         this(classBuilder, mv, methodType, false);
     }
 
+    /**
+     * <p>Constructor for MethodBody.</p>
+     *
+     * @param classBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param methodType a {@link org.objectweb.asm.Type} object.
+     * @param isStatic a boolean.
+     */
     public MethodBody(InvokeClassImplBuilder classBuilder, MethodVisitor mv, Type methodType, boolean isStatic) {
         this.classBuilder = classBuilder;
         this.writer = mv;
@@ -78,7 +86,7 @@ public class MethodBody {
      * 根据参数声明的顺序， 获取第几个参数
      *
      * @param i a int.
-     * @return a {@link VarInst} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public VarInst getArg(int i) {
         return args[i];
@@ -87,7 +95,7 @@ public class MethodBody {
     /**
      * <p>Getter for the field <code>args</code>.</p>
      *
-     * @return an array of {@link VarInst} objects.
+     * @return an array of {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} objects.
      */
     public VarInst[] getArgs() {
         return args;
@@ -107,8 +115,8 @@ public class MethodBody {
      *
      * @param type a {@link org.objectweb.asm.Type} object.
      * @param fieldName a {@link java.lang.String} object.
-     * @param action a {@link Action} object.
-     * @return a {@link LocalVarInst} object.
+     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst} object.
      */
     public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
         LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
@@ -125,8 +133,8 @@ public class MethodBody {
      * <p>newLocalVar.</p>
      *
      * @param type a {@link org.objectweb.asm.Type} object.
-     * @param action a {@link Action} object.
-     * @return a {@link LocalVarInst} object.
+     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst} object.
      */
     public LocalVarInst newLocalVar(Type type, Action action) {
         return newLocalVar(type, null, action);
@@ -135,7 +143,7 @@ public class MethodBody {
     /**
      * <p>Getter for the field <code>classBuilder</code>.</p>
      *
-     * @return a {@link InvokeClassImplBuilder} object.
+     * @return a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
      */
     public InvokeClassImplBuilder getClassBuilder() {
         return classBuilder;

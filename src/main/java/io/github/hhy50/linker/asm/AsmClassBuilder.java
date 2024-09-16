@@ -47,7 +47,7 @@ public class AsmClassBuilder {
      * @param fieldDesc a {@link java.lang.String} object.
      * @param fieldSignature a {@link java.lang.String} object.
      * @param value a {@link java.lang.Object} object.
-     * @return a {@link AsmClassBuilder} object.
+     * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
      */
     public AsmClassBuilder defineField(int access, String fieldName, String fieldDesc, String fieldSignature, Object value) {
         this.classWriter.visitField(access, fieldName, fieldDesc, fieldSignature, value);
@@ -61,7 +61,7 @@ public class AsmClassBuilder {
      * @param argsType an array of {@link java.lang.String} objects.
      * @param exceptions an array of {@link java.lang.String} objects.
      * @param sign a {@link java.lang.String} object.
-     * @return a {@link MethodBuilder} object.
+     * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
      */
     public MethodBuilder defineConstruct(int access, String[] argsType, String[] exceptions, String sign) {
         MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "("+toDesc(argsType)+")V", sign, exceptions);
@@ -76,7 +76,7 @@ public class AsmClassBuilder {
      * @param methodDesc a {@link java.lang.String} object.
      * @param exceptions an array of {@link java.lang.String} objects.
      * @param methodSign a {@link java.lang.String} object.
-     * @return a {@link MethodBuilder} object.
+     * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
      */
     public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions, String methodSign) {
         MethodVisitor methodVisitor = this.classWriter.visitMethod(access, methodName, methodDesc, methodSign, exceptions);
@@ -94,7 +94,7 @@ public class AsmClassBuilder {
     /**
      * <p>end.</p>
      *
-     * @return a {@link AsmClassBuilder} object.
+     * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
      */
     public AsmClassBuilder end() {
         this.classWriter.visitEnd();

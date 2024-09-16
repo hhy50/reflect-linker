@@ -38,8 +38,8 @@ public class ClassDefineParse {
      *
      * @param define a {@link java.lang.Class} object.
      * @param classLoader a {@link java.lang.ClassLoader} object.
-     * @return a {@link InterfaceClassDefine} object.
-     * @throws ParseException if any.
+     * @return a {@link io.github.hhy50.linker.define.InterfaceClassDefine} object.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
      * @throws java.lang.ClassNotFoundException if any.
      */
     public static InterfaceClassDefine parseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
@@ -57,8 +57,8 @@ public class ClassDefineParse {
      * @param define a {@link java.lang.Class} object.
      * @param targetClass a {@link java.lang.Class} object.
      * @param classLoader a {@link java.lang.ClassLoader} object.
-     * @return a {@link InterfaceClassDefine} object.
-     * @throws ParseException if any.
+     * @return a {@link io.github.hhy50.linker.define.InterfaceClassDefine} object.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
      * @throws java.lang.ClassNotFoundException if any.
      */
     public static InterfaceClassDefine doParseClass(Class<?> define, Class<?> targetClass, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
@@ -87,11 +87,11 @@ public class ClassDefineParse {
     /**
      * <p>parseMethod.</p>
      *
-     * @param firstField a {@link FieldRef} object.
+     * @param firstField a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param classLoader a {@link java.lang.ClassLoader} object.
      * @param method a {@link java.lang.reflect.Method} object.
      * @param typedDefines a {@link java.util.Map} object.
-     * @return a {@link MethodDefine} object.
+     * @return a {@link io.github.hhy50.linker.define.MethodDefine} object.
      * @throws java.lang.ClassNotFoundException if any.
      */
     public static MethodDefine parseMethod(FieldRef firstField, ClassLoader classLoader, Method method, Map<String, String> typedDefines) throws ClassNotFoundException {

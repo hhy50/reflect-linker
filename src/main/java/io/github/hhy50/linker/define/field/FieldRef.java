@@ -32,7 +32,7 @@ public abstract class FieldRef {
     /**
      * <p>Constructor for FieldRef.</p>
      *
-     * @param prev a {@link FieldRef} object.
+     * @param prev a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      * @param objName a {@link java.lang.String} object.
      * @param name a {@link java.lang.String} object.
      */
@@ -85,7 +85,7 @@ public abstract class FieldRef {
     /**
      * <p>Getter for the field <code>prev</code>.</p>
      *
-     * @return a {@link FieldRef} object.
+     * @return a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      */
     public FieldRef getPrev() {
         return prev;
@@ -115,7 +115,7 @@ public abstract class FieldRef {
     /**
      * <p>toRuntime.</p>
      *
-     * @return a {@link FieldRef} object.
+     * @return a {@link io.github.hhy50.linker.define.field.FieldRef} object.
      */
     public FieldRef toRuntime() {
         if (this instanceof RuntimeFieldRef) {

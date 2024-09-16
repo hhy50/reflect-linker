@@ -24,8 +24,8 @@ public class InvokerDecorator extends AbstractDecorator {
      * <p>Constructor for InvokerDecorator.</p>
      *
      * @param implClass a {@link java.lang.String} object.
-     * @param realInvoker a {@link Invoker} object.
-     * @param methodDefine a {@link MethodDefine} object.
+     * @param realInvoker a {@link io.github.hhy50.linker.generate.invoker.Invoker} object.
+     * @param methodDefine a {@link io.github.hhy50.linker.define.MethodDefine} object.
      */
     public InvokerDecorator(String implClass, Invoker<?> realInvoker, MethodDefine methodDefine) {
         this.realInvoker = realInvoker;

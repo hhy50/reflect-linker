@@ -19,7 +19,7 @@ public interface Condition {
     /**
      * <p>jump.</p>
      *
-     * @param body a {@link MethodBody} object.
+     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
      * @param jumpLabel a {@link org.objectweb.asm.Label} object.
      * @param elseLabel a {@link org.objectweb.asm.Label} object.
      * @param endLabel a {@link org.objectweb.asm.Label} object.
@@ -29,8 +29,8 @@ public interface Condition {
     /**
      * <p>isNull.</p>
      *
-     * @param obj a {@link Action} object.
-     * @return a {@link Condition} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition isNull(Action obj) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -43,8 +43,8 @@ public interface Condition {
     /**
      * <p>notNull.</p>
      *
-     * @param obj a {@link Action} object.
-     * @return a {@link Condition} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition notNull(Action obj) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -59,8 +59,8 @@ public interface Condition {
      * <p>ifeq equals 当栈顶int类型数值等于0时跳转</p>
      * <p>ifne not equals 当栈顶int类型数值不等于0时跳转</p>
      *
-     * @param action a {@link Action} object.
-     * @return a {@link Condition} object.
+     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
      */
     static Condition ifTrue(Action action) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -72,8 +72,8 @@ public interface Condition {
     /**
      * <p>ifFalse.</p>
      *
-     * @param obj a {@link Action} object.
-     * @return a {@link Condition} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition ifFalse(Action obj) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -86,9 +86,9 @@ public interface Condition {
     /**
      * <p>notEq.</p>
      *
-     * @param left a {@link Action} object.
-     * @param right a {@link Action} object.
-     * @return a {@link Condition} object.
+     * @param left a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param right a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition notEq(Action left, Action right) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -101,11 +101,28 @@ public interface Condition {
     }
 
     /**
+     * <p>eq.</p>
+     *
+     * @param left a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param right a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
+     */
+    public static Condition eq(Action left, Action right) {
+        return (body, ifLabel, elseLabel, endLabel) -> {
+            left.apply(body);
+            right.apply(body);
+
+            MethodVisitor mv = body.getWriter();
+            mv.visitJumpInsn(Opcodes.IF_ACMPEQ, ifLabel);
+        };
+    }
+
+    /**
      * <p>instanceOf.</p>
      *
-     * @param obj a {@link Action} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      * @param expectType a {@link org.objectweb.asm.Type} object.
-     * @return a {@link Condition} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition instanceOf(Action obj, Type expectType) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -120,8 +137,8 @@ public interface Condition {
     /**
      * 组合条件: 任意条件满足
      *
-     * @param conditions a {@link Condition} object.
-     * @return a {@link Condition} object.
+     * @param conditions a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition any(Condition... conditions) {
         return (body, ifLabel, elseLabel, endLabel) -> {
@@ -135,8 +152,8 @@ public interface Condition {
     /**
      * 组合条件: 全部满足
      *
-     * @param conditions a {@link Condition} object.
-     * @return a {@link Condition} object.
+     * @param conditions a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
      */
     public static Condition must(Condition... conditions) {
         return (body, ifLabel, elseLabel, endLabel) -> {

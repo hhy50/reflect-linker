@@ -62,7 +62,7 @@ public abstract class VarInst implements LoadAction {
      *     }
      * </pre>
      *
-     * @param methodBody a {@link MethodBody} object.
+     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
      * @param nullerr a {@link java.lang.String} object.
      */
     public void checkNullPointer(MethodBody methodBody, String nullerr) {
@@ -74,7 +74,7 @@ public abstract class VarInst implements LoadAction {
     /**
      * <p>getThisClass.</p>
      *
-     * @return a {@link MethodInvokeAction} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction} object.
      */
     public MethodInvokeAction getThisClass() {
         return new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS)
@@ -84,8 +84,8 @@ public abstract class VarInst implements LoadAction {
     /**
      * store到局部变量表
      *
-     * @param action a {@link Action} object.
-     * @return a {@link Action} object.
+     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     public Action store(Action action) {
         return body -> {
@@ -116,7 +116,7 @@ public abstract class VarInst implements LoadAction {
     /**
      * <p>returnThis.</p>
      *
-     * @param methodBody a {@link MethodBody} object.
+     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
      */
     public void returnThis(MethodBody methodBody) {
         load(methodBody);
@@ -127,7 +127,7 @@ public abstract class VarInst implements LoadAction {
      * <p>getTarget.</p>
      *
      * @param providerType a {@link org.objectweb.asm.Type} object.
-     * @return a {@link Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     public Action getTarget(Type providerType) {
         Type defaultType = Type.getType(DefaultTargetProviderImpl.class);

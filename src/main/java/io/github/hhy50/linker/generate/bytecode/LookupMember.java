@@ -36,8 +36,8 @@ public class LookupMember extends Member {
      * }
      * </pre>
      *
-     * @param clinit      a {@link MethodBody} object.
-     * @param classLoadAc a {@link Action} object.
+     * @param clinit      a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param classLoadAc a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     public void staticInit(MethodBody clinit, Action classLoadAc) {
         this.store(clinit, RuntimeAction.lookup(classLoadAc));
@@ -46,7 +46,7 @@ public class LookupMember extends Member {
     /**
      * <p>staticInit.</p>
      *
-     * @param clinit     a {@link MethodBody} object.
+     * @param clinit     a {@link io.github.hhy50.linker.generate.MethodBody} object.
      * @param staticType a {@link org.objectweb.asm.Type} object.
      */
     public void staticInit(MethodBody clinit, Type staticType) {
@@ -57,8 +57,8 @@ public class LookupMember extends Member {
     /**
      * <p>reinit.</p>
      *
-     * @param methodBody     a {@link MethodBody} object.
-     * @param typeLoadAction a {@link Action} object.
+     * @param methodBody     a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param typeLoadAction a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     public void reinit(MethodBody methodBody, Action typeLoadAction) {
         this.store(methodBody, RuntimeAction.lookup(typeLoadAction));
@@ -67,17 +67,11 @@ public class LookupMember extends Member {
     /**
      * 生成运行时校验lookup的代码
      *
-     * @param methodBody   a {@link MethodBody} object.
-     * @param varInst      a {@link VarInst} object.
-     * @param lookupAssign a {@link Action} object.
+     * @param methodBody   a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param varInst      a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param lookupAssign a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     public void runtimeCheck(MethodBody methodBody, VarInst varInst, Action lookupAssign) {
-        /*
-         * if (lookup == null || (obj != null && obj.getClass() != lookup.lookupClass())) {
-         *     // goto @Label lookupAssign
-         * }
-         * // goto checkMh
-         */
         methodBody.append(() -> new ConditionJumpAction(
                 Condition.must(Condition.isNull(this), Condition.notNull(varInst)),
                 lookupAssign, null)
@@ -87,7 +81,7 @@ public class LookupMember extends Member {
     /**
      * <p>lookupClass.</p>
      *
-     * @return a {@link MethodInvokeAction} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction} object.
      */
     public MethodInvokeAction lookupClass() {
         return new MethodInvokeAction(MethodHolder.LOOKUP_LOOKUP_CLASS)

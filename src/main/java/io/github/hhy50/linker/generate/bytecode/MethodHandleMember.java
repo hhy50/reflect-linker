@@ -39,10 +39,10 @@ public class MethodHandleMember extends Member {
     /**
      * <p>invoke.</p>
      *
-     * @param methodBody a {@link MethodBody} object.
-     * @param that a {@link VarInst} object.
-     * @param args a {@link VarInst} object.
-     * @return a {@link VarInst} object.
+     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param that a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param args a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public VarInst invoke(MethodBody methodBody, VarInst that, VarInst... args) {
         VarInst result = initResultVar(methodBody);
@@ -64,9 +64,9 @@ public class MethodHandleMember extends Member {
     /**
      * <p>invokeStatic.</p>
      *
-     * @param methodBody a {@link MethodBody} object.
-     * @param args a {@link VarInst} object.
-     * @return a {@link VarInst} object.
+     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param args a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public VarInst invokeStatic(MethodBody methodBody, VarInst... args) {
         VarInst result = initResultVar(methodBody);
@@ -77,10 +77,10 @@ public class MethodHandleMember extends Member {
     /**
      * <p>invokeInstance.</p>
      *
-     * @param methodBody a {@link MethodBody} object.
-     * @param that a {@link VarInst} object.
-     * @param args a {@link VarInst} object.
-     * @return a {@link VarInst} object.
+     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param that a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param args a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public VarInst invokeInstance(MethodBody methodBody, VarInst that, VarInst... args) {
         VarInst result = initResultVar(methodBody);

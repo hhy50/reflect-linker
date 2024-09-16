@@ -19,9 +19,9 @@ public class ConditionJumpAction implements Action {
     /**
      * <p>Constructor for ConditionJumpAction.</p>
      *
-     * @param condition a {@link Condition} object.
-     * @param ifBlock a {@link Action} object.
-     * @param elseBlock a {@link Action} object.
+     * @param condition a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
+     * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param elseBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     public ConditionJumpAction(Condition condition, Action ifBlock, Action elseBlock) {
         this.condition = condition;

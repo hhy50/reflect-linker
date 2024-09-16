@@ -21,7 +21,7 @@ public class UnwrapTypeAction implements Action {
     /**
      * <p>Constructor for UnwrapTypeAction.</p>
      *
-     * @param obj a {@link VarInst} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public UnwrapTypeAction(VarInst obj) {
         this.obj = obj;
@@ -31,7 +31,7 @@ public class UnwrapTypeAction implements Action {
     /**
      * <p>Constructor for UnwrapTypeAction.</p>
      *
-     * @param obj a {@link VarInst} object.
+     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      * @param primitiveType a {@link org.objectweb.asm.Type} object.
      */
     public UnwrapTypeAction(VarInst obj, Type primitiveType) {

@@ -20,7 +20,7 @@ public class MethodInvokeAction implements Action {
     /**
      * <p>Constructor for MethodInvokeAction.</p>
      *
-     * @param methodHolder a {@link MethodHolder} object.
+     * @param methodHolder a {@link io.github.hhy50.linker.entity.MethodHolder} object.
      */
     public MethodInvokeAction(MethodHolder methodHolder) {
         this.methodHolder = methodHolder;
@@ -44,8 +44,8 @@ public class MethodInvokeAction implements Action {
     /**
      * <p>Setter for the field <code>instance</code>.</p>
      *
-     * @param instance a {@link Action} object.
-     * @return a {@link MethodInvokeAction} object.
+     * @param instance a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction} object.
      */
     public MethodInvokeAction setInstance(Action instance) {
         this.instance = instance;
@@ -55,8 +55,8 @@ public class MethodInvokeAction implements Action {
     /**
      * <p>Setter for the field <code>args</code>.</p>
      *
-     * @param args a {@link Action} object.
-     * @return a {@link MethodInvokeAction} object.
+     * @param args a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction} object.
      */
     public MethodInvokeAction setArgs(Action... args) {
         this.args = args;

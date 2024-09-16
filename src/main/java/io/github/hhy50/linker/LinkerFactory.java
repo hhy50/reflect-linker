@@ -23,7 +23,7 @@ public class LinkerFactory {
      * @param target a {@link java.lang.Object} object.
      * @param <T> a T object.
      * @return a T object.
-     * @throws LinkerException if any.
+     * @throws io.github.hhy50.linker.exceptions.LinkerException if any.
      */
     public static <T> T createLinker(Class<T> define, Object target) throws LinkerException {
         if (target == null) {
@@ -52,7 +52,7 @@ public class LinkerFactory {
      * @param classLoader a {@link java.lang.ClassLoader} object.
      * @param <T> a T object.
      * @return a T object.
-     * @throws LinkerException if any.
+     * @throws io.github.hhy50.linker.exceptions.LinkerException if any.
      */
     public static <T> T createStaticLinker(Class<T> define, ClassLoader classLoader) throws LinkerException {
         try {

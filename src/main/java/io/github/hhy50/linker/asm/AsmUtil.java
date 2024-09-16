@@ -32,7 +32,7 @@ public class AsmUtil {
      * @param superName a {@link java.lang.String} object.
      * @param interfaces an array of {@link java.lang.String} objects.
      * @param sign a {@link java.lang.String} object.
-     * @return a {@link InvokeClassImplBuilder} object.
+     * @return a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
      */
     public static InvokeClassImplBuilder defineImplClass(int access, String className, String superName, String[] interfaces, String sign) {
         return new InvokeClassImplBuilder(access, className, superName, interfaces, sign);

@@ -19,7 +19,7 @@ public class MethodBuilder {
     /**
      * <p>Constructor for MethodBuilder.</p>
      *
-     * @param classBuilder a {@link AsmClassBuilder} object.
+     * @param classBuilder a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
      * @param methodVisitor a {@link org.objectweb.asm.MethodVisitor} object.
      */
     public MethodBuilder(AsmClassBuilder classBuilder, MethodVisitor methodVisitor) {
@@ -31,7 +31,7 @@ public class MethodBuilder {
      * <p>accept.</p>
      *
      * @param consumer a {@link java.util.function.Consumer} object.
-     * @return a {@link AsmClassBuilder} object.
+     * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
      */
     public AsmClassBuilder accept(Consumer<MethodVisitor> consumer) {
         consumer.accept(this.methodVisitor);
@@ -42,7 +42,7 @@ public class MethodBuilder {
     /**
      * <p>Getter for the field <code>classBuilder</code>.</p>
      *
-     * @return a {@link AsmClassBuilder} object.
+     * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
      */
     public AsmClassBuilder getClassBuilder() {
         return classBuilder;
@@ -51,8 +51,8 @@ public class MethodBuilder {
     /**
      * <p>Setter for the field <code>classBuilder</code>.</p>
      *
-     * @param classBuilder a {@link AsmClassBuilder} object.
-     * @return a {@link MethodBuilder} object.
+     * @param classBuilder a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
+     * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
      */
     public MethodBuilder setClassBuilder(AsmClassBuilder classBuilder) {
         this.classBuilder = classBuilder;
@@ -72,7 +72,7 @@ public class MethodBuilder {
      * <p>Setter for the field <code>methodVisitor</code>.</p>
      *
      * @param methodVisitor a {@link org.objectweb.asm.MethodVisitor} object.
-     * @return a {@link MethodBuilder} object.
+     * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
      */
     public MethodBuilder setMethodVisitor(MethodVisitor methodVisitor) {
         this.methodVisitor = methodVisitor;

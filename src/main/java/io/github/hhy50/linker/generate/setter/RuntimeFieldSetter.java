@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.setter;
 
 import io.github.hhy50.linker.asm.AsmUtil;
+import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -24,35 +25,39 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
      * <p>Constructor for RuntimeFieldSetter.</p>
      *
      * @param implClass a {@link java.lang.String} object.
-     * @param field     a {@link RuntimeFieldRef} object.
+     * @param field     a {@link io.github.hhy50.linker.define.field.RuntimeFieldRef} object.
      */
     public RuntimeFieldSetter(String implClass, RuntimeFieldRef field) {
         super(implClass, field);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final void define0(InvokeClassImplBuilder classImplBuilder) {
-        Getter<?> getter = classImplBuilder.getGetter(field.getPrev().getUniqueName());
+        FieldRef prevField = field.getPrev();
+        Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
+        ClassTypeMember lookupClass = classImplBuilder.defineClassTypeMember(prevField);
         // 定义当前字段的mh
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(), methodType);
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
-            MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
-            VarInst objVar = getter.invoke(methodBody);
+            MethodBody body = new MethodBody(classImplBuilder, mv, methodType);
+            VarInst objVar = getter.invoke(body);
 
-            ClassTypeMember ownerClass = getter.getOwnerType();
-            checkMethodHandle(methodBody, ownerClass.getLookup(methodBody), mhMember, objVar);
+            ClassTypeMember prevLookupClass = getter.getLookupClass();
+            if (lookupClass != prevLookupClass) {
+                checkLookClass(body, lookupClass, objVar);
+                staticCheckClass(body, lookupClass, prevField.fieldName, prevLookupClass);
+            }
+            checkMethodHandle(body, lookupClass, mhMember, objVar);
 
             // mh.invoke(obj, fieldValue)
             if (field.isDesignateStatic()) {
-                VarInst vold = field.isStatic() ? mhMember.invokeStatic(methodBody, methodBody.getArg(0)) : mhMember.invokeInstance(methodBody, objVar, methodBody.getArg(0));
+                VarInst vold = field.isStatic() ? mhMember.invokeStatic(body, body.getArg(0)) : mhMember.invokeInstance(body, objVar, body.getArg(0));
             } else {
-                mhMember.invoke(methodBody, objVar, methodBody.getArg(0));
+                mhMember.invoke(body, objVar, body.getArg(0));
             }
             AsmUtil.areturn(mv, Type.VOID_TYPE);
         });
