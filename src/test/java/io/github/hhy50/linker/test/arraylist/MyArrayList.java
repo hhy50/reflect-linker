@@ -12,8 +12,8 @@ import io.github.hhy50.linker.test.MyInteger;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Runtime
 @Target.Bind("java.util.ArrayList")
+@Runtime
 public interface MyArrayList {
 
     /**
@@ -21,6 +21,7 @@ public interface MyArrayList {
      *
      * @param o a {@link java.lang.Object} object.
      */
+//    @Runtime
     void add(Object o);
     /**
      * <p>clear.</p>

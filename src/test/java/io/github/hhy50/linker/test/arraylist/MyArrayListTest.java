@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static io.github.hhy50.linker.LinkerFactory.setOutputPath;
+
 /**
  * <p>MyArrayListTest class.</p>
  *
@@ -24,7 +26,7 @@ public class MyArrayListTest {
      */
     @Test
     public void test() throws LinkerException {
-//        setOutputPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\target\\");
+        setOutputPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\target\\");
         Object[] objects = new Object[10];
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
         list.setElementData(objects);

@@ -5,8 +5,6 @@ import io.github.hhy50.linker.entity.FieldHolder;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
-import io.github.hhy50.linker.generate.bytecode.action.ConditionJumpAction;
 import io.github.hhy50.linker.generate.bytecode.action.FieldLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
@@ -16,9 +14,6 @@ import io.github.hhy50.linker.util.AnnotationUtils;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import static io.github.hhy50.linker.generate.bytecode.action.Condition.isNull;
-import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
 
 
 /**
@@ -52,19 +47,13 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
             String mName = "getTarget";
             Type mType = Type.getMethodType(ObjectVar.TYPE);
             this.getTarget = new MethodHolder(this.targetField.getOwner(), mName, mType.getDescriptor());
-
-            this.lookupClass = classImplBuilder.defineClassTypeMember(Opcodes.ACC_PUBLIC, field.getUniqueName()+"_lookup");
             classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, mName, mType.getDescriptor(), null, null)
                     .accept(mv -> {
                         MethodBody body = new MethodBody(classImplBuilder, mv, mType);
                         VarInst targetVar = body.newLocalVar(ObjectVar.TYPE, "target", new FieldLoadAction(targetField).setInstance(LoadAction.LOAD0));
 
-                        checkLookClass(body, lookupClass, targetVar);
                         targetVar.returnThis(body);
                     });
-        } else {
-            this.lookupClass = classImplBuilder.defineClassTypeMember(field.getUniqueName()+"_lookup");
-            this.lookupClass.store(classImplBuilder.getClinit(), getClassLoadAction(field.getType()));
         }
     }
 
@@ -77,18 +66,5 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         return methodBody.newLocalVar(field.getType(), field.fieldName,
                 new FieldLoadAction(targetField).setInstance(LoadAction.LOAD0)
         );
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst) {
-        body.append(() -> new ConditionJumpAction(
-                isNull(lookupClass),
-                new ConditionJumpAction(notNull(varInst),
-                        (__) -> lookupClass.store(__, varInst.getThisClass()),
-                        (__) -> lookupClass.store(__, getClassLoadAction(field.getType()))
-                ),
-                null
-        ));
     }
 }
