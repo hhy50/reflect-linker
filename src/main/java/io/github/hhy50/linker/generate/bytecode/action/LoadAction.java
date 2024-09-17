@@ -20,6 +20,7 @@ public interface LoadAction extends Action {
     /** Constant <code>LOAD0</code> */
     /** Constant <code>LOAD0</code> */
     /** Constant <code>LOAD0</code> */
+    /** Constant <code>LOAD0</code> */
     };
 
     /** {@inheritDoc} */
