@@ -33,9 +33,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         super(implClass, field);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();
@@ -45,38 +43,28 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         Type declaredType = Type.getType(field.getDeclaredType());
         MethodBody clinit = classImplBuilder.getClinit();
 
-        ClassTypeMember lookupClass = null;
-        if (declaredType.equals(prevField.getType())) {
-            lookupClass = classImplBuilder.defineClassTypeMember(prevField);
-            lookupClass.staticInit(clinit, getClassLoadAction(prevField.getType()));
-        } else {
-            lookupClass = classImplBuilder.defineClassTypeMember(field.getUniqueName()+"_$declare_", declaredType);
-            lookupClass.staticInit(clinit, getClassLoadAction(declaredType));
-        }
+        ClassTypeMember lookupClass = classImplBuilder.defineClassTypeMember(field.getUniqueName()+"_lookup");
+        lookupClass.staticInit(clinit, getClassLoadAction(declaredType));
 
-        // 定义当前字段的 setter
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), this.methodType);
         // init methodHandle
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), this.methodType);
         initStaticMethodHandle(clinit, mhMember, lookupClass, field.fieldName, field.getType(), field.isStatic());
 
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
-            VarInst objVar = getter.invoke(methodBody);
             if (!field.isStatic()) {
+                VarInst objVar = getter.invoke(methodBody);
                 objVar.checkNullPointer(methodBody, objVar.getName());
+                mhMember.invokeInstance(methodBody, objVar, methodBody.getArg(0));
+            } else {
+                mhMember.invokeStatic(methodBody, methodBody.getArg(0));
             }
-
-            // mh.invoke(obj)
-            VarInst result = field.isStatic() ? mhMember.invokeStatic(methodBody, methodBody.getArg(0))
-                    : mhMember.invokeInstance(methodBody, objVar, methodBody.getArg(0));
             AsmUtil.areturn(mv, Type.VOID_TYPE);
         });
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type fieldType, boolean isStatic) {
         VarInst lookupVar = lookupClass.getLookup(clinit);

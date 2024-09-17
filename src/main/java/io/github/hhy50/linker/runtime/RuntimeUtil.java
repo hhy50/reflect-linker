@@ -5,7 +5,6 @@ import io.github.hhy50.linker.AccessTool;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.syslinker.DirectMethodHandleLinker;
-import io.github.hhy50.linker.syslinker.MemberNameLinker;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
@@ -60,8 +59,7 @@ public class RuntimeUtil {
      */
     public static boolean isStatic(MethodHandle methodHandle) throws LinkerException {
         DirectMethodHandleLinker mh = AccessTool.createSysLinker(DirectMethodHandleLinker.class, methodHandle);
-        MemberNameLinker member = mh.getMember();
-        return Modifier.isStatic(member.modifiers());
+        return Modifier.isStatic(mh.modifiers());
     }
 
     /**

@@ -55,4 +55,10 @@ public class EarlyMethodRef extends MethodRef {
     public Type[] getArgsType() {
         return this.methodType.getArgumentTypes();
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setSuperClass(String superClass) {
+        this.superClass = method.getDeclaringClass().getName();
+    }
 }

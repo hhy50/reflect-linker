@@ -45,9 +45,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         this.targetField = new FieldHolder(ClassUtil.className2path(implClass), field.getUniqueName(), ObjectVar.TYPE.getDescriptor());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         if (AnnotationUtils.isRuntime(defineClass)) {
@@ -55,7 +53,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
             Type mType = Type.getMethodType(ObjectVar.TYPE);
             this.getTarget = new MethodHolder(this.targetField.getOwner(), mName, mType.getDescriptor());
 
-            this.lookupClass = classImplBuilder.defineClassTypeMember(field.toRuntime());
+            this.lookupClass = classImplBuilder.defineClassTypeMember(Opcodes.ACC_PUBLIC, field.getUniqueName()+"_lookup");
             classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, mName, mType.getDescriptor(), null, null)
                     .accept(mv -> {
                         MethodBody body = new MethodBody(classImplBuilder, mv, mType);
@@ -65,14 +63,12 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
                         targetVar.returnThis(body);
                     });
         } else {
-            this.lookupClass = classImplBuilder.defineClassTypeMember(field);
+            this.lookupClass = classImplBuilder.defineClassTypeMember(field.getUniqueName()+"_lookup");
             this.lookupClass.store(classImplBuilder.getClinit(), getClassLoadAction(field.getType()));
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         if (this.getTarget != null) {
@@ -83,6 +79,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         );
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst) {
         body.append(() -> new ConditionJumpAction(

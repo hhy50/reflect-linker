@@ -36,13 +36,42 @@ public class ClassDefineParse {
     /**
      * <p>parseClass.</p>
      *
-     * @param define a {@link java.lang.Class} object.
+     * @param define      a {@link java.lang.Class} object.
      * @param classLoader a {@link java.lang.ClassLoader} object.
      * @return a {@link io.github.hhy50.linker.define.InterfaceClassDefine} object.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
      * @throws io.github.hhy50.linker.exceptions.ParseException if any.
      * @throws java.lang.ClassNotFoundException if any.
      */
     public static InterfaceClassDefine parseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
+        InterfaceClassDefine defineClass = PARSED.get(define.getName());
+        if (defineClass != null) {
+            return defineClass;
+        }
         Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
         if (bindAnno == null || bindAnno.value().equals("")) {
             throw new VerifyException("use @Target.Bind specified a class");
@@ -54,19 +83,39 @@ public class ClassDefineParse {
     /**
      * <p>doParseClass.</p>
      *
-     * @param define a {@link java.lang.Class} object.
+     * @param define      a {@link java.lang.Class} object.
      * @param targetClass a {@link java.lang.Class} object.
      * @param classLoader a {@link java.lang.ClassLoader} object.
      * @return a {@link io.github.hhy50.linker.define.InterfaceClassDefine} object.
      * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
+     * @throws io.github.hhy50.linker.exceptions.ParseException if any.
      * @throws java.lang.ClassNotFoundException if any.
      */
     public static InterfaceClassDefine doParseClass(Class<?> define, Class<?> targetClass, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
-        InterfaceClassDefine defineClass = PARSED.get(define.getName());
-        if (defineClass != null) {
-            return defineClass;
-        }
-
         Map<String, String> typeDefines = getTypeDefines(define);
         List<MethodDefine> methodDefines = new ArrayList<>();
 
@@ -87,9 +136,9 @@ public class ClassDefineParse {
     /**
      * <p>parseMethod.</p>
      *
-     * @param firstField a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param classLoader a {@link java.lang.ClassLoader} object.
-     * @param method a {@link java.lang.reflect.Method} object.
+     * @param firstField   a {@link io.github.hhy50.linker.define.field.FieldRef} object.
+     * @param classLoader  a {@link java.lang.ClassLoader} object.
+     * @param method       a {@link java.lang.reflect.Method} object.
      * @param typedDefines a {@link java.util.Map} object.
      * @return a {@link io.github.hhy50.linker.define.MethodDefine} object.
      * @throws java.lang.ClassNotFoundException if any.
@@ -158,18 +207,23 @@ public class ClassDefineParse {
         }
         io.github.hhy50.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class);
         String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
-        Method method = null;
+        MethodRef methodRef = null;
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getClassType();
-            method = ReflectUtil.matchMethod(ownerClass, name, superClass, argsType);
+            Method method = ReflectUtil.matchMethod(ownerClass, name, superClass, argsType);
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
                 throw new ParseException("can not find method "+name+" in class "+ownerClass.getName());
             }
+            methodRef = method == null ? null : new EarlyMethodRef(owner, method);
         }
-        MethodRef methodRef = method == null ? new RuntimeMethodRef(owner, name, argsType, returnClass) : new EarlyMethodRef(owner, method);
+        if (methodRef == null) {
+            methodRef = new RuntimeMethodRef(owner, name, argsType, returnClass);
+            if (staticTokens.containsKey(name)) {
+                ((RuntimeMethodRef) methodRef).designateStatic(staticTokens.get(name));
+            }
+        }
         if (superClass != null) {
-            if (method != null) methodRef.setSuperClass(method.getDeclaringClass().getName());
-            else methodRef.setSuperClass(superClass);
+            methodRef.setSuperClass(superClass);
         }
         return methodRef;
     }

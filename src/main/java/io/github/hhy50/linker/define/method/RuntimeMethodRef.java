@@ -17,6 +17,8 @@ import java.util.Arrays;
 public class RuntimeMethodRef extends MethodRef {
     private Type[] argsType;
     private Class<?> returnType;
+    private boolean designateStatic;
+    private boolean isStatic;
 
     /**
      * <p>Constructor for RuntimeMethodRef.</p>
@@ -58,5 +60,33 @@ public class RuntimeMethodRef extends MethodRef {
      */
     public Type getMethodType() {
         return Type.getMethodType(getRetunrType(), getArgsType());
+    }
+
+    /**
+     * <p>isDesignateStatic.</p>
+     *
+     * @return a boolean.
+     */
+    public boolean isDesignateStatic() {
+        return designateStatic;
+    }
+
+    /**
+     * <p>isStatic.</p>
+     *
+     * @return a boolean.
+     */
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    /**
+     * <p>designateStatic.</p>
+     *
+     * @param isStatic a boolean.
+     */
+    public void designateStatic(boolean isStatic) {
+        this.designateStatic = true;
+        this.isStatic = isStatic;
     }
 }

@@ -44,7 +44,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();
-        ClassTypeMember ownerType = classImplBuilder.defineClassTypeMember(owner);
+        ClassTypeMember ownerType = classImplBuilder.defineClassTypeMember(method.getFullName()+"_lookup");
         ownerType.staticInit(clinit, getClassLoadAction(owner.getType()));
 
         // init methodHandle
@@ -56,13 +56,14 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
-                    VarInst objVar = getter.invoke(methodBody);
+                    VarInst result = null;
                     if (!method.isStatic()) {
+                        VarInst objVar = getter.invoke(methodBody);
                         objVar.checkNullPointer(methodBody, objVar.getName());
+                        result = mhMember.invokeInstance(methodBody, objVar, methodBody.getArgs());
+                    } else {
+                        result = mhMember.invokeStatic(methodBody, methodBody.getArgs());
                     }
-
-                    // mh.invoke(obj)
-                    VarInst result = method.isStatic() ? mhMember.invokeStatic(methodBody, methodBody.getArgs()) : mhMember.invokeInstance(methodBody, objVar, methodBody.getArgs());
                     if (result != null) {
                         result.load(methodBody);
                     }

@@ -38,10 +38,8 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
-        ClassTypeMember lookupClass = classImplBuilder.defineClassTypeMember(prevField);
-        // 定义当前字段的mh
+        ClassTypeMember lookupClass = classImplBuilder.defineClassTypeMember(Opcodes.ACC_PUBLIC, field.getUniqueName()+"_lookup");
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(), methodType);
-        // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody body = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(body);

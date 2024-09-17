@@ -8,7 +8,6 @@ import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 /**
  * <p>ClassTypeMember class.</p>
@@ -18,8 +17,6 @@ import org.objectweb.asm.Type;
  */
 public class ClassTypeMember extends Member {
 
-    private Type classType;
-
     private boolean inited;
 
     /**
@@ -28,11 +25,9 @@ public class ClassTypeMember extends Member {
      * @param access     a int.
      * @param owner      a {@link java.lang.String} object.
      * @param memberName a {@link java.lang.String} object.
-     * @param classType a {@link org.objectweb.asm.Type} object.
      */
-    public ClassTypeMember(int access, String owner, String memberName, Type classType) {
+    public ClassTypeMember(int access, String owner, String memberName) {
         super(access, owner, memberName, ClassVar.TYPE);
-        this.classType = classType;
     }
 
     /**
@@ -49,6 +44,12 @@ public class ClassTypeMember extends Member {
                 .setArgs(this));
     }
 
+    /**
+     * <p>staticInit.</p>
+     *
+     * @param clinit a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param classLoadAction a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     */
     public void staticInit(MethodBody clinit, Action classLoadAction) {
         if (inited) return;
         this.store(clinit, classLoadAction);

@@ -42,14 +42,8 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         Type declaredType = Type.getType(field.getDeclaredType());
         MethodBody clinit = classImplBuilder.getClinit();
 
-        // 定义lookup class
-        if (declaredType.equals(prevField.getType())) {
-            this.lookupClass = classImplBuilder.defineClassTypeMember(prevField);
-            this.lookupClass.staticInit(clinit, getClassLoadAction(prevField.getType()));
-        } else {
-            this.lookupClass = classImplBuilder.defineClassTypeMember(field.getUniqueName()+"_$declare_", declaredType);
-            this.lookupClass.staticInit(clinit, getClassLoadAction(declaredType));
-        }
+        this.lookupClass = classImplBuilder.defineClassTypeMember(field.getUniqueName()+"_lookup");
+        this.lookupClass.staticInit(clinit, getClassLoadAction(declaredType));
 
         // 定义当前字段的getter mh, init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
@@ -59,13 +53,14 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
                 .accept(mv -> {
                     MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
-                    VarInst objVar = getter.invoke(methodBody);
+                    VarInst result = null;
                     if (!field.isStatic()) {
+                        VarInst objVar = getter.invoke(methodBody);
                         objVar.checkNullPointer(methodBody, objVar.getName());
+                        result = mhMember.invokeInstance(methodBody, objVar);
+                    } else {
+                        result = mhMember.invokeStatic(methodBody);
                     }
-
-                    // mh.invoke(obj)
-                    VarInst result = field.isStatic() ? mhMember.invokeStatic(methodBody) : mhMember.invokeInstance(methodBody, objVar);
                     result.returnThis(methodBody);
                 });
     }

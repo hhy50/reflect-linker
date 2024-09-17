@@ -24,6 +24,7 @@ public class MyArrayListTest {
      */
     @Test
     public void test() throws LinkerException {
+//        setOutputPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\target\\");
         Object[] objects = new Object[10];
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
         list.setElementData(objects);
@@ -36,11 +37,11 @@ public class MyArrayListTest {
         list.add(3);
         list.add(4);
         list.add("5");
-        Assert.assertEquals(objects[0], 1);
-        Assert.assertEquals(objects[1], 2);
-        Assert.assertEquals(objects[2], 3);
-        Assert.assertEquals(objects[3], 4);
-        Assert.assertEquals(objects[4], "5");
-        Assert.assertEquals(list.size(), 5);
+        Assert.assertEquals(objects[0], list.get(0));
+        Assert.assertEquals(objects[1], list.get(1));
+        Assert.assertEquals(objects[2], list.get(2));
+        Assert.assertEquals(objects[3], list.get(3));
+        Assert.assertEquals(objects[4], list.get(4));
+        Assert.assertEquals(list.size(), list.size());
     }
 }

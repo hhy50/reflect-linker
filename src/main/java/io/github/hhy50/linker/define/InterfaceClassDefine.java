@@ -13,6 +13,7 @@ public class InterfaceClassDefine {
     private Class<?> define;
     private Class<?> targetClass;
     private List<MethodDefine> methodDefines;
+    private byte[] bytecode;
 
     /**
      * <p>Constructor for InterfaceClassDefine.</p>
@@ -52,5 +53,25 @@ public class InterfaceClassDefine {
      */
     public List<MethodDefine> getMethodDefines() {
         return methodDefines;
+    }
+
+    /**
+     * <p>Setter for the field <code>bytecode</code>.</p>
+     *
+     * @param bytecode an array of {@link byte} objects.
+     * @return a {@link io.github.hhy50.linker.define.InterfaceClassDefine} object.
+     */
+    public InterfaceClassDefine setBytecode(byte[] bytecode) {
+        this.bytecode = bytecode;
+        return this;
+    }
+
+    /**
+     * <p>Getter for the field <code>bytecode</code>.</p>
+     *
+     * @return an array of {@link byte} objects.
+     */
+    public byte[] getBytecode() {
+        return bytecode;
     }
 }

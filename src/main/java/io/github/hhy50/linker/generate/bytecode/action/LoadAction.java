@@ -17,6 +17,9 @@ public interface LoadAction extends Action {
             body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
         }
     /** Constant <code>LOAD0</code> */
+    /** Constant <code>LOAD0</code> */
+    /** Constant <code>LOAD0</code> */
+    /** Constant <code>LOAD0</code> */
     };
 
     /** {@inheritDoc} */

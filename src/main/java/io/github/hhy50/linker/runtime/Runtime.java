@@ -28,6 +28,7 @@ public class Runtime {
     public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     /** Constant <code>FIND_GETTER</code> */
     public static final MethodHolder FIND_FIELD = new MethodHolder(Runtime.OWNER, "findField", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Class;");
+    /** Constant <code>FIND_GETTER</code> */
     public static final MethodHolder FIND_GETTER = new MethodHolder(Runtime.OWNER, "findGetter", Runtime.FIND_GETTER_DESC);
     /** Constant <code>FIND_SETTER</code> */
     public static final MethodHolder FIND_SETTER = new MethodHolder(Runtime.OWNER, "findSetter", Runtime.FIND_SETTER_DESC);
@@ -87,6 +88,14 @@ public class Runtime {
         return cl.loadClass(callerClassName);
     }
 
+    /**
+     * <p>findField.</p>
+     *
+     * @param clazz a {@link java.lang.Class} object.
+     * @param fieldName a {@link java.lang.String} object.
+     * @return a {@link java.lang.Class} object.
+     * @throws java.lang.NoSuchFieldException if any.
+     */
     public static Class<?> findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
         Field field = ReflectUtil.getField(clazz, fieldName);
         if (field == null) {

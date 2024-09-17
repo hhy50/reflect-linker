@@ -75,9 +75,9 @@ public abstract class MethodHandle {
      * </pre>
      *
      * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param classType  a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
      * @param mhMember   a {@link io.github.hhy50.linker.generate.bytecode.MethodHandleMember} object.
      * @param objVar     a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
      */
     protected abstract void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar);
 
@@ -95,6 +95,13 @@ public abstract class MethodHandle {
 //        ));
 //    }
 
+    /**
+     * <p>checkLookClass.</p>
+     *
+     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @param varInst a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     */
     protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst) {
         body.append(() -> new ConditionJumpAction(
                 must(notNull(varInst),
@@ -104,6 +111,14 @@ public abstract class MethodHandle {
         ));
     }
 
+    /**
+     * <p>staticCheckClass.</p>
+     *
+     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @param prevFieldName a {@link java.lang.String} object.
+     * @param prevLookup a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     */
     protected void staticCheckClass(MethodBody body, ClassTypeMember lookupClass, String prevFieldName, ClassTypeMember prevLookup) {
         body.append(() -> new ConditionJumpAction(
                 isNull(lookupClass),

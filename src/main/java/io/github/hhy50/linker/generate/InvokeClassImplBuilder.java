@@ -202,40 +202,26 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * <p>defineClassTypeMember.</p>
      *
-     * @param field a {@link FieldRef} object.
      * @return a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @param access a int.
+     * @param name a {@link java.lang.String} object.
      */
-    public ClassTypeMember defineClassTypeMember(FieldRef field) {
-        String mName = field.getUniqueName()+"_$_class_type";
+    public ClassTypeMember defineClassTypeMember(String mName) {
+        return defineClassTypeMember(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC|Opcodes.ACC_FINAL, mName);
+    }
+
+    public ClassTypeMember defineClassTypeMember(int access, String mName) {
+        mName = mName+"_$_class_type";
         if (!members.containsKey(mName)) {
-            int access = field instanceof RuntimeFieldRef ? Opcodes.ACC_PUBLIC : Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
             super.defineField(access, mName, ClassVar.TYPE.getDescriptor(), null, null);
 
-            ClassTypeMember classTypeMember = new ClassTypeMember(access, implClassDesc, mName, field.getType());
+            ClassTypeMember classTypeMember = new ClassTypeMember(access, implClassDesc, mName);
             this.members.put(mName, classTypeMember);
             return classTypeMember;
         }
         return (ClassTypeMember) members.get(mName);
     }
 
-    public ClassTypeMember defineClassTypeMember(String name, Type type) {
-        String mName = name+"_$_class_type";
-        if (!members.containsKey(mName)) {
-            int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            super.defineField(access, mName, ClassVar.TYPE.getDescriptor(), null, null);
-
-            ClassTypeMember classTypeMember = new ClassTypeMember(access, implClassDesc, mName, type);
-            this.members.put(mName, classTypeMember);
-            return classTypeMember;
-        }
-        return (ClassTypeMember) members.get(mName);
-    }
-
-    /**
-     * <p>Getter for the field <code>clinit</code>.</p>
-     *
-     * @return a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     */
     public MethodBody getClinit() {
         if (clinitMethodWriter == null) {
             clinitMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null)

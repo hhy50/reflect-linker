@@ -37,10 +37,9 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         Getter<?> ownerGetter = classImplBuilder.defineGetter(owner.getUniqueName(), owner);
         ownerGetter.define(classImplBuilder);
         
-        ClassTypeMember lookupClass = classImplBuilder.defineClassTypeMember(owner);
-        // 定义当前字段的mh
+        ClassTypeMember lookupClass = classImplBuilder.defineClassTypeMember(Opcodes.ACC_PUBLIC, method.getFullName()+"_lookup");
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), methodType);
-        // 定义当前方法的invoker
+
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
                 .accept(mv -> {
@@ -53,8 +52,14 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                         staticCheckClass(body, lookupClass, owner.fieldName, prevLookupClass);
                     }
                     checkMethodHandle(body, lookupClass, mhMember, objVar);
+
                     // mh.invoke(obj)
-                    VarInst result = mhMember.invoke(body, objVar, body.getArgs());
+                    VarInst result;
+                    if (method.isDesignateStatic()) {
+                        result = method.isStatic() ? mhMember.invokeStatic(body, body.getArgs()) : mhMember.invokeInstance(body, objVar, body.getArgs());
+                    } else {
+                        result = mhMember.invoke(body, objVar, body.getArgs());
+                    }
                     if (result != null) {
                         result.load(body);
                     }

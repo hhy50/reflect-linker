@@ -27,23 +27,17 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         super(implClass, field);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();
         Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
-        //this.typeMember.store(clinit, getClassLoadAction(field.getType()));
-
-        // 保存当前字段类型
-        this.lookupClass = classImplBuilder.defineClassTypeMember(prevField);
-        // 定义当前字段的mh
+        // 保存当前lookup类型
+        this.lookupClass = classImplBuilder.defineClassTypeMember(Opcodes.ACC_PUBLIC, field.getUniqueName()+"_lookup");
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
 
-        // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
             MethodBody body = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(body);
