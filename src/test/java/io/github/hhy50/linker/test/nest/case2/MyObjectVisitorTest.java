@@ -24,7 +24,6 @@ public class MyObjectVisitorTest {
      */
     @Test
     public void test1() throws LinkerException {
-        LinkerFactory.setOutputPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\target\\");
         MyObject myObject = new MyObject();
         MyObjectVisitor linker = LinkerFactory.createLinker(MyObjectVisitor.class, myObject);
         MyInteger age = LinkerFactory.createLinker(MyInteger.class, 18);

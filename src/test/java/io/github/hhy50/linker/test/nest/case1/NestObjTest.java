@@ -23,7 +23,6 @@ public class NestObjTest {
      */
     @Test
     public void test1() throws LinkerException {
-        LinkerFactory.setOutputPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\target\\");
         // get
         ObjVisitor obj = LinkerFactory.createLinker(ObjVisitor.class, new Obj());
 //        ObjVisitor$impl obj = new ObjVisitor$impl(new Obj());
