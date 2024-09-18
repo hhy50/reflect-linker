@@ -205,8 +205,8 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
      * @param mName a {@link java.lang.String} object.
      */
-    public ClassTypeMember defineClassTypeMember(String mName) {
-        return defineClassTypeMember(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC|Opcodes.ACC_FINAL, mName);
+    public ClassTypeMember defineLookupClass(String mName) {
+        return defineLookupClass(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC|Opcodes.ACC_FINAL, mName);
     }
 
     /**
@@ -216,8 +216,8 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @param mName a {@link java.lang.String} object.
      * @return a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
      */
-    public ClassTypeMember defineClassTypeMember(int access, String mName) {
-        mName = mName+"_$_class_type";
+    public ClassTypeMember defineLookupClass(int access, String mName) {
+        mName = mName+"_lookup_$_class_type";
         if (!members.containsKey(mName)) {
             super.defineField(access, mName, ClassVar.TYPE.getDescriptor(), null, null);
 

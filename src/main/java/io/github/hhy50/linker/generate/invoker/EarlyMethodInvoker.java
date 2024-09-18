@@ -44,7 +44,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();
-        ClassTypeMember ownerType = classImplBuilder.defineClassTypeMember(method.getFullName()+"_lookup");
+        ClassTypeMember ownerType = classImplBuilder.defineLookupClass(method.getFullName());
         ownerType.staticInit(clinit, getClassLoadAction(owner.getType()));
 
         // init methodHandle
