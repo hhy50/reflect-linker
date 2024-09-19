@@ -72,7 +72,7 @@ public class LookupMember extends Member {
      * @param lookupAssign a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     public void runtimeCheck(MethodBody methodBody, VarInst varInst, Action lookupAssign) {
-        methodBody.append(() -> new ConditionJumpAction(
+        methodBody.append(new ConditionJumpAction(
                 Condition.must(Condition.isNull(this), Condition.notNull(varInst)),
                 lookupAssign, null)
         );

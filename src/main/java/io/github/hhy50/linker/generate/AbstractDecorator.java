@@ -106,7 +106,7 @@ public abstract class AbstractDecorator extends MethodHandle {
             if (expectType.equals(ObjectVar.TYPE)) {
                 return varInst;
             }
-            methodBody.append(() -> new ConditionJumpAction(
+            methodBody.append(new ConditionJumpAction(
                     Condition.must(Condition.notNull(varInst),
                             Condition.ifFalse(new MethodInvokeAction(RuntimeUtil.TYPE_MATCH)
                                     .setArgs(varInst.getThisClass(), LdcLoadAction.of(expectType.getClassName())))

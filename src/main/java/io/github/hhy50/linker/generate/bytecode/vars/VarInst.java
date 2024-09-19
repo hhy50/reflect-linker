@@ -13,6 +13,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.function.Consumer;
+
 /**
  * VarInstance
  * 生成可以复用的字节码
@@ -51,7 +53,7 @@ public abstract class VarInst implements LoadAction {
      */
     @Override
     public void load(MethodBody methodBody) {
-        methodBody.append(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
+        methodBody.append((Consumer<MethodVisitor>) mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
     }
 
     /**

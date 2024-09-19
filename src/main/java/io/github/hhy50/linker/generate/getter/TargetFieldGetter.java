@@ -67,4 +67,8 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
                 new FieldLoadAction(targetField).setInstance(LoadAction.LOAD0)
         );
     }
+
+    public Type getTargetType() {
+        return this.field.getType();
+    }
 }

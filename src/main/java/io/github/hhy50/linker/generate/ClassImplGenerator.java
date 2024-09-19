@@ -61,7 +61,7 @@ public class ClassImplGenerator {
         byte[] bytecode = classBuilder.end().toBytecode();
         String outputPath = System.getProperty("linker.output.path");
         if (!StringUtil.isEmpty(outputPath)) {
-            Files.write(new File(outputPath+ClassUtil.toSimpleName(implClassName)+".class").toPath(), bytecode);
+            Files.write(new File(outputPath, ClassUtil.toSimpleName(implClassName)+".class").toPath(), bytecode);
         }
         defineClass.setBytecode(bytecode);
     }

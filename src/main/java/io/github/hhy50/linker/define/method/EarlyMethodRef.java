@@ -61,4 +61,8 @@ public class EarlyMethodRef extends MethodRef {
     public void setSuperClass(String superClass) {
         this.superClass = method.getDeclaringClass().getName();
     }
+
+    public Type getDeclareType() {
+        return Type.getType(method.getDeclaringClass());
+    }
 }

@@ -7,8 +7,11 @@ import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.syslinker.DirectMethodHandleLinker;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
+import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 /**
@@ -258,5 +261,19 @@ public class RuntimeUtil {
             return (boolean) obj;
         }
         throw new ClassCastException(String.format("class '%s' not cast to boolean", obj.getClass()));
+    }
+
+    public static MethodHandles.Lookup getLookupByUnsafe() {
+        try {
+            Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            Unsafe unsafe = (Unsafe) field.get(null);
+            Field implLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
+            Object base = unsafe.staticFieldBase(implLookupField);
+            long fieldOffset = unsafe.staticFieldOffset(implLookupField);
+            return ((MethodHandles.Lookup) unsafe.getObject(base, fieldOffset));
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 }

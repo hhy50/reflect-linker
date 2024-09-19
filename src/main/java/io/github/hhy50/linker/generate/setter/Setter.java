@@ -44,11 +44,9 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        methodBody.append(() -> {
-            return new MethodInvokeAction(methodHolder)
+        methodBody.append(new MethodInvokeAction(methodHolder)
                     .setInstance(LoadAction.LOAD0)
-                    .setArgs(methodBody.getArgs());
-        });
+                    .setArgs(methodBody.getArgs()));
         return null;
     }
 

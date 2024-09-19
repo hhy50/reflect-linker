@@ -44,7 +44,7 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
             MethodBody body = new MethodBody(classImplBuilder, mv, methodType);
             VarInst objVar = getter.invoke(body);
 
-            checkLookClass(body, lookupClass, objVar);
+            checkLookClass(body, lookupClass, objVar, getter);
             ClassTypeMember prevLookupClass = getter.getLookupClass();
             if (prevLookupClass != null) {
                 staticCheckClass(body, lookupClass, prevField.fieldName, prevLookupClass);
