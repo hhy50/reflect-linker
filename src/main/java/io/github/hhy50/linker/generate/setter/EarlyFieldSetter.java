@@ -40,11 +40,10 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
-        Type declaredType = Type.getType(field.getDeclaredType());
         MethodBody clinit = classImplBuilder.getClinit();
 
         ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
-        lookupClass.staticInit(clinit, getClassLoadAction(declaredType));
+        lookupClass.staticInit(clinit, getClassLoadAction(field.getDeclaredType()));
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), this.methodType);

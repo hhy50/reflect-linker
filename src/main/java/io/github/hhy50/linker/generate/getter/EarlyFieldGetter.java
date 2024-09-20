@@ -39,11 +39,10 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
-        Type declaredType = Type.getType(field.getDeclaredType());
         MethodBody clinit = classImplBuilder.getClinit();
 
         this.lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
-        this.lookupClass.staticInit(clinit, getClassLoadAction(declaredType));
+        this.lookupClass.staticInit(clinit, getClassLoadAction(field.getDeclaredType()));
 
         // 定义当前字段的getter mh, init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);

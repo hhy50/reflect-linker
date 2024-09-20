@@ -83,8 +83,8 @@ public class EarlyFieldRef extends FieldRef {
      *
      * @return a {@link java.lang.Class} object.
      */
-    public Class<?> getDeclaredType() {
-        return this.declaredType;
+    public Type getDeclaredType() {
+        return Type.getType(this.declaredType);
     }
 
     /**
