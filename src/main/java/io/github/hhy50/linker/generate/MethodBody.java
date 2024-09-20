@@ -9,7 +9,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * <p>MethodBody class.</p>
@@ -72,13 +71,7 @@ public class MethodBody {
         interceptor.accept(this.writer);
     }
 
-    /**
-     * <p>append.</p>
-     *
-     * @param interceptor a {@link java.util.function.Supplier} object.
-     */
-    public void append(Supplier<Action> interceptor) {
-        Action action = interceptor.get();
+    public void append(Action action) {
         action.apply(this);
     }
 
@@ -124,7 +117,7 @@ public class MethodBody {
             lvbIndex++;
         }
         if (action != null) {
-            this.append(() -> localVarInst.store(action));
+            this.append(localVarInst.store(action));
         }
         return localVarInst;
     }

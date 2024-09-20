@@ -36,9 +36,7 @@ public interface LoadAction extends Action {
      * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     default void ifNull(MethodBody body, Action ifBlock) {
-        body.append(() ->
-                new ConditionJumpAction(Condition.isNull(this), ifBlock, null)
-        );
+        body.append(new ConditionJumpAction(Condition.isNull(this), ifBlock, null));
     }
 
     /**
@@ -49,9 +47,7 @@ public interface LoadAction extends Action {
      * @param elseBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
     default void ifNull(MethodBody body, Action ifBlock, Action elseBlock) {
-        body.append(() ->
-                new ConditionJumpAction(Condition.isNull(this), ifBlock, elseBlock)
-        );
+        body.append(new ConditionJumpAction(Condition.isNull(this), ifBlock, elseBlock));
     }
 
     /**

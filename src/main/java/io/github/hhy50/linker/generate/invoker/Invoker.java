@@ -51,7 +51,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
 
         Type rType = methodType.getReturnType();
         if (rType.getSort() == Type.VOID) {
-            methodBody.append(() -> invoker);
+            methodBody.append(invoker);
             return null;
         } else {
             return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
@@ -64,7 +64,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
         String superClass = method.getSuperClass();
         Action superClassLoad = superClass != null ? LdcLoadAction.of(superClass) : Action.loadNull();
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_METHOD)
-                .setArgs(lookupClass.getLookup(methodBody), objVar.getThisClass(),
+                .setArgs(lookupClass.getLookup(methodBody), lookupClass,
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
                         Action.asArray(Type.getType(String.class), Arrays.stream(method.getArgsType())

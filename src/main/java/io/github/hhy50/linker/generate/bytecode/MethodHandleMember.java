@@ -26,9 +26,9 @@ public class MethodHandleMember extends Member {
     /**
      * <p>Constructor for MethodHandleMember.</p>
      *
-     * @param owner a {@link java.lang.String} object.
-     * @param mhVarName a {@link java.lang.String} object.
-     * @param access a int.
+     * @param owner      a {@link java.lang.String} object.
+     * @param mhVarName  a {@link java.lang.String} object.
+     * @param access     a int.
      * @param methodType a {@link org.objectweb.asm.Type} object.
      */
     public MethodHandleMember(int access, String owner, String mhVarName, Type methodType) {
@@ -40,24 +40,22 @@ public class MethodHandleMember extends Member {
      * <p>invoke.</p>
      *
      * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param that a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @param args a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param that       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param args       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public VarInst invoke(MethodBody methodBody, VarInst that, VarInst... args) {
         VarInst result = initResultVar(methodBody);
 
-        methodBody.append(() -> {
-            MethodInvokeAction isStatic = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
-                    .setArgs(this);
-
-            return new ConditionJumpAction(Condition.ifTrue(isStatic),
-                    (__) -> invokeStatic(result, methodBody, args),
-                    (__) -> {
-                        that.checkNullPointer(methodBody, that.getName());
-                        invokeInstance(result, methodBody, that, args);
-                    });
-        });
+        MethodInvokeAction isStatic = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
+                .setArgs(this);
+        methodBody.append(new ConditionJumpAction(Condition.ifTrue(isStatic),
+                (__) -> invokeStatic(result, methodBody, args),
+                (__) -> {
+                    that.checkNullPointer(methodBody, that.getName());
+                    invokeInstance(result, methodBody, that, args);
+                })
+        );
         return result;
     }
 
@@ -65,7 +63,7 @@ public class MethodHandleMember extends Member {
      * <p>invokeStatic.</p>
      *
      * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param args a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param args       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public VarInst invokeStatic(MethodBody methodBody, VarInst... args) {
@@ -78,8 +76,8 @@ public class MethodHandleMember extends Member {
      * <p>invokeInstance.</p>
      *
      * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param that a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @param args a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param that       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param args       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     public VarInst invokeInstance(MethodBody methodBody, VarInst that, VarInst... args) {
@@ -89,7 +87,7 @@ public class MethodHandleMember extends Member {
     }
 
     private void invokeStatic(VarInst result, MethodBody methodBody, VarInst... args) {
-        methodBody.append(() ->
+        methodBody.append(
                 // 动态签名
                 new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
                         .setInstance(this)
@@ -103,7 +101,7 @@ public class MethodHandleMember extends Member {
         newArgs[0] = that;
         System.arraycopy(args, 0, newArgs, 1, args.length);
 
-        methodBody.append(() ->
+        methodBody.append(
                 // 动态签名
                 new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor()))
                         .setInstance(this)

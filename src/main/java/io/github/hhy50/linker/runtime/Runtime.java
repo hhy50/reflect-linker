@@ -8,7 +8,10 @@ import io.github.hhy50.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 /**
@@ -34,8 +37,6 @@ public class Runtime {
     public static final MethodHolder FIND_SETTER = new MethodHolder(Runtime.OWNER, "findSetter", Runtime.FIND_SETTER_DESC);
     /** Constant <code>FIND_METHOD</code> */
     public static final MethodHolder FIND_METHOD = new MethodHolder(Runtime.OWNER, "findMethod", Runtime.FIND_METHOD_DESC);
-    /** Constant <code>FIND_LOOKUP</code> */
-    public static final MethodHolder FIND_LOOKUP = new MethodHolder(Runtime.OWNER, "findLookup", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandles$Lookup;");
     /** Constant <code>LOOKUP</code> */
     public static final MethodHolder LOOKUP = new MethodHolder(Runtime.OWNER, "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;");
     /** Constant <code>GET_CLASS</code> */
@@ -57,20 +58,12 @@ public class Runtime {
      *
      * @param callerClass a {@link java.lang.Class} object.
      * @return a {@link java.lang.invoke.MethodHandles.Lookup} object.
-     * @throws java.lang.reflect.InvocationTargetException if any.
-     * @throws java.lang.InstantiationException if any.
-     * @throws java.lang.IllegalAccessException if any.
      */
-    public static MethodHandles.Lookup lookup(Class<?> callerClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        for (Constructor<?> constructor : MethodHandles.Lookup.class.getDeclaredConstructors()) {
-            if (constructor.getParameterCount() == 2) {
-                constructor.setAccessible(true);
-                return (MethodHandles.Lookup) constructor.newInstance(callerClass,
-                        MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE);
-            }
+    public static MethodHandles.Lookup lookup(Class<?> callerClass) throws IllegalAccessException {
+        if (callerClass == MethodHandles.Lookup.class) {
+            return RuntimeUtil.getLookupByUnsafe();
         }
-//        return LOOKUP_LINKER.lookupImpl();
-        return null;
+        return LOOKUP_LINKER.lookupImpl();
     }
 
     /**
@@ -102,21 +95,6 @@ public class Runtime {
             throw new NoSuchFieldException("not found property '"+fieldName+"' in class '"+clazz.getName()+"'");
         }
         return field.getType();
-    }
-
-    /**
-     * <p>findLookup.</p>
-     *
-     * @param clazz a {@link java.lang.Class} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @return a {@link java.lang.invoke.MethodHandles.Lookup} object.
-     * @throws java.lang.reflect.InvocationTargetException if any.
-     * @throws java.lang.InstantiationException if any.
-     * @throws java.lang.IllegalAccessException if any.
-     */
-    public static MethodHandles.Lookup findLookup(Class<?> clazz, String fieldName) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        Field field = ReflectUtil.getField(clazz, fieldName);
-        return lookup(field.getType());
     }
 
     /**

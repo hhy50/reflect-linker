@@ -46,7 +46,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                     MethodBody body = new MethodBody(classImplBuilder, mv, methodType);
                     VarInst objVar = ownerGetter.invoke(body);
 
-                    checkLookClass(body, lookupClass, objVar);
+                    checkLookClass(body, lookupClass, objVar, ownerGetter);
                     ClassTypeMember prevLookupClass = ownerGetter.getLookupClass();
                     if (prevLookupClass != null) {
                         staticCheckClass(body, lookupClass, owner.fieldName, prevLookupClass);

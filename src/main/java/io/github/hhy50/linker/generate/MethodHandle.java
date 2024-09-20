@@ -11,6 +11,8 @@ import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.getter.Getter;
+import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
@@ -74,53 +76,51 @@ public abstract class MethodHandle {
      *     mh = Runtime.findGetter(lookup, "c");
      * </pre>
      *
-     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param mhMember   a {@link io.github.hhy50.linker.generate.bytecode.MethodHandleMember} object.
-     * @param objVar     a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param methodBody  a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param mhMember    a {@link io.github.hhy50.linker.generate.bytecode.MethodHandleMember} object.
+     * @param objVar      a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
      */
     protected abstract void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar);
 
-
-//    protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst, ClassTypeMember prevLookup) {
-//        body.append(() -> new ConditionJumpAction(
-//                any(
-//                        isNull(lookupClass),
-//                        must(notNull(varInst), notEq(varInst.getThisClass(), lookupClass))
-//                ),
-//                new ConditionJumpAction(notNull(varInst),
-//                        (__) -> lookupClass.store(body, varInst.getThisClass()),
-//                        (__) -> lookupClass.store(body, new MethodInvokeAction(Runtime.FIND_FIELD).setArgs(prevLookup, LdcLoadAction.of(prevLookup.getFieldName())))),
-//                null
-//        ));
-//    }
-
     /**
      * <p>checkLookClass.</p>
      *
-     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param body        a {@link io.github.hhy50.linker.generate.MethodBody} object.
      * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
-     * @param varInst a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param varInst     a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
-    protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst) {
-        body.append(() -> new ConditionJumpAction(
+    protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst, Getter<?> prevGetter) {
+        Type defaultType = null;
+        if (prevGetter instanceof TargetFieldGetter) {
+            defaultType = ((TargetFieldGetter) prevGetter).getTargetType();
+        }
+        body.append(new ConditionJumpAction(
                 must(notNull(varInst),
                         any(isNull(lookupClass), notEq(varInst.getThisClass(), lookupClass))),
                 (__) -> lookupClass.store(__, varInst.getThisClass()),
                 null
         ));
+        if (defaultType != null) {
+            final Type fd = defaultType;
+            body.append(new ConditionJumpAction(
+                    isNull(lookupClass),
+                    (__) -> lookupClass.store(__, getClassLoadAction(fd)),
+                    null
+            ));
+        }
     }
 
     /**
      * <p>staticCheckClass.</p>
      *
-     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @param body          a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param lookupClass   a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
      * @param prevFieldName a {@link java.lang.String} object.
-     * @param prevLookup a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @param prevLookup    a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
      */
     protected void staticCheckClass(MethodBody body, ClassTypeMember lookupClass, String prevFieldName, ClassTypeMember prevLookup) {
-        body.append(() -> new ConditionJumpAction(
+        body.append(new ConditionJumpAction(
                 isNull(lookupClass),
                 (__) -> lookupClass.store(__, new MethodInvokeAction(Runtime.FIND_FIELD).setArgs(prevLookup, LdcLoadAction.of(prevFieldName))),
                 null

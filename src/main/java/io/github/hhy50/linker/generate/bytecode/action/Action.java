@@ -127,7 +127,7 @@ public interface Action {
      */
     static Action asList(Action... actions) {
         return body -> {
-            body.append(() -> new MethodInvokeAction(MethodHolder.ARRAYS_ASLIST).setArgs(asArray(ObjectVar.TYPE, actions)));
+            body.append(new MethodInvokeAction(MethodHolder.ARRAYS_ASLIST).setArgs(asArray(ObjectVar.TYPE, actions)));
         };
     }
 

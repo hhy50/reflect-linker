@@ -66,7 +66,7 @@ public class ClassUtil {
      * @return a boolean.
      */
     public static boolean isAssignableFrom(Class<?> child, String parent) {
-        if (child.getName().equals(parent)) return true;
+        if (child.getName().equals(parent) || parent.equals("java.lang.Object")) return true;
         Class<?> superclass = child.getSuperclass();
         while (superclass != null && superclass != Object.class) {
             if (superclass.getName().equals(parent)) {
