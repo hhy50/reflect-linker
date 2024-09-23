@@ -11,7 +11,7 @@ public class SysLinkerClassLoader extends java.lang.ClassLoader {
     private static final SysLinkerClassLoader INSTANCE = new SysLinkerClassLoader();
 
     private SysLinkerClassLoader() {
-
+        super(SysLinkerClassLoader.class.getClassLoader());
     }
 
     /**
