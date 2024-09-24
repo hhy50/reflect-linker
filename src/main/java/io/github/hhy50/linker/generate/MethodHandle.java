@@ -137,9 +137,7 @@ public abstract class MethodHandle {
      * @param objVar      a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
     protected void checkMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        mhMember.ifNull(methodBody, body -> {
-            mhReassign(body, lookupClass, mhMember, objVar);
-        });
+        methodBody.append(mhMember.ifNull(body -> mhReassign(body, lookupClass, mhMember, objVar)));
     }
 
     /**

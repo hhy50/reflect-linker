@@ -46,11 +46,8 @@ public class GetterDecorator extends AbstractDecorator {
          * get只需要对返回值进行转换就行
          */
         VarInst result = getter.invoke(methodBody);
-//        if (AsmUtil.isObjectType(result.getType())) {
-//            result.ifNull(methodBody, returnNull());
-//        }
         result = typecastResult(methodBody, result, methodDefine.getReturnType());
-        result.returnThis(methodBody);
+        result.returnThis();
         return null;
     }
 }

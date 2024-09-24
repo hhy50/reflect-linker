@@ -6,7 +6,6 @@ import io.github.hhy50.linker.define.MethodDefine;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.StringUtil;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -53,9 +52,9 @@ public class ClassImplGenerator {
 
         for (MethodDefine methodDefine : methodDefines) {
             Method method = methodDefine.define;
-            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null, null)
-                    .accept(mv -> {
-                        generateMethodImpl(classBuilder, mv, methodDefine);
+            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null)
+                    .accept(body -> {
+                        generateMethodImpl(classBuilder, body, methodDefine);
                     });
         }
         byte[] bytecode = classBuilder.end().toBytecode();
@@ -66,7 +65,7 @@ public class ClassImplGenerator {
         defineClass.setBytecode(bytecode);
     }
 
-    private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodVisitor mv, MethodDefine methodDefine) {
+    private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodBody body, MethodDefine methodDefine) {
         MethodHandle mh = null;
         if (methodDefine.hasGetter()) {
             mh = BytecodeFactory.generateGetter(classBuilder, methodDefine, methodDefine.fieldRef);
@@ -75,11 +74,11 @@ public class ClassImplGenerator {
         } else if (methodDefine.methodRef != null) {
             mh = BytecodeFactory.generateInvoker(classBuilder, methodDefine, methodDefine.methodRef);
         } else {
-            AsmUtil.throwNoSuchMethod(mv, methodDefine.define.getName());
+            AsmUtil.throwNoSuchMethod(body.getWriter(), methodDefine.define.getName());
         }
         if (mh != null) {
             mh.define(classBuilder);
-            mh.invoke(new MethodBody(classBuilder, mv, Type.getType(methodDefine.define)));
+            mh.invoke(body);
         }
     }
 }

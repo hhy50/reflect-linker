@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate.getter;
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.entity.MethodHolder;
@@ -32,7 +33,9 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         super(implClass, fieldRef);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();
@@ -49,22 +52,22 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         initStaticMethodHandle(clinit, mhMember, lookupClass, field.fieldName, field.getType(), field.isStatic());
 
         // 定义当前字段的getter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
-                .accept(mv -> {
-                    MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
-                    VarInst result = null;
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null)
+                .accept(body -> {
                     if (!field.isStatic()) {
-                        VarInst objVar = getter.invoke(methodBody);
-                        objVar.checkNullPointer(methodBody, objVar.getName());
-                        result = mhMember.invokeInstance(methodBody, objVar);
+                        VarInst objVar = getter.invoke(body);
+                        objVar.checkNullPointer(objVar.getName());
+                        body.append(mhMember.invokeInstance(objVar));
                     } else {
-                        result = mhMember.invokeStatic(methodBody);
+                        body.append(mhMember.invokeStatic());
                     }
-                    result.returnThis(methodBody);
+                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
                 });
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type fieldType, boolean isStatic) {
         VarInst lookupVar = lookupClass.getLookup(clinit);

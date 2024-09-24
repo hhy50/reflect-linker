@@ -39,82 +39,32 @@ public class MethodHandleMember extends Member {
     /**
      * <p>invoke.</p>
      *
-     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
      * @param that       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      * @param args       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
      */
-    public VarInst invoke(MethodBody methodBody, VarInst that, VarInst... args) {
-        VarInst result = initResultVar(methodBody);
-
+    public Action invoke(VarInst that, VarInst... args) {
         MethodInvokeAction isStatic = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
                 .setArgs(this);
-        methodBody.append(new ConditionJumpAction(Condition.ifTrue(isStatic),
-                (__) -> invokeStatic(result, methodBody, args),
-                (__) -> {
-                    that.checkNullPointer(methodBody, that.getName());
-                    invokeInstance(result, methodBody, that, args);
-                })
-        );
-        return result;
-    }
-
-    /**
-     * <p>invokeStatic.</p>
-     *
-     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param args       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     */
-    public VarInst invokeStatic(MethodBody methodBody, VarInst... args) {
-        VarInst result = initResultVar(methodBody);
-        invokeStatic(result, methodBody, args);
-        return result;
-    }
-
-    /**
-     * <p>invokeInstance.</p>
-     *
-     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param that       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @param args       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     */
-    public VarInst invokeInstance(MethodBody methodBody, VarInst that, VarInst... args) {
-        VarInst result = initResultVar(methodBody);
-        invokeInstance(result, methodBody, that, args);
-        return result;
-    }
-
-    private void invokeStatic(VarInst result, MethodBody methodBody, VarInst... args) {
-        methodBody.append(
-                // 动态签名
-                new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
-                        .setInstance(this)
-                        .setArgs(args)
-                        .onAfter(result == null ? Action.empty() : result.store(Action.stackTop()))
+        return new ConditionJumpAction(Condition.ifTrue(isStatic),
+                invokeStatic(args),
+                new ConditionJumpAction(Condition.isNull(that), Action.throwNullException(that.getName()), invokeInstance(that, args))
         );
     }
 
-    private void invokeInstance(VarInst result, MethodBody methodBody, VarInst that, VarInst... args) {
+    public Action invokeStatic(VarInst... args) {
+        return new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
+                .setInstance(this)
+                .setArgs(args);
+    }
+
+    public Action invokeInstance(VarInst that, VarInst... args) {
         VarInst[] newArgs = new VarInst[args.length+1];
         newArgs[0] = that;
         System.arraycopy(args, 0, newArgs, 1, args.length);
 
-        methodBody.append(
-                // 动态签名
-                new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor()))
-                        .setInstance(this)
-                        .setArgs(newArgs)
-                        .onAfter(result == null ? Action.empty() : result.store(Action.stackTop()))
-        );
-    }
-
-    private VarInst initResultVar(MethodBody methodBody) {
-        VarInst objectVar = null;
-        if (methodType.getReturnType().getSort() != Type.VOID) {
-            objectVar = methodBody.newLocalVar(methodType.getReturnType(), "result", null);
-        }
-        return objectVar;
+        // 动态签名
+        return new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor()))
+                .setInstance(this)
+                .setArgs(newArgs);
     }
 }

@@ -31,8 +31,7 @@ public class CreateLinkerAction implements Action {
     /** {@inheritDoc} */
     @Override
     public void apply(MethodBody body) {
-        Object a = null;
-        obj.ifNull(body, Action.returnNull(), new MethodInvokeAction(MethodHolder.LINKER_FACTORY_CREATE_LINKER)
-                .setArgs(LdcLoadAction.of(linkerType), obj));
+        body.append(obj.ifNull(Action.returnNull(), new MethodInvokeAction(MethodHolder.LINKER_FACTORY_CREATE_LINKER)
+                .setArgs(LdcLoadAction.of(linkerType), obj)));;
     }
 }

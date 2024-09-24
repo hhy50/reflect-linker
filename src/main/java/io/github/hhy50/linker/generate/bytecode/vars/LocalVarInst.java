@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.vars;
 
+import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.Type;
 
 /**
@@ -15,19 +16,22 @@ public class LocalVarInst extends VarInst {
     /**
      * <p>Constructor for LocalVarInst.</p>
      *
+     * @param body     a MethodBody.
      * @param lvbIndex a int.
-     * @param type a {@link org.objectweb.asm.Type} object.
-     * @param varName a {@link java.lang.String} object.
+     * @param type     a {@link Type} object.
+     * @param varName  a {@link String} object.
      */
-    public LocalVarInst(int lvbIndex, Type type, String varName) {
-        super(lvbIndex, type);
+    public LocalVarInst(MethodBody body, int lvbIndex, Type type, String varName) {
+        super(body, lvbIndex, type);
         this.varName = varName == null ? "var" + lvbIndex : varName;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
-        return varName+"[type="+type.getClassName()+"]";
+        return varName + "[type=" + type.getClassName() + "]";
     }
 
     /**

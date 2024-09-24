@@ -54,7 +54,7 @@ public class MethodBody {
     private void initArgsTable(Type[] argumentTypes) {
         int index = 1;
         for (int i = 0; i < argumentTypes.length; i++) {
-            args[i] = new ObjectVar(index++, argumentTypes[i]);
+            args[i] = new ObjectVar(this, index++, argumentTypes[i]);
             if (argumentTypes[i].getSort() == Type.DOUBLE || argumentTypes[i].getSort() == Type.LONG) {
                 index++;
             }
@@ -112,12 +112,12 @@ public class MethodBody {
      * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst} object.
      */
     public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
-        LocalVarInst localVarInst = new LocalVarInst(lvbIndex++, type, fieldName);
+        LocalVarInst localVarInst = new LocalVarInst(this, lvbIndex++, type, fieldName);
         if (type.getSort() == Type.LONG || type.getSort() == Type.DOUBLE) {
             lvbIndex++;
         }
         if (action != null) {
-            this.append(localVarInst.store(action));
+            localVarInst.store(action);
         }
         return localVarInst;
     }

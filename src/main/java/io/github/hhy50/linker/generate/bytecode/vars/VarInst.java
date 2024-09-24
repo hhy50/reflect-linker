@@ -24,6 +24,7 @@ import java.util.function.Consumer;
  */
 public abstract class VarInst implements LoadAction {
 
+    private final MethodBody body;
 
     /**
      * 当前变量在局部变量表中的索引
@@ -41,7 +42,8 @@ public abstract class VarInst implements LoadAction {
      * @param lvbIndex a int.
      * @param type a {@link org.objectweb.asm.Type} object.
      */
-    public VarInst(int lvbIndex, Type type) {
+    public VarInst(MethodBody body, int lvbIndex, Type type) {
+        this.body = body;
         this.lvbIndex = lvbIndex;
         this.type = type;
     }
@@ -56,6 +58,10 @@ public abstract class VarInst implements LoadAction {
         methodBody.append((Consumer<MethodVisitor>) mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
     }
 
+    public void loadToStack() {
+        load(body);
+    }
+
     /**
      * 检查是否为空， 如果变量为空就抛出空指针
      * <pre>
@@ -64,12 +70,17 @@ public abstract class VarInst implements LoadAction {
      *     }
      * </pre>
      *
-     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
      * @param nullerr a {@link java.lang.String} object.
      */
-    public void checkNullPointer(MethodBody methodBody, String nullerr) {
+    public void checkNullPointer(String nullerr) {
         if (type.getSort() > Type.DOUBLE) {
-            this.ifNull(methodBody, Action.throwNullException(nullerr));
+            body.append(this.ifNull(Action.throwNullException(nullerr)));
+        }
+    }
+
+    public void checkNullPointer(String nullerr, Action elseBlock) {
+        if (type.getSort() > Type.DOUBLE) {
+            body.append(this.ifNull(Action.throwNullException(nullerr), elseBlock));
         }
     }
 
@@ -87,14 +98,10 @@ public abstract class VarInst implements LoadAction {
      * store到局部变量表
      *
      * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
-    public Action store(Action action) {
-        return body -> {
-            MethodVisitor mv = body.getWriter();
-            action.apply(body);
-            mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
-        };
+    public void store(Action action) {
+        action.apply(body);
+        body.getWriter().visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
     }
 
     /**
@@ -118,11 +125,10 @@ public abstract class VarInst implements LoadAction {
     /**
      * <p>returnThis.</p>
      *
-     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
      */
-    public void returnThis(MethodBody methodBody) {
-        load(methodBody);
-        AsmUtil.areturn(methodBody.getWriter(), type);
+    public void returnThis() {
+        load(body);
+        AsmUtil.areturn(body.getWriter(), type);
     }
 
     /**

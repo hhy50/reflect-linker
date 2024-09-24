@@ -65,22 +65,21 @@ public class AsmClassBuilder {
      */
     public MethodBuilder defineConstruct(int access, String[] argsType, String[] exceptions, String sign) {
         MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "("+toDesc(argsType)+")V", sign, exceptions);
-        return new MethodBuilder(this, methodVisitor);
+        return new MethodBuilder(this, methodVisitor, "("+toDesc(argsType)+")V");
     }
 
     /**
      * <p>defineMethod.</p>
      *
-     * @param access a int.
-     * @param methodName a {@link java.lang.String} object.
-     * @param methodDesc a {@link java.lang.String} object.
-     * @param exceptions an array of {@link java.lang.String} objects.
-     * @param methodSign a {@link java.lang.String} object.
+     * @param access     a int.
+     * @param methodName a {@link String} object.
+     * @param methodDesc a {@link String} object.
+     * @param exceptions an array of {@link String} objects.
      * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
      */
-    public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions, String methodSign) {
-        MethodVisitor methodVisitor = this.classWriter.visitMethod(access, methodName, methodDesc, methodSign, exceptions);
-        return new MethodBuilder(this, methodVisitor);
+    public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions) {
+        MethodVisitor methodVisitor = this.classWriter.visitMethod(access, methodName, methodDesc, null, exceptions);
+        return new MethodBuilder(this, methodVisitor, methodDesc);
     }
 
     private static String toDesc(String[] types) {

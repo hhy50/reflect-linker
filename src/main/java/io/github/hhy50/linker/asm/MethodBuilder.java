@@ -1,6 +1,9 @@
 package io.github.hhy50.linker.asm;
 
+import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
+import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 import java.util.function.Consumer;
 
@@ -16,15 +19,19 @@ public class MethodBuilder {
 
     private MethodVisitor methodVisitor;
 
+    private final String methodDesc;
+
     /**
      * <p>Constructor for MethodBuilder.</p>
      *
-     * @param classBuilder a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
-     * @param methodVisitor a {@link org.objectweb.asm.MethodVisitor} object.
+     * @param classBuilder  a {@link AsmClassBuilder} object.
+     * @param methodVisitor a {@link MethodVisitor} object.
+     * @param methodDesc
      */
-    public MethodBuilder(AsmClassBuilder classBuilder, MethodVisitor methodVisitor) {
+    public MethodBuilder(AsmClassBuilder classBuilder, MethodVisitor methodVisitor, String methodDesc) {
         this.classBuilder = classBuilder;
         this.methodVisitor = methodVisitor;
+        this.methodDesc = methodDesc;
     }
 
     /**
@@ -33,8 +40,9 @@ public class MethodBuilder {
      * @param consumer a {@link java.util.function.Consumer} object.
      * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
      */
-    public AsmClassBuilder accept(Consumer<MethodVisitor> consumer) {
-        consumer.accept(this.methodVisitor);
+    public AsmClassBuilder accept(Consumer<MethodBody> consumer) {
+        MethodBody body = new MethodBody((InvokeClassImplBuilder) this.classBuilder, this.methodVisitor, Type.getMethodType(methodDesc));
+        consumer.accept(body);
         this.methodVisitor.visitMaxs(0, 0); // auto
         return this.classBuilder;
     }

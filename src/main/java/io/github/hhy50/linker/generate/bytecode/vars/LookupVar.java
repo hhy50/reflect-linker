@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode.vars;
 
 import io.github.hhy50.linker.constant.MethodHandle;
+import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.Type;
 
 
@@ -31,7 +32,7 @@ public class LookupVar extends VarInst {
      * @param lvbIndex a int.
      * @param type     a {@link org.objectweb.asm.Type} object.
      */
-    public LookupVar(int lvbIndex, Type type) {
-        super(lvbIndex, type);
+    public LookupVar(MethodBody body, int lvbIndex, Type type) {
+        super(body, lvbIndex, type);
     }
 }

@@ -24,6 +24,7 @@ import io.github.hhy50.linker.generate.setter.EarlyFieldSetter;
 import io.github.hhy50.linker.generate.setter.RuntimeFieldSetter;
 import io.github.hhy50.linker.generate.setter.Setter;
 import io.github.hhy50.linker.util.ClassUtil;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -99,7 +100,8 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         this.bindTarget = bindTarget;
         String argsType = Modifier.isPublic(bindTarget.getModifiers()) ? bindTarget.getName() : "java.lang.Object";
         this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{argsType}, null, "")
-                .accept(mv -> {
+                .accept(body -> {
+                    MethodVisitor mv = body.getWriter();
                     mv.visitVarInsn(Opcodes.ALOAD, 0);
                     mv.visitVarInsn(Opcodes.ALOAD, 1);
                     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ClassUtil.className2path(DefaultTargetProviderImpl.class.getName()), "<init>", "(Ljava/lang/Object;)V", false);
@@ -235,7 +237,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public MethodBody getClinit() {
         if (clinitMethodWriter == null) {
-            clinitMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null)
+            clinitMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null)
                     .getMethodVisitor();
         }
         if (clinit == null) {

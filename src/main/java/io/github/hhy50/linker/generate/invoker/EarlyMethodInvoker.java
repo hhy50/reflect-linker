@@ -53,21 +53,16 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
         // 定义当前方法的invoker
         classImplBuilder
-                .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
-                .accept(mv -> {
-                    MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
-                    VarInst result = null;
+                .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null)
+                .accept(body -> {
                     if (!method.isStatic()) {
-                        VarInst objVar = getter.invoke(methodBody);
-                        objVar.checkNullPointer(methodBody, objVar.getName());
-                        result = mhMember.invokeInstance(methodBody, objVar, methodBody.getArgs());
+                        VarInst objVar = getter.invoke(body);
+                        objVar.checkNullPointer(objVar.getName());
+                        body.append(mhMember.invokeInstance(objVar, body.getArgs()));
                     } else {
-                        result = mhMember.invokeStatic(methodBody, methodBody.getArgs());
+                        body.append(mhMember.invokeStatic(body.getArgs()));
                     }
-                    if (result != null) {
-                        result.load(methodBody);
-                    }
-                    AsmUtil.areturn(mv, methodType.getReturnType());
+                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
                 });
     }
 

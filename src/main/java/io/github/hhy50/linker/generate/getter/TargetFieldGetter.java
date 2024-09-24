@@ -47,12 +47,10 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
             String mName = "getTarget";
             Type mType = Type.getMethodType(ObjectVar.TYPE);
             this.getTarget = new MethodHolder(this.targetField.getOwner(), mName, mType.getDescriptor());
-            classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, mName, mType.getDescriptor(), null, null)
-                    .accept(mv -> {
-                        MethodBody body = new MethodBody(classImplBuilder, mv, mType);
+            classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, mName, mType.getDescriptor(), null)
+                    .accept(body -> {
                         VarInst targetVar = body.newLocalVar(ObjectVar.TYPE, "target", new FieldLoadAction(targetField).setInstance(LoadAction.LOAD0));
-
-                        targetVar.returnThis(body);
+                        targetVar.returnThis();
                     });
         }
     }

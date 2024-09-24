@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.vars;
 
+import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.Type;
 
 /**
@@ -18,7 +19,7 @@ public class ClassVar extends VarInst{
      *
      * @param lvbIndex a int.
      */
-    public ClassVar(int lvbIndex) {
-        super(lvbIndex, TYPE);
+    public ClassVar(MethodBody body, int lvbIndex) {
+        super(body, lvbIndex, TYPE);
     }
 }

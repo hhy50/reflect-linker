@@ -50,16 +50,15 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         initStaticMethodHandle(clinit, mhMember, lookupClass, field.fieldName, field.getType(), field.isStatic());
 
         // 定义当前字段的 setter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
-            MethodBody methodBody = new MethodBody(classImplBuilder, mv, methodType);
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null).accept(body -> {
             if (!field.isStatic()) {
-                VarInst objVar = getter.invoke(methodBody);
-                objVar.checkNullPointer(methodBody, objVar.getName());
-                mhMember.invokeInstance(methodBody, objVar, methodBody.getArg(0));
+                VarInst objVar = getter.invoke(body);
+                objVar.checkNullPointer(objVar.getName());
+                body.append(mhMember.invokeInstance(objVar, body.getArg(0)));
             } else {
-                mhMember.invokeStatic(methodBody, methodBody.getArg(0));
+                body.append(mhMember.invokeStatic(body.getArg(0)));
             }
-            AsmUtil.areturn(mv, Type.VOID_TYPE);
+            AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
         });
     }
 

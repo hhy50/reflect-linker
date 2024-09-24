@@ -16,11 +16,6 @@ public interface LoadAction extends Action {
         public void load(MethodBody body) {
             body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
         }
-    /** Constant <code>LOAD0</code> */
-    /** Constant <code>LOAD0</code> */
-    /** Constant <code>LOAD0</code> */
-    /** Constant <code>LOAD0</code> */
-    /** Constant <code>LOAD0</code> */
     };
 
     /** {@inheritDoc} */
@@ -32,22 +27,20 @@ public interface LoadAction extends Action {
     /**
      * <p>ifNull.</p>
      *
-     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
      * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
-    default void ifNull(MethodBody body, Action ifBlock) {
-        body.append(new ConditionJumpAction(Condition.isNull(this), ifBlock, null));
+    default Action ifNull(Action ifBlock) {
+        return ifNull(ifBlock, null);
     }
 
     /**
      * <p>ifNull.</p>
      *
-     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
      * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      * @param elseBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
      */
-    default void ifNull(MethodBody body, Action ifBlock, Action elseBlock) {
-        body.append(new ConditionJumpAction(Condition.isNull(this), ifBlock, elseBlock));
+    default Action ifNull(Action ifBlock, Action elseBlock) {
+        return new ConditionJumpAction(Condition.isNull(this), ifBlock, elseBlock);
     }
 
     /**

@@ -4,7 +4,6 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -41,9 +40,8 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), methodType);
 
         classImplBuilder
-                .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "")
-                .accept(mv -> {
-                    MethodBody body = new MethodBody(classImplBuilder, mv, methodType);
+                .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null)
+                .accept(body -> {
                     VarInst objVar = ownerGetter.invoke(body);
 
                     checkLookClass(body, lookupClass, objVar, ownerGetter);
@@ -54,16 +52,12 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                     checkMethodHandle(body, lookupClass, mhMember, objVar);
 
                     // mh.invoke(obj)
-                    VarInst result;
                     if (method.isDesignateStatic()) {
-                        result = method.isStatic() ? mhMember.invokeStatic(body, body.getArgs()) : mhMember.invokeInstance(body, objVar, body.getArgs());
+                        body.append(method.isStatic() ? mhMember.invokeStatic(body.getArgs()) : mhMember.invokeInstance(objVar, body.getArgs()));
                     } else {
-                        result = mhMember.invoke(body, objVar, body.getArgs());
+                        body.append(mhMember.invoke(objVar, body.getArgs()));
                     }
-                    if (result != null) {
-                        result.load(body);
-                    }
-                    AsmUtil.areturn(mv, methodType.getReturnType());
+                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
                 });
     }
 }

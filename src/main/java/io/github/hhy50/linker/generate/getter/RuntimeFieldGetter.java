@@ -1,9 +1,9 @@
 package io.github.hhy50.linker.generate.getter;
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -27,7 +27,9 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         super(implClass, field);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();
@@ -38,8 +40,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         this.lookupClass = classImplBuilder.defineLookupClass(Opcodes.ACC_PUBLIC, field.getUniqueName());
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
 
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null, "").accept(mv -> {
-            MethodBody body = new MethodBody(classImplBuilder, mv, methodType);
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null).accept(body -> {
             VarInst objVar = getter.invoke(body);
 
             checkLookClass(body, lookupClass, objVar, getter);
@@ -50,13 +51,12 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
             checkMethodHandle(body, lookupClass, mhMember, objVar);
 
             // mh.invoke(obj)
-            VarInst result;
             if (field.isDesignateStatic()) {
-                result = field.isStatic() ? mhMember.invokeStatic(body) : mhMember.invokeInstance(body, objVar);
+                body.append(field.isStatic() ? mhMember.invokeStatic() : mhMember.invokeInstance(objVar));
             } else {
-                result = mhMember.invoke(body, objVar);
+                body.append(mhMember.invoke(objVar));
             }
-            result.returnThis(body);
+            AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
         });
     }
 }
