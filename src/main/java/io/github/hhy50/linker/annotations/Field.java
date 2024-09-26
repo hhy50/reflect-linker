@@ -26,7 +26,7 @@ public interface Field {
 
     /**
      * <p>设置指定字段值</p>
-     * 这个字段可以是private | static | final
+     * 这个字段可以是private | static, 但不能是 final
      * 这个注解方法的返回值类型必须为void, 并且参数的长度必须为1
      */
     @Retention(RetentionPolicy.RUNTIME)
