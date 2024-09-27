@@ -12,24 +12,20 @@ import org.objectweb.asm.Opcodes;
 
 
 /**
- * <p>RuntimeMethodInvoker class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime method invoker.
  */
 public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
     /**
-     * <p>Constructor for RuntimeMethodInvoker.</p>
+     * Instantiates a new Runtime method invoker.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param methodRef a {@link io.github.hhy50.linker.define.method.RuntimeMethodRef} object.
+     * @param implClass the impl class
+     * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(String implClass, RuntimeMethodRef methodRef) {
         super(implClass, methodRef, methodRef.getMethodType());
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef owner = method.getOwner();

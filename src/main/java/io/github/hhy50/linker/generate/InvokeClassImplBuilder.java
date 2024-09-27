@@ -33,15 +33,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>InvokeClassImplBuilder class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Invoke class impl builder.
  */
 public class InvokeClassImplBuilder extends AsmClassBuilder {
     private Class<?> defineClass;
     private Class<?> bindTarget;
-    private final String implClassDesc;
     private MethodBody clinit;
     private final Map<String, Getter<?>> getters;
     private final Map<String, Setter<?>> setters;
@@ -49,17 +45,16 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     private final Map<String, Member> members;
 
     /**
-     * <p>Constructor for InvokeClassImplBuilder.</p>
+     * Instantiates a new Invoke class impl builder.
      *
-     * @param access     a int.
-     * @param className  a {@link java.lang.String} object.
-     * @param superName  a {@link java.lang.String} object.
-     * @param interfaces an array of {@link java.lang.String} objects.
-     * @param signature  a {@link java.lang.String} object.
+     * @param access     the access
+     * @param className  the class name
+     * @param superName  the super name
+     * @param interfaces the interfaces
+     * @param signature  the signature
      */
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
-        this.implClassDesc = ClassUtil.className2path(this.getClassName());
         this.getters = new HashMap<>();
         this.setters = new HashMap<>();
         this.invokers = new HashMap<>();
@@ -67,9 +62,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * <p>init.</p>
+     * Init invoke class impl builder.
      *
-     * @return a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @return the invoke class impl builder
      */
     public InvokeClassImplBuilder init() {
         EarlyFieldRef target = new EarlyFieldRef(null, null, "target", bindTarget);
@@ -80,10 +75,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * <p>setDefine.</p>
+     * Sets define.
      *
-     * @param define a {@link java.lang.Class} object.
-     * @return a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param define the define
+     * @return the define
      */
     public InvokeClassImplBuilder setDefine(Class<?> define) {
         this.defineClass = define;
@@ -91,10 +86,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * <p>setTarget.</p>
+     * Sets target.
      *
-     * @param bindTarget a {@link java.lang.Class} object.
-     * @return a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param bindTarget the bind target
+     * @return the target
      */
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
         this.bindTarget = bindTarget;
@@ -111,11 +106,11 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * 定义Getter
+     * Define getter getter.
      *
-     * @param fieldName a {@link java.lang.String} object.
-     * @param fieldRef  a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @return a {@link io.github.hhy50.linker.generate.getter.Getter} object.
+     * @param fieldName the field name
+     * @param fieldRef  the field ref
+     * @return the getter
      */
     public Getter<?> defineGetter(String fieldName, FieldRef fieldRef) {
         return getters.computeIfAbsent(fieldName, key -> {
@@ -128,21 +123,21 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * 获取getter
+     * Gets getter.
      *
-     * @param fieldName a {@link java.lang.String} object.
-     * @return a {@link io.github.hhy50.linker.generate.getter.Getter} object.
+     * @param fieldName the field name
+     * @return the getter
      */
     public Getter<?> getGetter(String fieldName) {
         return getters.get(fieldName);
     }
 
     /**
-     * <p>defineSetter.</p>
+     * Define setter setter.
      *
-     * @param fieldName a {@link java.lang.String} object.
-     * @param fieldRef  a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @return a {@link io.github.hhy50.linker.generate.setter.Setter} object.
+     * @param fieldName the field name
+     * @param fieldRef  the field ref
+     * @return the setter
      */
     public Setter<?> defineSetter(String fieldName, FieldRef fieldRef) {
         return setters.computeIfAbsent(fieldName, key -> {
@@ -155,10 +150,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * <p>defineInvoker.</p>
+     * Define invoker invoker.
      *
-     * @param methodRef a {@link io.github.hhy50.linker.define.method.MethodRef} object.
-     * @return a {@link io.github.hhy50.linker.generate.invoker.Invoker} object.
+     * @param methodRef the method ref
+     * @return the invoker
      */
     public Invoker<?> defineInvoker(MethodRef methodRef) {
         Invoker<?> invoker = invokers.get(methodRef.getFullName());
@@ -171,59 +166,58 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * 定义静态的methodHandle
+     * Define static method handle method handle member.
      *
-     * @param mhMemberName a {@link java.lang.String} object.
-     * @param methodType   a {@link org.objectweb.asm.Type} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.MethodHandleMember} object.
+     * @param mhMemberName the mh member name
+     * @param methodType   the method type
+     * @return the method handle member
      */
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            super.defineField(access, mhMemberName, MethodHandle.DESCRIPTOR, null, null);
-            this.members.put(mhMemberName, new MethodHandleMember(access, implClassDesc, mhMemberName, methodType));
+            Member member = super.defineField(access, mhMemberName, MethodHandle.TYPE, null, null);
+            this.members.put(mhMemberName, new MethodHandleMember(member, methodType));
         }
         return (MethodHandleMember) members.get(mhMemberName);
     }
 
     /**
-     * <p>defineMethodHandle.</p>
+     * Define method handle method handle member.
      *
-     * @param mhMemberName a {@link java.lang.String} object.
-     * @param methodType   a {@link org.objectweb.asm.Type} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.MethodHandleMember} object.
+     * @param mhMemberName the mh member name
+     * @param methodType   the method type
+     * @return the method handle member
      */
     public MethodHandleMember defineMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
-            super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, MethodHandle.DESCRIPTOR, null, null);
-            this.members.put(mhMemberName, new MethodHandleMember(Opcodes.ACC_PUBLIC, implClassDesc, mhMemberName, methodType));
+            Member member = super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, MethodHandle.TYPE, null, null);
+            this.members.put(mhMemberName, new MethodHandleMember(member, methodType));
         }
         return (MethodHandleMember) members.get(mhMemberName);
     }
 
     /**
-     * <p>defineClassTypeMember.</p>
+     * Define lookup class class type member.
      *
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
-     * @param mName a {@link java.lang.String} object.
+     * @param mName the m name
+     * @return the class type member
      */
     public ClassTypeMember defineLookupClass(String mName) {
         return defineLookupClass(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC|Opcodes.ACC_FINAL, mName);
     }
 
     /**
-     * <p>defineClassTypeMember.</p>
+     * Define lookup class class type member.
      *
-     * @param access a int.
-     * @param mName a {@link java.lang.String} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @param access the access
+     * @param mName  the m name
+     * @return the class type member
      */
     public ClassTypeMember defineLookupClass(int access, String mName) {
         mName = mName+"_lookup_$_class_type";
         if (!members.containsKey(mName)) {
-            super.defineField(access, mName, ClassVar.TYPE.getDescriptor(), null, null);
-
-            ClassTypeMember classTypeMember = new ClassTypeMember(access, implClassDesc, mName);
+            Member member = super.defineField(access, mName, ClassVar.TYPE, null, null);
+            ClassTypeMember classTypeMember = new ClassTypeMember(member);
             this.members.put(mName, classTypeMember);
             return classTypeMember;
         }
@@ -231,9 +225,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * <p>Getter for the field <code>clinit</code>.</p>
+     * Gets clinit.
      *
-     * @return a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @return the clinit
      */
     public MethodBody getClinit() {
         if (clinitMethodWriter == null) {

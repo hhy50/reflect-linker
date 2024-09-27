@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.asm;
 
-import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -8,10 +7,7 @@ import org.objectweb.asm.Type;
 import java.util.function.Consumer;
 
 /**
- * <p>MethodBuilder class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Method builder.
  */
 public class MethodBuilder {
 
@@ -22,11 +18,11 @@ public class MethodBuilder {
     private final String methodDesc;
 
     /**
-     * <p>Constructor for MethodBuilder.</p>
+     * Instantiates a new Method builder.
      *
-     * @param classBuilder  a {@link AsmClassBuilder} object.
-     * @param methodVisitor a {@link MethodVisitor} object.
-     * @param methodDesc
+     * @param classBuilder  the class builder
+     * @param methodVisitor the method visitor
+     * @param methodDesc    the method desc
      */
     public MethodBuilder(AsmClassBuilder classBuilder, MethodVisitor methodVisitor, String methodDesc) {
         this.classBuilder = classBuilder;
@@ -35,32 +31,32 @@ public class MethodBuilder {
     }
 
     /**
-     * <p>accept.</p>
+     * Accept asm class builder.
      *
-     * @param consumer a {@link java.util.function.Consumer} object.
-     * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
+     * @param consumer the consumer
+     * @return the asm class builder
      */
     public AsmClassBuilder accept(Consumer<MethodBody> consumer) {
-        MethodBody body = new MethodBody((InvokeClassImplBuilder) this.classBuilder, this.methodVisitor, Type.getMethodType(methodDesc));
+        MethodBody body = new MethodBody(this.classBuilder, this.methodVisitor, Type.getMethodType(methodDesc));
         consumer.accept(body);
         this.methodVisitor.visitMaxs(0, 0); // auto
         return this.classBuilder;
     }
 
     /**
-     * <p>Getter for the field <code>classBuilder</code>.</p>
+     * Gets class builder.
      *
-     * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
+     * @return the class builder
      */
     public AsmClassBuilder getClassBuilder() {
         return classBuilder;
     }
 
     /**
-     * <p>Setter for the field <code>classBuilder</code>.</p>
+     * Sets class builder.
      *
-     * @param classBuilder a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
-     * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
+     * @param classBuilder the class builder
+     * @return the class builder
      */
     public MethodBuilder setClassBuilder(AsmClassBuilder classBuilder) {
         this.classBuilder = classBuilder;
@@ -68,19 +64,19 @@ public class MethodBuilder {
     }
 
     /**
-     * <p>Getter for the field <code>methodVisitor</code>.</p>
+     * Gets method visitor.
      *
-     * @return a {@link org.objectweb.asm.MethodVisitor} object.
+     * @return the method visitor
      */
     public MethodVisitor getMethodVisitor() {
         return methodVisitor;
     }
 
     /**
-     * <p>Setter for the field <code>methodVisitor</code>.</p>
+     * Sets method visitor.
      *
-     * @param methodVisitor a {@link org.objectweb.asm.MethodVisitor} object.
-     * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
+     * @param methodVisitor the method visitor
+     * @return the method visitor
      */
     public MethodBuilder setMethodVisitor(MethodVisitor methodVisitor) {
         this.methodVisitor = methodVisitor;

@@ -1,9 +1,11 @@
 package io.github.hhy50.linker.asm;
 
+import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -13,55 +15,66 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 
 
 /**
- * <p>AsmClassBuilder class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Asm class builder.
  */
 public class AsmClassBuilder {
 
+    /**
+     * The Class desc.
+     */
+    protected String classDesc;
+    /**
+     * The Class name.
+     */
     protected String className;
+    /**
+     * The Clinit method writer.
+     */
     protected MethodVisitor clinitMethodWriter;
+    /**
+     * The Class writer.
+     */
     protected ClassWriter classWriter = new ClassWriter(COMPUTE_MAXS|COMPUTE_FRAMES);
 
     /**
-     * <p>Constructor for AsmClassBuilder.</p>
+     * Instantiates a new Asm class builder.
      *
-     * @param access a int.
-     * @param className a {@link java.lang.String} object.
-     * @param superName a {@link java.lang.String} object.
-     * @param interfaces an array of {@link java.lang.String} objects.
-     * @param signature a {@link java.lang.String} object.
+     * @param access     the access
+     * @param className  the class name
+     * @param superName  the super name
+     * @param interfaces the interfaces
+     * @param signature  the signature
      */
     public AsmClassBuilder(int access, String className, String superName, String[] interfaces, String signature) {
-        this.classWriter.visit(Opcodes.V1_8, access, ClassUtil.className2path(className), signature,
-                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces).map(ClassUtil::className2path).toArray(String[]::new));
         this.className = className;
+        this.classDesc = ClassUtil.className2path(className);
+        this.classWriter.visit(Opcodes.V1_8, access, this.classDesc, signature,
+                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces).map(ClassUtil::className2path).toArray(String[]::new));
     }
 
     /**
-     * <p>defineField.</p>
+     * Define field member.
      *
-     * @param access a int.
-     * @param fieldName a {@link java.lang.String} object.
-     * @param fieldDesc a {@link java.lang.String} object.
-     * @param fieldSignature a {@link java.lang.String} object.
-     * @param value a {@link java.lang.Object} object.
-     * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
+     * @param access         the access
+     * @param fieldName      the field name
+     * @param fieldType      the field type
+     * @param fieldSignature the field signature
+     * @param value          the value
+     * @return the member
      */
-    public AsmClassBuilder defineField(int access, String fieldName, String fieldDesc, String fieldSignature, Object value) {
-        this.classWriter.visitField(access, fieldName, fieldDesc, fieldSignature, value);
-        return this;
+    public Member defineField(int access, String fieldName, Type fieldType, String fieldSignature, Object value) {
+        this.classWriter.visitField(access, fieldName, fieldType.getDescriptor(), fieldSignature, value);
+        return new Member(access, classDesc, fieldName, fieldType);
     }
 
     /**
-     * <p>defineConstruct.</p>
+     * Define construct method builder.
      *
-     * @param access a int.
-     * @param argsType an array of {@link java.lang.String} objects.
-     * @param exceptions an array of {@link java.lang.String} objects.
-     * @param sign a {@link java.lang.String} object.
-     * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
+     * @param access     the access
+     * @param argsType   the args type
+     * @param exceptions the exceptions
+     * @param sign       the sign
+     * @return the method builder
      */
     public MethodBuilder defineConstruct(int access, String[] argsType, String[] exceptions, String sign) {
         MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "("+toDesc(argsType)+")V", sign, exceptions);
@@ -69,13 +82,13 @@ public class AsmClassBuilder {
     }
 
     /**
-     * <p>defineMethod.</p>
+     * Define method method builder.
      *
-     * @param access     a int.
-     * @param methodName a {@link String} object.
-     * @param methodDesc a {@link String} object.
-     * @param exceptions an array of {@link String} objects.
-     * @return a {@link io.github.hhy50.linker.asm.MethodBuilder} object.
+     * @param access     the access
+     * @param methodName the method name
+     * @param methodDesc the method desc
+     * @param exceptions the exceptions
+     * @return the method builder
      */
     public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions) {
         MethodVisitor methodVisitor = this.classWriter.visitMethod(access, methodName, methodDesc, null, exceptions);
@@ -91,9 +104,9 @@ public class AsmClassBuilder {
     }
 
     /**
-     * <p>end.</p>
+     * End asm class builder.
      *
-     * @return a {@link io.github.hhy50.linker.asm.AsmClassBuilder} object.
+     * @return the asm class builder
      */
     public AsmClassBuilder end() {
         this.classWriter.visitEnd();
@@ -106,18 +119,18 @@ public class AsmClassBuilder {
     }
 
     /**
-     * <p>toBytecode.</p>
+     * To bytecode byte [ ].
      *
-     * @return an array of {@link byte} objects.
+     * @return the byte [ ]
      */
     public byte[] toBytecode() {
         return classWriter.toByteArray();
     }
 
     /**
-     * <p>Getter for the field <code>className</code>.</p>
+     * Gets class name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the class name
      */
     public String getClassName() {
         return this.className;

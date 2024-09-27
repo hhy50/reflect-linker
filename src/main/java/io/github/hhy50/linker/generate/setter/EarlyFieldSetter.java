@@ -16,24 +16,20 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * <p>EarlyFieldSetter class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Early field setter.
  */
 public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
     /**
-     * <p>Constructor for EarlyFieldSetter.</p>
+     * Instantiates a new Early field setter.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param field     a {@link io.github.hhy50.linker.define.field.EarlyFieldRef} object.
+     * @param implClass the impl class
+     * @param field     the field
      */
     public EarlyFieldSetter(String implClass, EarlyFieldRef field) {
         super(implClass, field);
     }
 
-    /** {@inheritDoc} */
     @Override
     public final void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();
@@ -62,7 +58,6 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         });
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type fieldType, boolean isStatic) {
         VarInst lookupVar = lookupClass.getLookup(clinit);

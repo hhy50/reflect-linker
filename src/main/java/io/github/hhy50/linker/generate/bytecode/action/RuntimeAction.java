@@ -3,18 +3,15 @@ package io.github.hhy50.linker.generate.bytecode.action;
 import io.github.hhy50.linker.runtime.Runtime;
 
 /**
- * <p>RuntimeAction class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime action.
  */
 public class RuntimeAction {
 
     /**
-     * <p>lookup.</p>
+     * Lookup method invoke action.
      *
-     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction} object.
+     * @param action the action
+     * @return the method invoke action
      */
     public static MethodInvokeAction lookup(Action action) {
         return new MethodInvokeAction(Runtime.LOOKUP)

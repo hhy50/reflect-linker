@@ -8,41 +8,38 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * <p>Action interface.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The interface Action.
  */
 public interface Action {
 
     /**
-     * Constant <code>EMPTY</code>
+     * The constant EMPTY.
      */
     Action EMPTY = (__) -> {
     };
 
     /**
-     * <p>stackTop.</p>
+     * Stack top action.
      *
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return the action
      */
     static Action stackTop() {
         return empty();
     }
 
     /**
-     * <p>empty.</p>
+     * Empty action.
      *
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return the action
      */
     static Action empty() {
         return EMPTY;
     }
 
     /**
-     * <p>loadNull.</p>
+     * Load null action.
      *
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return the action
      */
     static Action loadNull() {
         return (body) -> {
@@ -52,17 +49,17 @@ public interface Action {
     }
 
     /**
-     * <p>apply.</p>
+     * Apply.
      *
-     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param body the body
      */
     void apply(MethodBody body);
 
     /**
-     * <p>onAfter.</p>
+     * On after action.
      *
-     * @param after a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param after the after
+     * @return the action
      */
     default Action onAfter(Action after) {
         return (body) -> {
@@ -72,10 +69,10 @@ public interface Action {
     }
 
     /**
-     * <p>throwNullException.</p>
+     * Throw null exception action.
      *
-     * @param nullerr a {@link java.lang.String} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param nullerr the nullerr
+     * @return the action
      */
     static Action throwNullException(String nullerr) {
         return body -> {
@@ -89,11 +86,11 @@ public interface Action {
     }
 
     /**
-     * <p>throwTypeCastException.</p>
+     * Throw type cast exception action.
      *
-     * @param objName    a {@link java.lang.Object} object.
-     * @param expectType a {@link org.objectweb.asm.Type} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param objName    the obj name
+     * @param expectType the expect type
+     * @return the action
      */
     static Action throwTypeCastException(String objName, Type expectType) {
         return body -> {
@@ -107,9 +104,9 @@ public interface Action {
     }
 
     /**
-     * <p>returnNull.</p>
+     * Return null action.
      *
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @return the action
      */
     static Action returnNull() {
         return body -> {
@@ -120,10 +117,10 @@ public interface Action {
     }
 
     /**
-     * <p>asList.</p>
+     * As list action.
      *
-     * @param actions a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param actions the actions
+     * @return the action
      */
     static Action asList(Action... actions) {
         return body -> {
@@ -132,11 +129,11 @@ public interface Action {
     }
 
     /**
-     * <p>asArray.</p>
+     * As array action.
      *
-     * @param arrType a {@link org.objectweb.asm.Type} object.
-     * @param actions a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param arrType the arr type
+     * @param actions the actions
+     * @return the action
      */
     static Action asArray(Type arrType, Action... actions) {
         return body -> {
@@ -154,10 +151,10 @@ public interface Action {
     }
 
     /**
-     * <p>multi.</p>
+     * Multi action.
      *
-     * @param actions a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param actions the actions
+     * @return the action
      */
     static Action multi(Action... actions) {
         return body -> {

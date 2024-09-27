@@ -19,24 +19,20 @@ import org.objectweb.asm.Type;
 import java.util.Arrays;
 
 /**
- * <p>EarlyMethodInvoker class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Early method invoker.
  */
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
     /**
-     * <p>Constructor for EarlyMethodInvoker.</p>
+     * Instantiates a new Early method invoker.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param methodRef a {@link io.github.hhy50.linker.define.method.EarlyMethodRef} object.
+     * @param implClass the impl class
+     * @param methodRef the method ref
      */
     public EarlyMethodInvoker(String implClass, EarlyMethodRef methodRef) {
         super(implClass, methodRef, methodRef.getMethodType());
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef owner = method.getOwner();
@@ -66,7 +62,6 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                 });
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();

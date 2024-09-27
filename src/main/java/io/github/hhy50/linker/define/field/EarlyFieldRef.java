@@ -7,39 +7,23 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 /**
- * 前期就确定好类型的字段，包括：
- * 1. target字段
- * 2. 能在上级class中找到的
- * 3. 使用@Typed注解的字段
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Early field ref.
  */
 public class EarlyFieldRef extends FieldRef {
 
-    /**
-     * objDeclaredType
-     * 声明的类的类型
-     */
     private Class<?> declaredType;
 
-    /**
-     * 字段类型
-     */
     private final Type fieldType;
     private final Class<?> fieldRealTypeClass;
 
-    /**
-     * 是否是静态字段
-     */
     private boolean isStatic;
 
     /**
-     * <p>Constructor for EarlyFieldRef.</p>
+     * Instantiates a new Early field ref.
      *
-     * @param prev a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param field a {@link java.lang.reflect.Field} object.
-     * @param assignedType a {@link java.lang.Class} object.
+     * @param prev         the prev
+     * @param field        the field
+     * @param assignedType the assigned type
      */
     public EarlyFieldRef(FieldRef prev, Field field, Class<?> assignedType) {
         super(prev, prev.getUniqueName(), field.getName());
@@ -50,12 +34,12 @@ public class EarlyFieldRef extends FieldRef {
     }
 
     /**
-     * 仅能表示target
+     * Instantiates a new Early field ref.
      *
-     * @param prev a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param objName a {@link java.lang.String} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @param fieldTypeClass a {@link java.lang.Class} object.
+     * @param prev           the prev
+     * @param objName        the obj name
+     * @param fieldName      the field name
+     * @param fieldTypeClass the field type class
      */
     public EarlyFieldRef(FieldRef prev, String objName, String fieldName, Class<?> fieldTypeClass) {
         super(prev, objName, fieldName);
@@ -64,33 +48,32 @@ public class EarlyFieldRef extends FieldRef {
     }
 
     /**
-     * <p>isStatic.</p>
+     * Is static boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean isStatic() {
         return this.isStatic;
     }
 
-    /** {@inheritDoc} */
     @Override
     public Type getType() {
         return this.fieldType;
     }
 
     /**
-     * <p>Getter for the field <code>declaredType</code>.</p>
+     * Gets declared type.
      *
-     * @return a {@link java.lang.Class} object.
+     * @return the declared type
      */
     public Type getDeclaredType() {
         return Type.getType(this.declaredType);
     }
 
     /**
-     * <p>getClassType.</p>
+     * Gets class type.
      *
-     * @return a {@link java.lang.Class} object.
+     * @return the class type
      */
     public Class<?> getClassType() {
         return this.fieldRealTypeClass;

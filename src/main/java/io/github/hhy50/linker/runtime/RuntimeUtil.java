@@ -15,50 +15,69 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 /**
- * <p>RuntimeUtil class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime util.
  */
 public class RuntimeUtil {
-    /** Constant <code>OWNER="io/github/hhy50/linker/runtime/RuntimeUti"{trunked}</code> */
+    /**
+     * The constant OWNER.
+     */
     public static final String OWNER = "io/github/hhy50/linker/runtime/RuntimeUtil";
-    /** Constant <code>IS_STATIC</code> */
+    /**
+     * The constant IS_STATIC.
+     */
     public static final MethodHolder IS_STATIC = new MethodHolder(OWNER, "isStatic", "(Ljava/lang/invoke/MethodHandle;)Z");
-    /** Constant <code>UNWRAP_BYTE_DESC="(Ljava/lang/Object;)+Type.BYTE_TYPE"</code> */
+    /**
+     * The constant UNWRAP_BYTE_DESC.
+     */
     public static final String UNWRAP_BYTE_DESC = "(Ljava/lang/Object;)"+Type.BYTE_TYPE;
-    /** Constant <code>UNWRAP_SHORT_DESC="(Ljava/lang/Object;)+Type.SHORT"</code> */
+    /**
+     * The constant UNWRAP_SHORT_DESC.
+     */
     public static final String UNWRAP_SHORT_DESC = "(Ljava/lang/Object;)"+Type.SHORT;
-    /** Constant <code>UNWRAP_INT_DESC="(Ljava/lang/Object;)+Type.INT_TYPE"</code> */
+    /**
+     * The constant UNWRAP_INT_DESC.
+     */
     public static final String UNWRAP_INT_DESC = "(Ljava/lang/Object;)"+Type.INT_TYPE;
-    /** Constant <code>UNWRAP_LONG_DESC="(Ljava/lang/Object;)+Type.LONG_TYPE"</code> */
+    /**
+     * The constant UNWRAP_LONG_DESC.
+     */
     public static final String UNWRAP_LONG_DESC = "(Ljava/lang/Object;)"+Type.LONG_TYPE;
-    /** Constant <code>UNWRAP_FLOAT_DESC="(Ljava/lang/Object;)+Type.FLOAT_TYPE"</code> */
+    /**
+     * The constant UNWRAP_FLOAT_DESC.
+     */
     public static final String UNWRAP_FLOAT_DESC = "(Ljava/lang/Object;)"+Type.FLOAT_TYPE;
-    /** Constant <code>UNWRAP_DOUBLE_DESC="(Ljava/lang/Object;)+Type.DOUBLE_TYPE"</code> */
+    /**
+     * The constant UNWRAP_DOUBLE_DESC.
+     */
     public static final String UNWRAP_DOUBLE_DESC = "(Ljava/lang/Object;)"+Type.DOUBLE_TYPE;
-    /** Constant <code>UNWRAP_CHAR_DESC="(Ljava/lang/Object;)+Type.CHAR_TYPE"</code> */
+    /**
+     * The constant UNWRAP_CHAR_DESC.
+     */
     public static final String UNWRAP_CHAR_DESC = "(Ljava/lang/Object;)"+Type.CHAR_TYPE;
-    /** Constant <code>UNWRAP_BOOL_DESC="(Ljava/lang/Object;)+Type.BOOLEAN_TYPE"</code> */
+    /**
+     * The constant UNWRAP_BOOL_DESC.
+     */
     public static final String UNWRAP_BOOL_DESC = "(Ljava/lang/Object;)"+Type.BOOLEAN_TYPE;
-    /** Constant <code>TYPE_MATCH</code> */
+    /**
+     * The constant TYPE_MATCH.
+     */
     public static final MethodHolder TYPE_MATCH = new MethodHolder(OWNER, "typeMatch", "(Ljava/lang/Class;Ljava/lang/String;)Z");
 
     /**
-     * <p>checkNull.</p>
+     * Check null.
      *
-     * @param obj a {@link java.lang.Object} object.
+     * @param obj the obj
      */
     public static void checkNull(Object obj) {
 
     }
 
     /**
-     * <p>isStatic.</p>
+     * Is static boolean.
      *
-     * @param methodHandle a {@link java.lang.invoke.MethodHandle} object.
-     * @return a boolean.
-     * @throws io.github.hhy50.linker.exceptions.LinkerException if any.
+     * @param methodHandle the method handle
+     * @return the boolean
+     * @throws LinkerException the linker exception
      */
     public static boolean isStatic(MethodHandle methodHandle) throws LinkerException {
         DirectMethodHandleLinker mh = AccessTool.createSysLinker(DirectMethodHandleLinker.class, methodHandle);
@@ -66,11 +85,11 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>typeMatch.</p>
+     * Type match boolean.
      *
-     * @param clazz a {@link java.lang.Class} object.
-     * @param type a {@link java.lang.String} object.
-     * @return a boolean.
+     * @param clazz the clazz
+     * @param type  the type
+     * @return the boolean
      */
     public static boolean typeMatch(Class<?> clazz, String type) {
         if (clazz.isArray()) {
@@ -80,90 +99,90 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>wrap.</p>
+     * Wrap object.
      *
-     * @param i a byte.
-     * @return a {@link java.lang.Object} object.
+     * @param i the
+     * @return the object
      */
     public static Object wrap(byte i) {
         return i;
     }
 
     /**
-     * <p>wrap.</p>
+     * Wrap object.
      *
-     * @param i a short.
-     * @return a {@link java.lang.Object} object.
+     * @param i the
+     * @return the object
      */
     public static Object wrap(short i) {
         return i;
     }
 
     /**
-     * <p>wrap.</p>
+     * Wrap object.
      *
-     * @param i a int.
-     * @return a {@link java.lang.Object} object.
+     * @param i the
+     * @return the object
      */
     public static Object wrap(int i) {
         return i;
     }
 
     /**
-     * <p>wrap.</p>
+     * Wrap object.
      *
-     * @param i a long.
-     * @return a {@link java.lang.Object} object.
+     * @param i the
+     * @return the object
      */
     public static Object wrap(long i) {
         return i;
     }
 
     /**
-     * <p>wrap.</p>
+     * Wrap object.
      *
-     * @param i a float.
-     * @return a {@link java.lang.Object} object.
+     * @param i the
+     * @return the object
      */
     public static Object wrap(float i) {
         return i;
     }
 
     /**
-     * <p>wrap.</p>
+     * Wrap object.
      *
-     * @param i a double.
-     * @return a {@link java.lang.Object} object.
+     * @param i the
+     * @return the object
      */
     public static Object wrap(double i) {
         return i;
     }
 
     /**
-     * <p>wrap.</p>
+     * Wrap object.
      *
-     * @param i a char.
-     * @return a {@link java.lang.Object} object.
+     * @param i the
+     * @return the object
      */
     public static Object wrap(char i) {
         return i;
     }
 
     /**
-     * <p>wrap.</p>
+     * Wrap object.
      *
-     * @param i a boolean.
-     * @return a {@link java.lang.Object} object.
+     * @param i the
+     * @return the object
      */
     public static Object wrap(boolean i) {
         return i;
     }
 
     /**
-     * <p>unwrapByte.</p>
+     * Unwrap byte byte.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @return a byte.
+     * @param obj the obj
+     * @return the byte
      */
     public static byte unwrapByte(Object obj) {
         if (obj instanceof Byte) {
@@ -173,10 +192,10 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>unwrapShort.</p>
+     * Unwrap short short.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @return a short.
+     * @param obj the obj
+     * @return the short
      */
     public static short unwrapShort(Object obj) {
         if (obj instanceof Short) {
@@ -186,10 +205,10 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>unwrapInt.</p>
+     * Unwrap int int.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @return a int.
+     * @param obj the obj
+     * @return the int
      */
     public static int unwrapInt(Object obj) {
         if (obj instanceof Integer) {
@@ -199,10 +218,10 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>unwrapLong.</p>
+     * Unwrap long long.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @return a long.
+     * @param obj the obj
+     * @return the long
      */
     public static long unwrapLong(Object obj) {
         if (obj instanceof Long) {
@@ -212,10 +231,10 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>unwrapFloat.</p>
+     * Unwrap float float.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @return a float.
+     * @param obj the obj
+     * @return the float
      */
     public static float unwrapFloat(Object obj) {
         if (obj instanceof Float) {
@@ -225,10 +244,10 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>unwrapDouble.</p>
+     * Unwrap double double.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @return a double.
+     * @param obj the obj
+     * @return the double
      */
     public static double unwrapDouble(Object obj) {
         if (obj instanceof Double) {
@@ -238,10 +257,10 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>unwrapChar.</p>
+     * Unwrap char char.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @return a char.
+     * @param obj the obj
+     * @return the char
      */
     public static char unwrapChar(Object obj) {
         if (obj instanceof Character) {
@@ -251,10 +270,10 @@ public class RuntimeUtil {
     }
 
     /**
-     * <p>unwrapBool.</p>
+     * Unwrap bool boolean.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @return a boolean.
+     * @param obj the obj
+     * @return the boolean
      */
     public static boolean unwrapBool(Object obj) {
         if (obj instanceof Boolean) {
@@ -263,6 +282,11 @@ public class RuntimeUtil {
         throw new ClassCastException(String.format("class '%s' not cast to boolean", obj.getClass()));
     }
 
+    /**
+     * Gets lookup by unsafe.
+     *
+     * @return the lookup by unsafe
+     */
     public static MethodHandles.Lookup getLookupByUnsafe() {
         try {
             Field field = Unsafe.class.getDeclaredField("theUnsafe");

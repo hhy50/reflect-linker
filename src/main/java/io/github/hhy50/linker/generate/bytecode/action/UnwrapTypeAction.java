@@ -9,19 +9,16 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * <p>UnwrapTypeAction class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Unwrap type action.
  */
 public class UnwrapTypeAction implements Action {
     private final VarInst obj;
     private final Type primitiveType;
 
     /**
-     * <p>Constructor for UnwrapTypeAction.</p>
+     * Instantiates a new Unwrap type action.
      *
-     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param obj the obj
      */
     public UnwrapTypeAction(VarInst obj) {
         this.obj = obj;
@@ -29,17 +26,16 @@ public class UnwrapTypeAction implements Action {
     }
 
     /**
-     * <p>Constructor for UnwrapTypeAction.</p>
+     * Instantiates a new Unwrap type action.
      *
-     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @param primitiveType a {@link org.objectweb.asm.Type} object.
+     * @param obj           the obj
+     * @param primitiveType the primitive type
      */
     public UnwrapTypeAction(VarInst obj, Type primitiveType) {
         this.obj = obj;
         this.primitiveType = primitiveType;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void apply(MethodBody body) {
         obj.apply(body);

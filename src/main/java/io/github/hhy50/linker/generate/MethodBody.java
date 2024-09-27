@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate;
 
+import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
@@ -11,37 +12,34 @@ import org.objectweb.asm.Type;
 import java.util.function.Consumer;
 
 /**
- * <p>MethodBody class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Method body.
  */
 public class MethodBody {
-    private final InvokeClassImplBuilder classBuilder;
+    private final AsmClassBuilder classBuilder;
     private final MethodVisitor writer;
     private int lvbIndex;
     private VarInst[] args;
 
     /**
-     * <p>Constructor for MethodBody.</p>
+     * Instantiates a new Method body.
      *
-     * @param classBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
-     * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-     * @param methodType a {@link org.objectweb.asm.Type} object.
+     * @param classBuilder the class builder
+     * @param mv           the mv
+     * @param methodType   the method type
      */
-    public MethodBody(InvokeClassImplBuilder classBuilder, MethodVisitor mv, Type methodType) {
+    public MethodBody(AsmClassBuilder classBuilder, MethodVisitor mv, Type methodType) {
         this(classBuilder, mv, methodType, false);
     }
 
     /**
-     * <p>Constructor for MethodBody.</p>
+     * Instantiates a new Method body.
      *
-     * @param classBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
-     * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-     * @param methodType a {@link org.objectweb.asm.Type} object.
-     * @param isStatic a boolean.
+     * @param classBuilder the class builder
+     * @param mv           the mv
+     * @param methodType   the method type
+     * @param isStatic     the is static
      */
-    public MethodBody(InvokeClassImplBuilder classBuilder, MethodVisitor mv, Type methodType, boolean isStatic) {
+    public MethodBody(AsmClassBuilder classBuilder, MethodVisitor mv, Type methodType, boolean isStatic) {
         this.classBuilder = classBuilder;
         this.writer = mv;
         Type[] argumentTypes = methodType.getArgumentTypes();
@@ -62,54 +60,59 @@ public class MethodBody {
     }
 
     /**
-     * <p>append.</p>
+     * Append.
      *
-     * @param interceptor a {@link java.util.function.Consumer} object.
+     * @param interceptor the interceptor
      */
     @Deprecated
     public void append(Consumer<MethodVisitor> interceptor) {
         interceptor.accept(this.writer);
     }
 
+    /**
+     * Append.
+     *
+     * @param action the action
+     */
     public void append(Action action) {
         action.apply(this);
     }
 
     /**
-     * 根据参数声明的顺序， 获取第几个参数
+     * Gets arg.
      *
-     * @param i a int.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param i the
+     * @return the arg
      */
     public VarInst getArg(int i) {
         return args[i];
     }
 
     /**
-     * <p>Getter for the field <code>args</code>.</p>
+     * Get args var inst [ ].
      *
-     * @return an array of {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} objects.
+     * @return the var inst [ ]
      */
     public VarInst[] getArgs() {
         return args;
     }
 
     /**
-     * <p>Getter for the field <code>writer</code>.</p>
+     * Gets writer.
      *
-     * @return a {@link org.objectweb.asm.MethodVisitor} object.
+     * @return the writer
      */
     public MethodVisitor getWriter() {
         return writer;
     }
 
     /**
-     * <p>newLocalVar.</p>
+     * New local var local var inst.
      *
-     * @param type a {@link org.objectweb.asm.Type} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst} object.
+     * @param type      the type
+     * @param fieldName the field name
+     * @param action    the action
+     * @return the local var inst
      */
     public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
         LocalVarInst localVarInst = new LocalVarInst(this, lvbIndex++, type, fieldName);
@@ -123,22 +126,22 @@ public class MethodBody {
     }
 
     /**
-     * <p>newLocalVar.</p>
+     * New local var local var inst.
      *
-     * @param type a {@link org.objectweb.asm.Type} object.
-     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst} object.
+     * @param type   the type
+     * @param action the action
+     * @return the local var inst
      */
     public LocalVarInst newLocalVar(Type type, Action action) {
         return newLocalVar(type, null, action);
     }
 
     /**
-     * <p>Getter for the field <code>classBuilder</code>.</p>
+     * Gets class builder.
      *
-     * @return a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @return the class builder
      */
-    public InvokeClassImplBuilder getClassBuilder() {
+    public AsmClassBuilder getClassBuilder() {
         return classBuilder;
     }
 }

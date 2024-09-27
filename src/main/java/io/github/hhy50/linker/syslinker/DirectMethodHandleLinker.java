@@ -6,28 +6,26 @@ import io.github.hhy50.linker.annotations.Target;
 
 
 //@Runtime
+
 /**
- * <p>DirectMethodHandleLinker interface.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The interface Direct method handle linker.
  */
 @Target.Bind(value = "java.lang.invoke.DirectMethodHandle")
 public interface DirectMethodHandleLinker {
 
-//    @Static(value = false, name = {"member", "flags"})
     /**
-     * <p>modifiers.</p>
+     * Modifiers int.
      *
-     * @return a int.
+     * @return the int
      */
+//    @Static(value = false, name = {"member", "flags"})
     @Field.Getter("member.flags")
     int modifiers();
 
     /**
-     * <p>getMember.</p>
+     * Gets member.
      *
-     * @return a {@link io.github.hhy50.linker.syslinker.MemberNameLinker} object.
+     * @return the member
      */
     @Field.Getter("member")
     MemberNameLinker getMember();

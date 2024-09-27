@@ -1,17 +1,14 @@
 package io.github.hhy50.linker.exceptions;
 
 /**
- * <p>LinkerException class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Linker exception.
  */
 public class LinkerException extends Exception {
     /**
-     * <p>Constructor for LinkerException.</p>
+     * Instantiates a new Linker exception.
      *
-     * @param message a {@link java.lang.String} object.
-     * @param cause a {@link java.lang.Exception} object.
+     * @param message the message
+     * @param cause   the cause
      */
     public LinkerException(String message, Exception cause) {
         super(message, cause);

@@ -3,20 +3,17 @@ package io.github.hhy50.linker.runtime;
 import java.lang.reflect.Array;
 
 /**
- * <p>RuntimeExtension class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime extension.
  */
 public class RuntimeExtension {
 
     /**
-     * 通过运行时调用, 来支持扩展属性的访问
+     * Extension property object.
      *
-     * @param obj a {@link java.lang.Object} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @param index a {@link java.lang.String} object.
-     * @return a {@link java.lang.Object} object.
+     * @param obj       the obj
+     * @param fieldName the field name
+     * @param index     the index
+     * @return the object
      */
     public static Object extensionProperty(Object obj, String fieldName, String index) {
         if (obj.getClass().isArray() && fieldName.equals("length")) {

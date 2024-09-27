@@ -1,18 +1,15 @@
 package io.github.hhy50.linker.exceptions;
 
 /**
- * <p>ClassTypeNotMatchException class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Class type not match exception.
  */
 public class ClassTypeNotMatchException extends RuntimeException {
 
     /**
-     * <p>Constructor for ClassTypeNotMatchException.</p>
+     * Instantiates a new Class type not match exception.
      *
-     * @param class1 a {@link java.lang.String} object.
-     * @param class2 a {@link java.lang.String} object.
+     * @param class1 the class 1
+     * @param class2 the class 2
      */
     public ClassTypeNotMatchException(String class1, String class2) {
         super(class1+" not transform to class "+class2);

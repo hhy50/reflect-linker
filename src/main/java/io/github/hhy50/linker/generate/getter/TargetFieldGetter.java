@@ -17,10 +17,7 @@ import org.objectweb.asm.Type;
 
 
 /**
- * <p>TargetFieldGetter class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Target field getter.
  */
 public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     private final Class<?> defineClass;
@@ -28,11 +25,11 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     private MethodHolder getTarget;
 
     /**
-     * <p>Constructor for TargetFieldGetter.</p>
+     * Instantiates a new Target field getter.
      *
-     * @param implClass      a {@link java.lang.String} object.
-     * @param defineClass    a {@link java.lang.Class} object.
-     * @param targetFieldRef a {@link io.github.hhy50.linker.define.field.EarlyFieldRef} object.
+     * @param implClass      the impl class
+     * @param defineClass    the define class
+     * @param targetFieldRef the target field ref
      */
     public TargetFieldGetter(String implClass, Class<?> defineClass, EarlyFieldRef targetFieldRef) {
         super(implClass, targetFieldRef);
@@ -40,7 +37,6 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         this.targetField = new FieldHolder(ClassUtil.className2path(implClass), field.getUniqueName(), ObjectVar.TYPE.getDescriptor());
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         if (AnnotationUtils.isRuntime(defineClass)) {
@@ -55,7 +51,6 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         if (this.getTarget != null) {
@@ -66,6 +61,11 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         );
     }
 
+    /**
+     * Gets target type.
+     *
+     * @return the target type
+     */
     public Type getTargetType() {
         return this.field.getType();
     }

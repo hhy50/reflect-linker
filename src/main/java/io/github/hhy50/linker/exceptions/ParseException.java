@@ -1,17 +1,14 @@
 package io.github.hhy50.linker.exceptions;
 
 /**
- * <p>ParseException class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Parse exception.
  */
 public class ParseException extends RuntimeException {
 
     /**
-     * <p>Constructor for ParseException.</p>
+     * Instantiates a new Parse exception.
      *
-     * @param message a {@link java.lang.String} object.
+     * @param message the message
      */
     public ParseException(String message) {
         super(message);

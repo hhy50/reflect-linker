@@ -7,18 +7,15 @@ import java.lang.invoke.MethodHandles;
 
 
 /**
- * <p>LookupLinker interface.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The interface Lookup linker.
  */
 @Target.Bind("java.lang.invoke.MethodHandles$Lookup")
 public interface LookupLinker {
 
     /**
-     * <p>lookupImpl.</p>
+     * Lookup method handles . lookup.
      *
-     * @return a {@link java.lang.invoke.MethodHandles.Lookup} object.
+     * @return the method handles . lookup
      */
     @Field.Getter("IMPL_LOOKUP")
     MethodHandles.Lookup lookupImpl();

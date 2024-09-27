@@ -7,42 +7,39 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * <p>AsmUtil class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Asm util.
  */
 public class AsmUtil {
 
     /**
-     * <p>toTypeDesc.</p>
+     * To type desc string.
      *
-     * @param className a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
+     * @param className the class name
+     * @return the string
      */
     public static String toTypeDesc(String className) {
         return "L"+ ClassUtil.className2path(className)+";";
     }
 
     /**
-     * <p>defineImplClass.</p>
+     * Define impl class invoke class impl builder.
      *
-     * @param access a int.
-     * @param className a {@link java.lang.String} object.
-     * @param superName a {@link java.lang.String} object.
-     * @param interfaces an array of {@link java.lang.String} objects.
-     * @param sign a {@link java.lang.String} object.
-     * @return a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param access     the access
+     * @param className  the class name
+     * @param superName  the super name
+     * @param interfaces the interfaces
+     * @param sign       the sign
+     * @return the invoke class impl builder
      */
     public static InvokeClassImplBuilder defineImplClass(int access, String className, String superName, String[] interfaces, String sign) {
         return new InvokeClassImplBuilder(access, className, superName, interfaces, sign);
     }
 
     /**
-     * <p>areturn.</p>
+     * Areturn.
      *
-     * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-     * @param rType a {@link org.objectweb.asm.Type} object.
+     * @param mv    the mv
+     * @param rType the r type
      */
     public static void areturn(MethodVisitor mv, Type rType) {
         if (rType.getSort() == Type.VOID) {
@@ -53,10 +50,10 @@ public class AsmUtil {
     }
 
     /**
-     * <p>adaptLdcClassType.</p>
+     * Adapt ldc class type.
      *
-     * @param visitor a {@link org.objectweb.asm.MethodVisitor} object.
-     * @param type a {@link org.objectweb.asm.Type} object.
+     * @param visitor the visitor
+     * @param type    the type
      */
     public static void adaptLdcClassType(MethodVisitor visitor, Type type) {
         if (type.getSort() <= Type.DOUBLE) {
@@ -92,12 +89,12 @@ public class AsmUtil {
     }
 
     /**
-     * <p>addArgsDesc.</p>
+     * Add args desc type.
      *
-     * @param methodType a {@link org.objectweb.asm.Type} object.
-     * @param newArg a {@link org.objectweb.asm.Type} object.
-     * @param header a boolean.
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @param methodType the method type
+     * @param newArg     the new arg
+     * @param header     the header
+     * @return the type
      */
     public static Type addArgsDesc(Type methodType, Type newArg, boolean header) {
         String delimiter = header ? "\\(" : "\\)";
@@ -107,10 +104,10 @@ public class AsmUtil {
     }
 
     /**
-     * <p>areturnNull.</p>
+     * Areturn null.
      *
-     * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-     * @param rType a {@link org.objectweb.asm.Type} object.
+     * @param mv    the mv
+     * @param rType the r type
      */
     public static void areturnNull(MethodVisitor mv, Type rType) {
         mv.visitInsn(Opcodes.ACONST_NULL);
@@ -122,11 +119,11 @@ public class AsmUtil {
     }
 
     /**
-     * 计算本地变量表长度
+     * Calculate lvb offset int.
      *
-     * @param argumentTypes an array of {@link org.objectweb.asm.Type} objects.
-     * @param isStatic a boolean.
-     * @return a int.
+     * @param isStatic      the is static
+     * @param argumentTypes the argument types
+     * @return the int
      */
     public static int calculateLvbOffset(boolean isStatic, Type[] argumentTypes) {
         int lvbLen = isStatic ? 0 : 1; // this
@@ -138,10 +135,10 @@ public class AsmUtil {
     }
 
     /**
-     * <p>throwNoSuchMethod.</p>
+     * Throw no such method.
      *
-     * @param write a {@link org.objectweb.asm.MethodVisitor} object.
-     * @param methodName a {@link java.lang.String} object.
+     * @param write      the write
+     * @param methodName the method name
      */
     public static void throwNoSuchMethod(MethodVisitor write, String methodName) {
         write.visitTypeInsn(Opcodes.NEW, "java/lang/NoSuchMethodError");
@@ -152,31 +149,30 @@ public class AsmUtil {
     }
 
     /**
+     * Is primitive type boolean.
      *
-     * 是否是基本数据类型
-     *
-     * @param type a {@link org.objectweb.asm.Type} object.
-     * @return a boolean.
+     * @param type the type
+     * @return the boolean
      */
     public static boolean isPrimitiveType(Type type) {
         return type.getSort() > Type.VOID && type.getSort() <= Type.DOUBLE;
     }
 
     /**
-     * <p>isObjectType.</p>
+     * Is object type boolean.
      *
-     * @param type a {@link org.objectweb.asm.Type} object.
-     * @return a boolean.
+     * @param type the type
+     * @return the boolean
      */
     public static boolean isObjectType(Type type) {
         return !isPrimitiveType(type);
     }
 
     /**
-     * 是否是包装类型
+     * Is wrap type boolean.
      *
-     * @param type a {@link org.objectweb.asm.Type} object.
-     * @return a boolean.
+     * @param type the type
+     * @return the boolean
      */
     public static boolean isWrapType(Type type) {
         // type 是否是包装类型
@@ -187,10 +183,10 @@ public class AsmUtil {
     }
 
     /**
-     * 获取对应类型的基本数据类型
+     * Gets primitive type.
      *
-     * @param type a {@link org.objectweb.asm.Type} object.
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @param type the type
+     * @return the primitive type
      */
     public static Type getPrimitiveType(Type type) {
         // 获取对应类型的基本数据类型
@@ -222,10 +218,10 @@ public class AsmUtil {
     }
 
     /**
-     * <p>getType.</p>
+     * Gets type.
      *
-     * @param clazz a {@link java.lang.String} object.
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @param clazz the clazz
+     * @return the type
      */
     public static Type getType(String clazz) {
         // 判断是否是基本数据类

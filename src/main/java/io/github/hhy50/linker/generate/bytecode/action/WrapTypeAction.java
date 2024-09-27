@@ -7,24 +7,20 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * <p>WrapTypeAction class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Wrap type action.
  */
 public class WrapTypeAction implements Action {
     private final VarInst obj;
 
     /**
-     * <p>Constructor for WrapTypeAction.</p>
+     * Instantiates a new Wrap type action.
      *
-     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param obj the obj
      */
     public WrapTypeAction(VarInst obj) {
         this.obj = obj;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void apply(MethodBody body) {
         obj.load(body);

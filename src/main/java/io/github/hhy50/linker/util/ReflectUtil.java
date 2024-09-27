@@ -7,18 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>ReflectUtil class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Reflect util.
  */
 public class ReflectUtil {
     /**
-     * <p>getMethod.</p>
+     * Gets method.
      *
-     * @param clazz a {@link java.lang.Class} object.
-     * @param methodName a {@link java.lang.String} object.
-     * @return a {@link java.lang.reflect.Method} object.
+     * @param clazz      the clazz
+     * @param methodName the method name
+     * @return the method
      */
     public static Method getMethod(Class<?> clazz, String methodName) {
         if (clazz == null) {
@@ -34,11 +31,11 @@ public class ReflectUtil {
     }
 
     /**
-     * <p>getField.</p>
+     * Gets field.
      *
-     * @param clazz a {@link java.lang.Class} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @return a {@link java.lang.reflect.Field} object.
+     * @param clazz     the clazz
+     * @param fieldName the field name
+     * @return the field
      */
     public static Field getField(Class<?> clazz, String fieldName) {
         if (clazz == null) {
@@ -54,11 +51,11 @@ public class ReflectUtil {
     }
 
     /**
-     * <p>getMethods.</p>
+     * Gets methods.
      *
-     * @param clazz a {@link java.lang.Class} object.
-     * @param methodName a {@link java.lang.String} object.
-     * @return a {@link java.util.List} object.
+     * @param clazz      the clazz
+     * @param methodName the method name
+     * @return the methods
      */
     public static List<Method> getMethods(Class<?> clazz, String methodName) {
         if (clazz == null) {
@@ -78,13 +75,13 @@ public class ReflectUtil {
     }
 
     /**
-     * <p>matchMethod.</p>
+     * Match method method.
      *
-     * @param clazz a {@link java.lang.Class} object.
-     * @param name a {@link java.lang.String} object.
-     * @param superClass a {@link java.lang.String} object.
-     * @param argTypes an array of {@link java.lang.String} objects.
-     * @return a {@link java.lang.reflect.Method} object.
+     * @param clazz      the clazz
+     * @param name       the name
+     * @param superClass the super class
+     * @param argTypes   the arg types
+     * @return the method
      */
     public static Method matchMethod(Class<?> clazz, String name, String superClass, String[] argTypes) {
         // 指定了调用super， 但是没有指定具体哪个super

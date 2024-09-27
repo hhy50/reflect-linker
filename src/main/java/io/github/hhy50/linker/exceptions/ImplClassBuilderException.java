@@ -1,16 +1,13 @@
 package io.github.hhy50.linker.exceptions;
 
 /**
- * <p>ImplClassBuilderException class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Impl class builder exception.
  */
 public class ImplClassBuilderException extends RuntimeException {
     /**
-     * <p>Constructor for ImplClassBuilderException.</p>
+     * Instantiates a new Impl class builder exception.
      *
-     * @param msg a {@link java.lang.String} object.
+     * @param msg the msg
      */
     public ImplClassBuilderException(String msg) {
         super(msg);

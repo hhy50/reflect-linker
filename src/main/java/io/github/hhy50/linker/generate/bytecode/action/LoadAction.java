@@ -4,49 +4,51 @@ import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.Opcodes;
 
 /**
- * 变量加载的操作
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The interface Load action.
  */
 public interface LoadAction extends Action {
 
+    /**
+     * The constant LOAD0.
+     */
     Action LOAD0 = new LoadAction() {
         @Override
         public void load(MethodBody body) {
             body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
         }
+    /** Constant <code>LOAD0</code> */
     };
 
-    /** {@inheritDoc} */
     @Override
     default void apply(MethodBody body) {
         load(body);
     }
 
     /**
-     * <p>ifNull.</p>
+     * If null action.
      *
-     * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param ifBlock the if block
+     * @return the action
      */
     default Action ifNull(Action ifBlock) {
         return ifNull(ifBlock, null);
     }
 
     /**
-     * <p>ifNull.</p>
+     * If null action.
      *
-     * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @param elseBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param ifBlock   the if block
+     * @param elseBlock the else block
+     * @return the action
      */
     default Action ifNull(Action ifBlock, Action elseBlock) {
         return new ConditionJumpAction(Condition.isNull(this), ifBlock, elseBlock);
     }
 
     /**
-     * <p>load.</p>
+     * Load.
      *
-     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
+     * @param body the body
      */
     void load(MethodBody body);
 }

@@ -17,23 +17,31 @@ import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
 /**
- * <p>Abstract Setter class.</p>
+ * The type Setter.
  *
- * @author hanhaiyang
- * @version $Id: $Id
+ * @param <T> the type parameter
  */
 public abstract class Setter<T extends FieldRef> extends MethodHandle {
 
+    /**
+     * The Field.
+     */
     protected final T field;
+    /**
+     * The Method holder.
+     */
     protected MethodHolder methodHolder;
 
+    /**
+     * The Method type.
+     */
     protected Type methodType;
 
     /**
-     * <p>Constructor for Setter.</p>
+     * Instantiates a new Setter.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param field     a T object.
+     * @param implClass the impl class
+     * @param field     the field
      */
     public Setter(String implClass, T field) {
         this.field = field;
@@ -41,7 +49,6 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
-    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         methodBody.append(new MethodInvokeAction(methodHolder)
@@ -50,7 +57,6 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
         return null;
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         mhMember.store(methodBody, new MethodInvokeAction(Runtime.FIND_SETTER)

@@ -6,20 +6,20 @@ import io.github.hhy50.linker.exceptions.ParseException;
 import java.util.Iterator;
 
 /**
- * <p>TokenParser class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Token parser.
  */
 public class TokenParser {
 
+    /**
+     * The Empty.
+     */
     static Tokens EMPTY = new Tokens();
 
     /**
-     * <p>parse.</p>
+     * Parse tokens.
      *
-     * @param tokensStr a {@link java.lang.String} object.
-     * @return a {@link io.github.hhy50.linker.token.Tokens} object.
+     * @param tokensStr the tokens str
+     * @return the tokens
      */
     public Tokens parse(String tokensStr) {
         if (tokensStr == null || (tokensStr = tokensStr.trim()).length() == 0) {
@@ -35,11 +35,23 @@ public class TokenParser {
         return tokens;
     }
 
+    /**
+     * The type Parser.
+     */
     static class Parser implements Iterator<Token> {
+        /**
+         * The constant SPLIT.
+         */
         public static final char SPLIT = '.';
 
-        // 索引访问符
+        /**
+         * The constant INDEX_ACCESS_START_SYMBOL.
+         */
+// 索引访问符
         public static final char INDEX_ACCESS_START_SYMBOL = '[';
+        /**
+         * The constant INDEX_ACCESS_END_SYMBOL.
+         */
         public static final char INDEX_ACCESS_END_SYMBOL = ']';
 
         private String tokenStr;
@@ -47,6 +59,11 @@ public class TokenParser {
 
         private int pos;
 
+        /**
+         * Instantiates a new Parser.
+         *
+         * @param tokenStr the token str
+         */
         public Parser(String tokenStr) {
             this.tokenStr = tokenStr;
             this.tokenSymbols = tokenStr.toCharArray();

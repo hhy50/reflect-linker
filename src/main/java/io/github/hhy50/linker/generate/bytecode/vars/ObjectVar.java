@@ -4,14 +4,13 @@ import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.Type;
 
 /**
- * <p>ObjectVar class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Object var.
  */
 public class ObjectVar extends VarInst {
 
-    /** Constant <code>TYPE</code> */
+    /**
+     * The constant TYPE.
+     */
     public static final Type TYPE = Type.getType("Ljava/lang/Object;");
 
     /**
@@ -21,11 +20,11 @@ public class ObjectVar extends VarInst {
      */
 
     /**
-     * <p>Constructor for ObjectVar.</p>
+     * Instantiates a new Object var.
      *
-     * @param body
-     * @param lvbIndex   a int.
-     * @param type       a {@link Type} object.
+     * @param body     the body
+     * @param lvbIndex the lvb index
+     * @param type     the type
      */
     public ObjectVar(MethodBody body, int lvbIndex, Type type) {
         super(body, lvbIndex, type);

@@ -11,10 +11,7 @@ import org.objectweb.asm.Type;
 
 
 /**
- * <p>SetterDecorator class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Setter decorator.
  */
 public class SetterDecorator extends AbstractDecorator {
 
@@ -23,11 +20,11 @@ public class SetterDecorator extends AbstractDecorator {
     private final MethodDefine methodDefine;
 
     /**
-     * <p>Constructor for SetterDecorator.</p>
+     * Instantiates a new Setter decorator.
      *
-     * @param setter a {@link io.github.hhy50.linker.generate.setter.Setter} object.
-     * @param fieldRef a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param methodDefine a {@link io.github.hhy50.linker.define.MethodDefine} object.
+     * @param setter       the setter
+     * @param fieldRef     the field ref
+     * @param methodDefine the method define
      */
     public SetterDecorator(Setter setter, FieldRef fieldRef, MethodDefine methodDefine) {
         this.setter = setter;
@@ -35,13 +32,11 @@ public class SetterDecorator extends AbstractDecorator {
         this.methodDefine = methodDefine;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         setter.define(classImplBuilder);
     }
 
-    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // 方法定义的类型

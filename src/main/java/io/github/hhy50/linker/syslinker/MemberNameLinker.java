@@ -5,18 +5,15 @@ import io.github.hhy50.linker.annotations.Target;
 
 
 /**
- * <p>MemberNameLinker interface.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The interface Member name linker.
  */
 @Target.Bind(value = "java.lang.invoke.MemberName")
 public interface MemberNameLinker {
 
     /**
-     * <p>modifiers.</p>
+     * Modifiers int.
      *
-     * @return a int.
+     * @return the int
      */
     @Field.Getter("flags")
     int modifiers();

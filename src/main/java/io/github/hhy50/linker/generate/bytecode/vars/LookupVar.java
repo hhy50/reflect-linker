@@ -6,31 +6,41 @@ import org.objectweb.asm.Type;
 
 
 /**
- * <p>LookupVar class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Lookup var.
  */
 public class LookupVar extends VarInst {
-    /** Constant <code>OWNER="java/lang/invoke/MethodHandles$Lookup"</code> */
+    /**
+     * The constant OWNER.
+     */
     public static final String OWNER = "java/lang/invoke/MethodHandles$Lookup";
-    /** Constant <code>DESCRIPTOR="Ljava/lang/invoke/MethodHandles$Lookup;"</code> */
+    /**
+     * The constant DESCRIPTOR.
+     */
     public static final String DESCRIPTOR = "Ljava/lang/invoke/MethodHandles$Lookup;";
 
-    /** Constant <code>TYPE</code> */
+    /**
+     * The constant TYPE.
+     */
     public static final Type TYPE = Type.getType(DESCRIPTOR);
-    /** Constant <code>FIND_XETTER_DESC="(Ljava/lang/Class;Ljava/lang/String;Lja"{trunked}</code> */
+    /**
+     * The constant FIND_XETTER_DESC.
+     */
     public static final String FIND_XETTER_DESC = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;)"+ MethodHandle.DESCRIPTOR;
-    /** Constant <code>FIND_VIRTUAL="(Ljava/lang/Class;Ljava/lang/String;Lja"{trunked}</code> */
+    /**
+     * The constant FIND_VIRTUAL.
+     */
     public static final String FIND_VIRTUAL = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;)"+MethodHandle.DESCRIPTOR;
-    /** Constant <code>FIND_SPECIAL="(Ljava/lang/Class;Ljava/lang/String;Lja"{trunked}</code> */
+    /**
+     * The constant FIND_SPECIAL.
+     */
     public static final String FIND_SPECIAL = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/Class;)"+MethodHandle.DESCRIPTOR;
 
     /**
-     * <p>Constructor for VarInst.</p>
+     * Instantiates a new Lookup var.
      *
-     * @param lvbIndex a int.
-     * @param type     a {@link org.objectweb.asm.Type} object.
+     * @param body     the body
+     * @param lvbIndex the lvb index
+     * @param type     the type
      */
     public LookupVar(MethodBody body, int lvbIndex, Type type) {
         super(body, lvbIndex, type);

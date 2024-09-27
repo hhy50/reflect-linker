@@ -10,26 +10,20 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 
 /**
- * <p>RuntimeFieldGetter class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime field getter.
  */
 public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
 
     /**
-     * <p>Constructor for RuntimeFieldGetter.</p>
+     * Instantiates a new Runtime field getter.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param field     a {@link io.github.hhy50.linker.define.field.RuntimeFieldRef} object.
+     * @param implClass the impl class
+     * @param field     the field
      */
     public RuntimeFieldGetter(String implClass, RuntimeFieldRef field) {
         super(implClass, field);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();

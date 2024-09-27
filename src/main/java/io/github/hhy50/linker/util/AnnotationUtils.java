@@ -12,17 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>AnnotationUtils class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Annotation utils.
  */
 public class AnnotationUtils {
     /**
-     * <p>getBind.</p>
+     * Gets bind.
      *
-     * @param clazz a {@link java.lang.Class} object.
-     * @return a {@link java.lang.String} object.
+     * @param clazz the clazz
+     * @return the bind
      */
     public static String getBind(Class<?> clazz) {
         Target.Bind bindAnno = clazz.getDeclaredAnnotation(Target.Bind.class);
@@ -30,10 +27,10 @@ public class AnnotationUtils {
     }
 
     /**
-     * <p>getTyped.</p>
+     * Gets typed.
      *
-     * @param parameter a {@link java.lang.reflect.Parameter} object.
-     * @return a {@link java.lang.String} object.
+     * @param parameter the parameter
+     * @return the typed
      */
     public static String getTyped(Parameter parameter) {
         Typed typedAnno = parameter.getDeclaredAnnotation(Typed.class);
@@ -41,30 +38,30 @@ public class AnnotationUtils {
     }
 
     /**
-     * <p>isRuntime.</p>
+     * Is runtime boolean.
      *
-     * @param method a {@link java.lang.reflect.Method} object.
-     * @return a boolean.
+     * @param method the method
+     * @return the boolean
      */
     public static boolean isRuntime(Method method) {
         return method.getDeclaredAnnotation(Runtime.class) != null;
     }
 
     /**
-     * <p>isRuntime.</p>
+     * Is runtime boolean.
      *
-     * @param clazz a {@link java.lang.Class} object.
-     * @return a boolean.
+     * @param clazz the clazz
+     * @return the boolean
      */
     public static boolean isRuntime(Class<?> clazz) {
         return clazz.getDeclaredAnnotation(Runtime.class) != null;
     }
 
     /**
-     * <p>getDesignateStaticFields.</p>
+     * Gets designate static fields.
      *
-     * @param method a {@link java.lang.reflect.Method} object.
-     * @return a {@link java.util.Map} object.
+     * @param method the method
+     * @return the designate static fields
      */
     public static Map<String, Boolean> getDesignateStaticFields(Method method) {
         Static[] staticAnnos =  method.getAnnotationsByType(Static.class);

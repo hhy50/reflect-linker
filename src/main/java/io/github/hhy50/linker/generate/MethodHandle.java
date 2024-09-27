@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate;
 
+import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.entity.MethodHolder;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -19,19 +20,19 @@ import org.objectweb.asm.Type;
 import static io.github.hhy50.linker.generate.bytecode.action.Condition.*;
 
 /**
- * <p>Abstract MethodHandle class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Method handle.
  */
 public abstract class MethodHandle {
 
+    /**
+     * The Defined.
+     */
     protected boolean defined = false;
 
     /**
-     * <p>define.</p>
+     * Define.
      *
-     * @param classImplBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param classImplBuilder the class impl builder
      */
     public final void define(InvokeClassImplBuilder classImplBuilder) {
         if (this.defined) return;
@@ -40,55 +41,53 @@ public abstract class MethodHandle {
     }
 
     /**
-     * <p>define0.</p>
+     * Define 0.
      *
-     * @param classImplBuilder a {@link io.github.hhy50.linker.generate.InvokeClassImplBuilder} object.
+     * @param classImplBuilder the class impl builder
      */
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
 
     }
 
     /**
-     * 调用 mh.invoke();
+     * Invoke var inst.
      *
-     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param methodBody the method body
+     * @return the var inst
      */
     public abstract VarInst invoke(MethodBody methodBody);
 
     /**
-     * 初始化静态 methodhandle
+     * Init static method handle.
      *
-     * @param clinit      a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param mhMember    a {@link io.github.hhy50.linker.generate.bytecode.MethodHandleMember} object.
-     * @param lookupClass a {@link org.objectweb.asm.Type} object.
-     * @param fieldName   a {@link java.lang.String} object.
-     * @param methodType  a {@link org.objectweb.asm.Type} object.
-     * @param isStatic    a boolean.
+     * @param clinit      the clinit
+     * @param mhMember    the mh member
+     * @param lookupClass the lookup class
+     * @param fieldName   the field name
+     * @param methodType  the method type
+     * @param isStatic    the is static
      */
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type methodType, boolean isStatic) {
 
     }
 
     /**
-     * mh 重新赋值字节码逻辑
-     * <pre>
-     *     mh = Runtime.findGetter(lookup, "c");
-     * </pre>
+     * Mh reassign.
      *
-     * @param methodBody  a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param mhMember    a {@link io.github.hhy50.linker.generate.bytecode.MethodHandleMember} object.
-     * @param objVar      a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @param methodBody  the method body
+     * @param lookupClass the lookup class
+     * @param mhMember    the mh member
+     * @param objVar      the obj var
      */
     protected abstract void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar);
 
     /**
-     * <p>checkLookClass.</p>
+     * Check look class.
      *
-     * @param body        a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
-     * @param varInst     a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param body        the body
+     * @param lookupClass the lookup class
+     * @param varInst     the var inst
+     * @param prevGetter  the prev getter
      */
     protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst, Getter<?> prevGetter) {
         Type defaultType = null;
@@ -98,63 +97,63 @@ public abstract class MethodHandle {
         body.append(new ConditionJumpAction(
                 must(notNull(varInst),
                         any(isNull(lookupClass), notEq(varInst.getThisClass(), lookupClass))),
-                (__) -> lookupClass.store(__, varInst.getThisClass()),
+                lookupClass.store(varInst.getThisClass()),
                 null
         ));
         if (defaultType != null) {
             final Type fd = defaultType;
             body.append(new ConditionJumpAction(
                     isNull(lookupClass),
-                    (__) -> lookupClass.store(__, getClassLoadAction(fd)),
+                    lookupClass.store(getClassLoadAction(fd)),
                     null
             ));
         }
     }
 
     /**
-     * <p>staticCheckClass.</p>
+     * Static check class.
      *
-     * @param body          a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param lookupClass   a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
-     * @param prevFieldName a {@link java.lang.String} object.
-     * @param prevLookup    a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @param body          the body
+     * @param lookupClass   the lookup class
+     * @param prevFieldName the prev field name
+     * @param prevLookup    the prev lookup
      */
     protected void staticCheckClass(MethodBody body, ClassTypeMember lookupClass, String prevFieldName, ClassTypeMember prevLookup) {
         body.append(new ConditionJumpAction(
                 isNull(lookupClass),
-                (__) -> lookupClass.store(__, new MethodInvokeAction(Runtime.FIND_FIELD).setArgs(prevLookup, LdcLoadAction.of(prevFieldName))),
+                lookupClass.store(new MethodInvokeAction(Runtime.FIND_FIELD).setArgs(prevLookup, LdcLoadAction.of(prevFieldName))),
                 null
         ));
     }
 
 
     /**
-     * <p>checkMethodHandle.</p>
+     * Check method handle.
      *
-     * @param methodBody  a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param lookupClass a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
-     * @param mhMember    a {@link io.github.hhy50.linker.generate.bytecode.MethodHandleMember} object.
-     * @param objVar      a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param methodBody  the method body
+     * @param lookupClass the lookup class
+     * @param mhMember    the mh member
+     * @param objVar      the obj var
      */
     protected void checkMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         methodBody.append(mhMember.ifNull(body -> mhReassign(body, lookupClass, mhMember, objVar)));
     }
 
     /**
-     * <p>getClassLoadAction.</p>
+     * Gets class load action.
      *
-     * @param type a {@link org.objectweb.asm.Type} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param type the type
+     * @return the class load action
      */
     protected Action getClassLoadAction(Type type) {
         return new DynamicClassLoad(type);
     }
 
     /**
-     * <p>genericType.</p>
+     * Generic type type.
      *
-     * @param methodType a {@link org.objectweb.asm.Type} object.
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @param methodType the method type
+     * @return the type
      */
     protected Type genericType(Type methodType) {
         Type rType = methodType.getReturnType();
@@ -171,10 +170,18 @@ public abstract class MethodHandle {
         return Type.getMethodType(rType, argsType);
     }
 
+    /**
+     * The type Dynamic class load.
+     */
     protected class DynamicClassLoad implements Action {
         private Type type;
         private LocalVarInst clazzVar;
 
+        /**
+         * Instantiates a new Dynamic class load.
+         *
+         * @param type the type
+         */
         public DynamicClassLoad(Type type) {
             this.type = type;
         }
@@ -186,10 +193,10 @@ public abstract class MethodHandle {
                 return;
             }
             if (this.clazzVar == null) {
-                InvokeClassImplBuilder classImplBuilder = body.getClassBuilder();
+                AsmClassBuilder classBuilder = body.getClassBuilder();
                 Action cl = new MethodInvokeAction(MethodHolder.GET_CLASS_LOADER)
                         .setInstance(
-                                LdcLoadAction.of(AsmUtil.getType(classImplBuilder.getClassName()))
+                                LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
                         );
                 this.clazzVar = body.newLocalVar(Type.getType(Class.class), new MethodInvokeAction(Runtime.GET_CLASS)
                         .setArgs(cl, LdcLoadAction.of(type.getClassName())));

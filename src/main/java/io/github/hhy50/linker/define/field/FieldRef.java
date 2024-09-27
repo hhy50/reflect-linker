@@ -5,36 +5,27 @@ import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 /**
- * 用来表示目标字段
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Field ref.
  */
 public abstract class FieldRef {
 
-    /**
-     * 对象名
-     */
     private String objName;
 
     /**
-     * 字段名
+     * The Field name.
      */
     public String fieldName;
 
     private String fullName;
 
-    /**
-     * 上一级字段
-     */
     private FieldRef prev;
 
     /**
-     * <p>Constructor for FieldRef.</p>
+     * Instantiates a new Field ref.
      *
-     * @param prev a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param objName a {@link java.lang.String} object.
-     * @param name a {@link java.lang.String} object.
+     * @param prev    the prev
+     * @param objName the obj name
+     * @param name    the name
      */
     public FieldRef(FieldRef prev, String objName, String name) {
         this.prev = prev;
@@ -43,9 +34,9 @@ public abstract class FieldRef {
     }
 
     /**
-     * <p>getUniqueName.</p>
+     * Gets unique name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the unique name
      */
     public String getUniqueName() {
         String prefix = "";
@@ -56,54 +47,54 @@ public abstract class FieldRef {
     }
 
     /**
-     * <p>getGetterName.</p>
+     * Gets getter name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the getter name
      */
     public String getGetterName() {
         return getUniqueName()+"_getter_mh";
     }
 
     /**
-     * <p>getSetterName.</p>
+     * Gets setter name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the setter name
      */
     public String getSetterName() {
         return getUniqueName()+"_setter_mh";
     }
 
     /**
-     * <p>getType.</p>
+     * Gets type.
      *
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @return the type
      */
     public Type getType() {
         return ObjectVar.TYPE;
     }
 
     /**
-     * <p>Getter for the field <code>prev</code>.</p>
+     * Gets prev.
      *
-     * @return a {@link io.github.hhy50.linker.define.field.FieldRef} object.
+     * @return the prev
      */
     public FieldRef getPrev() {
         return prev;
     }
 
     /**
-     * <p>Setter for the field <code>fullName</code>.</p>
+     * Sets full name.
      *
-     * @param fullName a {@link java.lang.String} object.
+     * @param fullName the full name
      */
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 
     /**
-     * <p>Getter for the field <code>fullName</code>.</p>
+     * Gets full name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the full name
      */
     public String getFullName() {
         if (fullName == null) {
@@ -113,9 +104,9 @@ public abstract class FieldRef {
     }
 
     /**
-     * <p>toRuntime.</p>
+     * To runtime field ref.
      *
-     * @return a {@link io.github.hhy50.linker.define.field.FieldRef} object.
+     * @return the field ref
      */
     public FieldRef toRuntime() {
         if (this instanceof RuntimeFieldRef) {

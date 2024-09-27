@@ -2,27 +2,26 @@ package io.github.hhy50.linker.token;
 
 
 /**
- * <p>MapKeyToken class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Map key token.
  */
 public class MapKeyToken extends FieldToken {
 
+    /**
+     * The Key.
+     */
     public String key;
 
     /**
-     * <p>Constructor for MapKeyToken.</p>
+     * Instantiates a new Map key token.
      *
-     * @param fieldName a {@link java.lang.String} object.
-     * @param key a {@link java.lang.String} object.
+     * @param fieldName the field name
+     * @param key       the key
      */
     public MapKeyToken(String fieldName, String key) {
         super(fieldName);
         this.key = key;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         return fieldName+"['"+key+"']";

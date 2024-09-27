@@ -16,26 +16,20 @@ import org.objectweb.asm.Type;
 
 
 /**
- * <p>EarlyFieldGetter class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Early field getter.
  */
 public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
     /**
-     * <p>Constructor for EarlyFieldGetter.</p>
+     * Instantiates a new Early field getter.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param fieldRef  a {@link io.github.hhy50.linker.define.field.EarlyFieldRef} object.
+     * @param implClass the impl class
+     * @param fieldRef  the field ref
      */
     public EarlyFieldGetter(String implClass, EarlyFieldRef fieldRef) {
         super(implClass, fieldRef);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();
@@ -65,9 +59,6 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
                 });
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type fieldType, boolean isStatic) {
         VarInst lookupVar = lookupClass.getLookup(clinit);

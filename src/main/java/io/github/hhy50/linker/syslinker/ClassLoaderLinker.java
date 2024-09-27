@@ -4,22 +4,19 @@ import io.github.hhy50.linker.annotations.Target;
 
 
 /**
- * <p>ClassLoaderLinker interface.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The interface Class loader linker.
  */
 @Target.Bind("java.lang.ClassLoader")
 public interface ClassLoaderLinker {
 
     /**
-     * <p>defineClass.</p>
+     * Define class class.
      *
-     * @param name a {@link java.lang.String} object.
-     * @param b an array of {@link byte} objects.
-     * @param off a int.
-     * @param len a int.
-     * @return a {@link java.lang.Class} object.
+     * @param name the name
+     * @param b    the b
+     * @param off  the off
+     * @param len  the len
+     * @return the class
      */
     Class<?> defineClass(String name, byte[] b, int off, int len);
 }

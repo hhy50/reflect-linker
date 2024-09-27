@@ -3,38 +3,32 @@ package io.github.hhy50.linker.generate.bytecode;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
-import io.github.hhy50.linker.generate.bytecode.vars.ClassVar;
 import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
 
 /**
- * <p>ClassTypeMember class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Class type member.
  */
 public class ClassTypeMember extends Member {
 
     private boolean inited;
 
     /**
-     * <p>Constructor for Member.</p>
+     * Instantiates a new Class type member.
      *
-     * @param access     a int.
-     * @param owner      a {@link java.lang.String} object.
-     * @param memberName a {@link java.lang.String} object.
+     * @param member the member
      */
-    public ClassTypeMember(int access, String owner, String memberName) {
-        super(access, owner, memberName, ClassVar.TYPE);
+    public ClassTypeMember(Member member) {
+        super(member.access, member.owner, member.memberName, member.type);
     }
 
     /**
-     * <p>getLookup.</p>
+     * Gets lookup.
      *
-     * @param body a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param body the body
+     * @return the lookup
      */
     public VarInst getLookup(MethodBody body) {
         if ((this.access & Opcodes.ACC_STATIC) > 0) {
@@ -45,10 +39,10 @@ public class ClassTypeMember extends Member {
     }
 
     /**
-     * <p>staticInit.</p>
+     * Static init.
      *
-     * @param clinit a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param classLoadAction a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param clinit          the clinit
+     * @param classLoadAction the class load action
      */
     public void staticInit(MethodBody clinit, Action classLoadAction) {
         if (inited) return;

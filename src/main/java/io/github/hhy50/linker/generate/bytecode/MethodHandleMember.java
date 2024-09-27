@@ -2,9 +2,7 @@ package io.github.hhy50.linker.generate.bytecode;
 
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.constant.MethodHandle;
 import io.github.hhy50.linker.entity.MethodHolder;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Condition;
 import io.github.hhy50.linker.generate.bytecode.action.ConditionJumpAction;
@@ -14,33 +12,30 @@ import io.github.hhy50.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.Type;
 
 /**
- * <p>MethodHandleMember class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Method handle member.
  */
 public class MethodHandleMember extends Member {
 
     private final Type methodType;
 
     /**
-     * <p>Constructor for MethodHandleMember.</p>
+     * Instantiates a new Method handle member.
      *
-     * @param owner      a {@link java.lang.String} object.
-     * @param mhVarName  a {@link java.lang.String} object.
-     * @param access     a int.
-     * @param methodType a {@link org.objectweb.asm.Type} object.
+     * @param member     the member
+     * @param methodType the method type
      */
-    public MethodHandleMember(int access, String owner, String mhVarName, Type methodType) {
-        super(access, owner, mhVarName, MethodHandle.TYPE);
+    public MethodHandleMember(Member member, Type methodType) {
+        super(member.access, member.owner, member.memberName, member.type);
         this.methodType = methodType;
     }
 
+
     /**
-     * <p>invoke.</p>
+     * Invoke action.
      *
-     * @param that       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
-     * @param args       a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param that the that
+     * @param args the args
+     * @return the action
      */
     public Action invoke(VarInst that, VarInst... args) {
         MethodInvokeAction isStatic = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
@@ -51,12 +46,25 @@ public class MethodHandleMember extends Member {
         );
     }
 
+    /**
+     * Invoke static action.
+     *
+     * @param args the args
+     * @return the action
+     */
     public Action invokeStatic(VarInst... args) {
         return new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
                 .setInstance(this)
                 .setArgs(args);
     }
 
+    /**
+     * Invoke instance action.
+     *
+     * @param that the that
+     * @param args the args
+     * @return the action
+     */
     public Action invokeInstance(VarInst that, VarInst... args) {
         VarInst[] newArgs = new VarInst[args.length+1];
         newArgs[0] = that;

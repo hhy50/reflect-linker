@@ -6,10 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * <p>MethodInvokeAction class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Method invoke action.
  */
 public class MethodInvokeAction implements Action {
 
@@ -18,16 +15,15 @@ public class MethodInvokeAction implements Action {
     private Action[] args;
 
     /**
-     * <p>Constructor for MethodInvokeAction.</p>
+     * Instantiates a new Method invoke action.
      *
-     * @param methodHolder a {@link io.github.hhy50.linker.entity.MethodHolder} object.
+     * @param methodHolder the method holder
      */
     public MethodInvokeAction(MethodHolder methodHolder) {
         this.methodHolder = methodHolder;
         this.args = new LoadAction[0];
     }
 
-    /** {@inheritDoc} */
     @Override
     public void apply(MethodBody body) {
         MethodVisitor mv = body.getWriter();
@@ -42,10 +38,10 @@ public class MethodInvokeAction implements Action {
     }
 
     /**
-     * <p>Setter for the field <code>instance</code>.</p>
+     * Sets instance.
      *
-     * @param instance a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction} object.
+     * @param instance the instance
+     * @return the instance
      */
     public MethodInvokeAction setInstance(Action instance) {
         this.instance = instance;
@@ -53,10 +49,10 @@ public class MethodInvokeAction implements Action {
     }
 
     /**
-     * <p>Setter for the field <code>args</code>.</p>
+     * Sets args.
      *
-     * @param args a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction} object.
+     * @param args the args
+     * @return the args
      */
     public MethodInvokeAction setArgs(Action... args) {
         this.args = args;

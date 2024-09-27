@@ -1,17 +1,14 @@
 package io.github.hhy50.linker.define.provider;
 
 /**
- * <p>TargetProvider interface.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The interface Target provider.
  */
 public interface TargetProvider {
 
     /**
-     * <p>getTarget.</p>
+     * Gets target.
      *
-     * @return a {@link java.lang.Object} object.
+     * @return the target
      */
     public Object getTarget();
 }

@@ -13,24 +13,20 @@ import org.objectweb.asm.Type;
 
 
 /**
- * <p>RuntimeFieldSetter class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime field setter.
  */
 public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
 
     /**
-     * <p>Constructor for RuntimeFieldSetter.</p>
+     * Instantiates a new Runtime field setter.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param field     a {@link io.github.hhy50.linker.define.field.RuntimeFieldRef} object.
+     * @param implClass the impl class
+     * @param field     the field
      */
     public RuntimeFieldSetter(String implClass, RuntimeFieldRef field) {
         super(implClass, field);
     }
 
-    /** {@inheritDoc} */
     @Override
     public final void define0(InvokeClassImplBuilder classImplBuilder) {
         FieldRef prevField = field.getPrev();

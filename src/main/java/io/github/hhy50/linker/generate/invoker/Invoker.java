@@ -18,22 +18,30 @@ import org.objectweb.asm.Type;
 import java.util.Arrays;
 
 /**
- * <p>Abstract Invoker class.</p>
+ * The type Invoker.
  *
- * @author hanhaiyang
- * @version $Id: $Id
+ * @param <T> the type parameter
  */
 public abstract class Invoker<T extends MethodRef> extends MethodHandle {
+    /**
+     * The Method.
+     */
     protected final T method;
+    /**
+     * The Method type.
+     */
     protected final Type methodType;
+    /**
+     * The Method holder.
+     */
     protected MethodHolder methodHolder;
 
     /**
-     * <p>Constructor for Invoker.</p>
+     * Instantiates a new Invoker.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param method a T object.
-     * @param mType a {@link org.objectweb.asm.Type} object.
+     * @param implClass the impl class
+     * @param method    the method
+     * @param mType     the m type
      */
     public Invoker(String implClass, T method, Type mType) {
         this.method = method;
@@ -41,7 +49,6 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "invoke_" + method.getFullName(), methodType.getDescriptor());
     }
 
-    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // Object a = get_a();
@@ -58,7 +65,6 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         String superClass = method.getSuperClass();

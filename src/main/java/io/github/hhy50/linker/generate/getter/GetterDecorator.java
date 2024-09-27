@@ -9,10 +9,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import java.lang.reflect.Method;
 
 /**
- * <p>GetterDecorator class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Getter decorator.
  */
 public class GetterDecorator extends AbstractDecorator {
 
@@ -21,11 +18,11 @@ public class GetterDecorator extends AbstractDecorator {
     private final Method methodDefine;
 
     /**
-     * <p>Constructor for GetterDecorator.</p>
+     * Instantiates a new Getter decorator.
      *
-     * @param getter a {@link io.github.hhy50.linker.generate.getter.Getter} object.
-     * @param fieldRef a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param methodDefine a {@link java.lang.reflect.Method} object.
+     * @param getter       the getter
+     * @param fieldRef     the field ref
+     * @param methodDefine the method define
      */
     public GetterDecorator(Getter getter, FieldRef fieldRef, Method methodDefine) {
         this.getter = getter;
@@ -33,13 +30,11 @@ public class GetterDecorator extends AbstractDecorator {
         this.methodDefine = methodDefine;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         getter.define(classImplBuilder);
     }
 
-    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         /**

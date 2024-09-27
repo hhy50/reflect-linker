@@ -16,31 +16,25 @@ import org.objectweb.asm.Type;
 import java.util.function.Consumer;
 
 /**
- * VarInstance
- * 生成可以复用的字节码
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Var inst.
  */
 public abstract class VarInst implements LoadAction {
 
     private final MethodBody body;
 
-    /**
-     * 当前变量在局部变量表中的索引
-     */
     private final int lvbIndex;
 
     /**
-     * 类型
+     * The Type.
      */
     protected Type type;
 
     /**
-     * <p>Constructor for VarInst.</p>
+     * Instantiates a new Var inst.
      *
-     * @param lvbIndex a int.
-     * @param type a {@link org.objectweb.asm.Type} object.
+     * @param body     the body
+     * @param lvbIndex the lvb index
+     * @param type     the type
      */
     public VarInst(MethodBody body, int lvbIndex, Type type) {
         this.body = body;
@@ -48,29 +42,22 @@ public abstract class VarInst implements LoadAction {
         this.type = type;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * load 到栈上
-     */
     @Override
     public void load(MethodBody methodBody) {
         methodBody.append((Consumer<MethodVisitor>) mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
     }
 
+    /**
+     * Load to stack.
+     */
     public void loadToStack() {
         load(body);
     }
 
     /**
-     * 检查是否为空， 如果变量为空就抛出空指针
-     * <pre>
-     *     if (var == null) {
-     *         throw new NullPointerException(nullerr);
-     *     }
-     * </pre>
+     * Check null pointer.
      *
-     * @param nullerr a {@link java.lang.String} object.
+     * @param nullerr the nullerr
      */
     public void checkNullPointer(String nullerr) {
         if (type.getSort() > Type.DOUBLE) {
@@ -78,6 +65,12 @@ public abstract class VarInst implements LoadAction {
         }
     }
 
+    /**
+     * Check null pointer.
+     *
+     * @param nullerr   the nullerr
+     * @param elseBlock the else block
+     */
     public void checkNullPointer(String nullerr, Action elseBlock) {
         if (type.getSort() > Type.DOUBLE) {
             body.append(this.ifNull(Action.throwNullException(nullerr), elseBlock));
@@ -85,9 +78,9 @@ public abstract class VarInst implements LoadAction {
     }
 
     /**
-     * <p>getThisClass.</p>
+     * Gets this class.
      *
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction} object.
+     * @return the this class
      */
     public MethodInvokeAction getThisClass() {
         return new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS)
@@ -95,9 +88,9 @@ public abstract class VarInst implements LoadAction {
     }
 
     /**
-     * store到局部变量表
+     * Store.
      *
-     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param action the action
      */
     public void store(Action action) {
         action.apply(body);
@@ -105,26 +98,25 @@ public abstract class VarInst implements LoadAction {
     }
 
     /**
-     * <p>getName.</p>
+     * Gets name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the name
      */
     public String getName() {
         return "slot["+lvbIndex+",type="+type.getClassName()+"]";
     }
 
     /**
-     * <p>Getter for the field <code>type</code>.</p>
+     * Gets type.
      *
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @return the type
      */
     public Type getType() {
         return type;
     }
 
     /**
-     * <p>returnThis.</p>
-     *
+     * Return this.
      */
     public void returnThis() {
         load(body);
@@ -132,10 +124,10 @@ public abstract class VarInst implements LoadAction {
     }
 
     /**
-     * <p>getTarget.</p>
+     * Gets target.
      *
-     * @param providerType a {@link org.objectweb.asm.Type} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param providerType the provider type
+     * @return the target
      */
     public Action getTarget(Type providerType) {
         Type defaultType = Type.getType(DefaultTargetProviderImpl.class);

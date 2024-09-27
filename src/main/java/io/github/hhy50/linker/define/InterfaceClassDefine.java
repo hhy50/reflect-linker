@@ -4,10 +4,7 @@ import java.util.List;
 
 
 /**
- * <p>InterfaceClassDefine class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Interface class define.
  */
 public class InterfaceClassDefine {
     private Class<?> define;
@@ -16,11 +13,11 @@ public class InterfaceClassDefine {
     private byte[] bytecode;
 
     /**
-     * <p>Constructor for InterfaceClassDefine.</p>
+     * Instantiates a new Interface class define.
      *
-     * @param define a {@link java.lang.Class} object.
-     * @param targetClass a {@link java.lang.Class} object.
-     * @param methodDefines a {@link java.util.List} object.
+     * @param define        the define
+     * @param targetClass   the target class
+     * @param methodDefines the method defines
      */
     public InterfaceClassDefine(Class<?> define, Class<?> targetClass, List<MethodDefine> methodDefines) {
         this.define = define;
@@ -29,37 +26,37 @@ public class InterfaceClassDefine {
     }
 
     /**
-     * <p>Getter for the field <code>define</code>.</p>
+     * Gets define.
      *
-     * @return a {@link java.lang.Class} object.
+     * @return the define
      */
     public Class<?> getDefine() {
         return define;
     }
 
     /**
-     * <p>Getter for the field <code>targetClass</code>.</p>
+     * Gets target class.
      *
-     * @return a {@link java.lang.Class} object.
+     * @return the target class
      */
     public Class<?> getTargetClass() {
         return targetClass;
     }
 
     /**
-     * <p>Getter for the field <code>methodDefines</code>.</p>
+     * Gets method defines.
      *
-     * @return a {@link java.util.List} object.
+     * @return the method defines
      */
     public List<MethodDefine> getMethodDefines() {
         return methodDefines;
     }
 
     /**
-     * <p>Setter for the field <code>bytecode</code>.</p>
+     * Sets bytecode.
      *
-     * @param bytecode an array of {@link byte} objects.
-     * @return a {@link io.github.hhy50.linker.define.InterfaceClassDefine} object.
+     * @param bytecode the bytecode
+     * @return the bytecode
      */
     public InterfaceClassDefine setBytecode(byte[] bytecode) {
         this.bytecode = bytecode;
@@ -67,9 +64,9 @@ public class InterfaceClassDefine {
     }
 
     /**
-     * <p>Getter for the field <code>bytecode</code>.</p>
+     * Get bytecode byte [ ].
      *
-     * @return an array of {@link byte} objects.
+     * @return the byte [ ]
      */
     public byte[] getBytecode() {
         return bytecode;

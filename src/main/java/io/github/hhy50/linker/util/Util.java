@@ -1,18 +1,15 @@
 package io.github.hhy50.linker.util;
 
 /**
- * <p>Util class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Util.
  */
 public class Util {
     /**
-     * <p>getOrElseDefault.</p>
+     * Gets or else default.
      *
-     * @param value a {@link java.lang.String} object.
-     * @param defaultVale a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
+     * @param value       the value
+     * @param defaultVale the default vale
+     * @return the or else default
      */
     public static String getOrElseDefault(String value, String defaultVale) {
         if (value == null) return defaultVale;

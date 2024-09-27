@@ -6,10 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * <p>FieldLoadAction class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Field load action.
  */
 public class FieldLoadAction implements LoadAction {
 
@@ -17,19 +14,19 @@ public class FieldLoadAction implements LoadAction {
     private Action instance;
 
     /**
-     * <p>Constructor for FieldLoadAction.</p>
+     * Instantiates a new Field load action.
      *
-     * @param fieldHolder a {@link io.github.hhy50.linker.entity.FieldHolder} object.
+     * @param fieldHolder the field holder
      */
     public FieldLoadAction(FieldHolder fieldHolder) {
         this.fieldHolder = fieldHolder;
     }
 
     /**
-     * <p>Setter for the field <code>instance</code>.</p>
+     * Sets instance.
      *
-     * @param instance a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.FieldLoadAction} object.
+     * @param instance the instance
+     * @return the instance
      */
     public FieldLoadAction setInstance(Action instance) {
         this.instance = instance;
@@ -37,7 +34,6 @@ public class FieldLoadAction implements LoadAction {
     }
 
 
-    /** {@inheritDoc} */
     @Override
     public void load(MethodBody body) {
         MethodVisitor mv = body.getWriter();

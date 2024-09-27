@@ -5,45 +5,45 @@ import io.github.hhy50.linker.util.ReflectUtil;
 import java.lang.reflect.Field;
 
 /**
- * <p>Abstract Token class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Token.
  */
 public abstract class Token {
 
+    /**
+     * The Next.
+     */
     public Token next;
 
     /**
-     * 获取token值
+     * Value string.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the string
      */
     public abstract String value();
 
     /**
-     * 是否是array表达式
+     * Array expr boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean arrayExpr() {
         return false;
     }
 
     /**
-     * 是否是数组表达式
+     * Map expr boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean mapExpr() {
         return false;
     }
 
     /**
-     * <p>getField.</p>
+     * Gets field.
      *
-     * @param owner a {@link java.lang.Class} object.
-     * @return a {@link java.lang.reflect.Field} object.
+     * @param owner the owner
+     * @return the field
      */
     public Field getField(Class<?> owner) {
         String fieldName = value();

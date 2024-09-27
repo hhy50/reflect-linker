@@ -18,20 +18,17 @@ import java.util.List;
 
 
 /**
- * <p>ClassImplGenerator class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Class impl generator.
  */
 public class ClassImplGenerator {
 
 
     /**
-     * <p>generateImplClass.</p>
+     * Generate bytecode.
      *
-     * @param defineClass a {@link io.github.hhy50.linker.define.InterfaceClassDefine} object.
-     * @param cl          a {@link java.lang.ClassLoader} object.
-     * @throws java.io.IOException if any.
+     * @param defineClass the define class
+     * @param cl          the cl
+     * @throws IOException the io exception
      */
     public static void generateBytecode(InterfaceClassDefine defineClass, final ClassLoader cl) throws IOException {
         if (cl == null) {

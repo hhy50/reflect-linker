@@ -1,56 +1,47 @@
 package io.github.hhy50.linker.define.field;
 
 /**
- * <p>RuntimeFieldRef class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime field ref.
  */
 public class RuntimeFieldRef extends FieldRef {
 
-    /**
-     * 是否指定了静态
-     */
     private boolean designateStatic;
 
-    /**
-     * 是否是静态
-     */
     private boolean isStatic;
 
     /**
-     * <p>Constructor for RuntimeFieldRef.</p>
+     * Instantiates a new Runtime field ref.
      *
-     * @param prev a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param objName a {@link java.lang.String} object.
-     * @param fieldName a {@link java.lang.String} object.
+     * @param prev      the prev
+     * @param objName   the obj name
+     * @param fieldName the field name
      */
     public RuntimeFieldRef(FieldRef prev, String objName, String fieldName) {
         super(prev, objName, fieldName);
     }
 
     /**
-     * <p>isDesignateStatic.</p>
+     * Is designate static boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean isDesignateStatic() {
         return designateStatic;
     }
 
     /**
-     * <p>isStatic.</p>
+     * Is static boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean isStatic() {
         return isStatic;
     }
 
     /**
-     * <p>designateStatic.</p>
+     * Designate static.
      *
-     * @param isStatic a boolean.
+     * @param isStatic the is static
      */
     public void designateStatic(boolean isStatic) {
         this.designateStatic = true;

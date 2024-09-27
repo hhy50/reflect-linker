@@ -8,37 +8,37 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * <p>Abstract Member class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Member.
  */
-public abstract class Member implements LoadAction {
+public class Member implements LoadAction {
 
+    /**
+     * The Access.
+     */
     protected int access;
 
     /**
-     * 所属类
+     * The Owner.
      */
     protected String owner;
 
     /**
-     * 成员名称
+     * The Member name.
      */
     protected String memberName;
 
     /**
-     * 类型
+     * The Type.
      */
     protected Type type;
 
     /**
-     * <p>Constructor for Member.</p>
+     * Instantiates a new Member.
      *
-     * @param access a int.
-     * @param owner a {@link java.lang.String} object.
-     * @param memberName a {@link java.lang.String} object.
-     * @param type a {@link org.objectweb.asm.Type} object.
+     * @param access     the access
+     * @param owner      the owner
+     * @param memberName the member name
+     * @param type       the type
      */
     public Member(int access, String owner, String memberName, Type type) {
         this.access = access;
@@ -48,33 +48,32 @@ public abstract class Member implements LoadAction {
     }
 
     /**
-     * <p>Getter for the field <code>memberName</code>.</p>
+     * Gets member name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the member name
      */
     public String getMemberName() {
         return memberName;
     }
 
     /**
-     * <p>Getter for the field <code>access</code>.</p>
+     * Gets access.
      *
-     * @return a int.
+     * @return the access
      */
     public int getAccess() {
         return access;
     }
 
     /**
-     * <p>Getter for the field <code>type</code>.</p>
+     * Gets type.
      *
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @return the type
      */
     public Type getType() {
         return type;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void load(MethodBody methodBody) {
         MethodVisitor mv = methodBody.getWriter();
@@ -87,10 +86,10 @@ public abstract class Member implements LoadAction {
     }
 
     /**
-     * <p>store.</p>
+     * Store.
      *
-     * @param methodBody a {@link io.github.hhy50.linker.generate.MethodBody} object.
-     * @param action a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param methodBody the method body
+     * @param action     the action
      */
     public void store(MethodBody methodBody, Action action) {
         MethodVisitor mv = methodBody.getWriter();
@@ -102,5 +101,15 @@ public abstract class Member implements LoadAction {
             action.apply(methodBody);
             mv.visitFieldInsn(Opcodes.PUTFIELD, this.owner, this.memberName, this.type.getDescriptor());
         }
+    }
+
+    /**
+     * Store action.
+     *
+     * @param action the action
+     * @return the action
+     */
+    public Action store(Action action) {
+        return (body) -> this.store(body, action);
     }
 }

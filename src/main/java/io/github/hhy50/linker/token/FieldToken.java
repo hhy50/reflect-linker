@@ -2,31 +2,29 @@ package io.github.hhy50.linker.token;
 
 
 /**
- * <p>FieldToken class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Field token.
  */
 public class FieldToken extends Token {
 
+    /**
+     * The Field name.
+     */
     public String fieldName;
 
     /**
-     * <p>Constructor for FieldToken.</p>
+     * Instantiates a new Field token.
      *
-     * @param fieldName a {@link java.lang.String} object.
+     * @param fieldName the field name
      */
     public FieldToken(String fieldName) {
         this.fieldName = fieldName;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String value() {
         return fieldName;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
         return fieldName;

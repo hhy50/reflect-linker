@@ -7,25 +7,21 @@ import org.objectweb.asm.Type;
 import static io.github.hhy50.linker.asm.AsmUtil.adaptLdcClassType;
 
 /**
- * <p>LdcLoadAction class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Ldc load action.
  */
 public class LdcLoadAction implements LoadAction {
 
     private Object ldcConstVar;
 
     /**
-     * <p>Constructor for LdcLoadAction.</p>
+     * Instantiates a new Ldc load action.
      *
-     * @param ldcConstVar a {@link java.lang.Object} object.
+     * @param ldcConstVar the ldc const var
      */
     public LdcLoadAction(Object ldcConstVar) {
         this.ldcConstVar = ldcConstVar;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void load(MethodBody body) {
         MethodVisitor mv = body.getWriter();
@@ -39,10 +35,10 @@ public class LdcLoadAction implements LoadAction {
     }
 
     /**
-     * <p>of.</p>
+     * Of ldc load action.
      *
-     * @param ldcConstVar a {@link java.lang.Object} object.
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction} object.
+     * @param ldcConstVar the ldc const var
+     * @return the ldc load action
      */
     public static LdcLoadAction of(Object ldcConstVar) {
         return new LdcLoadAction(ldcConstVar);

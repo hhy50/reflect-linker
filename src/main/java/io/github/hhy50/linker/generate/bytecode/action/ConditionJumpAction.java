@@ -6,10 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * <p>ConditionJumpAction class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Condition jump action.
  */
 public class ConditionJumpAction implements Action {
     private final Condition condition;
@@ -17,11 +14,11 @@ public class ConditionJumpAction implements Action {
     private final Action elseBlock;
 
     /**
-     * <p>Constructor for ConditionJumpAction.</p>
+     * Instantiates a new Condition jump action.
      *
-     * @param condition a {@link io.github.hhy50.linker.generate.bytecode.action.Condition} object.
-     * @param ifBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
-     * @param elseBlock a {@link io.github.hhy50.linker.generate.bytecode.action.Action} object.
+     * @param condition the condition
+     * @param ifBlock   the if block
+     * @param elseBlock the else block
      */
     public ConditionJumpAction(Condition condition, Action ifBlock, Action elseBlock) {
         this.condition = condition;
@@ -29,7 +26,6 @@ public class ConditionJumpAction implements Action {
         this.elseBlock = elseBlock;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void apply(MethodBody body) {
         MethodVisitor mv = body.getWriter();

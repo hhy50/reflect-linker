@@ -1,28 +1,25 @@
 package io.github.hhy50.linker.util;
 
 /**
- * <p>StringUtil class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type String util.
  */
 public class StringUtil {
 
     /**
-     * <p>isEmpty.</p>
+     * Is empty boolean.
      *
-     * @param str a {@link java.lang.String} object.
-     * @return a boolean.
+     * @param str the str
+     * @return the boolean
      */
     public static boolean isEmpty(String str) {
         return str == null || str.length() == 0;
     }
 
     /**
-     * <p>isNotEmpty.</p>
+     * Is not empty boolean.
      *
-     * @param str a {@link java.lang.String} object.
-     * @return a boolean.
+     * @param str the str
+     * @return the boolean
      */
     public static boolean isNotEmpty(String str) {
         return !isEmpty(str);

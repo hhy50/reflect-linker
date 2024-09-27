@@ -11,59 +11,56 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * <p>ClassUtil class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Class util.
  */
 public class ClassUtil {
     /**
-     * <p>className2path.</p>
+     * Class name 2 path string.
      *
-     * @param clazz a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
+     * @param clazz the clazz
+     * @return the string
      */
     public static String className2path(String clazz) {
         return clazz.replace('.', '/');
     }
 
     /**
-     * <p>classpath2name.</p>
+     * Classpath 2 name string.
      *
-     * @param clazz a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
+     * @param clazz the clazz
+     * @return the string
      */
     public static String classpath2name(String clazz) {
         return clazz.replace('/', '.');
     }
 
     /**
-     * <p>toSimpleName.</p>
+     * To simple name string.
      *
-     * @param className a {@link java.lang.String} object.
-     * @return a {@link java.lang.String} object.
+     * @param className the class name
+     * @return the string
      */
     public static String toSimpleName(String className) {
         return className.substring(className.lastIndexOf(".")+1);
     }
 
     /**
-     * <p>isAssignableFrom.</p>
+     * Is assignable from boolean.
      *
-     * @param child a {@link java.lang.Class} object.
-     * @param parent a {@link java.lang.Class} object.
-     * @return a boolean.
+     * @param child  the child
+     * @param parent the parent
+     * @return the boolean
      */
     public static boolean isAssignableFrom(Class<?> child, Class<?> parent) {
         return isAssignableFrom(child, parent.getName());
     }
 
     /**
-     * <p>isAssignableFrom.</p>
+     * Is assignable from boolean.
      *
-     * @param child a {@link java.lang.Class} object.
-     * @param parent a {@link java.lang.String} object.
-     * @return a boolean.
+     * @param child  the child
+     * @param parent the parent
+     * @return the boolean
      */
     public static boolean isAssignableFrom(Class<?> child, String parent) {
         if (child.getName().equals(parent) || parent.equals("java.lang.Object")) return true;
@@ -78,11 +75,11 @@ public class ClassUtil {
     }
 
     /**
-     * <p>getTypeDefines.</p>
+     * Gets type defines.
      *
-     * @param define a {@link java.lang.Object} object.
-     * @param <T> a T object.
-     * @return a {@link java.util.Map} object.
+     * @param <T>    the type parameter
+     * @param define the define
+     * @return the type defines
      */
     public static <T> Map<String, String> getTypeDefines(Object define) {
         if (define instanceof Class) {
@@ -96,11 +93,11 @@ public class ClassUtil {
     }
 
     /**
-     * <p>polymorphismMatch.</p>
+     * Polymorphism match boolean.
      *
-     * @param parameters an array of {@link java.lang.reflect.Parameter} objects.
-     * @param argTypes an array of {@link java.lang.String} objects.
-     * @return a boolean.
+     * @param parameters the parameters
+     * @param argTypes   the arg types
+     * @return the boolean
      */
     public static boolean polymorphismMatch(Parameter[] parameters, String[] argTypes) {
         if (parameters.length != argTypes.length) return false;

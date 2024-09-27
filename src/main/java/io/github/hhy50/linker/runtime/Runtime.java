@@ -15,34 +15,53 @@ import java.lang.reflect.Method;
 
 
 /**
- * <p>Runtime class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime.
  */
 public class Runtime {
-    /** Constant <code>OWNER="io/github/hhy50/linker/runtime/Runtime"</code> */
+    /**
+     * The constant OWNER.
+     */
     public static String OWNER = "io/github/hhy50/linker/runtime/Runtime";
-    /** Constant <code>FIND_GETTER_DESC="(Ljava/lang/invoke/MethodHandles$Lookup"{trunked}</code> */
+    /**
+     * The constant FIND_GETTER_DESC.
+     */
     public static String FIND_GETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
-    /** Constant <code>FIND_SETTER_DESC="(Ljava/lang/invoke/MethodHandles$Lookup"{trunked}</code> */
+    /**
+     * The constant FIND_SETTER_DESC.
+     */
     public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
-    /** Constant <code>FIND_METHOD_DESC="(Ljava/lang/invoke/MethodHandles$Lookup"{trunked}</code> */
+    /**
+     * The constant FIND_METHOD_DESC.
+     */
     public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
-    /** Constant <code>FIND_GETTER</code> */
+    /**
+     * The constant FIND_FIELD.
+     */
     public static final MethodHolder FIND_FIELD = new MethodHolder(Runtime.OWNER, "findField", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Class;");
-    /** Constant <code>FIND_GETTER</code> */
+    /**
+     * The constant FIND_GETTER.
+     */
     public static final MethodHolder FIND_GETTER = new MethodHolder(Runtime.OWNER, "findGetter", Runtime.FIND_GETTER_DESC);
-    /** Constant <code>FIND_SETTER</code> */
+    /**
+     * The constant FIND_SETTER.
+     */
     public static final MethodHolder FIND_SETTER = new MethodHolder(Runtime.OWNER, "findSetter", Runtime.FIND_SETTER_DESC);
-    /** Constant <code>FIND_METHOD</code> */
+    /**
+     * The constant FIND_METHOD.
+     */
     public static final MethodHolder FIND_METHOD = new MethodHolder(Runtime.OWNER, "findMethod", Runtime.FIND_METHOD_DESC);
-    /** Constant <code>LOOKUP</code> */
+    /**
+     * The constant LOOKUP.
+     */
     public static final MethodHolder LOOKUP = new MethodHolder(Runtime.OWNER, "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;");
-    /** Constant <code>GET_CLASS</code> */
+    /**
+     * The constant GET_CLASS.
+     */
     public static final MethodHolder GET_CLASS = new MethodHolder(Runtime.OWNER, "getClass", "(Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/Class;");
 
-    /** Constant <code>mhl</code> */
+    /**
+     * The constant LOOKUP_LINKER.
+     */
     public static final LookupLinker LOOKUP_LINKER;
 
     static {
@@ -54,10 +73,11 @@ public class Runtime {
     }
 
     /**
-     * <p>lookup.</p>
+     * Lookup method handles . lookup.
      *
-     * @param callerClass a {@link java.lang.Class} object.
-     * @return a {@link java.lang.invoke.MethodHandles.Lookup} object.
+     * @param callerClass the caller class
+     * @return the method handles . lookup
+     * @throws IllegalAccessException the illegal access exception
      */
     public static MethodHandles.Lookup lookup(Class<?> callerClass) throws IllegalAccessException {
         if (callerClass == MethodHandles.Lookup.class) {
@@ -67,12 +87,12 @@ public class Runtime {
     }
 
     /**
-     * <p>getClass.</p>
+     * Gets class.
      *
-     * @param cl a {@link java.lang.ClassLoader} object.
-     * @param callerClassName a {@link java.lang.String} object.
-     * @return a {@link java.lang.Class} object.
-     * @throws java.lang.ClassNotFoundException if any.
+     * @param cl              the cl
+     * @param callerClassName the caller class name
+     * @return the class
+     * @throws ClassNotFoundException the class not found exception
      */
     public static Class<?> getClass(ClassLoader cl, String callerClassName) throws ClassNotFoundException {
         if (callerClassName.endsWith("[]")) {
@@ -82,12 +102,12 @@ public class Runtime {
     }
 
     /**
-     * <p>findField.</p>
+     * Find field class.
      *
-     * @param clazz a {@link java.lang.Class} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @return a {@link java.lang.Class} object.
-     * @throws java.lang.NoSuchFieldException if any.
+     * @param clazz     the clazz
+     * @param fieldName the field name
+     * @return the class
+     * @throws NoSuchFieldException the no such field exception
      */
     public static Class<?> findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
         Field field = ReflectUtil.getField(clazz, fieldName);
@@ -98,16 +118,16 @@ public class Runtime {
     }
 
     /**
-     * <p>获取Getter</p>
+     * Find getter method handle.
      *
-     * @param lookup a {@link java.lang.invoke.MethodHandles.Lookup} object.
-     * @param clazz a {@link java.lang.Class} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @return a {@link java.lang.invoke.MethodHandle} object.
-     * @throws java.lang.IllegalAccessException if any.
-     * @throws java.lang.reflect.InvocationTargetException if any.
-     * @throws java.lang.InstantiationException if any.
-     * @throws java.lang.NoSuchFieldException if any.
+     * @param lookup    the lookup
+     * @param clazz     the clazz
+     * @param fieldName the field name
+     * @return the method handle
+     * @throws IllegalAccessException    the illegal access exception
+     * @throws InvocationTargetException the invocation target exception
+     * @throws InstantiationException    the instantiation exception
+     * @throws NoSuchFieldException      the no such field exception
      */
     public static MethodHandle findGetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
         Field field = ReflectUtil.getField(clazz, fieldName);
@@ -119,16 +139,16 @@ public class Runtime {
 
 
     /**
-     * 获取Setter
+     * Find setter method handle.
      *
-     * @param lookup a {@link java.lang.invoke.MethodHandles.Lookup} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @return a {@link java.lang.invoke.MethodHandle} object.
-     * @param clazz a {@link java.lang.Class} object.
-     * @throws java.lang.IllegalAccessException if any.
-     * @throws java.lang.reflect.InvocationTargetException if any.
-     * @throws java.lang.InstantiationException if any.
-     * @throws java.lang.NoSuchFieldException if any.
+     * @param lookup    the lookup
+     * @param clazz     the clazz
+     * @param fieldName the field name
+     * @return the method handle
+     * @throws IllegalAccessException    the illegal access exception
+     * @throws InvocationTargetException the invocation target exception
+     * @throws InstantiationException    the instantiation exception
+     * @throws NoSuchFieldException      the no such field exception
      */
     public static MethodHandle findSetter(MethodHandles.Lookup lookup, Class<?> clazz, String fieldName) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException {
         Field field = ReflectUtil.getField(clazz, fieldName);
@@ -139,16 +159,16 @@ public class Runtime {
     }
 
     /**
-     * 获取 MethodHandle.method
+     * Find method method handle.
      *
-     * @param methodName a {@link java.lang.String} object.
-     * @param lookup a {@link java.lang.invoke.MethodHandles.Lookup} object.
-     * @param superClass a {@link java.lang.String} object.
-     * @param argsType an array of {@link java.lang.String} objects.
-     * @return a {@link java.lang.invoke.MethodHandle} object.
-     * @param clazz a {@link java.lang.Class} object.
-     * @throws java.lang.IllegalAccessException if any.
-     * @throws java.lang.NoSuchMethodException if any.
+     * @param lookup     the lookup
+     * @param clazz      the clazz
+     * @param methodName the method name
+     * @param superClass the super class
+     * @param argsType   the args type
+     * @return the method handle
+     * @throws IllegalAccessException the illegal access exception
+     * @throws NoSuchMethodException  the no such method exception
      */
     public static MethodHandle findMethod(MethodHandles.Lookup lookup, Class<?> clazz, String methodName, String superClass, String[] argsType) throws IllegalAccessException, NoSuchMethodException {
         Method method = ReflectUtil.matchMethod(clazz, methodName, superClass, argsType);

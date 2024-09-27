@@ -4,14 +4,15 @@ package io.github.hhy50.linker.constant;
 import org.objectweb.asm.Type;
 
 /**
- * <p>MethodHandle class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Method handle.
  */
 public class MethodHandle {
-    /** Constant <code>DESCRIPTOR="Ljava/lang/invoke/MethodHandle;"</code> */
+    /**
+     * The constant DESCRIPTOR.
+     */
     public static final String DESCRIPTOR = "Ljava/lang/invoke/MethodHandle;";
-    /** Constant <code>TYPE</code> */
+    /**
+     * The constant TYPE.
+     */
     public static final Type TYPE = Type.getType(DESCRIPTOR);
 }

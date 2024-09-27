@@ -1,10 +1,7 @@
 package io.github.hhy50.linker.define.cl;
 
 /**
- * <p>SysLinkerClassLoader class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Sys linker class loader.
  */
 public class SysLinkerClassLoader extends java.lang.ClassLoader {
 
@@ -15,20 +12,20 @@ public class SysLinkerClassLoader extends java.lang.ClassLoader {
     }
 
     /**
-     * <p>getInstance.</p>
+     * Gets instance.
      *
-     * @return a {@link io.github.hhy50.linker.define.cl.SysLinkerClassLoader} object.
+     * @return the instance
      */
     public static SysLinkerClassLoader getInstance() {
         return INSTANCE;
     }
 
     /**
-     * <p>load.</p>
+     * Load class.
      *
-     * @param className a {@link java.lang.String} object.
-     * @param bytecode an array of {@link byte} objects.
-     * @return a {@link java.lang.Class} object.
+     * @param className the class name
+     * @param bytecode  the bytecode
+     * @return the class
      */
     public Class<?> load(String className, byte[] bytecode) {
         return defineClass(className, bytecode, 0, bytecode.length);

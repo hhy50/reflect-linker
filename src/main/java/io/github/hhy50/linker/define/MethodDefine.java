@@ -8,50 +8,56 @@ import io.github.hhy50.linker.define.method.MethodRef;
 import java.lang.reflect.Method;
 
 /**
- * <p>MethodDefine class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Method define.
  */
 public class MethodDefine {
 
+    /**
+     * The Define.
+     */
     public Method define;
 
+    /**
+     * The Field ref.
+     */
     public FieldRef fieldRef;
 
+    /**
+     * The Method ref.
+     */
     public MethodRef methodRef;
 
     /**
-     * <p>Constructor for MethodDefine.</p>
+     * Instantiates a new Method define.
      *
-     * @param method a {@link java.lang.reflect.Method} object.
+     * @param method the method
      */
     public MethodDefine(Method method) {
         this.define = method;
     }
 
     /**
-     * <p>hasSetter.</p>
+     * Has setter boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean hasSetter() {
         return define.getDeclaredAnnotation(Field.Setter.class) != null;
     }
 
     /**
-     * <p>hasGetter.</p>
+     * Has getter boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean hasGetter() {
         return define.getDeclaredAnnotation(Field.Getter.class) != null;
     }
 
     /**
-     * <p>getName.</p>
+     * Gets name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the name
      */
     public String getName() {
         if (fieldRef != null) {

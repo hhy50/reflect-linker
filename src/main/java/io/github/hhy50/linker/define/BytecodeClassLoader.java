@@ -10,22 +10,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>BytecodeClassLoader class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Bytecode class loader.
  */
 public class BytecodeClassLoader{
 
     private static final Map<ClassLoader, Map<String, Class<?>>> NAMESPACE = new HashMap<>();
 
     /**
-     * <p>load.</p>
+     * Load class.
      *
-     * @param classLoader a {@link java.lang.ClassLoader} object.
-     * @param className a {@link java.lang.String} object.
-     * @param bytecode an array of {@link byte} objects.
-     * @return a {@link java.lang.Class} object.
+     * @param classLoader the class loader
+     * @param className   the class name
+     * @param bytecode    the bytecode
+     * @return the class
      */
     public synchronized static Class<?> load(ClassLoader classLoader, String className, byte[] bytecode) {
         Map<String, Class<?>> clNameSpace = NAMESPACE.computeIfAbsent(classLoader, cl -> new HashMap<>());

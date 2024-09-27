@@ -2,10 +2,7 @@ package io.github.hhy50.linker.token;
 
 
 /**
- * <p>Tokens class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Tokens.
  */
 public class Tokens implements Iterable<Token> {
 
@@ -14,9 +11,9 @@ public class Tokens implements Iterable<Token> {
     private Token tail;
 
     /**
-     * <p>add.</p>
+     * Add.
      *
-     * @param token a {@link io.github.hhy50.linker.token.Token} object.
+     * @param token the token
      */
     public void add(Token token) {
         if (head == null) {
@@ -28,16 +25,21 @@ public class Tokens implements Iterable<Token> {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public Iterator iterator() {
         return new Iterator();
     }
 
+    /**
+     * The type Iterator.
+     */
     class Iterator implements java.util.Iterator<Token> {
 
         private Token next;
 
+        /**
+         * Instantiates a new Iterator.
+         */
         Iterator() {
             this.next = head;
         }

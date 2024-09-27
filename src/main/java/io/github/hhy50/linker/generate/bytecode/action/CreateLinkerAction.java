@@ -6,10 +6,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
 /**
- * <p>CreateLinkerAction class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Create linker action.
  */
 public class CreateLinkerAction implements Action {
 
@@ -17,10 +14,10 @@ public class CreateLinkerAction implements Action {
     private final VarInst obj;
 
     /**
-     * <p>Constructor for CreateLinkerAction.</p>
+     * Instantiates a new Create linker action.
      *
-     * @param linkerType a {@link org.objectweb.asm.Type} object.
-     * @param obj a {@link io.github.hhy50.linker.generate.bytecode.vars.VarInst} object.
+     * @param linkerType the linker type
+     * @param obj        the obj
      */
     public CreateLinkerAction(Type linkerType, VarInst obj) {
         this.linkerType = linkerType;
@@ -28,7 +25,6 @@ public class CreateLinkerAction implements Action {
     }
 
 
-    /** {@inheritDoc} */
     @Override
     public void apply(MethodBody body) {
         body.append(obj.ifNull(Action.returnNull(), new MethodInvokeAction(MethodHolder.LINKER_FACTORY_CREATE_LINKER)

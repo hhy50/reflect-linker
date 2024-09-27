@@ -18,24 +18,38 @@ import org.objectweb.asm.Type;
 
 
 /**
- * <p>Abstract Getter class.</p>
+ * The type Getter.
  *
- * @author hanhaiyang
- * @version $Id: $Id
+ * @param <T> the type parameter
  */
 public abstract class Getter<T extends FieldRef> extends MethodHandle {
 
+    /**
+     * The Field.
+     */
     protected final T field;
+    /**
+     * The Impl class.
+     */
     protected final String implClass;
+    /**
+     * The Method holder.
+     */
     protected MethodHolder methodHolder;
+    /**
+     * The Method type.
+     */
     protected Type methodType;
+    /**
+     * The Lookup class.
+     */
     protected ClassTypeMember lookupClass;
 
     /**
-     * <p>Constructor for Getter.</p>
+     * Instantiates a new Getter.
      *
-     * @param implClass a {@link java.lang.String} object.
-     * @param field a T object.
+     * @param implClass the impl class
+     * @param field     the field
      */
     public Getter(String implClass, T field) {
         this.implClass = implClass;
@@ -44,7 +58,6 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
-    /** {@inheritDoc} */
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // Object a = get_a();
@@ -53,7 +66,6 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         return methodBody.newLocalVar(methodType.getReturnType(), field.fieldName, invoker);
     }
 
-    /** {@inheritDoc} */
     @Override
     protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         // mh = Runtime.findGetter(lookup, "field");
@@ -64,9 +76,9 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
 
 
     /**
-     * <p>Getter for the field <code>ownerType</code>.</p>
+     * Gets lookup class.
      *
-     * @return a {@link io.github.hhy50.linker.generate.bytecode.ClassTypeMember} object.
+     * @return the lookup class
      */
     public ClassTypeMember getLookupClass() {
         return this.lookupClass;

@@ -1,10 +1,7 @@
 package io.github.hhy50.linker.entity;
 
 /**
- * <p>FieldHolder class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Field holder.
  */
 public class FieldHolder {
     private final String owner;
@@ -12,11 +9,11 @@ public class FieldHolder {
     private final String fieldDesc;
 
     /**
-     * <p>Constructor for FieldHolder.</p>
+     * Instantiates a new Field holder.
      *
-     * @param owner a {@link java.lang.String} object.
-     * @param fieldName a {@link java.lang.String} object.
-     * @param fieldDesc a {@link java.lang.String} object.
+     * @param owner     the owner
+     * @param fieldName the field name
+     * @param fieldDesc the field desc
      */
     public FieldHolder(String owner, String fieldName, String fieldDesc) {
         this.owner = owner;
@@ -25,27 +22,27 @@ public class FieldHolder {
     }
 
     /**
-     * <p>Getter for the field <code>owner</code>.</p>
+     * Gets owner.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the owner
      */
     public String getOwner() {
         return owner;
     }
 
     /**
-     * <p>Getter for the field <code>fieldName</code>.</p>
+     * Gets field name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the field name
      */
     public String getFieldName() {
         return fieldName;
     }
 
     /**
-     * <p>getDesc.</p>
+     * Gets desc.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the desc
      */
     public String getDesc() {
         return fieldDesc;

@@ -5,29 +5,29 @@ import org.objectweb.asm.Type;
 
 
 /**
- * <p>Abstract MethodRef class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Method ref.
  */
 public abstract class MethodRef {
+    /**
+     * The Owner.
+     */
     protected FieldRef owner;
 
     /**
-     * 方法名字
+     * The Name.
      */
     protected String name;
 
     /**
-     * 指定调用的super
+     * The Super class.
      */
     protected String superClass;
 
     /**
-     * <p>Constructor for MethodRef.</p>
+     * Instantiates a new Method ref.
      *
-     * @param owner a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param name a {@link java.lang.String} object.
+     * @param owner the owner
+     * @param name  the name
      */
     public MethodRef(FieldRef owner, String name) {
         this.owner = owner;
@@ -35,63 +35,63 @@ public abstract class MethodRef {
     }
 
     /**
-     * <p>Getter for the field <code>owner</code>.</p>
+     * Gets owner.
      *
-     * @return a {@link io.github.hhy50.linker.define.field.FieldRef} object.
+     * @return the owner
      */
     public FieldRef getOwner() {
         return owner;
     }
 
     /**
-     * <p>Getter for the field <code>name</code>.</p>
+     * Gets name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * <p>getFullName.</p>
+     * Gets full name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the full name
      */
     public String getFullName() {
         return owner.getUniqueName()+"_$$_"+name;
     }
 
     /**
-     * <p>getInvokerName.</p>
+     * Gets invoker name.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the invoker name
      */
     public String getInvokerName() {
         return getFullName()+"_invoker_mh";
     }
 
     /**
-     * <p>Getter for the field <code>superClass</code>.</p>
+     * Gets super class.
      *
-     * @return a {@link java.lang.String} object.
+     * @return the super class
      */
     public String getSuperClass() {
         return superClass;
     }
 
     /**
-     * <p>Setter for the field <code>superClass</code>.</p>
+     * Sets super class.
      *
-     * @param superClass a {@link java.lang.String} object.
+     * @param superClass the super class
      */
     public void setSuperClass(String superClass) {
         this.superClass = superClass;
     }
 
     /**
-     * <p>getArgsType.</p>
+     * Get args type type [ ].
      *
-     * @return an array of {@link org.objectweb.asm.Type} objects.
+     * @return the type [ ]
      */
     public abstract Type[] getArgsType();
 }

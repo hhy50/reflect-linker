@@ -9,10 +9,7 @@ import java.util.Arrays;
 
 
 /**
- * <p>RuntimeMethodRef class.</p>
- *
- * @author hanhaiyang
- * @version $Id: $Id
+ * The type Runtime method ref.
  */
 public class RuntimeMethodRef extends MethodRef {
     private Type[] argsType;
@@ -21,12 +18,12 @@ public class RuntimeMethodRef extends MethodRef {
     private boolean isStatic;
 
     /**
-     * <p>Constructor for RuntimeMethodRef.</p>
+     * Instantiates a new Runtime method ref.
      *
-     * @param owner a {@link io.github.hhy50.linker.define.field.FieldRef} object.
-     * @param name a {@link java.lang.String} object.
-     * @param argsType an array of {@link java.lang.String} objects.
-     * @param returnType a {@link java.lang.Class} object.
+     * @param owner      the owner
+     * @param name       the name
+     * @param argsType   the args type
+     * @param returnType the return type
      */
     public RuntimeMethodRef(FieldRef owner, String name, String[] argsType, Class<?> returnType) {
         super(owner, name);
@@ -35,55 +32,50 @@ public class RuntimeMethodRef extends MethodRef {
         this.returnType = returnType;
     }
 
-    /**
-     * <p>Getter for the field <code>argsType</code>.</p>
-     *
-     * @return an array of {@link org.objectweb.asm.Type} objects.
-     */
     public Type[] getArgsType() {
         return argsType;
     }
 
     /**
-     * <p>getRetunrType.</p>
+     * Gets retunr type.
      *
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @return the retunr type
      */
     public Type getRetunrType() {
         return Type.getType(returnType);
     }
 
     /**
-     * <p>getMethodType.</p>
+     * Gets method type.
      *
-     * @return a {@link org.objectweb.asm.Type} object.
+     * @return the method type
      */
     public Type getMethodType() {
         return Type.getMethodType(getRetunrType(), getArgsType());
     }
 
     /**
-     * <p>isDesignateStatic.</p>
+     * Is designate static boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean isDesignateStatic() {
         return designateStatic;
     }
 
     /**
-     * <p>isStatic.</p>
+     * Is static boolean.
      *
-     * @return a boolean.
+     * @return the boolean
      */
     public boolean isStatic() {
         return isStatic;
     }
 
     /**
-     * <p>designateStatic.</p>
+     * Designate static.
      *
-     * @param isStatic a boolean.
+     * @param isStatic the is static
      */
     public void designateStatic(boolean isStatic) {
         this.designateStatic = true;
