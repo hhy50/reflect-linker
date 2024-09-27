@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.asm;
 
-import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -19,20 +18,6 @@ public class AsmUtil {
      */
     public static String toTypeDesc(String className) {
         return "L"+ ClassUtil.className2path(className)+";";
-    }
-
-    /**
-     * Define impl class invoke class impl builder.
-     *
-     * @param access     the access
-     * @param className  the class name
-     * @param superName  the super name
-     * @param interfaces the interfaces
-     * @param sign       the sign
-     * @return the invoke class impl builder
-     */
-    public static InvokeClassImplBuilder defineImplClass(int access, String className, String superName, String[] interfaces, String sign) {
-        return new InvokeClassImplBuilder(access, className, superName, interfaces, sign);
     }
 
     /**

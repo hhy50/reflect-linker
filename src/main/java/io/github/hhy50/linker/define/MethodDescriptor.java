@@ -1,4 +1,4 @@
-package io.github.hhy50.linker.entity;
+package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 

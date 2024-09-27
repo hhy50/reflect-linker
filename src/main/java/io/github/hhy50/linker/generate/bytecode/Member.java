@@ -88,7 +88,7 @@ public class Member implements LoadAction {
     @Override
     public void load(MethodBody methodBody) {
         MethodVisitor mv = methodBody.getWriter();
-        String owner = this.owner == null ? methodBody.getClassBuilder().getClassDesc() : this.owner;
+        String owner = this.owner == null ? methodBody.getClassBuilder().getClassOwner() : this.owner;
         if ((access & Opcodes.ACC_STATIC) > 0) {
             mv.visitFieldInsn(Opcodes.GETSTATIC, owner, this.memberName, this.type.getDescriptor());
         } else {
@@ -105,7 +105,7 @@ public class Member implements LoadAction {
      */
     public void store(MethodBody methodBody, Action action) {
         MethodVisitor mv = methodBody.getWriter();
-        String owner = this.owner == null ? methodBody.getClassBuilder().getClassDesc() : this.owner;
+        String owner = this.owner == null ? methodBody.getClassBuilder().getClassOwner() : this.owner;
         if ((access & Opcodes.ACC_STATIC) > 0) {
             action.apply(methodBody);
             mv.visitFieldInsn(Opcodes.PUTSTATIC, owner, this.memberName, this.type.getDescriptor());

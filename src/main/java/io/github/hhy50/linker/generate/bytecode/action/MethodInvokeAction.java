@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.entity.MethodDescriptor;
+import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -34,7 +34,7 @@ public class MethodInvokeAction implements Action {
             arg.apply(body);
         }
 
-        String owner = methodDescriptor.getOwner() == null ? body.getClassBuilder().getClassDesc() : methodDescriptor.getOwner();
+        String owner = methodDescriptor.getOwner() == null ? body.getClassBuilder().getClassOwner() : methodDescriptor.getOwner();
         mv.visitMethodInsn(instance != null ? Opcodes.INVOKEVIRTUAL : Opcodes.INVOKESTATIC,
                 owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), false);
     }

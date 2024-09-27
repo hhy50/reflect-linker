@@ -2,7 +2,7 @@ package io.github.hhy50.linker.generate.bytecode;
 
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.entity.MethodDescriptor;
+import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;

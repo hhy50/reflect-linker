@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate.bytecode.vars;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
-import io.github.hhy50.linker.entity.MethodDescriptor;
+import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import org.objectweb.asm.MethodVisitor;

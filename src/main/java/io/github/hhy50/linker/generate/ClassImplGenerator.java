@@ -38,8 +38,8 @@ public class ClassImplGenerator {
         Class<?> define = defineClass.getDefine();
         String implClassName = define.getName()+"$impl";
         Class<?> targetClass = defineClass.getTargetClass();
-        InvokeClassImplBuilder classBuilder = AsmUtil
-                .defineImplClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
+        InvokeClassImplBuilder classBuilder = InvokeClassImplBuilder
+                .builder(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
                 .setDefine(define)
                 .setTarget(targetClass)
                 .init();

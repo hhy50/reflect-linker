@@ -20,7 +20,7 @@ public class AsmClassBuilder {
     /**
      * The Class desc.
      */
-    protected String classDesc;
+    protected String classOwner;
     /**
      * The Class name.
      */
@@ -59,9 +59,9 @@ public class AsmClassBuilder {
      */
     public AsmClassBuilder(int asmFlags, int access, String className, String superName, String[] interfaces, String signature) {
         this.className = className;
-        this.classDesc = ClassUtil.className2path(className);
+        this.classOwner = ClassUtil.className2path(className);
         this.classWriter = new ClassWriter(asmFlags);
-        this.classWriter.visit(Opcodes.V1_8, access, this.classDesc, signature,
+        this.classWriter.visit(Opcodes.V1_8, access, this.classOwner, signature,
                 superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces == null ? new String[0] : interfaces).map(ClassUtil::className2path).toArray(String[]::new));
     }
 
@@ -77,7 +77,7 @@ public class AsmClassBuilder {
      */
     public Member defineField(int access, String fieldName, Type fieldType, String fieldSignature, Object value) {
         this.classWriter.visitField(access, fieldName, fieldType.getDescriptor(), fieldSignature, value);
-        return new Member(access, classDesc, fieldName, fieldType);
+        return new Member(access, classOwner, fieldName, fieldType);
     }
 
     /**
@@ -159,8 +159,8 @@ public class AsmClassBuilder {
      *
      * @return the class desc
      */
-    public String getClassDesc() {
-        return this.classDesc;
+    public String getClassOwner() {
+        return this.classOwner;
     }
 
     /**
