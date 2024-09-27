@@ -2,7 +2,7 @@ package io.github.hhy50.linker.generate.getter;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -35,7 +35,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     /**
      * The Method holder.
      */
-    protected MethodHolder methodHolder;
+    protected MethodDescriptor methodDescriptor;
     /**
      * The Method type.
      */
@@ -55,13 +55,13 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         this.implClass = implClass;
         this.field = field;
         this.methodType = Type.getMethodType(AsmUtil.isPrimitiveType(field.getType()) ? field.getType(): ObjectVar.TYPE);
-        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(), this.methodType.getDescriptor());
+        this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // Object a = get_a();
-        MethodInvokeAction invoker = new MethodInvokeAction(methodHolder)
+        MethodInvokeAction invoker = new MethodInvokeAction(methodDescriptor)
                 .setInstance(LoadAction.LOAD0);
         return methodBody.newLocalVar(methodType.getReturnType(), field.fieldName, invoker);
     }

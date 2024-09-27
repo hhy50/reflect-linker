@@ -2,7 +2,7 @@ package io.github.hhy50.linker.generate.setter;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -30,7 +30,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     /**
      * The Method holder.
      */
-    protected MethodHolder methodHolder;
+    protected MethodDescriptor methodDescriptor;
 
     /**
      * The Method type.
@@ -46,12 +46,12 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     public Setter(String implClass, T field) {
         this.field = field;
         this.methodType = Type.getMethodType(Type.VOID_TYPE, AsmUtil.isPrimitiveType(field.getType()) ? field.getType() : ObjectVar.TYPE);
-        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(), this.methodType.getDescriptor());
+        this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(), this.methodType.getDescriptor());
     }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        methodBody.append(new MethodInvokeAction(methodHolder)
+        methodBody.append(new MethodInvokeAction(methodDescriptor)
                     .setInstance(LoadAction.LOAD0)
                     .setArgs(methodBody.getArgs()));
         return null;

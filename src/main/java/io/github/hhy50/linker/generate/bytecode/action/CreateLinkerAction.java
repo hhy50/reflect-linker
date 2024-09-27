@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
@@ -27,7 +27,7 @@ public class CreateLinkerAction implements Action {
 
     @Override
     public void apply(MethodBody body) {
-        body.append(obj.ifNull(Action.returnNull(), new MethodInvokeAction(MethodHolder.LINKER_FACTORY_CREATE_LINKER)
+        body.append(obj.ifNull(Action.returnNull(), new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER)
                 .setArgs(LdcLoadAction.of(linkerType), obj)));;
     }
 }

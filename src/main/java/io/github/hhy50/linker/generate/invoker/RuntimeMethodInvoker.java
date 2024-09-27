@@ -36,7 +36,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), methodType);
 
         classImplBuilder
-                .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null)
+                .defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
                 .accept(body -> {
                     VarInst objVar = ownerGetter.invoke(body);
 

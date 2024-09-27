@@ -45,6 +45,13 @@ public class MethodBuilder {
         return this.classBuilder;
     }
 
+    /**
+     * Add annotation method builder.
+     *
+     * @param descriptor the descriptor
+     * @param props      the props
+     * @return the method builder
+     */
     public MethodBuilder addAnnotation(String descriptor, Map<String, Object> props) {
         AnnotationVisitor annotationVisitor = this.methodVisitor.visitAnnotation(descriptor, true);
         if (props != null && props.size() > 0) {

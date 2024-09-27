@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Runtime class.</p>
  *
  * @author hanhaiyang
- * @version $Id: $Id
+ * @version $Id : $Id
  */
 @Retention(RetentionPolicy.RUNTIME)
 @java.lang.annotation.Target({ElementType.TYPE, ElementType.METHOD})

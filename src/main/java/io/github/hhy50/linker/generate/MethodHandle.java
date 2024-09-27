@@ -2,7 +2,7 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
@@ -194,7 +194,7 @@ public abstract class MethodHandle {
             }
             if (this.clazzVar == null) {
                 AsmClassBuilder classBuilder = body.getClassBuilder();
-                Action cl = new MethodInvokeAction(MethodHolder.GET_CLASS_LOADER)
+                Action cl = new MethodInvokeAction(MethodDescriptor.GET_CLASS_LOADER)
                         .setInstance(
                                 LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
                         );

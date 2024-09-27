@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate.invoker;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -49,7 +49,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
         // 定义当前方法的invoker
         classImplBuilder
-                .defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null)
+                .defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
                 .accept(body -> {
                     if (!method.isStatic()) {
                         VarInst objVar = getter.invoke(body);
@@ -71,17 +71,17 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         MethodInvokeAction findXXX;
         Action argsType = Action.asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
         if (invokeSpecial) {
-            findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDSPECIAL).setArgs(
+            findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FIND_FINDSPECIAL).setArgs(
                     LdcLoadAction.of(AsmUtil.getType(superClass)),
                     LdcLoadAction.of(fieldName),
-                    new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
+                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
                     lookupClass
             );
         } else {
-            findXXX = new MethodInvokeAction(MethodHolder.LOOKUP_FIND_FINDVIRTUAL).setArgs(
+            findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FIND_FINDVIRTUAL).setArgs(
                     lookupClass,
                     LdcLoadAction.of(fieldName),
-                    new MethodInvokeAction(MethodHolder.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
+                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
             );
         }
         mhMember.store(clinit, findXXX.setInstance(lookupVar));

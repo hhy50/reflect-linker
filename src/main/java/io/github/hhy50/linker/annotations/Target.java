@@ -8,12 +8,20 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Target interface.</p>
  *
  * @author hanhaiyang
- * @version $Id: $Id
+ * @version $Id : $Id
  */
 public interface Target {
+    /**
+     * The interface Bind.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @java.lang.annotation.Target(ElementType.TYPE)
     public @interface Bind {
+        /**
+         * Value string.
+         *
+         * @return the string
+         */
         String value();
     }
 }

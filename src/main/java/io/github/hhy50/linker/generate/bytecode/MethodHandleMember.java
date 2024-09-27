@@ -2,7 +2,7 @@ package io.github.hhy50.linker.generate.bytecode;
 
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Condition;
 import io.github.hhy50.linker.generate.bytecode.action.ConditionJumpAction;
@@ -53,7 +53,7 @@ public class MethodHandleMember extends Member {
      * @return the action
      */
     public Action invokeStatic(VarInst... args) {
-        return new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
+        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
                 .setInstance(this)
                 .setArgs(args);
     }
@@ -71,7 +71,7 @@ public class MethodHandleMember extends Member {
         System.arraycopy(args, 0, newArgs, 1, args.length);
 
         // 动态签名
-        return new MethodInvokeAction(new MethodHolder("java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor()))
+        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor()))
                 .setInstance(this)
                 .setArgs(newArgs);
     }

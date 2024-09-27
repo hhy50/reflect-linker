@@ -2,7 +2,7 @@ package io.github.hhy50.linker.runtime;
 
 
 import io.github.hhy50.linker.AccessTool;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.syslinker.DirectMethodHandleLinker;
 import io.github.hhy50.linker.util.ClassUtil;
@@ -25,7 +25,7 @@ public class RuntimeUtil {
     /**
      * The constant IS_STATIC.
      */
-    public static final MethodHolder IS_STATIC = new MethodHolder(OWNER, "isStatic", "(Ljava/lang/invoke/MethodHandle;)Z");
+    public static final MethodDescriptor IS_STATIC = MethodDescriptor.of(OWNER, "isStatic", "(Ljava/lang/invoke/MethodHandle;)Z");
     /**
      * The constant UNWRAP_BYTE_DESC.
      */
@@ -61,7 +61,7 @@ public class RuntimeUtil {
     /**
      * The constant TYPE_MATCH.
      */
-    public static final MethodHolder TYPE_MATCH = new MethodHolder(OWNER, "typeMatch", "(Ljava/lang/Class;Ljava/lang/String;)Z");
+    public static final MethodDescriptor TYPE_MATCH = MethodDescriptor.of(OWNER, "typeMatch", "(Ljava/lang/Class;Ljava/lang/String;)Z");
 
     /**
      * Check null.

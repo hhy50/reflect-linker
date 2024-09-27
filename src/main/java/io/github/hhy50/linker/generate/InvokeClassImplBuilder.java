@@ -68,7 +68,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public InvokeClassImplBuilder init() {
         EarlyFieldRef target = new EarlyFieldRef(null, null, "target", bindTarget);
-        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), defineClass, target);
+        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
 
         this.getters.put(target.getUniqueName(), targetFieldGetter);
         return this;

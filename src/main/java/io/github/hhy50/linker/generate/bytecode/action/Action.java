@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.MethodVisitor;
@@ -124,7 +124,7 @@ public interface Action {
      */
     static Action asList(Action... actions) {
         return body -> {
-            body.append(new MethodInvokeAction(MethodHolder.ARRAYS_ASLIST).setArgs(asArray(ObjectVar.TYPE, actions)));
+            body.append(new MethodInvokeAction(MethodDescriptor.ARRAYS_ASLIST).setArgs(asArray(ObjectVar.TYPE, actions)));
         };
     }
 

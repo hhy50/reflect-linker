@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate.getter;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -46,7 +46,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         initStaticMethodHandle(clinit, mhMember, lookupClass, field.fieldName, field.getType(), field.isStatic());
 
         // 定义当前字段的getter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodHolder.getMethodName(), methodHolder.getDesc(), null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
                 .accept(body -> {
                     if (!field.isStatic()) {
                         VarInst objVar = getter.invoke(body);
@@ -62,7 +62,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type fieldType, boolean isStatic) {
         VarInst lookupVar = lookupClass.getLookup(clinit);
-        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodHolder.LOOKUP_FIND_STATIC_GETTER_METHOD : MethodHolder.LOOKUP_FIND_GETTER_METHOD);
+        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FIND_STATIC_GETTER_METHOD : MethodDescriptor.LOOKUP_FIND_GETTER_METHOD);
         findGetter.setInstance(lookupVar)
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), getClassLoadAction(fieldType));
         mhMember.store(clinit, findGetter);

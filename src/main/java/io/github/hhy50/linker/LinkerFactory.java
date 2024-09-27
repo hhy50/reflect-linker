@@ -14,18 +14,18 @@ import java.lang.reflect.Constructor;
  * <p>LinkerFactory class.</p>
  *
  * @author hanhaiyang
- * @version $Id: $Id
+ * @version $Id : $Id
  */
 public class LinkerFactory {
 
     /**
      * <p>createLinker.</p>
      *
+     * @param <T>    a T object.
      * @param define a {@link java.lang.Class} object.
      * @param target a {@link java.lang.Object} object.
-     * @param <T> a T object.
      * @return a T object.
-     * @throws io.github.hhy50.linker.exceptions.LinkerException if any.
+     * @throws LinkerException the linker exception
      */
     public static <T> T createLinker(Class<T> define, Object target) throws LinkerException {
         if (target == null) {
@@ -46,11 +46,11 @@ public class LinkerFactory {
     /**
      * <p>createStaticLinker.</p>
      *
+     * @param <T>    a T object.
      * @param define a {@link java.lang.Class} object.
-     * @param <T> a T object.
+     * @param cl     a {@link java.lang.ClassLoader} object.
      * @return a T object.
-     * @param cl a {@link java.lang.ClassLoader} object.
-     * @throws io.github.hhy50.linker.exceptions.LinkerException if any.
+     * @throws LinkerException the linker exception
      */
     public static <T> T createStaticLinker(Class<T> define, ClassLoader cl) throws LinkerException {
         try {
@@ -61,6 +61,15 @@ public class LinkerFactory {
         }
     }
 
+    /**
+     * Create class.
+     *
+     * @param define the define
+     * @param cl     the cl
+     * @return the class
+     * @throws ClassNotFoundException the class not found exception
+     * @throws IOException            the io exception
+     */
     static Class<?> create(Class<?> define, ClassLoader cl) throws ClassNotFoundException, IOException {
         InterfaceClassDefine defineClass = ClassDefineParse.parseClass(define, cl);
         if (defineClass.getBytecode() == null) {
@@ -69,6 +78,15 @@ public class LinkerFactory {
         return BytecodeClassLoader.load(cl, define.getName()+"$impl", defineClass.getBytecode());
     }
 
+    /**
+     * Create sys linker t.
+     *
+     * @param <T>    the type parameter
+     * @param define the define
+     * @param obj    the obj
+     * @return the t
+     * @throws LinkerException the linker exception
+     */
     static <T> T createSysLinker(Class<T> define, Object obj) throws LinkerException {
         try {
             Constructor<?> constructor = create(define, SysLinkerClassLoader.getInstance()).getConstructors()[0];

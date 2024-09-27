@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -34,7 +34,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
      * The Method holder.
      */
-    protected MethodHolder methodHolder;
+    protected MethodDescriptor methodDescriptor;
 
     /**
      * Instantiates a new Invoker.
@@ -46,13 +46,13 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     public Invoker(String implClass, T method, Type mType) {
         this.method = method;
         this.methodType = genericType(mType);
-        this.methodHolder = new MethodHolder(ClassUtil.className2path(implClass), "invoke_" + method.getFullName(), methodType.getDescriptor());
+        this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_" + method.getFullName(), methodType.getDescriptor());
     }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // Object a = get_a();
-        MethodInvokeAction invoker = new MethodInvokeAction(methodHolder)
+        MethodInvokeAction invoker = new MethodInvokeAction(methodDescriptor)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
 

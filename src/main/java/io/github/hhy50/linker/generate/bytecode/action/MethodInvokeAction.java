@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -10,17 +10,17 @@ import org.objectweb.asm.Opcodes;
  */
 public class MethodInvokeAction implements Action {
 
-    private final MethodHolder methodHolder;
+    private final MethodDescriptor methodDescriptor;
     private Action instance;
     private Action[] args;
 
     /**
      * Instantiates a new Method invoke action.
      *
-     * @param methodHolder the method holder
+     * @param methodDescriptor the method holder
      */
-    public MethodInvokeAction(MethodHolder methodHolder) {
-        this.methodHolder = methodHolder;
+    public MethodInvokeAction(MethodDescriptor methodDescriptor) {
+        this.methodDescriptor = methodDescriptor;
         this.args = new LoadAction[0];
     }
 
@@ -33,8 +33,10 @@ public class MethodInvokeAction implements Action {
         for (Action arg : args) {
             arg.apply(body);
         }
+
+        String owner = methodDescriptor.getOwner() == null ? body.getClassBuilder().getClassDesc() : methodDescriptor.getOwner();
         mv.visitMethodInsn(instance != null ? Opcodes.INVOKEVIRTUAL : Opcodes.INVOKESTATIC,
-                methodHolder.getOwner(), methodHolder.getMethodName(), methodHolder.getDesc(), false);
+                owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), false);
     }
 
     /**

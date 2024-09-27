@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate.bytecode.vars;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
-import io.github.hhy50.linker.entity.MethodHolder;
+import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
@@ -83,7 +83,7 @@ public abstract class VarInst implements LoadAction {
      * @return the this class
      */
     public MethodInvokeAction getThisClass() {
-        return new MethodInvokeAction(MethodHolder.OBJECT_GET_CLASS)
+        return new MethodInvokeAction(MethodDescriptor.OBJECT_GET_CLASS)
                 .setInstance(this);
     }
 
@@ -133,13 +133,13 @@ public abstract class VarInst implements LoadAction {
         Type defaultType = Type.getType(DefaultTargetProviderImpl.class);
         if (this.type.equals(defaultType)) {
             return Action.multi(
-                    new MethodInvokeAction(MethodHolder.DEFAULT_PROVIDER_GET_TARGET).setInstance(this),
+                    new MethodInvokeAction(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET).setInstance(this),
                     new TypeCastAction(Action.stackTop(), providerType)
             );
         } else {
             return Action.multi(
                     new TypeCastAction(this, defaultType)
-                            .onAfter(new MethodInvokeAction(MethodHolder.DEFAULT_PROVIDER_GET_TARGET)
+                            .onAfter(new MethodInvokeAction(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
                                     .setInstance(Action.stackTop())),
                     new TypeCastAction(Action.stackTop(), providerType)
             );

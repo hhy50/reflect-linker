@@ -44,7 +44,7 @@ public class AsmClassBuilder {
      * @param signature  the signature
      */
     public AsmClassBuilder(int access, String className, String superName, String[] interfaces, String signature) {
-        this(COMPUTE_MAXS|COMPUTE_FRAMES, access, className, superName, interfaces, signature);
+        this(COMPUTE_MAXS | COMPUTE_FRAMES, access, className, superName, interfaces, signature);
     }
 
     /**
@@ -62,7 +62,7 @@ public class AsmClassBuilder {
         this.classDesc = ClassUtil.className2path(className);
         this.classWriter = new ClassWriter(asmFlags);
         this.classWriter.visit(Opcodes.V1_8, access, this.classDesc, signature,
-                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces == null?new String[0]:interfaces).map(ClassUtil::className2path).toArray(String[]::new));
+                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces == null ? new String[0] : interfaces).map(ClassUtil::className2path).toArray(String[]::new));
     }
 
     /**
@@ -112,6 +112,13 @@ public class AsmClassBuilder {
         return new MethodBuilder(this, methodVisitor, methodDesc);
     }
 
+    /**
+     * Add annotation asm class builder.
+     *
+     * @param descriptor the descriptor
+     * @param props      the props
+     * @return the asm class builder
+     */
     public AsmClassBuilder addAnnotation(String descriptor, Map<String, Object> props) {
         AnnotationVisitor annotationVisitor = this.classWriter.visitAnnotation(descriptor, true);
         if (props != null && props.size() > 0) {
@@ -145,6 +152,15 @@ public class AsmClassBuilder {
      */
     public byte[] toBytecode() {
         return classWriter.toByteArray();
+    }
+
+    /**
+     * Gets class desc.
+     *
+     * @return the class desc
+     */
+    public String getClassDesc() {
+        return this.classDesc;
     }
 
     /**

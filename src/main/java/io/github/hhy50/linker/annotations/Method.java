@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * <p>Method interface.</p>
  *
  * @author hanhaiyang
- * @version $Id: $Id
+ * @version $Id : $Id
  */
 public interface Method {
 
@@ -19,6 +19,11 @@ public interface Method {
     @Retention(RetentionPolicy.RUNTIME)
     @java.lang.annotation.Target({ElementType.METHOD})
     @interface Name {
+        /**
+         * Value string.
+         *
+         * @return the string
+         */
         String value();
     }
 
@@ -34,10 +39,18 @@ public interface Method {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
     public @interface InvokeSuper {
+        /**
+         * Value string.
+         *
+         * @return the string
+         */
         String value() default "";
     }
 
 
+    /**
+     * The interface Constructor.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
     public @interface Constructor {
