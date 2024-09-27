@@ -34,7 +34,7 @@ public class AsmClassBuilder {
     /**
      * The Class writer.
      */
-    protected ClassWriter classWriter = new ClassWriter(COMPUTE_MAXS|COMPUTE_FRAMES);
+    protected ClassWriter classWriter;
 
     /**
      * Instantiates a new Asm class builder.
@@ -46,8 +46,23 @@ public class AsmClassBuilder {
      * @param signature  the signature
      */
     public AsmClassBuilder(int access, String className, String superName, String[] interfaces, String signature) {
+        this(COMPUTE_MAXS|COMPUTE_FRAMES, access, className, superName, interfaces, signature);
+    }
+
+    /**
+     * Instantiates a new Asm class builder.
+     *
+     * @param asmFlags   the asm flags
+     * @param access     the access
+     * @param className  the class name
+     * @param superName  the super name
+     * @param interfaces the interfaces
+     * @param signature  the signature
+     */
+    public AsmClassBuilder(int asmFlags, int access, String className, String superName, String[] interfaces, String signature) {
         this.className = className;
         this.classDesc = ClassUtil.className2path(className);
+        this.classWriter = new ClassWriter(asmFlags);
         this.classWriter.visit(Opcodes.V1_8, access, this.classDesc, signature,
                 superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces).map(ClassUtil::className2path).toArray(String[]::new));
     }
