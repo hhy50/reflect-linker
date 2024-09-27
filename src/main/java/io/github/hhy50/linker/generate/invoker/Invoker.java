@@ -6,10 +6,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
@@ -68,12 +65,12 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     @Override
     protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         String superClass = method.getSuperClass();
-        Action superClassLoad = superClass != null ? LdcLoadAction.of(superClass) : Action.loadNull();
+        Action superClassLoad = superClass != null ? LdcLoadAction.of(superClass) : Actions.loadNull();
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_METHOD)
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass,
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
-                        Action.asArray(Type.getType(String.class), Arrays.stream(method.getArgsType())
+                        Actions.asArray(Type.getType(String.class), Arrays.stream(method.getArgsType())
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
                 );
         mhMember.store(methodBody, findGetter);

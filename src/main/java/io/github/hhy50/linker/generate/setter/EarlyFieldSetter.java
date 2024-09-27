@@ -50,9 +50,9 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
             if (!field.isStatic()) {
                 VarInst objVar = getter.invoke(body);
                 objVar.checkNullPointer(objVar.getName());
-                body.append(mhMember.invokeInstance(objVar, body.getArg(0)));
+                body.append(mhMember.invokeInstance(objVar, body.getArgs()));
             } else {
-                body.append(mhMember.invokeStatic(body.getArg(0)));
+                body.append(mhMember.invokeStatic(body.getArgs()));
             }
             AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
         });

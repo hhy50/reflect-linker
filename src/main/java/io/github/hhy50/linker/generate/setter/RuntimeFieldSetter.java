@@ -49,7 +49,7 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
             if (field.isDesignateStatic()) {
                 body.append(field.isStatic() ? mhMember.invokeStatic() : mhMember.invokeInstance(objVar));
             } else {
-                body.append(mhMember.invoke(objVar, body.getArg(0)));
+                body.append(mhMember.invoke(objVar, body.getArgs()));
             }
             AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
         });

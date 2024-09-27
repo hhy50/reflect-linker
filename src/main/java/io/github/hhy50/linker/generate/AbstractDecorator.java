@@ -94,7 +94,7 @@ public abstract class AbstractDecorator extends MethodHandle {
         if (r1 && (AsmUtil.isWrapType(varInst.getType()) || varInst.getType().getClassName().equals(Object.class.getName()))) {
             return methodBody.newLocalVar(expectType, new UnwrapTypeAction(varInst, expectType));
         } else if (r2 && (AsmUtil.isWrapType(expectType) || expectType.getClassName().equals(Object.class.getName()))) {
-            return methodBody.newLocalVar(expectType, new WrapTypeAction(varInst).onAfter(new TypeCastAction(Action.stackTop(), expectType)));
+            return methodBody.newLocalVar(expectType, new WrapTypeAction(varInst).onAfter(new TypeCastAction(Actions.stackTop(), expectType)));
         }
 
         if (r1 == r2) {
@@ -106,7 +106,7 @@ public abstract class AbstractDecorator extends MethodHandle {
                             Condition.ifFalse(new MethodInvokeAction(RuntimeUtil.TYPE_MATCH)
                                     .setArgs(varInst.getThisClass(), LdcLoadAction.of(expectType.getClassName())))
                     ),
-                    Action.throwTypeCastException(varInst.getName(), expectType),
+                    Actions.throwTypeCastException(varInst.getName(), expectType),
                     null
             ));
             return varInst;

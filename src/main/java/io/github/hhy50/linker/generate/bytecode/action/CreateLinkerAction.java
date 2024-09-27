@@ -27,7 +27,7 @@ public class CreateLinkerAction implements Action {
 
     @Override
     public void apply(MethodBody body) {
-        body.append(obj.ifNull(Action.returnNull(), new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER)
+        body.append(obj.ifNull(Actions.returnNull(), new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER)
                 .setArgs(LdcLoadAction.of(linkerType), obj)));;
     }
 }

@@ -9,6 +9,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -69,7 +70,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         VarInst lookupVar = lookupClass.getLookup(clinit);
 
         MethodInvokeAction findXXX;
-        Action argsType = Action.asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
+        Action argsType = Actions.asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
         if (invokeSpecial) {
             findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FIND_FINDSPECIAL).setArgs(
                     LdcLoadAction.of(AsmUtil.getType(superClass)),

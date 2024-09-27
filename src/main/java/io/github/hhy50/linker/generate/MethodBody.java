@@ -79,16 +79,6 @@ public class MethodBody {
     }
 
     /**
-     * Gets arg.
-     *
-     * @param i the
-     * @return the arg
-     */
-    public VarInst getArg(int i) {
-        return args[i];
-    }
-
-    /**
      * Get args var inst [ ].
      *
      * @return the var inst [ ]

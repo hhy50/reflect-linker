@@ -3,10 +3,7 @@ package io.github.hhy50.linker.generate.bytecode;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.entity.MethodDescriptor;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.Condition;
-import io.github.hhy50.linker.generate.bytecode.action.ConditionJumpAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.Type;
@@ -42,7 +39,7 @@ public class MethodHandleMember extends Member {
                 .setArgs(this);
         return new ConditionJumpAction(Condition.ifTrue(isStatic),
                 invokeStatic(args),
-                new ConditionJumpAction(Condition.isNull(that), Action.throwNullException(that.getName()), invokeInstance(that, args))
+                new ConditionJumpAction(Condition.isNull(that), Actions.throwNullException(that.getName()), invokeInstance(that, args))
         );
     }
 

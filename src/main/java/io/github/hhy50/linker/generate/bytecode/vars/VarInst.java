@@ -5,10 +5,7 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.entity.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
-import io.github.hhy50.linker.generate.bytecode.action.TypeCastAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -61,7 +58,7 @@ public abstract class VarInst implements LoadAction {
      */
     public void checkNullPointer(String nullerr) {
         if (type.getSort() > Type.DOUBLE) {
-            body.append(this.ifNull(Action.throwNullException(nullerr)));
+            body.append(this.ifNull(Actions.throwNullException(nullerr)));
         }
     }
 
@@ -73,7 +70,7 @@ public abstract class VarInst implements LoadAction {
      */
     public void checkNullPointer(String nullerr, Action elseBlock) {
         if (type.getSort() > Type.DOUBLE) {
-            body.append(this.ifNull(Action.throwNullException(nullerr), elseBlock));
+            body.append(this.ifNull(Actions.throwNullException(nullerr), elseBlock));
         }
     }
 
@@ -132,16 +129,16 @@ public abstract class VarInst implements LoadAction {
     public Action getTarget(Type providerType) {
         Type defaultType = Type.getType(DefaultTargetProviderImpl.class);
         if (this.type.equals(defaultType)) {
-            return Action.multi(
+            return Actions.multi(
                     new MethodInvokeAction(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET).setInstance(this),
-                    new TypeCastAction(Action.stackTop(), providerType)
+                    new TypeCastAction(Actions.stackTop(), providerType)
             );
         } else {
-            return Action.multi(
+            return Actions.multi(
                     new TypeCastAction(this, defaultType)
                             .onAfter(new MethodInvokeAction(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
-                                    .setInstance(Action.stackTop())),
-                    new TypeCastAction(Action.stackTop(), providerType)
+                                    .setInstance(Actions.stackTop())),
+                    new TypeCastAction(Actions.stackTop(), providerType)
             );
         }
     }
