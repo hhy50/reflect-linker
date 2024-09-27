@@ -2,12 +2,10 @@ package io.github.hhy50.linker.asm;
 
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.util.ClassUtil;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -64,7 +62,7 @@ public class AsmClassBuilder {
         this.classDesc = ClassUtil.className2path(className);
         this.classWriter = new ClassWriter(asmFlags);
         this.classWriter.visit(Opcodes.V1_8, access, this.classDesc, signature,
-                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces).map(ClassUtil::className2path).toArray(String[]::new));
+                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces == null?new String[0]:interfaces).map(ClassUtil::className2path).toArray(String[]::new));
     }
 
     /**
@@ -92,8 +90,12 @@ public class AsmClassBuilder {
      * @return the method builder
      */
     public MethodBuilder defineConstruct(int access, String[] argsType, String[] exceptions, String sign) {
-        MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "("+toDesc(argsType)+")V", sign, exceptions);
-        return new MethodBuilder(this, methodVisitor, "("+toDesc(argsType)+")V");
+        String types = "";
+        if (argsType != null && argsType.length > 0) {
+            types = Arrays.stream(argsType).map(AsmUtil::toTypeDesc).collect(Collectors.joining());
+        }
+        MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "("+types+")V", sign, exceptions);
+        return new MethodBuilder(this, methodVisitor, "("+types+")V");
     }
 
     /**
@@ -110,12 +112,15 @@ public class AsmClassBuilder {
         return new MethodBuilder(this, methodVisitor, methodDesc);
     }
 
-    private static String toDesc(String[] types) {
-        String typeDesc = "";
-        if (types != null && types.length > 0) {
-            typeDesc = Arrays.stream(types).map(AsmUtil::toTypeDesc).collect(Collectors.joining());
+    public AsmClassBuilder addAnnotation(String descriptor, Map<String, Object> props) {
+        AnnotationVisitor annotationVisitor = this.classWriter.visitAnnotation(descriptor, true);
+        if (props != null && props.size() > 0) {
+            for (Map.Entry<String, Object> kv : props.entrySet()) {
+                annotationVisitor.visit(kv.getKey(), kv.getValue());
+            }
         }
-        return typeDesc;
+        annotationVisitor.visitEnd();
+        return this;
     }
 
     /**

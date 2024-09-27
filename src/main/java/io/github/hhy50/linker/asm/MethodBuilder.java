@@ -1,9 +1,11 @@
 package io.github.hhy50.linker.asm;
 
 import io.github.hhy50.linker.generate.MethodBody;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -43,6 +45,17 @@ public class MethodBuilder {
         return this.classBuilder;
     }
 
+    public MethodBuilder addAnnotation(String descriptor, Map<String, Object> props) {
+        AnnotationVisitor annotationVisitor = this.methodVisitor.visitAnnotation(descriptor, true);
+        if (props != null && props.size() > 0) {
+            for (Map.Entry<String, Object> kv : props.entrySet()) {
+                annotationVisitor.visit(kv.getKey(), kv.getValue());
+            }
+        }
+        annotationVisitor.visitEnd();
+        return this;
+    }
+
     /**
      * Gets class builder.
      *
@@ -53,33 +66,11 @@ public class MethodBuilder {
     }
 
     /**
-     * Sets class builder.
-     *
-     * @param classBuilder the class builder
-     * @return the class builder
-     */
-    public MethodBuilder setClassBuilder(AsmClassBuilder classBuilder) {
-        this.classBuilder = classBuilder;
-        return this;
-    }
-
-    /**
      * Gets method visitor.
      *
      * @return the method visitor
      */
     public MethodVisitor getMethodVisitor() {
         return methodVisitor;
-    }
-
-    /**
-     * Sets method visitor.
-     *
-     * @param methodVisitor the method visitor
-     * @return the method visitor
-     */
-    public MethodBuilder setMethodVisitor(MethodVisitor methodVisitor) {
-        this.methodVisitor = methodVisitor;
-        return this;
     }
 }
