@@ -209,6 +209,18 @@ public class AsmUtil {
      * @return the type
      */
     public static Type getType(String clazz) {
+        Type primitiveType = getPrimitiveType(clazz);
+        if (primitiveType != null) return primitiveType;
+        return Type.getType(toTypeDesc(clazz));
+    }
+
+    /**
+     * Gets primitive type.
+     *
+     * @param clazz the clazz
+     * @return primitive type
+     */
+    public static Type getPrimitiveType(String clazz) {
         // 判断是否是基本数据类
         if (clazz.equals("byte")) {
             return Type.BYTE_TYPE;
@@ -234,6 +246,6 @@ public class AsmUtil {
         if (clazz.equals("char")) {
             return Type.CHAR_TYPE;
         }
-        return Type.getType(toTypeDesc(clazz));
+        return null;
     }
 }

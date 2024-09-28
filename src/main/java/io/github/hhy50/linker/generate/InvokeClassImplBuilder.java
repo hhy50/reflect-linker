@@ -61,12 +61,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     /**
      * builder a new InvokeClassImplBuilder
-     * @param access
-     * @param className
-     * @param superName
-     * @param interfaces
-     * @param sign
-     * @return
+     *
+     * @param access     the access
+     * @param className  the class name
+     * @param superName  the super name
+     * @param interfaces the interfaces
+     * @param sign       the sign
+     * @return invoke class impl builder
      */
     public static InvokeClassImplBuilder builder(int access, String className, String superName, String[] interfaces, String sign) {
         return new InvokeClassImplBuilder(access, className, superName, interfaces, sign);

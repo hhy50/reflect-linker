@@ -35,7 +35,14 @@ public class MethodInvokeAction implements TypedAction {
             arg.apply(body);
         }
 
-        String owner = methodDescriptor.getOwner() == null ? body.getClassBuilder().getClassOwner() : methodDescriptor.getOwner();
+        String owner = methodDescriptor.getOwner();
+        if (owner == null) {
+            if (instance != null && instance instanceof TypedAction) {
+                owner = ((TypedAction) instance).getType().getInternalName();
+            } else {
+                owner = body.getClassBuilder().getClassOwner();
+            }
+        }
         mv.visitMethodInsn(instance != null ? Opcodes.INVOKEVIRTUAL : Opcodes.INVOKESTATIC,
                 owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), false);
     }

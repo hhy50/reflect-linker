@@ -93,7 +93,9 @@ public class AsmClassBuilder {
     public MethodBuilder defineConstruct(int access, String[] argsType, String[] exceptions, String sign) {
         String types = "";
         if (argsType != null && argsType.length > 0) {
-            types = Arrays.stream(argsType).map(AsmUtil::toTypeDesc).collect(Collectors.joining());
+            types = Arrays.stream(argsType).map(AsmUtil::getType)
+                    .map(Type::getDescriptor)
+                    .collect(Collectors.joining());
         }
         MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "("+types+")V", sign, exceptions);
         return new MethodBuilder(this, methodVisitor, "("+types+")V");
@@ -133,7 +135,8 @@ public class AsmClassBuilder {
 
     /**
      * Get clinit method body.
-     * @return
+     *
+     * @return clinit
      */
     public MethodBody getClinit() {
         if (this.clinit == null) {

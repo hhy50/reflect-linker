@@ -1,6 +1,10 @@
 package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
+import org.objectweb.asm.Type;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * The type Method holder.
@@ -87,12 +91,38 @@ public class MethodDescriptor {
 
     /**
      * Of method descriptor.
-     * @param methodName
-     * @param methodDesc
-     * @return
+     *
+     * @param methodName the method name
+     * @param methodDesc the method desc
+     * @return method descriptor
      */
     public static MethodDescriptor of(String methodName, String methodDesc) {
         return new MethodDescriptor(null, methodName, methodDesc);
+    }
+
+    /**
+     * of method descriptor.
+     *
+     * @param methodName the method name
+     * @param rType      the r type
+     * @param argsType   the args type
+     * @return method descriptor
+     */
+    public static MethodDescriptor of(String methodName, Type rType, Type... argsType) {
+        return new MethodDescriptor(null, methodName, Type.getMethodDescriptor(rType, argsType));
+    }
+
+    /**
+     * of method descriptor.
+     *
+     * @param methodName the method name
+     * @param rType      the r type
+     * @param argsType   the args type
+     * @return method descriptor
+     */
+    public static MethodDescriptor of(String methodName, Class<?> rType, Class<?>... argsType) {
+        return new MethodDescriptor(null, methodName,
+                "("+Arrays.stream(argsType).map(Type::getDescriptor).collect(Collectors.joining(";"))+")"+Type.getDescriptor(rType));
     }
 
     /**

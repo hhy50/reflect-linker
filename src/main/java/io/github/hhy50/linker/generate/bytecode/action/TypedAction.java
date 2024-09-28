@@ -10,13 +10,15 @@ public interface TypedAction extends Action {
 
     /**
      * Get action result type
-     * @return
+     *
+     * @return type
      */
     Type getType();
 
     /**
      * Return this action result
-     * @return
+     *
+     * @return action
      */
     default Action thenReturn() {
         return body ->  {

@@ -148,8 +148,9 @@ public interface Actions {
 
     /**
      * Load args action.
-     * @param argIndices
-     * @return
+     *
+     * @param argIndices the arg indices
+     * @return action
      */
     static Action loadArgs(int... argIndices) {
         return body -> {
