@@ -40,7 +40,6 @@ public class ClassImplGenerator {
         Class<?> targetClass = defineClass.getTargetClass();
         InvokeClassImplBuilder classBuilder = InvokeClassImplBuilder
                 .builder(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
-                .setDefine(define)
                 .setTarget(targetClass)
                 .init();
 

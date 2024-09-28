@@ -4,11 +4,12 @@ import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * The type Method invoke action.
  */
-public class MethodInvokeAction implements Action {
+public class MethodInvokeAction implements TypedAction {
 
     private final MethodDescriptor methodDescriptor;
     private Action instance;
@@ -59,5 +60,10 @@ public class MethodInvokeAction implements Action {
     public MethodInvokeAction setArgs(Action... args) {
         this.args = args;
         return this;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.getMethodType(methodDescriptor.getDesc()).getReturnType();
     }
 }

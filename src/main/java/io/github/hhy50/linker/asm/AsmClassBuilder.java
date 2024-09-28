@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.asm;
 
+import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.*;
@@ -26,9 +27,9 @@ public class AsmClassBuilder {
      */
     protected String className;
     /**
-     * The Clinit method writer.
+     * The Clinit method body.
      */
-    protected MethodVisitor clinitMethodWriter;
+    protected MethodBody clinit;
     /**
      * The Class writer.
      */
@@ -131,17 +132,30 @@ public class AsmClassBuilder {
     }
 
     /**
+     * Get clinit method body.
+     * @return
+     */
+    public MethodBody getClinit() {
+        if (this.clinit == null) {
+            MethodVisitor mv = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null)
+                    .getMethodVisitor();
+            this.clinit = new MethodBody(this, mv, Type.getMethodType(Type.VOID_TYPE), true);
+        }
+        return this.clinit;
+    }
+
+    /**
      * End asm class builder.
      *
      * @return the asm class builder
      */
     public AsmClassBuilder end() {
-        this.classWriter.visitEnd();
-        if (this.clinitMethodWriter != null) {
-            this.clinitMethodWriter.visitInsn(Opcodes.RETURN);
-            this.clinitMethodWriter.visitMaxs(0, 0);
+        if (clinit != null) {
+            MethodVisitor mv = clinit.getWriter();
+            mv.visitInsn(Opcodes.RETURN);
+            mv.visitMaxs(0, 0);
         }
-
+        this.classWriter.visitEnd();
         return this;
     }
 

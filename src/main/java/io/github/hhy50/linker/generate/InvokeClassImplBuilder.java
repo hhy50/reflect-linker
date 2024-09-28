@@ -36,9 +36,7 @@ import java.util.Map;
  * The type Invoke class impl builder.
  */
 public class InvokeClassImplBuilder extends AsmClassBuilder {
-    private Class<?> defineClass;
     private Class<?> bindTarget;
-    private MethodBody clinit;
     private final Map<String, Getter<?>> getters;
     private final Map<String, Setter<?>> setters;
     private final Map<String, Invoker<?>> invokers;
@@ -84,17 +82,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
 
         this.getters.put(target.getUniqueName(), targetFieldGetter);
-        return this;
-    }
-
-    /**
-     * Sets define.
-     *
-     * @param define the define
-     * @return the define
-     */
-    public InvokeClassImplBuilder setDefine(Class<?> define) {
-        this.defineClass = define;
         return this;
     }
 
@@ -235,21 +222,5 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
             return classTypeMember;
         }
         return (ClassTypeMember) members.get(mName);
-    }
-
-    /**
-     * Gets clinit.
-     *
-     * @return the clinit
-     */
-    public MethodBody getClinit() {
-        if (clinitMethodWriter == null) {
-            clinitMethodWriter = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null)
-                    .getMethodVisitor();
-        }
-        if (clinit == null) {
-            clinit = new MethodBody(this, clinitMethodWriter, Type.getMethodType(Type.VOID_TYPE), true);
-        }
-        return clinit;
     }
 }

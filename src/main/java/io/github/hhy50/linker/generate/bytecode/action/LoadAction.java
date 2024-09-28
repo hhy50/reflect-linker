@@ -6,18 +6,12 @@ import org.objectweb.asm.Opcodes;
 /**
  * The interface Load action.
  */
-public interface LoadAction extends Action {
+public interface LoadAction extends TypedAction {
 
     /**
      * The constant LOAD0.
      */
-    Action LOAD0 = new LoadAction() {
-        @Override
-        public void load(MethodBody body) {
-            body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
-        }
-    /** Constant <code>LOAD0</code> */
-    };
+    Action LOAD0 = body -> body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
 
     @Override
     default void apply(MethodBody body) {

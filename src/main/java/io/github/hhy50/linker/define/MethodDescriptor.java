@@ -86,6 +86,16 @@ public class MethodDescriptor {
     }
 
     /**
+     * Of method descriptor.
+     * @param methodName
+     * @param methodDesc
+     * @return
+     */
+    public static MethodDescriptor of(String methodName, String methodDesc) {
+        return new MethodDescriptor(null, methodName, methodDesc);
+    }
+
+    /**
      * Gets owner.
      *
      * @return the owner

@@ -20,7 +20,7 @@ public interface Action {
      * @param after the after
      * @return the action
      */
-    default Action onAfter(Action after) {
+    default Action andThen(Action after) {
         return (body) -> {
             apply(body);
             after.apply(body);

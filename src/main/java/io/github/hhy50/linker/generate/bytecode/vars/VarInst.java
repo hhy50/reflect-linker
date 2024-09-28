@@ -1,9 +1,8 @@
 package io.github.hhy50.linker.generate.bytecode.vars;
 
 
-import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import org.objectweb.asm.MethodVisitor;
@@ -42,6 +41,25 @@ public abstract class VarInst implements LoadAction {
     @Override
     public void load(MethodBody methodBody) {
         methodBody.append((Consumer<MethodVisitor>) mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
+    }
+
+    /**
+     * Gets type.
+     *
+     * @return the type
+     */
+    @Override
+    public Type getType() {
+        return type;
+    }
+
+    /**
+     * Gets name.
+     *
+     * @return the name
+     */
+    public String getName() {
+        return "slot["+lvbIndex+",type="+type.getClassName()+"]";
     }
 
     /**
@@ -95,29 +113,10 @@ public abstract class VarInst implements LoadAction {
     }
 
     /**
-     * Gets name.
-     *
-     * @return the name
-     */
-    public String getName() {
-        return "slot["+lvbIndex+",type="+type.getClassName()+"]";
-    }
-
-    /**
-     * Gets type.
-     *
-     * @return the type
-     */
-    public Type getType() {
-        return type;
-    }
-
-    /**
      * Return this.
      */
     public void returnThis() {
-        load(body);
-        AsmUtil.areturn(body.getWriter(), type);
+        this.thenReturn().apply(body);
     }
 
     /**
@@ -136,7 +135,7 @@ public abstract class VarInst implements LoadAction {
         } else {
             return Actions.multi(
                     new TypeCastAction(this, defaultType)
-                            .onAfter(new MethodInvokeAction(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
+                            .andThen(new MethodInvokeAction(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
                                     .setInstance(Actions.stackTop())),
                     new TypeCastAction(Actions.stackTop(), providerType)
             );
