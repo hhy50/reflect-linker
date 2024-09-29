@@ -7,6 +7,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
@@ -65,6 +66,14 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
                 .setInstance(LoadAction.LOAD0);
         return methodBody.newLocalVar(methodType.getReturnType(), field.fieldName, invoker);
     }
+
+//    public Action invoke() {
+//        // Object a = get_a();
+//        MethodInvokeAction invoker = new MethodInvokeAction(methodDescriptor)
+//                .setInstance(LoadAction.LOAD0);
+//        return methodBody.newLocalVar(methodType.getReturnType(), field.fieldName, invoker);
+//    }
+
 
     @Override
     protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {

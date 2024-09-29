@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.getter;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
@@ -13,6 +12,7 @@ import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
 
 
 /**
@@ -47,16 +47,21 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
-                .accept(body -> {
-                    if (!field.isStatic()) {
-                        VarInst objVar = getter.invoke(body);
-                        objVar.checkNullPointer(objVar.getName());
-                        body.append(mhMember.invokeInstance(objVar));
-                    } else {
-                        body.append(mhMember.invokeStatic());
-                    }
-                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
-                });
+                .intercept((field.isStatic()
+                        ? mhMember.invokeStatic()
+                        : getter.invoke().peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst)))
+                        .thenReturn()
+                );
+//                .accept(body -> {
+//                    if (!field.isStatic()) {
+//                        VarInst objVar = getter.invoke(body);
+//                        objVar.checkNullPointer(objVar.getName());
+//                        body.append(mhMember.invokeInstance(objVar));
+//                    } else {
+//                        body.append(mhMember.invokeStatic());
+//                    }
+//                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
+//                });
     }
 
     @Override

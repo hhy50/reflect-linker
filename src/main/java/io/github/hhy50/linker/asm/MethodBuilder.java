@@ -1,9 +1,10 @@
 package io.github.hhy50.linker.asm;
 
+import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -13,23 +14,25 @@ import java.util.function.Consumer;
  */
 public class MethodBuilder {
 
-    private AsmClassBuilder classBuilder;
+    private final AsmClassBuilder classBuilder;
 
-    private MethodVisitor methodVisitor;
+    private final MethodBody methodBody;
 
-    private final String methodDesc;
+    private final MethodDescriptor methodDescriptor;
+
+    private final boolean isStatic;
 
     /**
-     * Instantiates a new Method builder.
-     *
-     * @param classBuilder  the class builder
-     * @param methodVisitor the method visitor
-     * @param methodDesc    the method desc
+     * @param classBuilder
+     * @param md
+     * @param isStatic
+     * @param methodVisitor
      */
-    public MethodBuilder(AsmClassBuilder classBuilder, MethodVisitor methodVisitor, String methodDesc) {
+    public MethodBuilder(AsmClassBuilder classBuilder, MethodDescriptor md, boolean isStatic, MethodVisitor methodVisitor) {
         this.classBuilder = classBuilder;
-        this.methodVisitor = methodVisitor;
-        this.methodDesc = methodDesc;
+        this.methodDescriptor = md;
+        this.isStatic = isStatic;
+        this.methodBody = new MethodBody(this, methodVisitor);
     }
 
     /**
@@ -39,9 +42,21 @@ public class MethodBuilder {
      * @return the asm class builder
      */
     public AsmClassBuilder accept(Consumer<MethodBody> consumer) {
-        MethodBody body = new MethodBody(this.classBuilder, this.methodVisitor, Type.getMethodType(methodDesc));
-        consumer.accept(body);
-        this.methodVisitor.visitMaxs(0, 0); // auto
+        consumer.accept(methodBody);
+
+        this.methodBody.end();
+        return this.classBuilder;
+    }
+
+    /**
+     * Intercept asm class builder.
+     * @param action
+     * @return
+     */
+    public AsmClassBuilder intercept(Action action) {
+        action.apply(methodBody);
+
+        this.methodBody.end();
         return this.classBuilder;
     }
 
@@ -53,7 +68,8 @@ public class MethodBuilder {
      * @return the method builder
      */
     public MethodBuilder addAnnotation(String descriptor, Map<String, Object> props) {
-        AnnotationVisitor annotationVisitor = this.methodVisitor.visitAnnotation(descriptor, true);
+        AnnotationVisitor annotationVisitor = this.methodBody.getWriter()
+                .visitAnnotation(descriptor, true);
         if (props != null && props.size() > 0) {
             for (Map.Entry<String, Object> kv : props.entrySet()) {
                 annotationVisitor.visit(kv.getKey(), kv.getValue());
@@ -73,11 +89,34 @@ public class MethodBuilder {
     }
 
     /**
-     * Gets method visitor.
-     *
-     * @return the method visitor
+     * Gets method body.
+     * @return
      */
-    public MethodVisitor getMethodVisitor() {
-        return methodVisitor;
+    public MethodBody getMethodBody() {
+        return methodBody;
+    }
+
+    /**
+     * Gets method name.
+     * @return
+     */
+    public MethodDescriptor getMethodDescriptor() {
+        return methodDescriptor;
+    }
+
+    /**
+     * Gets method desc.
+     * @return
+     */
+    public String getMethodDesc() {
+        return methodDescriptor.getDesc();
+    }
+
+    /**
+     * Is static boolean.
+     * @return
+     */
+    public boolean isStatic() {
+        return isStatic;
     }
 }

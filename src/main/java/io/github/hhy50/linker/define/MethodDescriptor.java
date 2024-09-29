@@ -3,6 +3,7 @@ package io.github.hhy50.linker.define;
 import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -60,9 +61,9 @@ public class MethodDescriptor {
      */
     public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of("java/lang/Class", "getClassLoader", "()Ljava/lang/ClassLoader;");
 
-    private final String owner;
-    private final String methodName;
-    private final String methodDesc;
+    private String owner;
+    private String methodName;
+    private String methodDesc;
 
     /**
      * Instantiates a new Method holder.
@@ -126,6 +127,27 @@ public class MethodDescriptor {
     }
 
     /**
+     * of method descriptor.
+     *
+     * @param method the method
+     * @return method descriptor
+     */
+    public static MethodDescriptor of(Method method) {
+        return of(method.getName(), method.getReturnType(), method.getParameterTypes());
+    }
+
+    /**
+     * of method descriptor.
+     *
+     * @param argsType the args type
+     * @return method descriptor
+     */
+    public static MethodDescriptor ofConstructor(Class<?>... argsType) {
+        return of("<init>", void.class, argsType);
+    }
+
+
+    /**
      * Gets owner.
      *
      * @return the owner
@@ -150,5 +172,14 @@ public class MethodDescriptor {
      */
     public String getDesc() {
         return methodDesc;
+    }
+
+    /**
+     * Set owner.
+     *
+     * @param owner the owner
+     */
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }

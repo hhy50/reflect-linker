@@ -1,5 +1,7 @@
 package io.github.hhy50.linker.asm;
 
+import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.exceptions.ClassBuildException;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.util.ClassUtil;
@@ -17,15 +19,18 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
  * The type Asm class builder.
  */
 public class AsmClassBuilder {
-
+    /**
+     * The Class name.
+     */
+    protected String className;
     /**
      * The Class desc.
      */
     protected String classOwner;
     /**
-     * The Class name.
+     * The Super desc.
      */
-    protected String className;
+    protected String superOwner;
     /**
      * The Clinit method body.
      */
@@ -34,6 +39,10 @@ public class AsmClassBuilder {
      * The Class writer.
      */
     protected ClassWriter classWriter;
+    /**
+     * The Members.
+     */
+    protected final Map<String, Member> members;
 
     /**
      * Instantiates a new Asm class builder.
@@ -61,9 +70,23 @@ public class AsmClassBuilder {
     public AsmClassBuilder(int asmFlags, int access, String className, String superName, String[] interfaces, String signature) {
         this.className = className;
         this.classOwner = ClassUtil.className2path(className);
+        this.superOwner = superName != null ? ClassUtil.className2path(superName) : "java/lang/Object";
         this.classWriter = new ClassWriter(asmFlags);
-        this.classWriter.visit(Opcodes.V1_8, access, this.classOwner, signature,
-                superName != null ? ClassUtil.className2path(superName) : "java/lang/Object", Arrays.stream(interfaces == null ? new String[0] : interfaces).map(ClassUtil::className2path).toArray(String[]::new));
+        this.members = new java.util.HashMap<>();;
+        this.classWriter.visit(Opcodes.V1_8, access, this.classOwner, signature, this.superOwner,
+                Arrays.stream(interfaces == null ? new String[0] : interfaces).map(ClassUtil::className2path).toArray(String[]::new));
+    }
+
+    /**
+     *
+     * @param access
+     * @param fieldName
+     * @param fieldType
+     * @return
+     */
+    public AsmClassBuilder defineField(int access, String fieldName, Class<?> fieldType) {
+        defineField(access, fieldName, Type.getType(fieldType), null, null);
+        return this;
     }
 
     /**
@@ -77,28 +100,23 @@ public class AsmClassBuilder {
      * @return the member
      */
     public Member defineField(int access, String fieldName, Type fieldType, String fieldSignature, Object value) {
-        this.classWriter.visitField(access, fieldName, fieldType.getDescriptor(), fieldSignature, value);
-        return new Member(access, classOwner, fieldName, fieldType);
+        return members.compute(fieldName, (k, v) -> {
+            if (v != null) {
+                throw new ClassBuildException("Repeatedly defining fields with the same name");
+            }
+            this.classWriter.visitField(access, fieldName, fieldType.getDescriptor(), fieldSignature, value);
+            return new Member(access, classOwner, fieldName, fieldType);
+        });
     }
 
-    /**
-     * Define construct method builder.
-     *
-     * @param access     the access
-     * @param argsType   the args type
-     * @param exceptions the exceptions
-     * @param sign       the sign
-     * @return the method builder
-     */
-    public MethodBuilder defineConstruct(int access, String[] argsType, String[] exceptions, String sign) {
+    public MethodBuilder defineConstruct(int access, Class<?>... argsType) {
         String types = "";
         if (argsType != null && argsType.length > 0) {
-            types = Arrays.stream(argsType).map(AsmUtil::getType)
+            types = Arrays.stream(argsType)
                     .map(Type::getDescriptor)
                     .collect(Collectors.joining());
         }
-        MethodVisitor methodVisitor = this.classWriter.visitMethod(access, "<init>", "("+types+")V", sign, exceptions);
-        return new MethodBuilder(this, methodVisitor, "("+types+")V");
+        return defineMethod(access, "<init>", "("+types+")V", null);
     }
 
     /**
@@ -111,8 +129,8 @@ public class AsmClassBuilder {
      * @return the method builder
      */
     public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions) {
-        MethodVisitor methodVisitor = this.classWriter.visitMethod(access, methodName, methodDesc, null, exceptions);
-        return new MethodBuilder(this, methodVisitor, methodDesc);
+        MethodVisitor mv = this.classWriter.visitMethod(access, methodName, methodDesc, null, exceptions);
+        return new MethodBuilder(this, MethodDescriptor.of(methodName, methodDesc), (access&Opcodes.ACC_STATIC) > 0, mv);
     }
 
     /**
@@ -140,9 +158,8 @@ public class AsmClassBuilder {
      */
     public MethodBody getClinit() {
         if (this.clinit == null) {
-            MethodVisitor mv = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null)
-                    .getMethodVisitor();
-            this.clinit = new MethodBody(this, mv, Type.getMethodType(Type.VOID_TYPE), true);
+            MethodBuilder methodBuilder = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null);
+            this.clinit = methodBuilder.getMethodBody();
         }
         return this.clinit;
     }
@@ -187,5 +204,17 @@ public class AsmClassBuilder {
      */
     public String getClassName() {
         return this.className;
+    }
+
+    public String getSuperOwner() {
+        return superOwner;
+    }
+
+    /**
+     * Get all members
+     * @return
+     */
+    public Map<String, Member> getMembers() {
+        return members;
     }
 }
