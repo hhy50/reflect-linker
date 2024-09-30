@@ -54,7 +54,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                 .accept(body -> {
                     if (!method.isStatic()) {
                         VarInst objVar = getter.invoke(body);
-                        objVar.checkNullPointer(objVar.getName());
+                        objVar.checkNullPointer();
                         body.append(mhMember.invokeInstance(objVar, body.getArgs()));
                     } else {
                         body.append(mhMember.invokeStatic(body.getArgs()));

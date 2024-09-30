@@ -72,14 +72,7 @@ public abstract class VarInst implements LoadAction {
     /**
      * Check null pointer.
      *
-     * @param nullerr the nullerr
      */
-    public void checkNullPointer(String nullerr) {
-        if (type.getSort() > Type.DOUBLE) {
-            body.append(this.ifNull(Actions.throwNullException(nullerr)));
-        }
-    }
-
     public void checkNullPointer() {
         if (type.getSort() > Type.DOUBLE) {
             body.append(this.ifNull(Actions.throwNullException(this.getName())));

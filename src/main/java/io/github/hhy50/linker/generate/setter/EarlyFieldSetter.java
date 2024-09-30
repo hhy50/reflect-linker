@@ -49,7 +49,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null).accept(body -> {
             if (!field.isStatic()) {
                 VarInst objVar = getter.invoke(body);
-                objVar.checkNullPointer(objVar.getName());
+                objVar.checkNullPointer();
                 body.append(mhMember.invokeInstance(objVar, body.getArgs()));
             } else {
                 body.append(mhMember.invokeStatic(body.getArgs()));
