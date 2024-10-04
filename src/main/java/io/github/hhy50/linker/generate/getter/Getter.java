@@ -64,10 +64,6 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         return methodBody.newLocalVar(methodType.getReturnType(), field.fieldName, invoker);
     }
 
-    public ChainAction<VarInst> invoke() {
-        return ChainAction.of(this::invoke);
-    }
-
     @Override
     protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         // mh = Runtime.findGetter(lookup, "field");

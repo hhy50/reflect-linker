@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -162,6 +163,12 @@ public interface Actions {
             for (int i = 0; i < indices.length; i++) {
                 args[indices[i]].load(body);
             }
+        };
+    }
+
+    static Action areturn(Type rType) {
+        return body ->  {
+            AsmUtil.areturn(body.getWriter(), rType);
         };
     }
 }

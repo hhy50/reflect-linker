@@ -8,8 +8,7 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
@@ -46,16 +45,12 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         initStaticMethodHandle(clinit, mhMember, lookupClass, field.fieldName, field.getType(), field.isStatic());
 
         // 定义当前字段的 setter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null).accept(body -> {
-            if (!field.isStatic()) {
-                VarInst objVar = getter.invoke(body);
-                objVar.checkNullPointer();
-                body.append(mhMember.invokeInstance(objVar, body.getArgs()));
-            } else {
-                body.append(mhMember.invokeStatic(body.getArgs()));
-            }
-            AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
-        });
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+                .intercept((field.isStatic()
+                        ? mhMember.invokeStatic(Actions.loadArgs())
+                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Actions.loadArgs())))
+                        .andThen(Actions.areturn(Type.VOID_TYPE))
+                );
     }
 
     @Override

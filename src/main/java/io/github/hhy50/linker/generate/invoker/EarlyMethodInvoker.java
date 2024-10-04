@@ -8,10 +8,7 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
@@ -49,18 +46,12 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         initStaticMethodHandle(clinit, mhMember, ownerType, method.getName(), method.getMethodType(), method.isStatic());
 
         // 定义当前方法的invoker
-        classImplBuilder
-                .defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
-                .accept(body -> {
-                    if (!method.isStatic()) {
-                        VarInst objVar = getter.invoke(body);
-                        objVar.checkNullPointer();
-                        body.append(mhMember.invokeInstance(objVar, body.getArgs()));
-                    } else {
-                        body.append(mhMember.invokeStatic(body.getArgs()));
-                    }
-                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
-                });
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+                .intercept((method.isStatic()
+                        ? mhMember.invokeStatic(Actions.loadArgs())
+                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Actions.loadArgs())))
+                        .andThen(Actions.areturn(methodType.getReturnType()))
+                );
     }
 
     @Override

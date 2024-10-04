@@ -2,8 +2,6 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.MethodBody;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -12,31 +10,22 @@ import java.util.function.Function;
 /**
  * @param <T>
  */
-public class ChainAction<T> implements Action {
-
-    protected Function<MethodBody, T> func;
-    protected List<Consumer<T>> consumers;
-    protected Next<T, ?> next;
+public class ChainAction<T> extends AbstractChain<MethodBody, T> {
 
     public ChainAction(Function<MethodBody, T> func) {
-        this.func = func;
+        super(func);
     }
 
     @Override
-    public final void apply(MethodBody body) {
-        T r = func.apply(body);
-        if (consumers != null) {
-            for (Consumer<T> consumer : consumers) {
-                consumer.accept(r);
-            }
+    public void apply(MethodBody body) {
+        T t = doChain(body);
+        if (t instanceof Action) {
+            ((Action) t).apply(body);
         }
     }
 
-    public ChainAction<T> peek(Consumer<T> consumer) {
-        if (consumers == null) {
-            consumers = new ArrayList<>();
-        }
-        consumers.add(consumer);
+    public final ChainAction<T> peek(Consumer<T> consumer) {
+        addConsumer(consumer);
         return this;
     }
 
@@ -44,53 +33,31 @@ public class ChainAction<T> implements Action {
         return new ChainAction<>(bifunc);
     }
 
-    public <R> ChainAction<R> then(BiFunction<T, MethodBody, R> func) {
-//        return new ChainAction<>(body -> func.apply(r, body));
+    public <Out> ChainAction<Out> map(Function<T, Out> func) {
+        return new Next<>(this, func);
     }
 
-    static class Next<T, R> {
-
-        private BiFunction<T, MethodBody, R> bifunc;
-
-        private Next(BiFunction<T, MethodBody, R> bifunc) {
-            this.bifunc = bifunc;
-        }
+    public <Out> ChainAction<Out> then(BiFunction<T, MethodBody, Out> func) {
+        return new Next<>(this, func);
     }
 
-    public static void main(String[] args) {
-        class User {
-
-        }
-
-        class User2 {
-
-        }
-
-        ChainAction<User> chainAction = ChainAction.of(body -> new User());
-        chainAction.peek(System.out::println);
-        chainAction.peek(System.out::println);
-        chainAction.peek(System.out::println);
-        chainAction.peek(System.out::println);
-
-        ChainAction<User2> newChain = chainAction.then((user, body) -> new User2());
-        newChain = chainAction.then((user, body) -> {
-            System.out.println(1234);
-            return new User2();
-        });
-        newChain = chainAction.then((user, body) -> {
-            System.out.println(4567);
-            return new User2();
-        });
-        newChain = chainAction.then((user, body) -> {
-            System.out.println(90);
-            return new User2();
-        });
-        newChain = chainAction.then((user, body) -> {
-            System.out.println(1);
-            return new User2();
-        });
-
-        newChain.apply(null);
+    public <Out> ChainAction<Out> then(Function<T, Out> func) {
+        return new Next<>(this, func);
     }
 
+    static class Next<In, Out> extends ChainAction<Out> {
+        public Next(ChainAction<In> prevAction, BiFunction<In, MethodBody, Out> func) {
+            super((body) -> {
+                In in = prevAction.doChain(body);
+                return func.apply(in, body);
+            });
+        }
+
+        public Next(ChainAction<In> prevAction, Function<In, Out> func) {
+            super((body) -> {
+                In in = prevAction.doChain(body);
+                return func.apply(in);
+            });
+        }
+    }
 }

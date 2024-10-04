@@ -26,7 +26,6 @@ public class MethodHandleMember extends Member {
         this.methodType = methodType;
     }
 
-
     /**
      * Invoke action.
      *
@@ -34,7 +33,7 @@ public class MethodHandleMember extends Member {
      * @param args the args
      * @return the action
      */
-    public Action invoke(VarInst that, VarInst... args) {
+    public Action invoke(VarInst that, Action... args) {
         MethodInvokeAction isStatic = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
                 .setArgs(this);
         return new ConditionJumpAction(Condition.ifTrue(isStatic),
@@ -49,7 +48,7 @@ public class MethodHandleMember extends Member {
      * @param args the args
      * @return the action
      */
-    public Action invokeStatic(VarInst... args) {
+    public Action invokeStatic(Action... args) {
         return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
                 .setInstance(this)
                 .setArgs(args);
@@ -62,8 +61,8 @@ public class MethodHandleMember extends Member {
      * @param args the args
      * @return the action
      */
-    public Action invokeInstance(VarInst that, VarInst... args) {
-        VarInst[] newArgs = new VarInst[args.length+1];
+    public Action invokeInstance(VarInst that, Action... args) {
+        Action[] newArgs = new Action[args.length+1];
         newArgs[0] = that;
         System.arraycopy(args, 0, newArgs, 1, args.length);
 

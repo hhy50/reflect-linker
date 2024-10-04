@@ -7,12 +7,10 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
 
 
 /**
@@ -46,22 +44,12 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         initStaticMethodHandle(clinit, mhMember, lookupClass, field.fieldName, field.getType(), field.isStatic());
 
         // 定义当前字段的getter
-//        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
-//                .intercept((field.isStatic()
-//                        ? mhMember.invokeStatic()
-//                        : getter.invoke().peek(VarInst::checkNullPointer).then((varInst, body) -> mhMember.invokeInstance(varInst)))
-//                        .thenReturn()
-//                );
-//                .accept(body -> {
-//                    if (!field.isStatic()) {
-//                        VarInst objVar = getter.invoke(body);
-//                        objVar.checkNullPointer(objVar.getName());
-//                        body.append(mhMember.invokeInstance(objVar));
-//                    } else {
-//                        body.append(mhMember.invokeStatic());
-//                    }
-//                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
-//                });
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+                .intercept((field.isStatic()
+                        ? mhMember.invokeStatic()
+                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst ->  mhMember.invokeInstance(varInst)))
+                        .andThen(Actions.areturn(methodType.getReturnType()))
+                );
     }
 
     @Override
