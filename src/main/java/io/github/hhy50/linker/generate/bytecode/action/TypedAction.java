@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import org.objectweb.asm.Type;
 
 /**
@@ -14,16 +13,4 @@ public interface TypedAction extends Action {
      * @return type
      */
     Type getType();
-
-    /**
-     * Return this action result
-     *
-     * @return action
-     */
-    default Action thenReturn() {
-        return body ->  {
-            apply(body);
-            AsmUtil.areturn(body.getWriter(), getType());
-        };
-    }
 }

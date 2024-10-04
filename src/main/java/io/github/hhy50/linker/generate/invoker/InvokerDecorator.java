@@ -47,9 +47,8 @@ public class InvokerDecorator extends AbstractDecorator {
 
         Class<?> rClassType = methodDefine.define.getReturnType();
         if (result != null && rClassType != Void.TYPE) {
-//            result.ifNull(methodBody, returnNull());
-            result = typecastResult(methodBody, result, rClassType);
-            result.returnThis();
+            typecastResult(methodBody, result, rClassType)
+                    .returnThis();
         } else {
             AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);
         }

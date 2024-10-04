@@ -201,7 +201,7 @@ public abstract class MethodHandle {
                 this.clazzVar = body.newLocalVar(Type.getType(Class.class), new MethodInvokeAction(Runtime.GET_CLASS)
                         .setArgs(cl, LdcLoadAction.of(type.getClassName())));
             }
-            clazzVar.load(body);
+            clazzVar.loadToStack();
         }
     }
 }

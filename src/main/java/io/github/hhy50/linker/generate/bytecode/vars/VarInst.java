@@ -103,7 +103,8 @@ public abstract class VarInst implements LoadAction {
      * Return this.
      */
     public void returnThis() {
-        this.thenReturn().apply(body);
+        loadToStack();
+        Actions.areturn(getType()).apply(body);
     }
 
     /**

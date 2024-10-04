@@ -7,7 +7,10 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
+import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
+import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -47,7 +50,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
                 .intercept((field.isStatic()
                         ? mhMember.invokeStatic()
-                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst ->  mhMember.invokeInstance(varInst)))
+                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst)))
                         .andThen(Actions.areturn(methodType.getReturnType()))
                 );
     }

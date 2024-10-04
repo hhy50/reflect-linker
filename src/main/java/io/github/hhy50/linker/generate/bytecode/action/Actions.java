@@ -161,7 +161,7 @@ public interface Actions {
                 indices = IntStream.range(0, args.length).toArray();
             }
             for (int i = 0; i < indices.length; i++) {
-                args[indices[i]].load(body);
+                args[indices[i]].loadToStack();
             }
         };
     }
