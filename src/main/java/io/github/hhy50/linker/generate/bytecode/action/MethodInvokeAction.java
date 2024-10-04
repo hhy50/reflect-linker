@@ -6,14 +6,16 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.Objects;
+
 /**
  * The type Method invoke action.
  */
 public class MethodInvokeAction implements TypedAction {
 
-    private final MethodDescriptor methodDescriptor;
-    private Action instance;
-    private Action[] args;
+    protected MethodDescriptor methodDescriptor;
+    protected Action instance;
+    protected Action[] args;
 
     /**
      * Instantiates a new Method invoke action.
@@ -22,7 +24,6 @@ public class MethodInvokeAction implements TypedAction {
      */
     public MethodInvokeAction(MethodDescriptor methodDescriptor) {
         this.methodDescriptor = methodDescriptor;
-        this.args = new LoadAction[0];
     }
 
     @Override
@@ -31,8 +32,8 @@ public class MethodInvokeAction implements TypedAction {
         if (instance != null) {
             instance.apply(body);
         }
-        for (Action arg : args) {
-            arg.apply(body);
+        for (int i = 0; i < (args == null ? 0 : args.length); i++) {
+            args[i].apply(body);
         }
 
         String owner = methodDescriptor.getOwner();
@@ -43,8 +44,15 @@ public class MethodInvokeAction implements TypedAction {
                 owner = body.getClassBuilder().getClassOwner();
             }
         }
-        mv.visitMethodInsn(instance != null ? Opcodes.INVOKEVIRTUAL : Opcodes.INVOKESTATIC,
+        mv.visitMethodInsn(getOpCode(),
                 owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), false);
+    }
+
+    public int getOpCode() {
+        if (methodDescriptor.getMethodName().equals("<init>")) {
+            return Opcodes.INVOKESPECIAL;
+        }
+        return instance != null ? Opcodes.INVOKEVIRTUAL : Opcodes.INVOKESTATIC;
     }
 
     /**
@@ -72,5 +80,65 @@ public class MethodInvokeAction implements TypedAction {
     @Override
     public Type getType() {
         return Type.getMethodType(methodDescriptor.getDesc()).getReturnType();
+    }
+
+    public static MethodInvokeAction invokeSuper() {
+        return invokeSuper(null, null);
+    }
+
+    public static MethodInvokeAction invokeSuper(String superOwner) {
+        return invokeSuper(superOwner, null);
+    }
+
+    public static MethodInvokeAction invokeSuper(MethodDescriptor md) {
+        return invokeSuper(null, md);
+    }
+
+    public static MethodInvokeAction invokeSuper(String superOwner, MethodDescriptor md) {
+        return new InvokeSupper(superOwner, md);
+    }
+
+    /**
+     * invokeSuper method
+     */
+    static class InvokeSupper extends MethodInvokeAction {
+
+        private String superOwner;
+
+        /**
+         * @param superOwner
+         * @param md
+         */
+        public InvokeSupper(String superOwner, MethodDescriptor md) {
+            super(md);
+            this.instance = LoadAction.LOAD0;
+            this.superOwner = superOwner;
+        }
+
+        @Override
+        public void apply(MethodBody body) {
+            if (args == null) {
+                args = body.getArgs();
+            }
+            if (this.superOwner == null) {
+                this.superOwner = body.getClassBuilder().getSuperOwner();
+            }
+            if (this.methodDescriptor == null) {
+                this.methodDescriptor = body.getMethodDescriptor();
+            }
+            if (!Objects.equals(methodDescriptor.getOwner(), superOwner)) {
+                methodDescriptor.setOwner(superOwner);
+            }
+            super.apply(body);
+        }
+
+        public int getOpCode() {
+            return Opcodes.INVOKESPECIAL;
+        }
+
+        @Override
+        public MethodInvokeAction setInstance(Action instance) {
+            throw new UnsupportedOperationException("InvokeSupper() method not support set invoke object");
+        }
     }
 }

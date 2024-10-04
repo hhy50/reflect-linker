@@ -72,23 +72,10 @@ public abstract class VarInst implements LoadAction {
     /**
      * Check null pointer.
      *
-     * @param nullerr the nullerr
      */
-    public void checkNullPointer(String nullerr) {
+    public void checkNullPointer() {
         if (type.getSort() > Type.DOUBLE) {
-            body.append(this.ifNull(Actions.throwNullException(nullerr)));
-        }
-    }
-
-    /**
-     * Check null pointer.
-     *
-     * @param nullerr   the nullerr
-     * @param elseBlock the else block
-     */
-    public void checkNullPointer(String nullerr, Action elseBlock) {
-        if (type.getSort() > Type.DOUBLE) {
-            body.append(this.ifNull(Actions.throwNullException(nullerr), elseBlock));
+            body.append(this.ifNull(Actions.throwNullException(this.getName())));
         }
     }
 
@@ -116,7 +103,8 @@ public abstract class VarInst implements LoadAction {
      * Return this.
      */
     public void returnThis() {
-        this.thenReturn().apply(body);
+        loadToStack();
+        Actions.areturn(getType()).apply(body);
     }
 
     /**

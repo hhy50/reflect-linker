@@ -28,7 +28,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +39,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     private final Map<String, Getter<?>> getters;
     private final Map<String, Setter<?>> setters;
     private final Map<String, Invoker<?>> invokers;
-    private final Map<String, Member> members;
 
     /**
      * Instantiates a new Invoke class impl builder.
@@ -56,7 +54,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         this.getters = new HashMap<>();
         this.setters = new HashMap<>();
         this.invokers = new HashMap<>();
-        this.members = new HashMap<>();
     }
 
     /**
@@ -94,8 +91,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
         this.bindTarget = bindTarget;
-        String argsType = Modifier.isPublic(bindTarget.getModifiers()) ? bindTarget.getName() : "java.lang.Object";
-        this.defineConstruct(Opcodes.ACC_PUBLIC, new String[]{argsType}, null, "")
+        this.defineConstruct(Opcodes.ACC_PUBLIC, Object.class)
                 .accept(body -> {
                     MethodVisitor mv = body.getWriter();
                     mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -176,10 +172,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            Member member = super.defineField(access, mhMemberName, MethodHandle.TYPE, null, null);
-            this.members.put(mhMemberName, new MethodHandleMember(member, methodType));
+            super.defineField(access, mhMemberName, MethodHandle.TYPE, null, null);
         }
-        return (MethodHandleMember) members.get(mhMemberName);
+        return new MethodHandleMember(members.get(mhMemberName), methodType);
     }
 
     /**
@@ -191,10 +186,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public MethodHandleMember defineMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
-            Member member = super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, MethodHandle.TYPE, null, null);
-            this.members.put(mhMemberName, new MethodHandleMember(member, methodType));
+            super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, MethodHandle.TYPE, null, null);
         }
-        return (MethodHandleMember) members.get(mhMemberName);
+        return new MethodHandleMember(members.get(mhMemberName), methodType);
     }
 
     /**

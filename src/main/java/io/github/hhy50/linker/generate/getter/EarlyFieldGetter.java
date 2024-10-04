@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.getter;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
@@ -8,6 +7,8 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -47,16 +48,11 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
         // 定义当前字段的getter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
-                .accept(body -> {
-                    if (!field.isStatic()) {
-                        VarInst objVar = getter.invoke(body);
-                        objVar.checkNullPointer(objVar.getName());
-                        body.append(mhMember.invokeInstance(objVar));
-                    } else {
-                        body.append(mhMember.invokeStatic());
-                    }
-                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
-                });
+                .intercept((field.isStatic()
+                        ? mhMember.invokeStatic()
+                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst)))
+                        .andThen(Actions.areturn(methodType.getReturnType()))
+                );
     }
 
     @Override

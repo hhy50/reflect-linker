@@ -2,6 +2,8 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmUtil;
+import io.github.hhy50.linker.asm.MethodBuilder;
+import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -15,35 +17,24 @@ import java.util.function.Consumer;
  * The type Method body.
  */
 public class MethodBody {
-    private final AsmClassBuilder classBuilder;
+    private final MethodBuilder methodBuilder;
+
     private final MethodVisitor writer;
     private int lvbIndex;
-    private VarInst[] args;
+    private final VarInst[] args;
 
     /**
      * Instantiates a new Method body.
      *
-     * @param classBuilder the class builder
-     * @param mv           the mv
-     * @param methodType   the method type
+     * @param methodBuilder the method builder
+     * @param mv            the method writer
      */
-    public MethodBody(AsmClassBuilder classBuilder, MethodVisitor mv, Type methodType) {
-        this(classBuilder, mv, methodType, false);
-    }
+    public MethodBody(MethodBuilder methodBuilder, MethodVisitor mv) {
+        this.methodBuilder = methodBuilder;
 
-    /**
-     * Instantiates a new Method body.
-     *
-     * @param classBuilder the class builder
-     * @param mv           the mv
-     * @param methodType   the method type
-     * @param isStatic     the is static
-     */
-    public MethodBody(AsmClassBuilder classBuilder, MethodVisitor mv, Type methodType, boolean isStatic) {
-        this.classBuilder = classBuilder;
+        Type[] argumentTypes = Type.getArgumentTypes(methodBuilder.getMethodDesc());
         this.writer = mv;
-        Type[] argumentTypes = methodType.getArgumentTypes();
-        this.lvbIndex = AsmUtil.calculateLvbOffset(isStatic, argumentTypes);
+        this.lvbIndex = AsmUtil.calculateLvbOffset(methodBuilder.isStatic(), argumentTypes);
         this.args = new VarInst[argumentTypes.length];
 
         initArgsTable(argumentTypes);
@@ -66,7 +57,7 @@ public class MethodBody {
      */
     @Deprecated
     public void append(Consumer<MethodVisitor> interceptor) {
-        interceptor.accept(this.writer);
+        interceptor.accept(writer);
     }
 
     /**
@@ -132,6 +123,18 @@ public class MethodBody {
      * @return the class builder
      */
     public AsmClassBuilder getClassBuilder() {
-        return classBuilder;
+        return methodBuilder.getClassBuilder();
+    }
+
+    /**
+     * Gets method builder.
+     * @return
+     */
+    public MethodDescriptor getMethodDescriptor() {
+        return methodBuilder.getMethodDescriptor();
+    }
+
+    public void end() {
+        this.writer.visitMaxs(0, 0);
     }
 }
