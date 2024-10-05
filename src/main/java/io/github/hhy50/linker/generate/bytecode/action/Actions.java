@@ -151,7 +151,7 @@ public interface Actions {
      * Load args action.
      *
      * @param argIndices the arg indices
-     * @return action
+     * @return action action
      */
     static Action loadArgs(int... argIndices) {
         return body -> {
@@ -166,6 +166,12 @@ public interface Actions {
         };
     }
 
+    /**
+     * Areturn action.
+     *
+     * @param rType the r type
+     * @return the action
+     */
     static Action areturn(Type rType) {
         return body ->  {
             AsmUtil.areturn(body.getWriter(), rType);

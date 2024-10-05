@@ -8,10 +8,10 @@ import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
-import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.bytecode.vars.ClassVar;
 import io.github.hhy50.linker.generate.getter.EarlyFieldGetter;
 import io.github.hhy50.linker.generate.getter.Getter;
@@ -23,8 +23,6 @@ import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
 import io.github.hhy50.linker.generate.setter.EarlyFieldSetter;
 import io.github.hhy50.linker.generate.setter.RuntimeFieldSetter;
 import io.github.hhy50.linker.generate.setter.Setter;
-import io.github.hhy50.linker.util.ClassUtil;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -92,13 +90,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
         this.bindTarget = bindTarget;
         this.defineConstruct(Opcodes.ACC_PUBLIC, Object.class)
-                .accept(body -> {
-                    MethodVisitor mv = body.getWriter();
-                    mv.visitVarInsn(Opcodes.ALOAD, 0);
-                    mv.visitVarInsn(Opcodes.ALOAD, 1);
-                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ClassUtil.className2path(DefaultTargetProviderImpl.class.getName()), "<init>", "(Ljava/lang/Object;)V", false);
-                    mv.visitInsn(Opcodes.RETURN);
-                });
+                .intercept(Methods.invokeSuper().thenReturn());
         return this;
     }
 
@@ -198,7 +190,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the class type member
      */
     public ClassTypeMember defineLookupClass(String mName) {
-        return defineLookupClass(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC|Opcodes.ACC_FINAL, mName);
+        return defineLookupClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, mName);
     }
 
     /**

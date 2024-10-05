@@ -71,7 +71,6 @@ public abstract class VarInst implements LoadAction {
 
     /**
      * Check null pointer.
-     *
      */
     public void checkNullPointer() {
         if (type.getSort() > Type.DOUBLE) {
@@ -104,7 +103,7 @@ public abstract class VarInst implements LoadAction {
      */
     public void returnThis() {
         loadToStack();
-        Actions.areturn(getType()).apply(body);
+        thenReturn().apply(body);
     }
 
     /**

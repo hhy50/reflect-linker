@@ -23,10 +23,12 @@ public class MethodBuilder {
     private final boolean isStatic;
 
     /**
-     * @param classBuilder
-     * @param md
-     * @param isStatic
-     * @param methodVisitor
+     * Instantiates a new Method builder.
+     *
+     * @param classBuilder  the class builder
+     * @param md            the md
+     * @param isStatic      the is static
+     * @param methodVisitor the method visitor
      */
     public MethodBuilder(AsmClassBuilder classBuilder, MethodDescriptor md, boolean isStatic, MethodVisitor methodVisitor) {
         this.classBuilder = classBuilder;
@@ -50,8 +52,9 @@ public class MethodBuilder {
 
     /**
      * Intercept asm class builder.
-     * @param action
-     * @return
+     *
+     * @param action the action
+     * @return asm class builder
      */
     public AsmClassBuilder intercept(Action action) {
         action.apply(methodBody);
@@ -90,7 +93,8 @@ public class MethodBuilder {
 
     /**
      * Gets method body.
-     * @return
+     *
+     * @return method body
      */
     public MethodBody getMethodBody() {
         return methodBody;
@@ -98,7 +102,8 @@ public class MethodBuilder {
 
     /**
      * Gets method name.
-     * @return
+     *
+     * @return method descriptor
      */
     public MethodDescriptor getMethodDescriptor() {
         return methodDescriptor;
@@ -106,7 +111,8 @@ public class MethodBuilder {
 
     /**
      * Gets method desc.
-     * @return
+     *
+     * @return method desc
      */
     public String getMethodDesc() {
         return methodDescriptor.getDesc();
@@ -114,7 +120,8 @@ public class MethodBuilder {
 
     /**
      * Is static boolean.
-     * @return
+     *
+     * @return boolean boolean
      */
     public boolean isStatic() {
         return isStatic;

@@ -6,15 +6,22 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.util.Objects;
-
 /**
  * The type Method invoke action.
  */
 public class MethodInvokeAction implements TypedAction {
 
+    /**
+     * The Method descriptor.
+     */
     protected MethodDescriptor methodDescriptor;
+    /**
+     * The Instance.
+     */
     protected Action instance;
+    /**
+     * The Args.
+     */
     protected Action[] args;
 
     /**
@@ -48,6 +55,11 @@ public class MethodInvokeAction implements TypedAction {
                 owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), false);
     }
 
+    /**
+     * Gets op code.
+     *
+     * @return the op code
+     */
     public int getOpCode() {
         if (methodDescriptor.getMethodName().equals("<init>")) {
             return Opcodes.INVOKESPECIAL;
@@ -80,65 +92,5 @@ public class MethodInvokeAction implements TypedAction {
     @Override
     public Type getType() {
         return Type.getMethodType(methodDescriptor.getDesc()).getReturnType();
-    }
-
-    public static MethodInvokeAction invokeSuper() {
-        return invokeSuper(null, null);
-    }
-
-    public static MethodInvokeAction invokeSuper(String superOwner) {
-        return invokeSuper(superOwner, null);
-    }
-
-    public static MethodInvokeAction invokeSuper(MethodDescriptor md) {
-        return invokeSuper(null, md);
-    }
-
-    public static MethodInvokeAction invokeSuper(String superOwner, MethodDescriptor md) {
-        return new InvokeSupper(superOwner, md);
-    }
-
-    /**
-     * invokeSuper method
-     */
-    static class InvokeSupper extends MethodInvokeAction {
-
-        private String superOwner;
-
-        /**
-         * @param superOwner
-         * @param md
-         */
-        public InvokeSupper(String superOwner, MethodDescriptor md) {
-            super(md);
-            this.instance = LoadAction.LOAD0;
-            this.superOwner = superOwner;
-        }
-
-        @Override
-        public void apply(MethodBody body) {
-            if (args == null) {
-                args = body.getArgs();
-            }
-            if (this.superOwner == null) {
-                this.superOwner = body.getClassBuilder().getSuperOwner();
-            }
-            if (this.methodDescriptor == null) {
-                this.methodDescriptor = body.getMethodDescriptor();
-            }
-            if (!Objects.equals(methodDescriptor.getOwner(), superOwner)) {
-                methodDescriptor.setOwner(superOwner);
-            }
-            super.apply(body);
-        }
-
-        public int getOpCode() {
-            return Opcodes.INVOKESPECIAL;
-        }
-
-        @Override
-        public MethodInvokeAction setInstance(Action instance) {
-            throw new UnsupportedOperationException("InvokeSupper() method not support set invoke object");
-        }
     }
 }

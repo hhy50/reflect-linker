@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.define;
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import org.objectweb.asm.Type;
 
@@ -79,6 +80,40 @@ public class MethodDescriptor {
     }
 
     /**
+     * of method descriptor.
+     *
+     * @param method the method
+     * @return method descriptor
+     */
+    public static MethodDescriptor of(Method method) {
+        return of(method.getDeclaringClass().getName(), method.getName(), method.getReturnType(), method.getParameterTypes());
+    }
+
+    /**
+     * of method descriptor.
+     *
+     * @param clazzName  the clazz name
+     * @param methodName the method name
+     * @param rType      the r type
+     * @param argsType   the args type
+     * @return method descriptor
+     */
+    public static MethodDescriptor of(String clazzName, String methodName, Class<?> rType, Class<?>... argsType) {
+        return of(AsmUtil.toOwner(clazzName), methodName,
+                "("+Arrays.stream(argsType).map(Type::getDescriptor).collect(Collectors.joining())+")"+Type.getDescriptor(rType));
+    }
+
+    /**
+     * of method descriptor.
+     *
+     * @param argsType the args type
+     * @return method descriptor
+     */
+    public static MethodDescriptor ofConstructor(Class<?>... argsType) {
+        return of("", "<init>", void.class, argsType);
+    }
+
+    /**
      * Of method descriptor.
      *
      * @param owner      the owner
@@ -89,63 +124,6 @@ public class MethodDescriptor {
     public static MethodDescriptor of(String owner, String methodName, String methodDesc) {
         return new MethodDescriptor(owner, methodName, methodDesc);
     }
-
-    /**
-     * Of method descriptor.
-     *
-     * @param methodName the method name
-     * @param methodDesc the method desc
-     * @return method descriptor
-     */
-    public static MethodDescriptor of(String methodName, String methodDesc) {
-        return new MethodDescriptor(null, methodName, methodDesc);
-    }
-
-    /**
-     * of method descriptor.
-     *
-     * @param methodName the method name
-     * @param rType      the r type
-     * @param argsType   the args type
-     * @return method descriptor
-     */
-    public static MethodDescriptor of(String methodName, Type rType, Type... argsType) {
-        return new MethodDescriptor(null, methodName, Type.getMethodDescriptor(rType, argsType));
-    }
-
-    /**
-     * of method descriptor.
-     *
-     * @param methodName the method name
-     * @param rType      the r type
-     * @param argsType   the args type
-     * @return method descriptor
-     */
-    public static MethodDescriptor of(String methodName, Class<?> rType, Class<?>... argsType) {
-        return new MethodDescriptor(null, methodName,
-                "("+Arrays.stream(argsType).map(Type::getDescriptor).collect(Collectors.joining(";"))+")"+Type.getDescriptor(rType));
-    }
-
-    /**
-     * of method descriptor.
-     *
-     * @param method the method
-     * @return method descriptor
-     */
-    public static MethodDescriptor of(Method method) {
-        return of(method.getName(), method.getReturnType(), method.getParameterTypes());
-    }
-
-    /**
-     * of method descriptor.
-     *
-     * @param argsType the args type
-     * @return method descriptor
-     */
-    public static MethodDescriptor ofConstructor(Class<?>... argsType) {
-        return of("<init>", void.class, argsType);
-    }
-
 
     /**
      * Gets owner.

@@ -78,15 +78,15 @@ public class AsmClassBuilder {
     }
 
     /**
+     * Define field member.
      *
-     * @param access
-     * @param fieldName
-     * @param fieldType
-     * @return
+     * @param access    the access
+     * @param fieldName the field name
+     * @param fieldType the field type
+     * @return member member
      */
-    public AsmClassBuilder defineField(int access, String fieldName, Class<?> fieldType) {
-        defineField(access, fieldName, Type.getType(fieldType), null, null);
-        return this;
+    public Member defineField(int access, String fieldName, Class<?> fieldType) {
+        return defineField(access, fieldName, Type.getType(fieldType), null, null);
     }
 
     /**
@@ -109,6 +109,13 @@ public class AsmClassBuilder {
         });
     }
 
+    /**
+     * Define construct method builder.
+     *
+     * @param access   the access
+     * @param argsType the args type
+     * @return the method builder
+     */
     public MethodBuilder defineConstruct(int access, Class<?>... argsType) {
         String types = "";
         if (argsType != null && argsType.length > 0) {
@@ -130,7 +137,7 @@ public class AsmClassBuilder {
      */
     public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions) {
         MethodVisitor mv = this.classWriter.visitMethod(access, methodName, methodDesc, null, exceptions);
-        return new MethodBuilder(this, MethodDescriptor.of(methodName, methodDesc), (access&Opcodes.ACC_STATIC) > 0, mv);
+        return new MethodBuilder(this, MethodDescriptor.of(classOwner, methodName, methodDesc), (access&Opcodes.ACC_STATIC) > 0, mv);
     }
 
     /**
@@ -154,7 +161,7 @@ public class AsmClassBuilder {
     /**
      * Get clinit method body.
      *
-     * @return clinit
+     * @return clinit clinit
      */
     public MethodBody getClinit() {
         if (this.clinit == null) {
@@ -206,13 +213,19 @@ public class AsmClassBuilder {
         return this.className;
     }
 
+    /**
+     * Gets super owner.
+     *
+     * @return the super owner
+     */
     public String getSuperOwner() {
         return superOwner;
     }
 
     /**
      * Get all members
-     * @return
+     *
+     * @return members members
      */
     public Map<String, Member> getMembers() {
         return members;

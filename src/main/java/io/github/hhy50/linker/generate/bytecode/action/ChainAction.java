@@ -8,10 +8,17 @@ import java.util.function.Function;
 
 
 /**
- * @param <T>
+ * The type Chain action.
+ *
+ * @param <T> the type parameter
  */
 public class ChainAction<T> extends AbstractChain<MethodBody, T> {
 
+    /**
+     * Instantiates a new Chain action.
+     *
+     * @param func the func
+     */
     public ChainAction(Function<MethodBody, T> func) {
         super(func);
     }
@@ -24,28 +31,74 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         }
     }
 
+    /**
+     * Peek chain action.
+     *
+     * @param consumer the consumer
+     * @return the chain action
+     */
     public final ChainAction<T> peek(Consumer<T> consumer) {
         addConsumer(consumer);
         return this;
     }
 
+    /**
+     * Of chain action.
+     *
+     * @param <T>    the type parameter
+     * @param bifunc the bifunc
+     * @return the chain action
+     */
     public static <T> ChainAction<T> of(Function<MethodBody, T> bifunc) {
         return new ChainAction<>(bifunc);
     }
 
+    /**
+     * Map chain action.
+     *
+     * @param <Out> the type parameter
+     * @param func  the func
+     * @return the chain action
+     */
     public <Out> ChainAction<Out> map(Function<T, Out> func) {
         return new Next<>(this, func);
     }
 
+    /**
+     * Then chain action.
+     *
+     * @param <Out> the type parameter
+     * @param func  the func
+     * @return the chain action
+     */
     public <Out> ChainAction<Out> then(BiFunction<T, MethodBody, Out> func) {
         return new Next<>(this, func);
     }
 
+    /**
+     * Then chain action.
+     *
+     * @param <Out> the type parameter
+     * @param func  the func
+     * @return the chain action
+     */
     public <Out> ChainAction<Out> then(Function<T, Out> func) {
         return new Next<>(this, func);
     }
 
+    /**
+     * The type Next.
+     *
+     * @param <In>  the type parameter
+     * @param <Out> the type parameter
+     */
     static class Next<In, Out> extends ChainAction<Out> {
+        /**
+         * Instantiates a new Next.
+         *
+         * @param prevAction the prev action
+         * @param func       the func
+         */
         public Next(ChainAction<In> prevAction, BiFunction<In, MethodBody, Out> func) {
             super((body) -> {
                 In in = prevAction.doChain(body);
@@ -53,6 +106,12 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
             });
         }
 
+        /**
+         * Instantiates a new Next.
+         *
+         * @param prevAction the prev action
+         * @param func       the func
+         */
         public Next(ChainAction<In> prevAction, Function<In, Out> func) {
             super((body) -> {
                 In in = prevAction.doChain(body);

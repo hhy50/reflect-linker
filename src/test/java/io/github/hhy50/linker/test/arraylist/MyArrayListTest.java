@@ -25,6 +25,8 @@ public class MyArrayListTest {
      */
     @Test
     public void test() throws LinkerException {
+        LinkerFactory.setOutputPath("C:\\Users\\hanhaiyang\\IdeaProjects\\reflect-linker\\target");
+
         Object[] objects = new Object[10];
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
         list.setElementData(objects);

@@ -248,4 +248,15 @@ public class AsmUtil {
         }
         return null;
     }
+
+    /**
+     * To owner string.
+     *
+     * @param clazzName the clazz name
+     * @return the string
+     */
+    public static String toOwner(String clazzName) {
+        if (clazzName == null) return null;
+        return clazzName.replace('.', '/');
+    }
 }

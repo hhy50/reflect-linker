@@ -128,12 +128,16 @@ public class MethodBody {
 
     /**
      * Gets method builder.
-     * @return
+     *
+     * @return method descriptor
      */
     public MethodDescriptor getMethodDescriptor() {
         return methodBuilder.getMethodDescriptor();
     }
 
+    /**
+     * End.
+     */
     public void end() {
         this.writer.visitMaxs(0, 0);
     }
