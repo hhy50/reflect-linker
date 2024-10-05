@@ -3,12 +3,10 @@ package io.github.hhy50.linker.generate.bytecode.action;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
-import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.util.stream.IntStream;
 
 /**
  * The interface Action.
@@ -143,25 +141,6 @@ public interface Actions {
         return body -> {
             for (Action action : actions) {
                 action.apply(body);
-            }
-        };
-    }
-
-    /**
-     * Load args action.
-     *
-     * @param argIndices the arg indices
-     * @return action action
-     */
-    static Action loadArgs(int... argIndices) {
-        return body -> {
-            VarInst[] args = body.getArgs();
-            int[] indices = argIndices;
-            if (argIndices.length == 0) {
-                indices = IntStream.range(0, args.length).toArray();
-            }
-            for (int i = 0; i < indices.length; i++) {
-                args[indices[i]].loadToStack();
             }
         };
     }

@@ -9,6 +9,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
@@ -48,8 +49,8 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         // 定义当前方法的invoker
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
                 .intercept((method.isStatic()
-                        ? mhMember.invokeStatic(Actions.loadArgs())
-                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Actions.loadArgs())))
+                        ? mhMember.invokeStatic(Args.loadArgs())
+                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
                         .andThen(Actions.areturn(methodType.getReturnType()))
                 );
     }

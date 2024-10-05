@@ -11,6 +11,7 @@ import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
@@ -49,8 +50,8 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
                 .intercept((field.isStatic()
-                        ? mhMember.invokeStatic(Actions.loadArgs())
-                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Actions.loadArgs())))
+                        ? mhMember.invokeStatic(Args.loadArgs())
+                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
                         .andThen(Actions.areturn(Type.VOID_TYPE))
                 );
     }
