@@ -53,7 +53,7 @@
             <roles>
                 <role>Developer</role>
             </roles>
-            <url>${gitprojectUrl</url>
+            <url>${gitprojectUrl}</url>
         </developer>
     </developers>
 
