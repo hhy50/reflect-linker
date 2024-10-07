@@ -6,8 +6,8 @@
 
     <groupId>io.github.hhy50</groupId>
     <artifactId>reflect-linker</artifactId>
-    <version>1.0.3</version>
-    <url>${gitprojectUrl</url>
+    <version>1.0.4</version>
+    <url>${gitprojectUrl}</url>
     <description>reflect-linker</description>
 
     <properties>
