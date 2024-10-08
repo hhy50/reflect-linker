@@ -108,4 +108,60 @@ public class ClassUtil {
         }
         return true;
     }
+
+    /**
+     * @param clazz
+     * @return
+     */
+    public static Class<?> getPrimitiveClass(String clazz) {
+        if (clazz.equals("byte[]")) {
+            return byte[].class;
+        }
+        if (clazz.equals("short[]")) {
+            return short[].class;
+        }
+        if (clazz.equals("int[]")) {
+            return int[].class;
+        }
+        if (clazz.equals("long[]")) {
+            return long[].class;
+        }
+        if (clazz.equals("char[]")) {
+            return char[].class;
+        }
+        if (clazz.equals("boolean[]")) {
+            return boolean[].class;
+        }
+        if (clazz.equals("double[]")) {
+            return double[].class;
+        }
+        if (clazz.equals("float[]")) {
+            return float[].class;
+        }
+        if (clazz.equals("byte")) {
+            return byte.class;
+        }
+        if (clazz.equals("short")) {
+            return short.class;
+        }
+        if (clazz.equals("int")) {
+            return int.class;
+        }
+        if (clazz.equals("long")) {
+            return long.class;
+        }
+        if (clazz.equals("float")) {
+            return float.class;
+        }
+        if (clazz.equals("double")) {
+            return double.class;
+        }
+        if (clazz.equals("char")) {
+            return char.class;
+        }
+        if (clazz.equals("boolean")) {
+            return boolean.class;
+        }
+        return null;
+    }
 }

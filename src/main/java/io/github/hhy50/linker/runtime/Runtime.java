@@ -4,6 +4,7 @@ import io.github.hhy50.linker.AccessTool;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.syslinker.LookupLinker;
+import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
@@ -89,16 +90,18 @@ public class Runtime {
     /**
      * Gets class.
      *
-     * @param cl              the cl
-     * @param callerClassName the caller class name
+     * @param cl        the cl
+     * @param className the caller class name
      * @return the class
      * @throws ClassNotFoundException the class not found exception
      */
-    public static Class<?> getClass(ClassLoader cl, String callerClassName) throws ClassNotFoundException {
-        if (callerClassName.endsWith("[]")) {
-            return Array.newInstance(cl.loadClass(callerClassName.substring(0, callerClassName.length()-2)), 0).getClass();
+    public static Class<?> getClass(ClassLoader cl, String className) throws ClassNotFoundException {
+        Class<?> clazz = ClassUtil.getPrimitiveClass(className);
+        if (clazz != null) return clazz;
+        if (className.endsWith("[]")) {
+            return Array.newInstance(cl.loadClass(className.substring(0, className.length()-2)), 0).getClass();
         }
-        return cl.loadClass(callerClassName);
+        return cl.loadClass(className);
     }
 
     /**
