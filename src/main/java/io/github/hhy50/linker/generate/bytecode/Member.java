@@ -86,32 +86,33 @@ public class Member implements LoadAction {
     }
 
     @Override
-    public void load(MethodBody methodBody) {
-        MethodVisitor mv = methodBody.getWriter();
-        String owner = this.owner == null ? methodBody.getClassBuilder().getClassOwner() : this.owner;
+    public void load(MethodBody body) {
+        MethodVisitor mv = body.getWriter();
+        String owner = this.owner == null ? body.getClassBuilder().getClassOwner() : this.owner;
+        Type type = getType();
         if ((access & Opcodes.ACC_STATIC) > 0) {
-            mv.visitFieldInsn(Opcodes.GETSTATIC, owner, this.memberName, this.type.getDescriptor());
+            mv.visitFieldInsn(Opcodes.GETSTATIC, owner, this.memberName, type.getDescriptor());
         } else {
             mv.visitVarInsn(Opcodes.ALOAD, 0); // this
-            mv.visitFieldInsn(Opcodes.GETFIELD, owner, this.memberName, this.type.getDescriptor());
+            mv.visitFieldInsn(Opcodes.GETFIELD, owner, this.memberName, type.getDescriptor());
         }
     }
 
     /**
      * Store.
      *
-     * @param methodBody the method body
-     * @param action     the action
+     * @param body   the method body
+     * @param action the action
      */
-    public void store(MethodBody methodBody, Action action) {
-        MethodVisitor mv = methodBody.getWriter();
-        String owner = this.owner == null ? methodBody.getClassBuilder().getClassOwner() : this.owner;
+    public void store(MethodBody body, Action action) {
+        MethodVisitor mv = body.getWriter();
+        String owner = this.owner == null ? body.getClassBuilder().getClassOwner() : this.owner;
         if ((access & Opcodes.ACC_STATIC) > 0) {
-            action.apply(methodBody);
+            action.apply(body);
             mv.visitFieldInsn(Opcodes.PUTSTATIC, owner, this.memberName, this.type.getDescriptor());
         } else {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
-            action.apply(methodBody);
+            action.apply(body);
             mv.visitFieldInsn(Opcodes.PUTFIELD, owner, this.memberName, this.type.getDescriptor());
         }
     }
@@ -124,27 +125,5 @@ public class Member implements LoadAction {
      */
     public Action store(Action action) {
         return (body) -> this.store(body, action);
-    }
-
-    /**
-     * Of member.
-     *
-     * @param memberName the member name
-     * @param type       the type
-     * @return the member
-     */
-    public static Member of(String memberName, Type type) {
-        return new Member(Opcodes.ACC_PUBLIC, null, memberName, type);
-    }
-
-    /**
-     * Of static member.
-     *
-     * @param memberName the member name
-     * @param type       the type
-     * @return the member
-     */
-    public static Member ofStatic(String memberName, Type type) {
-        return new Member(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, null, memberName, type);
     }
 }

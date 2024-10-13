@@ -36,7 +36,12 @@ public class MethodDescriptor {
     /**
      * The constant LOOKUP_FIND_FINDVIRTUAL.
      */
-    public static final MethodDescriptor LOOKUP_FIND_FINDVIRTUAL = MethodDescriptor.of(LookupVar.OWNER, "findVirtual", LookupVar.FIND_VIRTUAL);
+    public static final MethodDescriptor LOOKUP_FIND_FINDVIRTUAL = MethodDescriptor.of(LookupVar.OWNER, "findVirtual", LookupVar.FIND_XXXXX);
+
+    /**
+     * The constant LOOKUP_FIND_FINDSTATIC.
+     */
+    public static final MethodDescriptor LOOKUP_FIND_FINDSTATIC = MethodDescriptor.of(LookupVar.OWNER, "findStatic", LookupVar.FIND_XXXXX);
     /**
      * The constant LOOKUP_FIND_FINDSPECIAL.
      */

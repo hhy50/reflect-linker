@@ -41,7 +41,7 @@ public class MethodBody {
     }
 
     private void initArgsTable(Type[] argumentTypes) {
-        int index = 1;
+        int index = this.methodBuilder.isStatic() ? 0 : 1;
         for (int i = 0; i < argumentTypes.length; i++) {
             args[i] = new ObjectVar(this, index++, argumentTypes[i]);
             if (argumentTypes[i].getSort() == Type.DOUBLE || argumentTypes[i].getSort() == Type.LONG) {
@@ -139,6 +139,9 @@ public class MethodBody {
      * End.
      */
     public void end() {
-        this.writer.visitMaxs(0, 0);
+        AsmClassBuilder classBuilder = methodBuilder.getClassBuilder();
+        if (classBuilder.isAutoCompute()) {
+            this.writer.visitMaxs(0, 0);
+        }
     }
 }

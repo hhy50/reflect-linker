@@ -58,7 +58,7 @@ public abstract class MethodRef {
      * @return the full name
      */
     public String getFullName() {
-        return owner.getUniqueName()+"_$$_"+name;
+        return owner.getUniqueName()+"_$$_"+name+"_"+(System.nanoTime()%10000);
     }
 
     /**

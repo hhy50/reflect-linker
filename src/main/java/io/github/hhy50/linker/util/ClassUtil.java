@@ -110,8 +110,10 @@ public class ClassUtil {
     }
 
     /**
-     * @param clazz
-     * @return
+     * Gets primitive class.
+     *
+     * @param clazz the clazz
+     * @return primitive class
      */
     public static Class<?> getPrimitiveClass(String clazz) {
         if (clazz.equals("byte[]")) {

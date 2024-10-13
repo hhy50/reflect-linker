@@ -35,8 +35,6 @@ import java.util.Map;
 public class InvokeClassImplBuilder extends AsmClassBuilder {
     private Class<?> bindTarget;
     private final Map<String, Getter<?>> getters;
-    private final Map<String, Setter<?>> setters;
-    private final Map<String, Invoker<?>> invokers;
 
     /**
      * Instantiates a new Invoke class impl builder.
@@ -50,8 +48,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
         this.getters = new HashMap<>();
-        this.setters = new HashMap<>();
-        this.invokers = new HashMap<>();
     }
 
     /**
@@ -129,13 +125,8 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the setter
      */
     public Setter<?> defineSetter(String fieldName, FieldRef fieldRef) {
-        return setters.computeIfAbsent(fieldName, key -> {
-            if (fieldRef instanceof EarlyFieldRef) {
-                return new EarlyFieldSetter(getClassName(), (EarlyFieldRef) fieldRef);
-            } else {
-                return new RuntimeFieldSetter(getClassName(), (RuntimeFieldRef) fieldRef);
-            }
-        });
+        return fieldRef instanceof EarlyFieldRef ? new EarlyFieldSetter(getClassName(), (EarlyFieldRef) fieldRef)
+                : new RuntimeFieldSetter(getClassName(), (RuntimeFieldRef) fieldRef);
     }
 
     /**
@@ -145,13 +136,8 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the invoker
      */
     public Invoker<?> defineInvoker(MethodRef methodRef) {
-        Invoker<?> invoker = invokers.get(methodRef.getFullName());
-        if (invoker == null) {
-            invoker = methodRef instanceof EarlyMethodRef ? new EarlyMethodInvoker(getClassName(), (EarlyMethodRef) methodRef)
-                    : new RuntimeMethodInvoker(getClassName(), (RuntimeMethodRef) methodRef);
-            invokers.put(methodRef.getFullName(), invoker);
-        }
-        return invoker;
+        return methodRef instanceof EarlyMethodRef ? new EarlyMethodInvoker(getClassName(), (EarlyMethodRef) methodRef)
+                : new RuntimeMethodInvoker(getClassName(), (RuntimeMethodRef) methodRef);
     }
 
     /**

@@ -9,6 +9,7 @@ import org.objectweb.asm.*;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -19,6 +20,10 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
  * The type Asm class builder.
  */
 public class AsmClassBuilder {
+    /**
+     * The Auto compute.
+     */
+    private static final int AUTO_COMPUTE = COMPUTE_MAXS | COMPUTE_FRAMES;
     /**
      * The Class name.
      */
@@ -54,7 +59,7 @@ public class AsmClassBuilder {
      * @param signature  the signature
      */
     public AsmClassBuilder(int access, String className, String superName, String[] interfaces, String signature) {
-        this(COMPUTE_MAXS | COMPUTE_FRAMES, access, className, superName, interfaces, signature);
+        this(AUTO_COMPUTE, access, className, superName, interfaces, signature);
     }
 
     /**
@@ -71,8 +76,8 @@ public class AsmClassBuilder {
         this.className = className;
         this.classOwner = ClassUtil.className2path(className);
         this.superOwner = superName != null ? ClassUtil.className2path(superName) : "java/lang/Object";
+        this.members = new java.util.HashMap<>();
         this.classWriter = new ClassWriter(asmFlags);
-        this.members = new java.util.HashMap<>();;
         this.classWriter.visit(Opcodes.V1_8, access, this.classOwner, signature, this.superOwner,
                 Arrays.stream(interfaces == null ? new String[0] : interfaces).map(ClassUtil::className2path).toArray(String[]::new));
     }
@@ -137,7 +142,7 @@ public class AsmClassBuilder {
      */
     public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions) {
         MethodVisitor mv = this.classWriter.visitMethod(access, methodName, methodDesc, null, exceptions);
-        return new MethodBuilder(this, MethodDescriptor.of(classOwner, methodName, methodDesc), (access&Opcodes.ACC_STATIC) > 0, mv);
+        return new MethodBuilder(this, MethodDescriptor.of(classOwner, methodName, methodDesc), (access & Opcodes.ACC_STATIC) > 0, mv);
     }
 
     /**
@@ -178,9 +183,8 @@ public class AsmClassBuilder {
      */
     public AsmClassBuilder end() {
         if (clinit != null) {
-            MethodVisitor mv = clinit.getWriter();
-            mv.visitInsn(Opcodes.RETURN);
-            mv.visitMaxs(0, 0);
+            clinit.append((Consumer<MethodVisitor>) mv -> mv.visitInsn(Opcodes.RETURN));
+            clinit.end();
         }
         this.classWriter.visitEnd();
         return this;
@@ -229,5 +233,14 @@ public class AsmClassBuilder {
      */
     public Map<String, Member> getMembers() {
         return members;
+    }
+
+    /**
+     * Whether auto stack
+     *
+     * @return boolean
+     */
+    public boolean isAutoCompute() {
+        return classWriter.hasFlags(AUTO_COMPUTE);
     }
 }

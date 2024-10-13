@@ -29,7 +29,7 @@ public class LookupVar extends VarInst {
     /**
      * The constant FIND_VIRTUAL.
      */
-    public static final String FIND_VIRTUAL = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;)"+MethodHandle.DESCRIPTOR;
+    public static final String FIND_XXXXX = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;)"+MethodHandle.DESCRIPTOR;
     /**
      * The constant FIND_SPECIAL.
      */

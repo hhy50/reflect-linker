@@ -3,6 +3,7 @@ package io.github.hhy50.linker.generate.getter;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.Member;
+import io.github.hhy50.linker.generate.bytecode.utils.Members;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
@@ -22,7 +23,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
      */
     public TargetFieldGetter(String implClass, EarlyFieldRef targetFieldRef) {
         super(implClass, targetFieldRef);
-        this.targetObj = Member.of(targetFieldRef.fieldName, ObjectVar.TYPE);
+        this.targetObj = Members.of(targetFieldRef.fieldName, ObjectVar.TYPE);
     }
 
 

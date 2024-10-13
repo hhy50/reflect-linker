@@ -35,6 +35,16 @@ public class Methods {
     }
 
     /**
+     * Invoke interface method invoke action.
+     *
+     * @param md the md
+     * @return method invoke action
+     */
+    public static MethodInvokeAction invokeInterface(MethodDescriptor md) {
+        return new InvokeInterface(md);
+    }
+
+    /**
      * Invoke super method invoke action.
      *
      * @return the method invoke action
@@ -75,6 +85,25 @@ public class Methods {
     }
 
     /**
+     * The type Invoke interface.
+     */
+    static class InvokeInterface extends MethodInvokeAction {
+        /**
+         * Instantiates a new Method invoke action.
+         *
+         * @param methodDescriptor the method holder
+         */
+        public InvokeInterface(MethodDescriptor methodDescriptor) {
+            super(methodDescriptor);
+        }
+
+        @Override
+        public int getOpCode() {
+            return Opcodes.INVOKEINTERFACE;
+        }
+    }
+
+    /**
      * invokeSuper method
      */
     static class InvokeSupper extends MethodInvokeAction {
@@ -95,7 +124,7 @@ public class Methods {
 
         @Override
         public void apply(MethodBody body) {
-            if (args == null) {
+            if (args == null && this.methodDescriptor == null) {
                 args = body.getArgs();
             }
             if (this.superOwner == null) {

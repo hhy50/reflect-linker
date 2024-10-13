@@ -7,6 +7,7 @@ import io.github.hhy50.linker.define.cl.SysLinkerClassLoader;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.generate.ClassImplGenerator;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 
@@ -103,5 +104,9 @@ public class LinkerFactory {
      */
     public static void setOutputPath(String path) {
         System.setProperty("linker.output.path", path);
+        File outputPath = new File(path);
+        if (!outputPath.exists()) {
+            outputPath.mkdirs();
+        }
     }
 }
