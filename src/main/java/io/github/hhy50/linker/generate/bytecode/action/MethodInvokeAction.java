@@ -6,6 +6,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+
 /**
  * The type Method invoke action.
  */
@@ -51,8 +53,9 @@ public class MethodInvokeAction implements TypedAction {
                 owner = body.getClassBuilder().getClassOwner();
             }
         }
-        mv.visitMethodInsn(getOpCode(),
-                owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), false);
+        int opCode = getOpCode();
+        mv.visitMethodInsn(opCode,
+                owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), opCode == INVOKEINTERFACE);
     }
 
     /**
