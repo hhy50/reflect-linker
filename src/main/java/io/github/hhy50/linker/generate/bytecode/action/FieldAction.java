@@ -2,7 +2,8 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.Member;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 
@@ -11,46 +12,47 @@ import org.objectweb.asm.Type;
  */
 public class FieldAction implements LoadAction {
 
-    private final String name;
-    private final Member member;
+    private final LoadAction owner;
+    private final String fieldName;
+    private final Type fieldType;
+    private boolean isStatic;
 
     /**
      * Instantiates a new Field action.
      *
-     * @param member the member
+     * @param owner     the owner
+     * @param fieldName the name
      */
-    public FieldAction(Member member) {
-        this.member = member;
-        this.name = null;
+    public FieldAction(LoadAction owner, String fieldName, Type fieldType) {
+        this.owner = owner;
+        this.fieldName = fieldName;
+        this.fieldType = fieldType;
+        this.isStatic = false;
     }
 
-    /**
-     * Instantiates a new Field action.
-     *
-     * @param name the name
-     */
-    public FieldAction(String name) {
-        this.member = null;
-        this.name = name;
+    public FieldAction setStatic() {
+        this.isStatic = true;
+        return this;
     }
 
     @Override
     public void load(MethodBody body) {
-
+        MethodVisitor mv = body.getWriter();
+        body.append(this.owner);
+        mv.visitFieldInsn(isStatic ? Opcodes.GETSTATIC : Opcodes.GETFIELD, owner.getType().getInternalName(), this.fieldName, fieldType.getDescriptor());
     }
 
-    /**
-     * Of getter field action.
-     *
-     * @param filedName the filed name
-     * @return the field action
-     */
-    public static FieldAction ofGetter(String filedName) {
-    return null;
+    public Action store(Action action) {
+        return (body) -> {
+            MethodVisitor mv = body.getWriter();
+            body.append(this.owner);
+            action.apply(body);
+            mv.visitFieldInsn(isStatic ? Opcodes.PUTSTATIC : Opcodes.PUTFIELD, owner.getType().getInternalName(), this.fieldName, fieldType.getDescriptor());
+        };
     }
 
     @Override
     public Type getType() {
-        return null;
+        return fieldType;
     }
 }

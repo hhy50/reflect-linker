@@ -11,7 +11,7 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 /**
  * The type Method invoke action.
  */
-public class MethodInvokeAction implements TypedAction {
+public class MethodInvokeAction implements LoadAction {
 
     /**
      * The Method descriptor.
@@ -56,6 +56,11 @@ public class MethodInvokeAction implements TypedAction {
         int opCode = getOpCode();
         mv.visitMethodInsn(opCode,
                 owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), opCode == INVOKEINTERFACE);
+    }
+
+    @Override
+    public void load(MethodBody body) {
+        this.apply(body);
     }
 
     /**

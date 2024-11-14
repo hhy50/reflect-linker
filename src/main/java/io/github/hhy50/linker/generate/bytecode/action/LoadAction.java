@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * The interface Load action.
@@ -37,6 +38,16 @@ public interface LoadAction extends TypedAction {
      */
     default Action ifNull(Action ifBlock, Action elseBlock) {
         return new ConditionJumpAction(Condition.isNull(this), ifBlock, elseBlock);
+    }
+
+    /**
+     * Of field.
+     * @param field
+     * @param type
+     * @return
+     */
+    default FieldAction ofField(String field, Class<?> type) {
+        return new FieldAction(this, field, Type.getType(type));
     }
 
     /**
