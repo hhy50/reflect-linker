@@ -194,10 +194,8 @@ public abstract class MethodHandle {
             }
             if (this.clazzVar == null) {
                 AsmClassBuilder classBuilder = body.getClassBuilder();
-                Action cl = new MethodInvokeAction(MethodDescriptor.GET_CLASS_LOADER)
-                        .setInstance(
-                                LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
-                        );
+                Action cl = LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
+                        .invokeMethod(MethodDescriptor.GET_CLASS_LOADER);
                 this.clazzVar = body.newLocalVar(Type.getType(Class.class), new MethodInvokeAction(Runtime.GET_CLASS)
                         .setArgs(cl, LdcLoadAction.of(type.getClassName())));
             }

@@ -238,7 +238,7 @@ public class AsmClassBuilder {
     /**
      * Whether auto stack
      *
-     * @return boolean
+     * @return boolean boolean
      */
     public boolean isAutoCompute() {
         return classWriter.hasFlags(AUTO_COMPUTE);

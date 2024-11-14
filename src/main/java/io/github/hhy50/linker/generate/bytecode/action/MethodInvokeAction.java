@@ -16,7 +16,7 @@ public class MethodInvokeAction implements LoadAction {
     /**
      * The Method descriptor.
      */
-    protected MethodDescriptor methodDescriptor;
+    protected final MethodDescriptor methodDescriptor;
     /**
      * The Instance.
      */
@@ -45,17 +45,9 @@ public class MethodInvokeAction implements LoadAction {
             args[i].apply(body);
         }
 
-        String owner = methodDescriptor.getOwner();
-        if (owner == null) {
-            if (instance != null && instance instanceof TypedAction) {
-                owner = ((TypedAction) instance).getType().getInternalName();
-            } else {
-                owner = body.getClassBuilder().getClassOwner();
-            }
-        }
         int opCode = getOpCode();
         mv.visitMethodInsn(opCode,
-                owner, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), opCode == INVOKEINTERFACE);
+                methodDescriptor.getOwner(), methodDescriptor.getMethodName(), methodDescriptor.getDesc(), opCode == INVOKEINTERFACE);
     }
 
     @Override

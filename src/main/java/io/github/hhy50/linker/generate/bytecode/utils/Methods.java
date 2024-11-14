@@ -1,13 +1,16 @@
 package io.github.hhy50.linker.generate.bytecode.utils;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.exceptions.MethodNotFoundException;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.SmartMethodInvokeAction;
 import io.github.hhy50.linker.util.ReflectUtil;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -85,6 +88,27 @@ public class Methods {
     }
 
     /**
+     * Invoke method invoke action.
+     *
+     * @param descriptor the descriptor
+     * @return method invoke action
+     */
+    public static MethodInvokeAction invoke(MethodDescriptor descriptor) {
+        return new MethodInvokeAction(descriptor);
+    }
+
+    /**
+     * Invoke method invoke action.
+     *
+     * @param methodName the method name
+     * @param methodType the method type
+     * @return method invoke action
+     */
+    public static MethodInvokeAction invoke(String methodName, Type methodType) {
+        return new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType.getDescriptor()));
+    }
+
+    /**
      * The type Invoke interface.
      */
     static class InvokeInterface extends MethodInvokeAction {
@@ -106,7 +130,7 @@ public class Methods {
     /**
      * invokeSuper method
      */
-    static class InvokeSupper extends MethodInvokeAction {
+    static class InvokeSupper extends SmartMethodInvokeAction {
 
         private String superOwner;
 
@@ -123,20 +147,17 @@ public class Methods {
         }
 
         @Override
-        public void apply(MethodBody body) {
-            if (args == null && this.methodDescriptor == null) {
-                args = body.getArgs();
-            }
+        public MethodDescriptor getMethodDescriptor(MethodBody body) {
+            MethodDescriptor descriptor = super.getMethodDescriptor(body);
             if (this.superOwner == null) {
                 this.superOwner = body.getClassBuilder().getSuperOwner();
             }
-            if (this.methodDescriptor == null) {
-                this.methodDescriptor = body.getMethodDescriptor();
+            if (!Objects.equals(descriptor.getOwner(), superOwner)) {
+                if (descriptor instanceof SmartMethodDescriptor) {
+                    ((SmartMethodDescriptor) descriptor).setOwner(superOwner);
+                }
             }
-            if (!Objects.equals(methodDescriptor.getOwner(), superOwner)) {
-                methodDescriptor.setOwner(superOwner);
-            }
-            super.apply(body);
+            return descriptor;
         }
 
         public int getOpCode() {

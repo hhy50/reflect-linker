@@ -111,4 +111,10 @@ public class ReflectUtil {
         if (matches.size() > 0) return matches.get(0);
         return null;
     }
+
+    public static void setFieldValue(Object obj, String fieldName, Object val) throws IllegalAccessException {
+        Field field = getField(obj.getClass(), fieldName);
+        field.setAccessible(true);
+        field.set(obj, val);
+    }
 }

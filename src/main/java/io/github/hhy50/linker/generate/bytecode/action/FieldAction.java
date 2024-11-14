@@ -15,13 +15,17 @@ public class FieldAction implements LoadAction {
     private final LoadAction owner;
     private final String fieldName;
     private final Type fieldType;
-    private boolean isStatic;
+    /**
+     * The Is static.
+     */
+    public boolean isStatic;
 
     /**
      * Instantiates a new Field action.
      *
      * @param owner     the owner
      * @param fieldName the name
+     * @param fieldType the field type
      */
     public FieldAction(LoadAction owner, String fieldName, Type fieldType) {
         this.owner = owner;
@@ -30,6 +34,11 @@ public class FieldAction implements LoadAction {
         this.isStatic = false;
     }
 
+    /**
+     * Sets static.
+     *
+     * @return the static
+     */
     public FieldAction setStatic() {
         this.isStatic = true;
         return this;
@@ -42,6 +51,12 @@ public class FieldAction implements LoadAction {
         mv.visitFieldInsn(isStatic ? Opcodes.GETSTATIC : Opcodes.GETFIELD, owner.getType().getInternalName(), this.fieldName, fieldType.getDescriptor());
     }
 
+    /**
+     * Store action.
+     *
+     * @param action the action
+     * @return the action
+     */
     public Action store(Action action) {
         return (body) -> {
             MethodVisitor mv = body.getWriter();

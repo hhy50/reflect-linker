@@ -50,6 +50,20 @@ public class LdcLoadAction implements LoadAction {
     public Type getType() {
         if (ldcConstVar instanceof String) {
             return Type.getType(String.class);
+        } else if (ldcConstVar instanceof Boolean) {
+            return Type.BOOLEAN_TYPE;
+        } else if (ldcConstVar instanceof Character) {
+            return Type.CHAR_TYPE;
+        } else if (ldcConstVar instanceof Byte) {
+            return Type.BYTE_TYPE;
+        } else if (ldcConstVar instanceof Short) {
+            return Type.SHORT_TYPE;
+        } else if (ldcConstVar instanceof Integer) {
+            return Type.INT_TYPE;
+        } else if (ldcConstVar instanceof Float) {
+            return Type.FLOAT_TYPE;
+        } else if (ldcConstVar instanceof Long) {
+            return Type.LONG_TYPE;
         } else if (ldcConstVar instanceof Type) {
             return ClassVar.TYPE;
         }

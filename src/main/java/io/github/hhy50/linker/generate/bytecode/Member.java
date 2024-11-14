@@ -32,7 +32,7 @@ public class Member implements LoadAction {
     /**
      * The Type.
      */
-    protected Type type;
+    protected final Type type;
 
     /**
      * Instantiates a new Member.

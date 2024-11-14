@@ -1,7 +1,10 @@
 package io.github.hhy50.linker.generate.bytecode.utils;
 
+import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import org.objectweb.asm.Type;
 
 import java.util.stream.IntStream;
 
@@ -34,10 +37,20 @@ public class Args {
      * @param index the index
      * @return the action
      */
-    public static Action of(int index) {
-        return body -> {
-            VarInst arg = body.getArgs()[index];
-            arg.loadToStack();
+    public static LoadAction of(int index) {
+        return new LoadAction() {
+            private Type type;
+            @Override
+            public void load(MethodBody body) {
+                VarInst arg = body.getArgs()[index];
+                arg.loadToStack();
+                this.type = arg.getType();
+            }
+
+            @Override
+            public Type getType() {
+                return type;
+            }
         };
     }
 }

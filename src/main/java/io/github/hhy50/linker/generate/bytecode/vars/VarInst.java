@@ -23,7 +23,7 @@ public abstract class VarInst implements LoadAction {
     /**
      * The Type.
      */
-    protected Type type;
+    protected final Type type;
 
     /**
      * Instantiates a new Var inst.
