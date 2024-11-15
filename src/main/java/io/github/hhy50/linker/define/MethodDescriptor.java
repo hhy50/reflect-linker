@@ -119,7 +119,7 @@ public class MethodDescriptor {
      * @return method descriptor
      */
     public static MethodDescriptor ofConstructor(Class<?>... argsType) {
-        return of("", "<init>", void.class, argsType);
+        return new SmartMethodDescriptor("<init>", "("+Arrays.stream(argsType).map(Type::getDescriptor).collect(Collectors.joining())+")V");
     }
 
     /**
