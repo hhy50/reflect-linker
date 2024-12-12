@@ -85,12 +85,12 @@ public class ReflectUtil {
      */
     public static Method matchMethod(Class<?> clazz, String name, String superClass, String[] argTypes) {
         // 指定了调用super， 但是没有指定具体哪个super
-        if (superClass != null && superClass.equals("")) {
+        if ("".equals(superClass)) {
             superClass = null;
             clazz = clazz.getSuperclass();
         }
 
-        while (clazz != null && superClass != null) {
+        while (superClass != null && clazz != null) {
             if (clazz.getName().equals(superClass)) {
                 break;
             }

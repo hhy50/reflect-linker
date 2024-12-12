@@ -39,7 +39,7 @@ public class ClassUtil {
      * @return the string
      */
     public static String toSimpleName(String className) {
-        return className.substring(className.lastIndexOf(".")+1);
+        return className.substring(className.lastIndexOf(".") + 1);
     }
 
     /**
@@ -65,6 +65,9 @@ public class ClassUtil {
         Class<?> superclass = child.getSuperclass();
         while (superclass != null && superclass != Object.class) {
             if (superclass.getName().equals(parent)) {
+                return true;
+            }
+            if (Arrays.stream(superclass.getInterfaces()).map(Class::getName).anyMatch(item -> item.equals(parent))) {
                 return true;
             }
             superclass = superclass.getSuperclass();
@@ -111,7 +114,11 @@ public class ClassUtil {
     public static boolean polymorphismMatch(Parameter[] parameters, String[] argTypes) {
         if (parameters.length != argTypes.length) return false;
         for (int i = 0; i < parameters.length; i++) {
-            if (!isAssignableFrom(parameters[i].getType(), argTypes[i])) {
+            if (parameters[i].getType() == Object.class
+                    || argTypes[i].equals(Object.class.getName())) {
+                continue;
+            }
+            if (!parameters[i].getType().getName().equals(argTypes[i])) {
                 return false;
             }
         }
