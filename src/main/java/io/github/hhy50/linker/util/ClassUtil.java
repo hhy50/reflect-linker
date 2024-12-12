@@ -5,9 +5,7 @@ import io.github.hhy50.linker.annotations.Typed;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,6 +68,17 @@ public class ClassUtil {
                 return true;
             }
             superclass = superclass.getSuperclass();
+        }
+
+        Stack<Class<?>> interfaces = new Stack<>();
+        interfaces.addAll(Arrays.asList(child.getInterfaces()));
+
+        while (!interfaces.isEmpty()) {
+            Class<?> clazz = interfaces.pop();
+            if (clazz.getName().equals(parent)) {
+                return true;
+            }
+            interfaces.addAll(Arrays.asList(clazz.getInterfaces()));
         }
         return false;
     }
