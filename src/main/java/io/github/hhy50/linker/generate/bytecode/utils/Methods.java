@@ -2,7 +2,6 @@ package io.github.hhy50.linker.generate.bytecode.utils;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.SmartMethodDescriptor;
-import io.github.hhy50.linker.exceptions.MethodNotFoundException;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
@@ -28,11 +27,12 @@ public class Methods {
      * @param name     the name
      * @param argsType the args type
      * @return the method invoke action
+     * @throws NoSuchMethodException the no such method exception
      */
-    public static MethodInvokeAction invoke(Class<?> clazz, String name, Class<?>... argsType) {
+    public static MethodInvokeAction invoke(Class<?> clazz, String name, Class<?>... argsType) throws NoSuchMethodException {
         Method method = ReflectUtil.matchMethod(clazz, name, null, Arrays.stream(argsType).map(Class::getName).toArray(String[]::new));
         if (method == null) {
-            throw new MethodNotFoundException(clazz, name);
+            throw new NoSuchMethodException("not found method '"+name+"' in class "+clazz.getName());
         }
         return new MethodInvokeAction(MethodDescriptor.of(method));
     }

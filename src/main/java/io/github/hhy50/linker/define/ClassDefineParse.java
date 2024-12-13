@@ -115,7 +115,9 @@ public class ClassDefineParse {
         MethodDefine methodDefine = new MethodDefine(method);
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
-            methodDefine.fieldRef = parseFieldExpr(firstField, classLoader, tokens, AnnotationUtils.getDesignateStaticFields(method), typedDefines);
+            methodDefine.fieldRef = parseFieldExpr(firstField, classLoader, tokens,
+                    AnnotationUtils.getDesignateStaticFields(method, tokens.tail().value()),
+                    typedDefines);
             if (AnnotationUtils.isRuntime(method)) {
                 methodDefine.fieldRef = methodDefine.fieldRef.toRuntime();
             }
@@ -132,9 +134,9 @@ public class ClassDefineParse {
         return methodDefine;
     }
 
-    private static MethodRef parseMethodExpr(FieldRef firstField, ClassLoader classLoader, String name, Method defineMethod,
+    private static MethodRef parseMethodExpr(FieldRef firstField, ClassLoader classLoader, String targetMethod, Method defineMethod,
                                              final Tokens fieldTokens, Map<String, String> typedDefines) throws ClassNotFoundException {
-        Map<String, Boolean> staticTokens = AnnotationUtils.getDesignateStaticFields(defineMethod);
+        Map<String, Boolean> staticTokens = AnnotationUtils.getDesignateStaticFields(defineMethod, targetMethod);
         FieldRef owner = parseFieldExpr(firstField, classLoader, fieldTokens, staticTokens, typedDefines);
         String[] argsType = Arrays.stream(defineMethod.getParameters())
                 .map(item -> {
@@ -157,16 +159,16 @@ public class ClassDefineParse {
         MethodRef methodRef = null;
         if (owner instanceof EarlyFieldRef) {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getClassType();
-            Method method = ReflectUtil.matchMethod(ownerClass, name, superClass, argsType);
+            Method method = ReflectUtil.matchMethod(ownerClass, targetMethod, superClass, argsType);
             if (method == null && typedDefines.containsKey(owner.getFullName())) {
-                throw new ParseException("can not find method "+name+" in class "+ownerClass.getName());
+                throw new ParseException("can not find method "+targetMethod+" in class "+ownerClass.getName());
             }
             methodRef = method == null ? null : new EarlyMethodRef(owner, method);
         }
         if (methodRef == null) {
-            methodRef = new RuntimeMethodRef(owner, name, argsType, returnClass);
-            if (staticTokens.containsKey(name)) {
-                ((RuntimeMethodRef) methodRef).designateStatic(staticTokens.get(name));
+            methodRef = new RuntimeMethodRef(owner, targetMethod, argsType, returnClass);
+            if (staticTokens.containsKey(targetMethod)) {
+                ((RuntimeMethodRef) methodRef).designateStatic(staticTokens.get(targetMethod));
             }
         }
         if (superClass != null) {

@@ -25,6 +25,15 @@ public class Tokens implements Iterable<Token> {
         }
     }
 
+    /**
+     * Tail token.
+     *
+     * @return token
+     */
+    public Token tail() {
+        return tail;
+    }
+
     @Override
     public Iterator iterator() {
         return new Iterator();

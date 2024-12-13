@@ -60,19 +60,24 @@ public class AnnotationUtils {
     /**
      * Gets designate static fields.
      *
-     * @param method the method
+     * @param method    the method
+     * @param lastToken the last token
      * @return the designate static fields
      */
-    public static Map<String, Boolean> getDesignateStaticFields(Method method) {
-        Static[] staticAnnos =  method.getAnnotationsByType(Static.class);
+    public static Map<String, Boolean> getDesignateStaticFields(Method method, String lastToken) {
+        Static[] staticAnnos = method.getAnnotationsByType(Static.class);
         if (staticAnnos == null) {
             return Collections.emptyMap();
         }
 
         Map<String, Boolean> s = new HashMap<>();
         for (Static staticAnno : staticAnnos) {
-            for (String k : staticAnno.name()) {
-                s.put(k, staticAnno.value());
+            if (staticAnno.name().length == 0) {
+                s.put(lastToken, staticAnno.value());
+            } else {
+                for (String k : staticAnno.name()) {
+                    s.put(k, staticAnno.value());
+                }
             }
         }
         return s;
