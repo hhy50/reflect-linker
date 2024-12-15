@@ -33,7 +33,7 @@ import java.util.Map;
  * The type Invoke class impl builder.
  */
 public class InvokeClassImplBuilder extends AsmClassBuilder {
-    private Class<?> bindTarget;
+    private Class<?> defineClass;
     private final Map<String, Getter<?>> getters;
 
     /**
@@ -48,6 +48,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
         this.getters = new HashMap<>();
+
+        this.defineConstruct(Opcodes.ACC_PUBLIC, Object.class)
+                .intercept(Methods.invokeSuper().thenReturn());
     }
 
     /**
@@ -65,16 +68,23 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     }
 
     /**
-     * Init invoke class impl builder.
+     * Sets define class.
      *
-     * @return the invoke class impl builder
+     * @param defineClass the define class
+     * @return define class
      */
-    public InvokeClassImplBuilder init() {
-        EarlyFieldRef target = new EarlyFieldRef(null, null, "target", bindTarget);
-        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), target);
-
-        this.getters.put(target.getUniqueName(), targetFieldGetter);
+    public InvokeClassImplBuilder setDefineClass(Class<?> defineClass) {
+        this.defineClass = defineClass;
         return this;
+    }
+
+    /**
+     * Gets define class.
+     *
+     * @return the define class
+     */
+    public Class<?> getDefineClass() {
+        return defineClass;
     }
 
     /**
@@ -84,9 +94,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the target
      */
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
-        this.bindTarget = bindTarget;
-        this.defineConstruct(Opcodes.ACC_PUBLIC, Object.class)
-                .intercept(Methods.invokeSuper().thenReturn());
+        EarlyFieldRef targetField = new EarlyFieldRef(null, null, "target", bindTarget);
+        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), targetField);
+
+        this.getters.put(targetField.getUniqueName(), targetFieldGetter);
         return this;
     }
 

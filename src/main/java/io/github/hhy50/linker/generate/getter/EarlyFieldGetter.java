@@ -40,7 +40,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         this.lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
-        this.lookupClass.staticInit(clinit, getClassLoadAction(field.getDeclaredType()));
+        this.lookupClass.staticInit(clinit, loadClass(field.getDeclaredType()));
 
         // 定义当前字段的getter mh, init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), this.methodType);
@@ -60,7 +60,7 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         VarInst lookupVar = lookupClass.getLookup(clinit);
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FIND_STATIC_GETTER_METHOD : MethodDescriptor.LOOKUP_FIND_GETTER_METHOD);
         findGetter.setInstance(lookupVar)
-                .setArgs(lookupClass, LdcLoadAction.of(fieldName), getClassLoadAction(fieldType));
+                .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
         mhMember.store(clinit, findGetter);
     }
 }

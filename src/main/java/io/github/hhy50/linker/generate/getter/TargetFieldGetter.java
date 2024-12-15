@@ -1,11 +1,15 @@
 package io.github.hhy50.linker.generate.getter;
 
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.utils.Members;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.util.AnnotationUtils;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 
@@ -14,6 +18,8 @@ import org.objectweb.asm.Type;
  */
 public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     private final Member targetObj;
+
+    private ClassTypeMember targetClass;
 
     /**
      * Instantiates a new Target field getter.
@@ -26,10 +32,30 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         this.targetObj = Members.of(targetFieldRef.fieldName, ObjectVar.TYPE);
     }
 
+    @Override
+    protected void define0(InvokeClassImplBuilder classImplBuilder) {
+        if (AnnotationUtils.isRuntime(classImplBuilder.getDefineClass())) {
+            this.targetClass = classImplBuilder.defineLookupClass(Opcodes.ACC_PUBLIC, "target");
+//            classImplBuilder.defineConstruct(Opcodes.ACC_PUBLIC, Object.class, Class.class)
+//                    .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor(Object.class)).setArgs(Args.of(0))
+//                            .andThen(this.targetClass.store(Args.of(1)))
+//                            .andThen(Actions.areturn(Type.VOID_TYPE)));
+        }
+        super.define0(classImplBuilder);
+    }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
         return methodBody.newLocalVar(field.getType(), field.fieldName, this.targetObj);
+    }
+
+    /**
+     * Gets target class.
+     *
+     * @return the target class
+     */
+    public ClassTypeMember getTargetClass() {
+        return targetClass;
     }
 
     /**

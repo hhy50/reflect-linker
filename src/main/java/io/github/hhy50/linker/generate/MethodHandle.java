@@ -90,21 +90,26 @@ public abstract class MethodHandle {
      * @param prevGetter  the prev getter
      */
     protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst, Getter<?> prevGetter) {
-        Type defaultType = null;
-        if (prevGetter instanceof TargetFieldGetter) {
-            defaultType = ((TargetFieldGetter) prevGetter).getTargetType();
-        }
         body.append(new ConditionJumpAction(
                 must(notNull(varInst),
                         any(isNull(lookupClass), notEq(varInst.getThisClass(), lookupClass))),
                 lookupClass.store(varInst.getThisClass()),
                 null
         ));
-        if (defaultType != null) {
-            final Type fd = defaultType;
+        if (prevGetter instanceof TargetFieldGetter) {
+            final ClassTypeMember targetClass = ((TargetFieldGetter) prevGetter).getTargetClass();
+            if (targetClass != null) {
+                body.append(new ConditionJumpAction(
+                        isNull(lookupClass),
+                        lookupClass.store(targetClass),
+                        null
+                ));
+            }
+
+            final Type defaultType = ((TargetFieldGetter) prevGetter).getTargetType();
             body.append(new ConditionJumpAction(
                     isNull(lookupClass),
-                    lookupClass.store(getClassLoadAction(fd)),
+                    lookupClass.store(loadClass(defaultType)),
                     null
             ));
         }
@@ -145,7 +150,7 @@ public abstract class MethodHandle {
      * @param type the type
      * @return the class load action
      */
-    protected Action getClassLoadAction(Type type) {
+    protected Action loadClass(Type type) {
         return new DynamicClassLoad(type);
     }
 

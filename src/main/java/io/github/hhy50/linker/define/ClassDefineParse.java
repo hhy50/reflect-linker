@@ -10,15 +10,18 @@ import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
+import io.github.hhy50.linker.generate.ClassImplGenerator;
 import io.github.hhy50.linker.token.Token;
 import io.github.hhy50.linker.token.TokenParser;
 import io.github.hhy50.linker.token.Tokens;
 import io.github.hhy50.linker.util.*;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static io.github.hhy50.linker.util.AnnotationUtils.isRuntime;
 import static io.github.hhy50.linker.util.ClassUtil.getTypeDefines;
 
 /**
@@ -26,30 +29,56 @@ import static io.github.hhy50.linker.util.ClassUtil.getTypeDefines;
  */
 public class ClassDefineParse {
 
-    private static final Map<String, InterfaceClassDefine> PARSED = new HashMap<>();
+    private static final Map<String, Map<String, InterfaceImplClassDefine>> PARSED = new HashMap<>();
     private static final String FIRST_OBJ_NAME = "target";
     private static final TokenParser TOKEN_PARSER = new TokenParser();
 
     /**
-     * Parse class interface class define.
+     * Parse class interface impl class define.
      *
      * @param define      the define
-     * @param classLoader the class loader
-     * @return the interface class define
+     * @param targetClass the target class
+     * @param cl          the cl
+     * @return interface impl class define
      * @throws ParseException         the parse exception
      * @throws ClassNotFoundException the class not found exception
+     * @throws IOException            the io exception
      */
-    public static InterfaceClassDefine parseClass(Class<?> define, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
-        InterfaceClassDefine defineClass = PARSED.get(define.getName());
+    public static InterfaceImplClassDefine parseClass(Class<?> define, Class<?> targetClass, ClassLoader cl) throws ParseException,
+            ClassNotFoundException, IOException {
+        if (isRuntime(define)) {
+            targetClass = Object.class;
+        } else if (targetClass == null) {
+            Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
+            if (bindAnno == null) {
+                throw new VerifyException("use @Target.Bind specified a class  \n" +
+                        "                  or use @Runtime designated as runtime");
+            }
+            targetClass = cl.loadClass(bindAnno.value());
+        }
+
+        String dynKey = targetClass == Object.class ? "runtime" : targetClass.getName().replace('.', '_');
+        InterfaceImplClassDefine defineClass = getCache(define, dynKey);
         if (defineClass != null) {
             return defineClass;
         }
-        Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
-        if (bindAnno == null || bindAnno.value().equals("")) {
-            throw new VerifyException("use @Target.Bind specified a class");
-        }
-        Class<?> targetClass = classLoader.loadClass(bindAnno.value());
-        return doParseClass(define, targetClass, classLoader);
+
+        defineClass = doParseClass(define, targetClass, cl);
+        defineClass.setClassName(define.getName()+"$"+dynKey);
+
+        ClassImplGenerator.generateBytecode(defineClass, cl);
+        putCache(define, dynKey, defineClass);
+        return defineClass;
+    }
+
+    private static InterfaceImplClassDefine getCache(Class<?> define, String dynKey) {
+        Map<String, InterfaceImplClassDefine> parsed = PARSED.computeIfAbsent(define.getName(), k -> new HashMap<>());
+        return parsed.get(dynKey);
+    }
+
+    private static void putCache(Class<?> define, String dynKey, InterfaceImplClassDefine classDefine) {
+        Map<String, InterfaceImplClassDefine> parsed = PARSED.computeIfAbsent(define.getName(), k -> new HashMap<>());
+        parsed.put(dynKey, classDefine);
     }
 
     /**
@@ -57,40 +86,37 @@ public class ClassDefineParse {
      *
      * @param define      the define
      * @param targetClass the target class
-     * @param classLoader the class loader
+     * @param cl the class loader
      * @return the interface class define
      * @throws ParseException         the parse exception
      * @throws ClassNotFoundException the class not found exception
      */
-    public static InterfaceClassDefine doParseClass(Class<?> define, Class<?> targetClass, ClassLoader classLoader) throws ParseException, ClassNotFoundException {
+    private static InterfaceImplClassDefine doParseClass(Class<?> define, Class<?> targetClass, ClassLoader cl) throws ParseException, ClassNotFoundException {
         Map<String, String> typeDefines = getTypeDefines(define);
         List<MethodDefine> methodDefines = new ArrayList<>();
 
         FieldRef targetField = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, targetClass);
-        if (AnnotationUtils.isRuntime(define)) {
+        if (isRuntime(define)) {
             targetField = targetField.toRuntime();
         }
         for (Method methodDefine : define.getDeclaredMethods()) {
             if (methodDefine.isDefault()) continue;
-            methodDefines.add(parseMethod(targetField, classLoader, methodDefine, typeDefines));
+            methodDefines.add(parseMethod(targetField, cl, methodDefine, typeDefines));
         }
-
-        InterfaceClassDefine classDefine = new InterfaceClassDefine(define, targetClass, methodDefines);
-        PARSED.put(define.getName(), classDefine);
-        return classDefine;
+        return new InterfaceImplClassDefine(define, targetClass, methodDefines);
     }
 
     /**
      * Parse method method define.
      *
      * @param firstField   the first field
-     * @param classLoader  the class loader
+     * @param cl           the class loader
      * @param method       the method
      * @param typedDefines the typed defines
      * @return the method define
      * @throws ClassNotFoundException the class not found exception
      */
-    public static MethodDefine parseMethod(FieldRef firstField, ClassLoader classLoader, Method method, Map<String, String> typedDefines) throws ClassNotFoundException {
+    public static MethodDefine parseMethod(FieldRef firstField, ClassLoader cl, Method method, Map<String, String> typedDefines) throws ClassNotFoundException {
         verify(method);
 
         String fieldExpr = null;
@@ -108,17 +134,17 @@ public class ClassDefineParse {
 
         String targetClassName = typedDefines.get(FIRST_OBJ_NAME);
         if (firstField instanceof EarlyFieldRef && StringUtil.isNotEmpty(targetClassName)) {
-            firstField = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, classLoader.loadClass(targetClassName));
+            firstField = new EarlyFieldRef(null, null, FIRST_OBJ_NAME, cl.loadClass(targetClassName));
         }
         firstField.setFullName(FIRST_OBJ_NAME);
 
         MethodDefine methodDefine = new MethodDefine(method);
         if (fieldExpr != null) {
             Tokens tokens = TOKEN_PARSER.parse(fieldExpr);
-            methodDefine.fieldRef = parseFieldExpr(firstField, classLoader, tokens,
+            methodDefine.fieldRef = parseFieldExpr(firstField, cl, tokens,
                     AnnotationUtils.getDesignateStaticFields(method, tokens.tail().value()),
                     typedDefines);
-            if (AnnotationUtils.isRuntime(method)) {
+            if (isRuntime(method)) {
                 methodDefine.fieldRef = methodDefine.fieldRef.toRuntime();
             }
         } else {
@@ -129,15 +155,15 @@ public class ClassDefineParse {
                 fieldExpr = methodName.substring(0, i);
                 methodName = methodName.substring(i+1);
             }
-            methodDefine.methodRef = parseMethodExpr(firstField, classLoader, methodName, method, TOKEN_PARSER.parse(fieldExpr), typedDefines);
+            methodDefine.methodRef = parseMethodExpr(firstField, cl, methodName, method, TOKEN_PARSER.parse(fieldExpr), typedDefines);
         }
         return methodDefine;
     }
 
-    private static MethodRef parseMethodExpr(FieldRef firstField, ClassLoader classLoader, String targetMethod, Method defineMethod,
+    private static MethodRef parseMethodExpr(FieldRef firstField, ClassLoader cl, String targetMethod, Method defineMethod,
                                              final Tokens fieldTokens, Map<String, String> typedDefines) throws ClassNotFoundException {
         Map<String, Boolean> staticTokens = AnnotationUtils.getDesignateStaticFields(defineMethod, targetMethod);
-        FieldRef owner = parseFieldExpr(firstField, classLoader, fieldTokens, staticTokens, typedDefines);
+        FieldRef owner = parseFieldExpr(firstField, cl, fieldTokens, staticTokens, typedDefines);
         String[] argsType = Arrays.stream(defineMethod.getParameters())
                 .map(item -> {
                     String typed = AnnotationUtils.getTyped(item);
@@ -151,7 +177,7 @@ public class ClassDefineParse {
                     return item.getType().getName();
                 }).toArray(String[]::new);
         Class<?> returnClass = defineMethod.getReturnType();
-        if (AnnotationUtils.isRuntime(defineMethod)) {
+        if (isRuntime(defineMethod)) {
             owner = owner.toRuntime();
         }
         io.github.hhy50.linker.annotations.Method.InvokeSuper invokeSuperAnno = defineMethod.getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class);
@@ -178,7 +204,7 @@ public class ClassDefineParse {
     }
 
 
-    private static FieldRef parseFieldExpr(FieldRef firstField, ClassLoader classLoader, final Tokens tokens,
+    private static FieldRef parseFieldExpr(FieldRef firstField, ClassLoader cl, final Tokens tokens,
                                            Map<String, Boolean> staticFields, Map<String, String> typedDefines) throws ClassNotFoundException {
         boolean isRuntime = firstField instanceof RuntimeFieldRef;
         Class<?> currentType = isRuntime ? null : ((EarlyFieldRef) firstField).getClassType();
@@ -189,7 +215,7 @@ public class ClassDefineParse {
             currentType = currentField == null ? null : currentField.getType();
             fullField = fullField == null ? token.value() : (fullField+"."+token.value());
 
-            Class<?> assignedType = getFieldTyped(typedDefines, classLoader, fullField, token.value());
+            Class<?> assignedType = getFieldTyped(typedDefines, cl, fullField, token.value());
             if (assignedType != null) {
                 if (currentField != null && !ClassUtil.isAssignableFrom(assignedType, currentField.getType())) {
                     throw new ClassTypeNotMatchException(assignedType.getName(), currentField.getType().getName());
@@ -235,12 +261,12 @@ public class ClassDefineParse {
         }
     }
 
-    private static Class<?> getFieldTyped(Map<String, String> typedDefines, ClassLoader classLoader, String fullField, String tokenValue) throws ClassNotFoundException {
+    private static Class<?> getFieldTyped(Map<String, String> typedDefines, ClassLoader cl, String fullField, String tokenValue) throws ClassNotFoundException {
         if (typedDefines.containsKey(fullField)) {
-            return classLoader.loadClass(typedDefines.get(fullField));
+            return cl.loadClass(typedDefines.get(fullField));
         }
         if (typedDefines.containsKey(tokenValue)) {
-            return classLoader.loadClass(typedDefines.get(tokenValue));
+            return cl.loadClass(typedDefines.get(tokenValue));
         }
         return null;
     }

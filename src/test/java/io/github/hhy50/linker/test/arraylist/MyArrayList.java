@@ -21,7 +21,7 @@ public interface MyArrayList {
      *
      * @param o a {@link java.lang.Object} object.
      */
-//    @Runtime
+    @Runtime
     void add(Object o);
     /**
      * <p>clear.</p>

@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.InterfaceClassDefine;
+import io.github.hhy50.linker.define.InterfaceImplClassDefine;
 import io.github.hhy50.linker.define.MethodDefine;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.util.ClassUtil;
@@ -30,18 +30,18 @@ public class ClassImplGenerator {
      * @param cl          the cl
      * @throws IOException the io exception
      */
-    public static void generateBytecode(InterfaceClassDefine defineClass, final ClassLoader cl) throws IOException {
+    public static void generateBytecode(InterfaceImplClassDefine defineClass, final ClassLoader cl) throws IOException {
         if (cl == null) {
             throw new IllegalArgumentException("classLoader must not be null");
         }
 
         Class<?> define = defineClass.getDefine();
-        String implClassName = define.getName()+"$impl";
+        String implClassName = defineClass.getClassName();
         Class<?> targetClass = defineClass.getTargetClass();
         InvokeClassImplBuilder classBuilder = InvokeClassImplBuilder
                 .builder(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
                 .setTarget(targetClass)
-                .init();
+                .setDefineClass(define);
 
         List<MethodDefine> methodDefines = defineClass.getMethodDefines();
         methodDefines.sort(Comparator.comparing(MethodDefine::getName));

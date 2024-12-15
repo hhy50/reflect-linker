@@ -2,6 +2,7 @@ package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Runtime;
+import io.github.hhy50.linker.annotations.Static;
 import io.github.hhy50.linker.annotations.Target;
 
 /**
@@ -11,7 +12,6 @@ import io.github.hhy50.linker.annotations.Target;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Runtime
 @Target.Bind("java.util.ArrayList")
 public interface MyArrayList2 {
 
@@ -22,5 +22,6 @@ public interface MyArrayList2 {
      * @return a {@link Object} object.
      */
     @Field.Getter("elementData")
+    @Runtime
     Object getElementData();
 }

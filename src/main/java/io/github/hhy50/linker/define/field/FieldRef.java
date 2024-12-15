@@ -113,8 +113,8 @@ public abstract class FieldRef {
             return this;
         }
 
-        RuntimeFieldRef runtime = new RuntimeFieldRef(this.getPrev(), this.objName, this.fieldName);
-        runtime.designateStatic(((EarlyFieldRef) this).isStatic());
-        return runtime;
+//        RuntimeFieldRef runtime = new RuntimeFieldRef(this.getPrev(), this.objName, this.fieldName);
+//        runtime.designateStatic(((EarlyFieldRef) this).isStatic());
+        return new RuntimeFieldRef(this.getPrev(), this.objName, this.fieldName);
     }
 }

@@ -28,7 +28,7 @@ public class Tokens implements Iterable<Token> {
     /**
      * Tail token.
      *
-     * @return token
+     * @return token token
      */
     public Token tail() {
         return tail;

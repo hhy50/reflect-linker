@@ -6,10 +6,11 @@ import java.util.List;
 /**
  * The type Interface class define.
  */
-public class InterfaceClassDefine {
+public class InterfaceImplClassDefine {
     private Class<?> define;
     private Class<?> targetClass;
     private List<MethodDefine> methodDefines;
+    private String className;
     private byte[] bytecode;
 
     /**
@@ -19,7 +20,7 @@ public class InterfaceClassDefine {
      * @param targetClass   the target class
      * @param methodDefines the method defines
      */
-    public InterfaceClassDefine(Class<?> define, Class<?> targetClass, List<MethodDefine> methodDefines) {
+    public InterfaceImplClassDefine(Class<?> define, Class<?> targetClass, List<MethodDefine> methodDefines) {
         this.define = define;
         this.targetClass = targetClass;
         this.methodDefines = methodDefines;
@@ -58,7 +59,7 @@ public class InterfaceClassDefine {
      * @param bytecode the bytecode
      * @return the bytecode
      */
-    public InterfaceClassDefine setBytecode(byte[] bytecode) {
+    public InterfaceImplClassDefine setBytecode(byte[] bytecode) {
         this.bytecode = bytecode;
         return this;
     }
@@ -70,5 +71,23 @@ public class InterfaceClassDefine {
      */
     public byte[] getBytecode() {
         return bytecode;
+    }
+
+    /**
+     * Gets class name.
+     *
+     * @return the class name
+     */
+    public String getClassName() {
+        return className;
+    }
+
+    /**
+     * Sets class name.
+     *
+     * @param className the class name
+     */
+    public void setClassName(String className) {
+        this.className = className;
     }
 }

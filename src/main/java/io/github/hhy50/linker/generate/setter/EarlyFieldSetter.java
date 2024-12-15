@@ -41,7 +41,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
-        lookupClass.staticInit(clinit, getClassLoadAction(field.getDeclaredType()));
+        lookupClass.staticInit(clinit, loadClass(field.getDeclaredType()));
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), this.methodType);
@@ -61,6 +61,6 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         VarInst lookupVar = lookupClass.getLookup(clinit);
         mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FIND_STATIC_SETTER_METHOD : MethodDescriptor.LOOKUP_FIND_SETTER_METHOD)
                 .setInstance(lookupVar)
-                .setArgs(lookupClass, LdcLoadAction.of(fieldName), getClassLoadAction(fieldType)));
+                .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType)));
     }
 }

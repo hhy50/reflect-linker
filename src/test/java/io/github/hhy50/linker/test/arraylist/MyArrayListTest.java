@@ -7,6 +7,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -27,6 +31,10 @@ public class MyArrayListTest {
     public void test() throws LinkerException {
         Object[] objects = new Object[10];
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
+        LinkerFactory.createLinker(MyArrayList.class, new LinkedList<>());
+        LinkerFactory.createLinker(MyArrayList.class, new Vector<>());
+        LinkerFactory.createLinker(MyArrayList.class, new CopyOnWriteArrayList<>());
+
         list.setElementData(objects);
 
         Assert.assertTrue(list instanceof TargetProvider);

@@ -5,7 +5,10 @@ import io.github.hhy50.linker.annotations.Typed;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
