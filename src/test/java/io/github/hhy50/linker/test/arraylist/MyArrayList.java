@@ -2,7 +2,6 @@ package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Runtime;
-import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.test.MyInteger;
 
 /**
@@ -12,7 +11,6 @@ import io.github.hhy50.linker.test.MyInteger;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Target.Bind("java.util.ArrayList")
 @Runtime
 public interface MyArrayList {
 

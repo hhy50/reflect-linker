@@ -1,9 +1,7 @@
 package io.github.hhy50.linker.test.finalfield;
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Target;
 
-@Target.Bind(value = "io.github.hhy50.linker.test.finalfield.User")
 public interface UserVisitor {
 
     @Field.Getter("name")

@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.test.statictest;
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Target;
 
 /**
  * <p>MyStaticClass interface.</p>
@@ -10,7 +9,6 @@ import io.github.hhy50.linker.annotations.Target;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Target.Bind("io.github.hhy50.linker.test.statictest.StaticClass")
 public interface MyStaticClass {
 
     /**

@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.test.nest.case1;
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.annotations.Typed;
 
 /**
@@ -12,7 +11,6 @@ import io.github.hhy50.linker.annotations.Typed;
  * @since 1.0.0
  */
 @Typed(name = "a", type = "io.github.hhy50.linker.test.nest.case1.A2")
-@Target.Bind("io.github.hhy50.linker.test.nest.case1.Obj")
 public interface ObjVisitor2 {
     /**
      * <p>getA.</p>

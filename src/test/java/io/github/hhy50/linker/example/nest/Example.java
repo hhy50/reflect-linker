@@ -2,7 +2,6 @@ package io.github.hhy50.linker.example.nest;
 
 import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.exceptions.LinkerException;
 
 class User {
@@ -15,7 +14,6 @@ class UserWrap {
 }
 
 
-@Target.Bind("io.github.hhy50.linker.example.nest.UserWrap")
 interface UserVisitor {
     @Field.Getter("user")
     User getUser();

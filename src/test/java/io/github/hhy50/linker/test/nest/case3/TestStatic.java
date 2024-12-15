@@ -10,7 +10,7 @@ public class TestStatic {
 
     @Test
     public void test1() throws LinkerException {
-        FirstVisitor linker = LinkerFactory.createStaticLinker(FirstVisitor.class, TestStatic.class.getClassLoader());
+        FirstVisitor linker = LinkerFactory.createStaticLinker(FirstVisitor.class, FirstClass.class);
         Assert.assertEquals(linker.getThreeClass(), ThreeClass.class.getName());
 
         linker.setThreeClass("1234");

@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.test;
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Target;
 
 
 /**
@@ -11,7 +10,6 @@ import io.github.hhy50.linker.annotations.Target;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Target.Bind("java.util.HashMap")
 public interface MyHashMap {
 
     /**

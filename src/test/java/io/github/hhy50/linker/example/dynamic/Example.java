@@ -3,7 +3,6 @@ package io.github.hhy50.linker.example.dynamic;
 import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
-import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.LinkerException;
 
@@ -29,12 +28,10 @@ class MyObject {
     }
 }
 
-@Target.Bind("io.github.hhy50.linker.example.dynamic.A")
 interface AVisitor {
 
 }
 
-@Target.Bind("io.github.hhy50.linker.example.dynamic.MyObject")
 interface MyObjectVisitor {
     @Field.Setter("a")
     void setA(AVisitor val);

@@ -5,7 +5,6 @@ import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.annotations.Typed;
 
 
-//@Target.Bind("java.lang.Object")
 /**
  * <p>MyInteger interface.</p>
  *
