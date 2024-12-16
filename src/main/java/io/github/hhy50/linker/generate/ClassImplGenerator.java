@@ -13,9 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.util.Comparator;
-import java.util.List;
-
 
 /**
  * The type Class impl generator.
@@ -43,10 +40,7 @@ public class ClassImplGenerator {
                 .setTarget(targetClass)
                 .setDefineClass(define);
 
-        List<MethodDefine> methodDefines = defineClass.getMethodDefines();
-        methodDefines.sort(Comparator.comparing(MethodDefine::getName));
-
-        for (MethodDefine methodDefine : methodDefines) {
+        for (MethodDefine methodDefine : defineClass.getMethodDefines()) {
             Method method = methodDefine.define;
             classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null)
                     .accept(body -> {

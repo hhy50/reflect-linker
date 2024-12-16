@@ -211,6 +211,9 @@ public class AsmUtil {
     public static Type getType(String clazz) {
         Type primitiveType = getPrimitiveType(clazz);
         if (primitiveType != null) return primitiveType;
+        if (clazz.startsWith("[")) {
+            return Type.getType(ClassUtil.className2path(clazz));
+        }
         return Type.getType(toTypeDesc(clazz));
     }
 

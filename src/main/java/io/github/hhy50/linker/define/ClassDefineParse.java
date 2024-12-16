@@ -51,7 +51,7 @@ public class ClassDefineParse {
         } else if (targetClass == null) {
             Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
             if (bindAnno == null) {
-                throw new VerifyException("use @Target.Bind specified a class  \n" +
+                throw new VerifyException("use @Target.Bind specified a class  \n"+
                         "                  or use @Runtime designated as runtime");
             }
             targetClass = cl.loadClass(bindAnno.value());
@@ -86,7 +86,7 @@ public class ClassDefineParse {
      *
      * @param define      the define
      * @param targetClass the target class
-     * @param cl the class loader
+     * @param cl          the class loader
      * @return the interface class define
      * @throws ParseException         the parse exception
      * @throws ClassNotFoundException the class not found exception
@@ -102,6 +102,13 @@ public class ClassDefineParse {
         for (Method methodDefine : define.getDeclaredMethods()) {
             if (methodDefine.isDefault()) continue;
             methodDefines.add(parseMethod(targetField, cl, methodDefine, typeDefines));
+        }
+        Class<?>[] interfaces = define.getInterfaces();
+        if (interfaces.length > 0) {
+            for (Method methodDefine : interfaces[0].getDeclaredMethods()) {
+                if (methodDefine.isDefault()) continue;
+                methodDefines.add(parseMethod(targetField, cl, methodDefine, typeDefines));
+            }
         }
         return new InterfaceImplClassDefine(define, targetClass, methodDefines);
     }
