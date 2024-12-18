@@ -1,7 +1,6 @@
-package io.github.hhy50.linker.generate.invoker;
+package io.github.hhy50.linker.generate.constructor;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -13,16 +12,9 @@ import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
-/**
- * The type Invoker.
- *
- * @param <T> the type parameter
- */
-public abstract class Invoker<T extends MethodRef> extends MethodHandle {
+public abstract class Constructor<T extends MethodRef> extends MethodHandle {
     /**
      * The Method.
      */
@@ -35,10 +27,6 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      * The Method holder.
      */
     protected MethodDescriptor methodDescriptor;
-    /**
-     * The generic.
-     */
-    protected boolean generic;
 
     /**
      * Instantiates a new Invoker.
@@ -47,33 +35,10 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      * @param method    the method
      * @param mType     the m type
      */
-    public Invoker(String implClass, T method, Type mType) {
+    public Constructor(String implClass, T method, Type mType) {
         this.method = method;
-        this.generic = isUnreachable(method);
-        this.methodType = generic ? genericType(mType) : mType;
+        this.methodType = genericType(mType);
         this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_"+method.getFullName(), methodType.getDescriptor());
-    }
-
-    /**
-     * 如果存在无法访问的类, 就擦除类型转为Object
-     *
-     * @param methodDefine
-     * @return
-     */
-    private boolean isUnreachable(T methodDefine) {
-        if (methodDefine instanceof EarlyMethodRef) {
-            Method method = ((EarlyMethodRef) methodDefine).getMethod();
-            if (!Modifier.isPublic(method.getReturnType().getModifiers())) {
-                return true;
-            }
-            for (Class<?> parameterType : method.getParameterTypes()) {
-                if (!Modifier.isPublic(parameterType.getModifiers())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return true;
     }
 
     @Override

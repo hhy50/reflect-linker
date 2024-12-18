@@ -19,6 +19,7 @@ import io.github.hhy50.linker.util.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import static io.github.hhy50.linker.util.AnnotationUtils.isRuntime;
@@ -99,16 +100,9 @@ public class ClassDefineParse {
         if (isRuntime(define)) {
             targetField = targetField.toRuntime();
         }
-        for (Method methodDefine : define.getDeclaredMethods()) {
-            if (methodDefine.isDefault()) continue;
-            methodDefines.add(parseMethod(targetField, cl, methodDefine, typeDefines));
-        }
-        Class<?>[] interfaces = define.getInterfaces();
-        if (interfaces.length > 0) {
-            for (Method methodDefine : interfaces[0].getDeclaredMethods()) {
-                if (methodDefine.isDefault()) continue;
-                methodDefines.add(parseMethod(targetField, cl, methodDefine, typeDefines));
-            }
+        for (Method method : define.getMethods()) {
+            if (!Modifier.isAbstract(method.getModifiers())) continue;
+            methodDefines.add(parseMethod(targetField, cl, method, typeDefines));
         }
         return new InterfaceImplClassDefine(define, targetClass, methodDefines);
     }

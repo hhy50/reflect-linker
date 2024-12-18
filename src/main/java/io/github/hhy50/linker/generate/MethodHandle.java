@@ -67,7 +67,7 @@ public abstract class MethodHandle {
      * @param methodType  the method type
      * @param isStatic    the is static
      */
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassTypeMember lookupClass, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type methodType, boolean isStatic) {
 
     }
 
@@ -197,12 +197,17 @@ public abstract class MethodHandle {
                 LdcLoadAction.of(type).load(body);
                 return;
             }
-            if (this.clazzVar == null) {
+
+            if ((this.clazzVar = body.getClassObjCache(type)) == null) {
                 AsmClassBuilder classBuilder = body.getClassBuilder();
                 Action cl = LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
                         .invokeMethod(MethodDescriptor.GET_CLASS_LOADER);
                 this.clazzVar = body.newLocalVar(Type.getType(Class.class), new MethodInvokeAction(Runtime.GET_CLASS)
                         .setArgs(cl, LdcLoadAction.of(type.getClassName())));
+
+                if (body.getMethodBuilder().isStatic()) {
+                    body.putClassObjCache(type, this.clazzVar);
+                }
             }
             clazzVar.loadToStack();
         }

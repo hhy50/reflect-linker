@@ -13,7 +13,11 @@ import org.objectweb.asm.Type;
  */
 public class MethodHandleMember extends Member {
 
+    private final Type invokerType;
+
     private final Type methodType;
+
+    private boolean invokeExact;
 
     /**
      * Instantiates a new Method handle member.
@@ -23,6 +27,13 @@ public class MethodHandleMember extends Member {
      */
     public MethodHandleMember(Member member, Type methodType) {
         super(member.access, member.owner, member.memberName, member.type);
+        this.invokerType = null;
+        this.methodType = methodType;
+    }
+
+    public MethodHandleMember(Member member, Type invokerType, Type methodType) {
+        super(member.access, member.owner, member.memberName, member.type);
+        this.invokerType = invokerType;
         this.methodType = methodType;
     }
 
@@ -49,7 +60,7 @@ public class MethodHandleMember extends Member {
      * @return the action
      */
     public Action invokeStatic(Action... args) {
-        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", "invoke", methodType.getDescriptor()))
+        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke", methodType.getDescriptor()))
                 .setInstance(this)
                 .setArgs(args);
     }
@@ -62,13 +73,19 @@ public class MethodHandleMember extends Member {
      * @return the action
      */
     public Action invokeInstance(VarInst that, Action... args) {
+        Type invokerType = this.invokerType == null ? that.getType() : this.invokerType;
+
         Action[] newArgs = new Action[args.length+1];
-        newArgs[0] = that;
+        newArgs[0] = new TypeCastAction(that, invokerType);
         System.arraycopy(args, 0, newArgs, 1, args.length);
 
         // 动态签名
-        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", "invoke", AsmUtil.addArgsDesc(methodType, Type.getType(Object.class), true).getDescriptor()))
+        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke", AsmUtil.addArgsDesc(methodType, invokerType, true).getDescriptor()))
                 .setInstance(this)
                 .setArgs(newArgs);
+    }
+
+    public void setInvokeExact(boolean invokeExact) {
+        this.invokeExact = invokeExact;
     }
 }

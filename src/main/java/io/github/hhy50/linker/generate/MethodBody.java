@@ -11,6 +11,8 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -22,6 +24,7 @@ public class MethodBody {
     private final MethodVisitor writer;
     private int lvbIndex;
     private final VarInst[] args;
+    private final Map<String, LocalVarInst> classObjCache;
 
     /**
      * Instantiates a new Method body.
@@ -36,7 +39,7 @@ public class MethodBody {
         this.writer = mv;
         this.lvbIndex = AsmUtil.calculateLvbOffset(methodBuilder.isStatic(), argumentTypes);
         this.args = new VarInst[argumentTypes.length];
-
+        this.classObjCache = new HashMap<>();
         initArgsTable(argumentTypes);
     }
 
@@ -135,6 +138,10 @@ public class MethodBody {
         return methodBuilder.getMethodDescriptor();
     }
 
+    public MethodBuilder getMethodBuilder() {
+        return this.methodBuilder;
+    }
+
     /**
      * End.
      */
@@ -143,5 +150,13 @@ public class MethodBody {
         if (classBuilder.isAutoCompute()) {
             this.writer.visitMaxs(0, 0);
         }
+    }
+
+    public LocalVarInst getClassObjCache(Type type) {
+        return this.classObjCache.get(type.getClassName());
+    }
+
+    public void putClassObjCache(Type type, LocalVarInst clazzVar) {
+        this.classObjCache.put(type.getClassName(), clazzVar);
     }
 }

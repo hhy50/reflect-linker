@@ -30,6 +30,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      */
     protected void typecastArgs(MethodBody methodBody, VarInst[] args, Class<?>[] parameterTypes, Type[] expectTypes) {
         // 校验入参类型
+        VarInst[] realArgs = methodBody.getArgs();
         for (int i = 0; i < args.length; i++) {
             VarInst arg = args[i];
             Type expectType = expectTypes[i];
@@ -41,7 +42,7 @@ public abstract class AbstractDecorator extends MethodHandle {
             }
 
             VarInst newArg = typeCheck(methodBody, arg, expectType);
-            methodBody.getArgs()[i] = newArg;
+            realArgs[i] = newArg;
         }
     }
 
@@ -54,6 +55,9 @@ public abstract class AbstractDecorator extends MethodHandle {
      * @return the var inst
      */
     protected VarInst typecastResult(MethodBody methodBody, VarInst varInst, Class<?> resultTypeClass) {
+        if (resultTypeClass == Object.class && !AsmUtil.isPrimitiveType(varInst.getType())) {
+            return varInst;
+        }
         Type expectType = Type.getType(resultTypeClass);
         String bindClass = AnnotationUtils.getBind(resultTypeClass);
         varInst = typeCheck(methodBody, varInst, StringUtil.isNotEmpty(bindClass)
@@ -109,7 +113,7 @@ public abstract class AbstractDecorator extends MethodHandle {
                     Actions.throwTypeCastException(varInst.getName(), expectType),
                     null
             ));
-            return varInst;
+            return methodBody.newLocalVar(expectType, new TypeCastAction(varInst, expectType));
         } else {
             throw new TypeNotMatchException(varInst.getType(), expectType);
         }

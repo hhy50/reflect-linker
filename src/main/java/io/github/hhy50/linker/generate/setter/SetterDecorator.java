@@ -40,7 +40,7 @@ public class SetterDecorator extends AbstractDecorator {
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // 方法定义的类型
-        typecastArgs(methodBody, methodBody.getArgs(), methodDefine.define.getParameterTypes(), new Type[]{fieldRef.getType()});
+        typecastArgs(methodBody, methodBody.getArgs(), methodDefine.method.getParameterTypes(), new Type[]{fieldRef.getType()});
         setter.invoke(methodBody);
         AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);
         return null;

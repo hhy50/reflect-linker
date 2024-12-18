@@ -41,7 +41,7 @@ public class ClassImplGenerator {
                 .setDefineClass(define);
 
         for (MethodDefine methodDefine : defineClass.getMethodDefines()) {
-            Method method = methodDefine.define;
+            Method method = methodDefine.method;
             classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null)
                     .accept(body -> {
                         generateMethodImpl(classBuilder, body, methodDefine);
@@ -61,10 +61,12 @@ public class ClassImplGenerator {
             mh = BytecodeFactory.generateGetter(classBuilder, methodDefine, methodDefine.fieldRef);
         } else if (methodDefine.hasSetter()) {
             mh = BytecodeFactory.generateSetter(classBuilder, methodDefine, methodDefine.fieldRef);
+        } else if (methodDefine.hasConstructor()) {
+            mh = BytecodeFactory.generateConstructor(classBuilder, methodDefine, methodDefine.methodRef);
         } else if (methodDefine.methodRef != null) {
             mh = BytecodeFactory.generateInvoker(classBuilder, methodDefine, methodDefine.methodRef);
         } else {
-            AsmUtil.throwNoSuchMethod(body.getWriter(), methodDefine.define.getName());
+            AsmUtil.throwNoSuchMethod(body.getWriter(), methodDefine.method.getName());
         }
         if (mh != null) {
             mh.define(classBuilder);

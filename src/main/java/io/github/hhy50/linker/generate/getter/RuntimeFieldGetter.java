@@ -31,7 +31,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         getter.define(classImplBuilder);
 
         // 保存当前lookup类型
-        this.lookupClass = classImplBuilder.defineLookupClass(Opcodes.ACC_PUBLIC, field.getUniqueName());
+        this.lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null).accept(body -> {

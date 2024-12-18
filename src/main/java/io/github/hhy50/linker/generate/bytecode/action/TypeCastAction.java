@@ -26,6 +26,10 @@ public class TypeCastAction implements Action {
     @Override
     public void apply(MethodBody body) {
         obj.apply(body);
+        if (obj instanceof TypedAction
+                && ((TypedAction) obj).getType().equals(type)) {
+            return;
+        }
         MethodVisitor mv = body.getWriter();
         mv.visitTypeInsn(Opcodes.CHECKCAST, type.getInternalName());
     }

@@ -42,10 +42,10 @@ public class InvokerDecorator extends AbstractDecorator {
         MethodRef methodRef = methodDefine.methodRef;
         Type[] argsType = methodRef.getArgsType();
 
-        typecastArgs(methodBody, methodBody.getArgs(), methodDefine.define.getParameterTypes(), argsType);
+        typecastArgs(methodBody, methodBody.getArgs(), methodDefine.method.getParameterTypes(), argsType);
         VarInst result = realInvoker.invoke(methodBody);
 
-        Class<?> rClassType = methodDefine.define.getReturnType();
+        Class<?> rClassType = methodDefine.method.getReturnType();
         if (result != null && rClassType != Void.TYPE) {
             typecastResult(methodBody, result, rClassType)
                     .returnThis();

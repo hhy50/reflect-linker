@@ -33,7 +33,7 @@ public class RuntimeFieldSetter extends Setter<RuntimeFieldRef> {
         Getter<?> getter = classImplBuilder.getGetter(prevField.getUniqueName());
         getter.define(classImplBuilder);
 
-        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(Opcodes.ACC_PUBLIC, field.getUniqueName());
+        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getSetterName(), methodType);
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null).accept(body -> {
             VarInst objVar = getter.invoke(body);

@@ -13,9 +13,9 @@ import java.lang.reflect.Method;
 public class MethodDefine {
 
     /**
-     * The Define.
+     * The Method.
      */
-    public Method define;
+    public Method method;
 
     /**
      * The Field ref.
@@ -33,7 +33,7 @@ public class MethodDefine {
      * @param method the method
      */
     public MethodDefine(Method method) {
-        this.define = method;
+        this.method = method;
     }
 
     /**
@@ -42,7 +42,7 @@ public class MethodDefine {
      * @return the boolean
      */
     public boolean hasSetter() {
-        return define.getDeclaredAnnotation(Field.Setter.class) != null;
+        return method.getDeclaredAnnotation(Field.Setter.class) != null;
     }
 
     /**
@@ -51,7 +51,7 @@ public class MethodDefine {
      * @return the boolean
      */
     public boolean hasGetter() {
-        return define.getDeclaredAnnotation(Field.Getter.class) != null;
+        return method.getDeclaredAnnotation(Field.Getter.class) != null;
     }
 
     /**
@@ -63,6 +63,10 @@ public class MethodDefine {
         if (fieldRef != null) {
             return fieldRef.getUniqueName();
         }
-        return define.getName();
+        return method.getName();
+    }
+
+    public boolean hasConstructor() {
+        return method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Constructor.class) != null;
     }
 }

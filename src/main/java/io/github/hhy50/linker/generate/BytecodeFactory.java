@@ -31,7 +31,7 @@ public class BytecodeFactory {
             prev = prev.getPrev();
         }
         Getter<?> getter = classBuilder.defineGetter(fieldRef.getUniqueName(), fieldRef);
-        return new GetterDecorator(getter, fieldRef, methodDefine.define);
+        return new GetterDecorator(getter, fieldRef, methodDefine.method);
     }
 
     /**
@@ -73,5 +73,16 @@ public class BytecodeFactory {
 
         Invoker<?> invoker = classBuilder.defineInvoker(methodRef);
         return new InvokerDecorator(classBuilder.getClassName(), invoker, methodDefine);
+    }
+
+    /**
+     *
+     * @param classBuilder
+     * @param methodDefine
+     * @param methodRef
+     * @return
+     */
+    public static MethodHandle generateConstructor(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, MethodRef methodRef) {
+        return null;
     }
 }

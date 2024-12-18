@@ -9,7 +9,6 @@ import io.github.hhy50.linker.generate.bytecode.utils.Members;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.util.AnnotationUtils;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 
@@ -35,7 +34,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         if (AnnotationUtils.isRuntime(classImplBuilder.getDefineClass())) {
-            this.targetClass = classImplBuilder.defineLookupClass(Opcodes.ACC_PUBLIC, "target");
+            this.targetClass = classImplBuilder.defineLookupClass("target");
 //            classImplBuilder.defineConstruct(Opcodes.ACC_PUBLIC, Object.class, Class.class)
 //                    .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor(Object.class)).setArgs(Args.of(0))
 //                            .andThen(this.targetClass.store(Args.of(1)))
@@ -46,7 +45,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        return methodBody.newLocalVar(field.getType(), field.fieldName, this.targetObj);
+        return methodBody.newLocalVar(ObjectVar.TYPE, field.fieldName, this.targetObj);
     }
 
     /**

@@ -155,15 +155,16 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * Define static method handle method handle member.
      *
      * @param mhMemberName the mh member name
+     * @param invokedType  the method invokedType
      * @param methodType   the method type
      * @return the method handle member
      */
-    public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type methodType) {
+    public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type invokedType, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
             super.defineField(access, mhMemberName, MethodHandle.TYPE, null, null);
         }
-        return new MethodHandleMember(members.get(mhMemberName), methodType);
+        return new MethodHandleMember(members.get(mhMemberName), invokedType, methodType);
     }
 
     /**
@@ -183,24 +184,13 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define lookup class class type member.
      *
-     * @param mName the m name
-     * @return the class type member
-     */
-    public ClassTypeMember defineLookupClass(String mName) {
-        return defineLookupClass(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, mName);
-    }
-
-    /**
-     * Define lookup class class type member.
-     *
-     * @param access the access
      * @param mName  the m name
      * @return the class type member
      */
-    public ClassTypeMember defineLookupClass(int access, String mName) {
+    public ClassTypeMember defineLookupClass(String mName) {
         mName = mName+"_lookup_$_class_type";
         if (!members.containsKey(mName)) {
-            Member member = super.defineField(access, mName, ClassVar.TYPE, null, null);
+            Member member = super.defineField(Opcodes.ACC_PUBLIC, mName, ClassVar.TYPE, null, null);
             ClassTypeMember classTypeMember = new ClassTypeMember(member);
             this.members.put(mName, classTypeMember);
             return classTypeMember;
