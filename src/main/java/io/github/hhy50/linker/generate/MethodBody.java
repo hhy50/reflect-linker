@@ -138,6 +138,11 @@ public class MethodBody {
         return methodBuilder.getMethodDescriptor();
     }
 
+    /**
+     * Gets method builder.
+     *
+     * @return the method builder
+     */
     public MethodBuilder getMethodBuilder() {
         return this.methodBuilder;
     }
@@ -152,10 +157,22 @@ public class MethodBody {
         }
     }
 
+    /**
+     * Gets class obj cache.
+     *
+     * @param type the type
+     * @return the class obj cache
+     */
     public LocalVarInst getClassObjCache(Type type) {
         return this.classObjCache.get(type.getClassName());
     }
 
+    /**
+     * Put class obj cache.
+     *
+     * @param type     the type
+     * @param clazzVar the clazz var
+     */
     public void putClassObjCache(Type type, LocalVarInst clazzVar) {
         this.classObjCache.put(type.getClassName(), clazzVar);
     }

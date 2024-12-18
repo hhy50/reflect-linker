@@ -31,6 +31,13 @@ public class MethodHandleMember extends Member {
         this.methodType = methodType;
     }
 
+    /**
+     * Instantiates a new Method handle member.
+     *
+     * @param member      the member
+     * @param invokerType the invoker type
+     * @param methodType  the method type
+     */
     public MethodHandleMember(Member member, Type invokerType, Type methodType) {
         super(member.access, member.owner, member.memberName, member.type);
         this.invokerType = invokerType;
@@ -85,6 +92,11 @@ public class MethodHandleMember extends Member {
                 .setArgs(newArgs);
     }
 
+    /**
+     * Sets invoke exact.
+     *
+     * @param invokeExact the invoke exact
+     */
     public void setInvokeExact(boolean invokeExact) {
         this.invokeExact = invokeExact;
     }

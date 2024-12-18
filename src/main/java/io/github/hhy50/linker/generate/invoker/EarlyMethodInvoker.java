@@ -9,7 +9,6 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.runtime.Runtime;
@@ -59,8 +58,6 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
-        VarInst lookupVar = clinit.newLocalVar(LookupVar.TYPE, new MethodInvokeAction(Runtime.LOOKUP)
-                .setArgs(lookupClass));
         MethodInvokeAction findXXX;
         Action argsType = Actions.asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
         if (invokeSpecial) {
@@ -77,6 +74,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
             );
         }
-        mhMember.store(clinit, findXXX.setInstance(lookupVar));
+        mhMember.store(clinit, findXXX.setInstance(new MethodInvokeAction(Runtime.LOOKUP)
+                .setArgs(lookupClass)));
     }
 }

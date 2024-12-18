@@ -184,7 +184,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define lookup class class type member.
      *
-     * @param mName  the m name
+     * @param mName the m name
      * @return the class type member
      */
     public ClassTypeMember defineLookupClass(String mName) {

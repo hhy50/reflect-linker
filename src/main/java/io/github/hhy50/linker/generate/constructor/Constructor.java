@@ -14,6 +14,11 @@ import org.objectweb.asm.Type;
 
 import java.util.Arrays;
 
+/**
+ * The type Constructor.
+ *
+ * @param <T> the type parameter
+ */
 public abstract class Constructor<T extends MethodRef> extends MethodHandle {
     /**
      * The Method.

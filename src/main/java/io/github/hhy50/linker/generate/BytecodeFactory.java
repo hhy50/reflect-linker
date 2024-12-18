@@ -76,11 +76,12 @@ public class BytecodeFactory {
     }
 
     /**
+     * Generate constructor method handle.
      *
-     * @param classBuilder
-     * @param methodDefine
-     * @param methodRef
-     * @return
+     * @param classBuilder the class builder
+     * @param methodDefine the method define
+     * @param methodRef    the method ref
+     * @return method handle
      */
     public static MethodHandle generateConstructor(InvokeClassImplBuilder classBuilder, MethodDefine methodDefine, MethodRef methodRef) {
         return null;

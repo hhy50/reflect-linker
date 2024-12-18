@@ -62,6 +62,11 @@ public class EarlyMethodRef extends MethodRef {
         return Type.getType(method.getDeclaringClass());
     }
 
+    /**
+     * Gets method.
+     *
+     * @return the method
+     */
     public Method getMethod() {
         return this.method;
     }

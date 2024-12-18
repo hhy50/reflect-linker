@@ -11,7 +11,7 @@ import java.util.List;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Runtime
+//@Runtime
 public interface MyArrayList3 extends List {
 
 }

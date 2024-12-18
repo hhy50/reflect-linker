@@ -8,7 +8,6 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.runtime.Runtime;
@@ -53,10 +52,9 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type fieldType, boolean isStatic) {
-        VarInst lookupVar = clinit.newLocalVar(LookupVar.TYPE, new MethodInvokeAction(Runtime.LOOKUP)
-                .setArgs(lookupClass));
         mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FIND_STATIC_SETTER_METHOD : MethodDescriptor.LOOKUP_FIND_SETTER_METHOD)
-                .setInstance(lookupVar)
+                .setInstance(new MethodInvokeAction(Runtime.LOOKUP)
+                        .setArgs(lookupClass))
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType)));
     }
 }

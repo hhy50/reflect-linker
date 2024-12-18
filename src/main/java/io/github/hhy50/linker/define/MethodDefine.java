@@ -66,6 +66,11 @@ public class MethodDefine {
         return method.getName();
     }
 
+    /**
+     * Has constructor boolean.
+     *
+     * @return the boolean
+     */
     public boolean hasConstructor() {
         return method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Constructor.class) != null;
     }
