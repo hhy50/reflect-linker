@@ -3,11 +3,15 @@ package io.github.hhy50.linker.define.method;
 import io.github.hhy50.linker.define.field.FieldRef;
 import org.objectweb.asm.Type;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 /**
  * The type Method ref.
  */
 public abstract class MethodRef {
+    private static final AtomicInteger COUNTER = new AtomicInteger(0);
+
     /**
      * The Owner.
      */
@@ -58,7 +62,7 @@ public abstract class MethodRef {
      * @return the full name
      */
     public String getFullName() {
-        return owner.getUniqueName()+"_$$_"+name+"_"+(System.nanoTime()%10000);
+        return owner.getUniqueName()+"_$$_"+name+"_"+COUNTER.getAndIncrement();
     }
 
     /**
