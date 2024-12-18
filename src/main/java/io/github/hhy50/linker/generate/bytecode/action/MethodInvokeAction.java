@@ -6,6 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static java.util.Objects.requireNonNull;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 
 /**
@@ -91,6 +92,7 @@ public class MethodInvokeAction implements LoadAction {
 
     @Override
     public Type getType() {
+        requireNonNull(this.methodDescriptor);
         return Type.getMethodType(methodDescriptor.getDesc()).getReturnType();
     }
 }

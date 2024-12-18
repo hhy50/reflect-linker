@@ -13,6 +13,7 @@ import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * The type Invoker.
@@ -63,8 +64,11 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
 
     @Override
     protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        String superClass = method.getSuperClass();
-        Action superClassLoad = superClass != null ? LdcLoadAction.of(superClass) : Actions.loadNull();
+        Class<Action> __ = Action.class;
+        Action superClassLoad = Optional.ofNullable(method.getSuperClass())
+                .map(LdcLoadAction::of)
+                .map(__::cast)
+                .orElseGet(Actions::loadNull);
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_METHOD)
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass,
                         LdcLoadAction.of(method.getName()),

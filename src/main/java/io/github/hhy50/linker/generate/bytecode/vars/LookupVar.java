@@ -25,7 +25,7 @@ public class LookupVar extends VarInst {
     /**
      * The constant FIND_XETTER_DESC.
      */
-    public static final String FIND_XETTER_DESC = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;)"+ MethodHandle.DESCRIPTOR;
+    public static final String FIND_XETTER_DESC = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;)"+MethodHandle.DESCRIPTOR;
     /**
      * The constant FIND_VIRTUAL.
      */
@@ -34,6 +34,10 @@ public class LookupVar extends VarInst {
      * The constant FIND_SPECIAL.
      */
     public static final String FIND_SPECIAL = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/Class;)"+MethodHandle.DESCRIPTOR;
+    /**
+     * The constant FIND_CONSTRUCTOR.
+     */
+    public static final String FIND_CONSTRUCTOR = "(Ljava/lang/Class;Ljava/lang/invoke/MethodType;)"+MethodHandle.DESCRIPTOR;
 
     /**
      * Instantiates a new Lookup var.

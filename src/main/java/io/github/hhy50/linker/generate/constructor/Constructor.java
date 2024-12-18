@@ -1,49 +1,64 @@
 package io.github.hhy50.linker.generate.constructor;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.method.MethodRef;
+import io.github.hhy50.linker.define.method.EarlyMethodRef;
+import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
+import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import java.util.Arrays;
 
 /**
  * The type Constructor.
- *
- * @param <T> the type parameter
  */
-public abstract class Constructor<T extends MethodRef> extends MethodHandle {
+public class Constructor extends MethodHandle {
     /**
      * The Method.
      */
-    protected final T method;
+    protected final EarlyMethodRef method;
     /**
      * The Method type.
      */
     protected final Type methodType;
     /**
-     * The Method holder.
+     * The Method descriptor.
      */
     protected MethodDescriptor methodDescriptor;
+    private boolean generic;
 
     /**
-     * Instantiates a new Invoker.
+     * Instantiates a new Constructor.
      *
      * @param implClass the impl class
      * @param method    the method
      * @param mType     the m type
      */
-    public Constructor(String implClass, T method, Type mType) {
+    public Constructor(String implClass, EarlyMethodRef method, Type mType) {
         this.method = method;
         this.methodType = mType;
         this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_"+method.getFullName(), methodType.getDescriptor());
+    }
+
+    @Override
+    protected void define0(InvokeClassImplBuilder classImplBuilder) {
+        MethodBody clinit = classImplBuilder.getClinit();
+
+        // init methodHandle
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getDeclareType(), methodType);
+        initStaticMethodHandle(clinit, mhMember, loadClass(method.getDeclareType()), null, method.getMethodType(), false);
+        mhMember.setInvokeExact(!this.generic);
+
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+                .intercept(mhMember.invokeStatic(Args.loadArgs()));
     }
 
     @Override
@@ -51,27 +66,19 @@ public abstract class Constructor<T extends MethodRef> extends MethodHandle {
         MethodInvokeAction invoker = new MethodInvokeAction(methodDescriptor)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
-
-        Type rType = methodType.getReturnType();
-        if (rType.getSort() == Type.VOID) {
-            methodBody.append(invoker);
-            return null;
-        } else {
-            return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
-        }
+        return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
     }
 
     @Override
     protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        String superClass = method.getSuperClass();
-        Action superClassLoad = superClass != null ? LdcLoadAction.of(superClass) : Actions.loadNull();
-        MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_METHOD)
-                .setArgs(lookupClass.getLookup(methodBody), lookupClass,
-                        LdcLoadAction.of(method.getName()),
-                        superClassLoad,
-                        Actions.asArray(Type.getType(String.class), Arrays.stream(method.getArgsType())
-                                .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
-                );
-        mhMember.store(methodBody, findGetter);
+        throw new RuntimeException("not support runtime constructor");
+    }
+
+    @Override
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String args0, Type methodType, boolean args1) {
+        MethodInvokeAction findConstructor = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
+                .setInstance(new MethodInvokeAction(Runtime.LOOKUP).setArgs(lookupClass))
+                .setArgs(lookupClass, mhMember);
+        mhMember.store(clinit, findConstructor);
     }
 }

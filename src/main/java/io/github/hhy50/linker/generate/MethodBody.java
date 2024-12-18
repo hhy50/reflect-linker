@@ -103,9 +103,7 @@ public class MethodBody {
         if (type.getSort() == Type.LONG || type.getSort() == Type.DOUBLE) {
             lvbIndex++;
         }
-        if (action != null) {
-            localVarInst.store(action);
-        }
+        if (action != null) localVarInst.store(action);
         return localVarInst;
     }
 

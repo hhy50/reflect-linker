@@ -84,7 +84,7 @@ public abstract class VarInst implements LoadAction {
      * @return the this class
      */
     public MethodInvokeAction getThisClass() {
-        return new MethodInvokeAction(MethodDescriptor.OBJECT_GET_CLASS)
+        return new MethodInvokeAction(MethodDescriptor.GET_CLASS)
                 .setInstance(this);
     }
 

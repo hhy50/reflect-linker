@@ -51,9 +51,8 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
 
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type fieldType, boolean isStatic) {
-        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FIND_STATIC_GETTER_METHOD : MethodDescriptor.LOOKUP_FIND_GETTER_METHOD);
-        findGetter.setInstance(new MethodInvokeAction(Runtime.LOOKUP)
-                        .setArgs(lookupClass))
+        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICGETTER : MethodDescriptor.LOOKUP_FINDGETTER);
+        findGetter.setInstance(new MethodInvokeAction(Runtime.LOOKUP).setArgs(lookupClass))
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
         mhMember.store(clinit, findGetter);
     }

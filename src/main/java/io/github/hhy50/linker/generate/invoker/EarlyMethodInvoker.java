@@ -68,14 +68,14 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         MethodInvokeAction findXXX;
         Action argsType = Actions.asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
         if (invokeSpecial) {
-            findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FIND_FINDSPECIAL).setArgs(
+            findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDSPECIAL).setArgs(
                     LdcLoadAction.of(AsmUtil.getType(superClass)),
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
                     lookupClass
             );
         } else {
-            findXXX = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FIND_FINDSTATIC : MethodDescriptor.LOOKUP_FIND_FINDVIRTUAL).setArgs(
+            findXXX = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATIC : MethodDescriptor.LOOKUP_FINDVIRTUAL).setArgs(
                     superClass != null ? LdcLoadAction.of(AsmUtil.getType(superClass)) : lookupClass,
                     LdcLoadAction.of(fieldName),
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)

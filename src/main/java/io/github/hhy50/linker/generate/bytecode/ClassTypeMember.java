@@ -34,8 +34,7 @@ public class ClassTypeMember extends Member {
         if ((this.access & Opcodes.ACC_STATIC) > 0) {
 
         }
-        return body.newLocalVar(LookupVar.TYPE, new MethodInvokeAction(Runtime.LOOKUP)
-                .setArgs(this));
+        return body.newLocalVar(LookupVar.TYPE, new MethodInvokeAction(Runtime.LOOKUP).setArgs(this));
     }
 
     /**

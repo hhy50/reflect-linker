@@ -17,36 +17,40 @@ public class MethodDescriptor {
     /**
      * The constant OBJECT_GET_CLASS.
      */
-    public static final MethodDescriptor OBJECT_GET_CLASS = MethodDescriptor.of("java/lang/Object", "getClass", "()Ljava/lang/Class;");
+    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of("java/lang/Object", "getClass", "()Ljava/lang/Class;");
     /**
      * The constant LOOKUP_FIND_GETTER_METHOD.
      */
-    public static final MethodDescriptor LOOKUP_FIND_GETTER_METHOD = MethodDescriptor.of(LookupVar.OWNER, "findGetter", LookupVar.FIND_XETTER_DESC);
+    public static final MethodDescriptor LOOKUP_FINDGETTER = MethodDescriptor.of(LookupVar.OWNER, "findGetter", LookupVar.FIND_XETTER_DESC);
     /**
      * The constant LOOKUP_FIND_STATIC_GETTER_METHOD.
      */
-    public static final MethodDescriptor LOOKUP_FIND_STATIC_GETTER_METHOD = MethodDescriptor.of(LookupVar.OWNER, "findStaticGetter", LookupVar.FIND_XETTER_DESC);
+    public static final MethodDescriptor LOOKUP_FINDSTATICGETTER = MethodDescriptor.of(LookupVar.OWNER, "findStaticGetter", LookupVar.FIND_XETTER_DESC);
     /**
      * The constant LOOKUP_FIND_SETTER_METHOD.
      */
-    public static final MethodDescriptor LOOKUP_FIND_SETTER_METHOD = MethodDescriptor.of(LookupVar.OWNER, "findSetter", LookupVar.FIND_XETTER_DESC);
+    public static final MethodDescriptor LOOKUP_FINDSETTER = MethodDescriptor.of(LookupVar.OWNER, "findSetter", LookupVar.FIND_XETTER_DESC);
     /**
      * The constant LOOKUP_FIND_STATIC_SETTER_METHOD.
      */
-    public static final MethodDescriptor LOOKUP_FIND_STATIC_SETTER_METHOD = MethodDescriptor.of(LookupVar.OWNER, "findStaticSetter", LookupVar.FIND_XETTER_DESC);
+    public static final MethodDescriptor LOOKUP_FINDSTATICSETTER = MethodDescriptor.of(LookupVar.OWNER, "findStaticSetter", LookupVar.FIND_XETTER_DESC);
     /**
      * The constant LOOKUP_FIND_FINDVIRTUAL.
      */
-    public static final MethodDescriptor LOOKUP_FIND_FINDVIRTUAL = MethodDescriptor.of(LookupVar.OWNER, "findVirtual", LookupVar.FIND_XXXXX);
+    public static final MethodDescriptor LOOKUP_FINDVIRTUAL = MethodDescriptor.of(LookupVar.OWNER, "findVirtual", LookupVar.FIND_XXXXX);
 
     /**
      * The constant LOOKUP_FIND_FINDSTATIC.
      */
-    public static final MethodDescriptor LOOKUP_FIND_FINDSTATIC = MethodDescriptor.of(LookupVar.OWNER, "findStatic", LookupVar.FIND_XXXXX);
+    public static final MethodDescriptor LOOKUP_FINDSTATIC = MethodDescriptor.of(LookupVar.OWNER, "findStatic", LookupVar.FIND_XXXXX);
     /**
      * The constant LOOKUP_FIND_FINDSPECIAL.
      */
-    public static final MethodDescriptor LOOKUP_FIND_FINDSPECIAL = MethodDescriptor.of(LookupVar.OWNER, "findSpecial", LookupVar.FIND_SPECIAL);
+    public static final MethodDescriptor LOOKUP_FINDSPECIAL = MethodDescriptor.of(LookupVar.OWNER, "findSpecial", LookupVar.FIND_SPECIAL);
+    /**
+     * The constant LOOKUP_FIND_CONSTRUCTOR.
+     */
+    public static final MethodDescriptor LOOKUP_FINDCONSTRUCTOR = MethodDescriptor.of(LookupVar.OWNER, "findConstructor", LookupVar.FIND_CONSTRUCTOR);
     /**
      * The constant METHOD_TYPE.
      */

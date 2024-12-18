@@ -7,6 +7,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import static java.util.Objects.requireNonNull;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 
 /**
@@ -85,6 +86,7 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
         if (methodDescriptor != null) {
             return super.getType();
         }
+        requireNonNull(descriptor);
         return Type.getMethodType(descriptor.getDesc()).getReturnType();
     }
 }

@@ -14,7 +14,6 @@ public class RuntimeAction {
      * @return the method invoke action
      */
     public static MethodInvokeAction lookup(Action action) {
-        return new MethodInvokeAction(Runtime.LOOKUP)
-                .setArgs(action);
+        return new MethodInvokeAction(Runtime.LOOKUP).setArgs(action);
     }
 }

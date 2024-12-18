@@ -9,6 +9,7 @@ import org.objectweb.asm.*;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,7 @@ public class AsmClassBuilder {
     public AsmClassBuilder(int asmFlags, int access, String className, String superName, String[] interfaces, String signature) {
         this.className = className;
         this.classOwner = ClassUtil.className2path(className);
-        this.superOwner = superName != null ? ClassUtil.className2path(superName) : "java/lang/Object";
+        this.superOwner = Optional.ofNullable(superName).map(ClassUtil::className2path).orElse("java/lang/Object");
         this.members = new java.util.HashMap<>();
         this.classWriter = new ClassWriter(asmFlags);
         this.classWriter.visit(Opcodes.V1_8, access, this.classOwner, signature, this.superOwner,
@@ -154,7 +155,7 @@ public class AsmClassBuilder {
      */
     public AsmClassBuilder addAnnotation(String descriptor, Map<String, Object> props) {
         AnnotationVisitor annotationVisitor = this.classWriter.visitAnnotation(descriptor, true);
-        if (props != null && props.size() > 0) {
+        if (props != null && !props.isEmpty()) {
             for (Map.Entry<String, Object> kv : props.entrySet()) {
                 annotationVisitor.visit(kv.getKey(), kv.getValue());
             }

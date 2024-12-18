@@ -73,7 +73,7 @@ public class MethodBuilder {
     public MethodBuilder addAnnotation(String descriptor, Map<String, Object> props) {
         AnnotationVisitor annotationVisitor = this.methodBody.getWriter()
                 .visitAnnotation(descriptor, true);
-        if (props != null && props.size() > 0) {
+        if (props != null && !props.isEmpty()) {
             for (Map.Entry<String, Object> kv : props.entrySet()) {
                 annotationVisitor.visit(kv.getKey(), kv.getValue());
             }

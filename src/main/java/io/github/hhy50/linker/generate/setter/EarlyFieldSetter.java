@@ -52,9 +52,8 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
     @Override
     protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type fieldType, boolean isStatic) {
-        mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FIND_STATIC_SETTER_METHOD : MethodDescriptor.LOOKUP_FIND_SETTER_METHOD)
-                .setInstance(new MethodInvokeAction(Runtime.LOOKUP)
-                        .setArgs(lookupClass))
+        mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
+                .setInstance(new MethodInvokeAction(Runtime.LOOKUP).setArgs(lookupClass))
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType)));
     }
 }
