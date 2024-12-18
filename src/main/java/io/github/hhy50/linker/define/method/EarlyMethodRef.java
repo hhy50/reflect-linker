@@ -70,4 +70,16 @@ public class EarlyMethodRef extends MethodRef {
     public Method getMethod() {
         return this.method;
     }
+
+    public boolean isUnreachable() {
+        if (!Modifier.isPublic(method.getReturnType().getModifiers())) {
+            return true;
+        }
+        for (Class<?> parameterType : method.getParameterTypes()) {
+            if (!Modifier.isPublic(parameterType.getModifiers())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

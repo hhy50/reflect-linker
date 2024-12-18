@@ -10,7 +10,6 @@ import io.github.hhy50.linker.generate.bytecode.action.ConditionJumpAction;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
@@ -152,27 +151,6 @@ public abstract class MethodHandle {
      */
     protected Action loadClass(Type type) {
         return new DynamicClassLoad(type);
-    }
-
-    /**
-     * Generic type type.
-     *
-     * @param methodType the method type
-     * @return the type
-     */
-    protected Type genericType(Type methodType) {
-        Type rType = methodType.getReturnType();
-        Type[] argsType = methodType.getArgumentTypes();
-        if (!rType.equals(Type.VOID_TYPE) && AsmUtil.isObjectType(rType)) {
-            rType = ObjectVar.TYPE;
-        }
-        for (int i = 0; i < argsType.length; i++) {
-            if (!argsType[i].equals(Type.VOID_TYPE) && AsmUtil.isObjectType(argsType[i])) {
-                argsType[i] = ObjectVar.TYPE;
-            }
-        }
-
-        return Type.getMethodType(rType, argsType);
     }
 
     /**

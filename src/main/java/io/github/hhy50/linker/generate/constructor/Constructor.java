@@ -42,7 +42,7 @@ public abstract class Constructor<T extends MethodRef> extends MethodHandle {
      */
     public Constructor(String implClass, T method, Type mType) {
         this.method = method;
-        this.methodType = genericType(mType);
+        this.methodType = mType;
         this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_"+method.getFullName(), methodType.getDescriptor());
     }
 

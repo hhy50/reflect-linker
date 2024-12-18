@@ -1,7 +1,5 @@
 package io.github.hhy50.linker.test.arraylist;
 
-import io.github.hhy50.linker.annotations.Runtime;
-
 import java.util.List;
 
 /**

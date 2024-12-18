@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -13,8 +12,6 @@ import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 /**
@@ -34,11 +31,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
      * The Method holder.
      */
-    protected MethodDescriptor methodDescriptor;
-    /**
-     * The generic.
-     */
-    protected boolean generic;
+    protected final MethodDescriptor methodDescriptor;
 
     /**
      * Instantiates a new Invoker.
@@ -49,31 +42,8 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      */
     public Invoker(String implClass, T method, Type mType) {
         this.method = method;
-        this.generic = isUnreachable(method);
-        this.methodType = generic ? genericType(mType) : mType;
+        this.methodType = mType;
         this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_"+method.getFullName(), methodType.getDescriptor());
-    }
-
-    /**
-     * 如果存在无法访问的类, 就擦除类型转为Object
-     *
-     * @param methodDefine
-     * @return
-     */
-    private boolean isUnreachable(T methodDefine) {
-        if (methodDefine instanceof EarlyMethodRef) {
-            Method method = ((EarlyMethodRef) methodDefine).getMethod();
-            if (!Modifier.isPublic(method.getReturnType().getModifiers())) {
-                return true;
-            }
-            for (Class<?> parameterType : method.getParameterTypes()) {
-                if (!Modifier.isPublic(parameterType.getModifiers())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return true;
     }
 
     @Override

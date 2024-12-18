@@ -32,7 +32,6 @@ public class MyArrayListTest {
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
         list.setElementData(objects);
 
-
         Assert.assertTrue(list instanceof TargetProvider);
         Assert.assertTrue(objects == list.getElementData());
 
