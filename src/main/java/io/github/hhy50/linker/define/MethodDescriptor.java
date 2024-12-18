@@ -64,6 +64,14 @@ public class MethodDescriptor {
      */
     public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createLinker", "(Ljava/lang/Class;Ljava/lang/Object;)Ljava/lang/Object;");
     /**
+     * The constant LINKER_FACTORY_CREATE_STATIC_LINKER.
+     */
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createStaticLinker", "(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;");
+    /**
+     * The constant LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER.
+     */
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createStaticLinker", "(Ljava/lang/Class;Ljava/lang/ClassLoader;)Ljava/lang/Object;");
+    /**
      * The constant GET_CLASS_LOADER.
      */
     public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of("java/lang/Class", "getClassLoader", "()Ljava/lang/ClassLoader;");
