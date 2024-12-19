@@ -9,6 +9,7 @@ import io.github.hhy50.linker.exceptions.LinkerException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * <p>LinkerFactory class.</p>
@@ -37,8 +38,8 @@ public class LinkerFactory {
             if (cl == null) {
                 cl = ClassLoader.getSystemClassLoader();
             }
-            Constructor<?> constructor = create(define, targetClass, cl).getConstructors()[0];
-            return (T) constructor.newInstance(target);
+            Class<?> gClass = create(define, targetClass, cl);
+            return (T) newInstance(target, null, gClass);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);
         }
@@ -59,12 +60,9 @@ public class LinkerFactory {
             if (cl == null) {
                 cl = ClassLoader.getSystemClassLoader();
             }
-//            Constructor<?>[] constructors = create(define, targetClass, cl).getConstructors();
-//            if (constructors.length == 1) {
-//                return (T) constructors[0].newInstance(targetClass);
-//            }
-            Constructor<?> constructor = create(define, targetClass, cl).getConstructors()[0];
-            return (T) constructor.newInstance(targetClass);
+
+            Class<?> gClass = create(define, targetClass, cl);
+            return (T) newInstance(null, targetClass, gClass);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);
         }
@@ -81,8 +79,8 @@ public class LinkerFactory {
      */
     public static <T> T createStaticLinker(Class<T> define, ClassLoader cl) throws LinkerException {
         try {
-            Constructor<?> constructor = create(define, null, cl).getConstructors()[0];
-            return (T) constructor.newInstance((Object) null);
+            Class<?> gClass = create(define, null, cl);
+            return (T) newInstance(null, null, gClass);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);
         }
@@ -114,8 +112,8 @@ public class LinkerFactory {
      */
     static <T> T createSysLinker(Class<T> define, Object obj) throws LinkerException {
         try {
-            Constructor<?> constructor = create(define, obj != null ? obj.getClass() : null, SysLinkerClassLoader.getInstance()).getConstructors()[0];
-            return (T) constructor.newInstance(obj);
+            Class<?> gClass = create(define, obj != null ? obj.getClass() : null, SysLinkerClassLoader.getInstance());
+            return (T) newInstance(obj, null, gClass);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);
         }
@@ -132,5 +130,16 @@ public class LinkerFactory {
         if (!outputPath.exists()) {
             outputPath.mkdirs();
         }
+    }
+
+    static Object newInstance(Object obj, Class<?> clazz, Class<?> implClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        Constructor<?>[] constructors = implClass.getConstructors();
+        if (constructors.length == 1) {
+            return constructors[0].newInstance(obj);
+        }
+        if (constructors[0].getParameterCount() == 2) {
+            return constructors[0].newInstance(obj, clazz);
+        }
+        return constructors[1].newInstance(obj, clazz);
     }
 }
