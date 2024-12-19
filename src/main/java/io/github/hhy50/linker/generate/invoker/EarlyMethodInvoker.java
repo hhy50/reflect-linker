@@ -35,8 +35,8 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
      * @param methodRef the method ref
      */
     public EarlyMethodInvoker(String implClass, EarlyMethodRef methodRef) {
-        super(implClass, methodRef, genericType(methodRef.getMethodType()));
-        this.generic = true;
+        super(implClass, methodRef, methodRef.isUnreachable() ? genericType(methodRef.getMethodType()) : methodRef.getMethodType());
+        this.generic = methodRef.isUnreachable();
     }
 
     @Override

@@ -71,6 +71,11 @@ public class EarlyMethodRef extends MethodRef {
         return this.method;
     }
 
+    /**
+     * Is unreachable boolean.
+     *
+     * @return the boolean
+     */
     public boolean isUnreachable() {
         if (!Modifier.isPublic(method.getReturnType().getModifiers())) {
             return true;

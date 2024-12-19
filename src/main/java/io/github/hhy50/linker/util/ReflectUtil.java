@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -109,6 +110,25 @@ public class ReflectUtil {
             }
         }
         if (matches.size() > 0) return matches.get(0);
+        return null;
+    }
+
+    /**
+     * Match constructor constructor.
+     *
+     * @param clazz    the clazz
+     * @param argTypes the arg types
+     * @return the constructor
+     */
+    public static Constructor<?> matchConstructor(Class<?> clazz, String[] argTypes) {
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+        for (Constructor<?> constructor : constructors) {
+            Parameter[] parameters = constructor.getParameters();
+            if (parameters.length != argTypes.length) continue;
+            if (ClassUtil.polymorphismMatch(parameters, argTypes)) {
+                return constructor;
+            }
+        }
         return null;
     }
 

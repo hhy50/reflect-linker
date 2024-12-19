@@ -7,7 +7,10 @@ import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.constructor.Constructor;
 import org.objectweb.asm.Type;
+
+import java.util.Objects;
 
 /**
  * The type Invoker decorator.
@@ -23,13 +26,16 @@ public class InvokerDecorator extends AbstractDecorator {
     /**
      * Instantiates a new Invoker decorator.
      *
-     * @param implClass    the impl class
      * @param realInvoker  the real invoker
      * @param methodDefine the method define
      */
-    public InvokerDecorator(String implClass, Invoker<?> realInvoker, MethodDefine methodDefine) {
+    public InvokerDecorator(Invoker<?> realInvoker, MethodDefine methodDefine) {
+        Objects.requireNonNull(realInvoker);
+        Objects.requireNonNull(methodDefine);
+
         this.realInvoker = realInvoker;
         this.methodDefine = methodDefine;
+        this.autoLinkResult = realInvoker instanceof Constructor;
     }
 
     @Override

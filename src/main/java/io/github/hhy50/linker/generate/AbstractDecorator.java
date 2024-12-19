@@ -19,6 +19,10 @@ import static org.objectweb.asm.Opcodes.ILOAD;
  */
 public abstract class AbstractDecorator extends MethodHandle {
 
+    /**
+     * The Auto link result.
+     */
+    protected boolean autoLinkResult;
 
     /**
      * Typecast args.
@@ -60,9 +64,11 @@ public abstract class AbstractDecorator extends MethodHandle {
         }
         Type expectType = Type.getType(resultTypeClass);
         String bindClass = AnnotationUtils.getBind(resultTypeClass);
-        varInst = typeCheck(methodBody, varInst, StringUtil.isNotEmpty(bindClass)
-                ? AsmUtil.getType(bindClass) : expectType);
-        if (StringUtil.isNotEmpty(bindClass)) {
+        if (!autoLinkResult) {
+            varInst = typeCheck(methodBody, varInst, StringUtil.isNotEmpty(bindClass)
+                    ? AsmUtil.getType(bindClass) : expectType);
+        }
+        if (StringUtil.isNotEmpty(bindClass) || autoLinkResult) {
             varInst = methodBody.newLocalVar(expectType, new CreateLinkerAction(expectType, varInst));
             return methodBody.newLocalVar(expectType, varInst.getName(), new TypeCastAction(varInst, expectType));
         } else if (!varInst.getType().equals(expectType)) {

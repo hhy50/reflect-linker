@@ -11,6 +11,6 @@ import java.lang.annotation.RetentionPolicy;
  * @version $Id : $Id
  */
 @Retention(RetentionPolicy.RUNTIME)
-@java.lang.annotation.Target({ElementType.TYPE, ElementType.METHOD})
+@java.lang.annotation.Target({ElementType.TYPE})
 public @interface Runtime {
 }

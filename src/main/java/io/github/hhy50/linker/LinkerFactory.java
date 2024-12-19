@@ -55,7 +55,11 @@ public class LinkerFactory {
      */
     public static <T> T createStaticLinker(Class<T> define, Class<?> targetClass) throws LinkerException {
         try {
-            Constructor<?> constructor = create(define, targetClass, targetClass.getClassLoader()).getConstructors()[0];
+            ClassLoader cl = targetClass.getClassLoader();
+            if (cl == null) {
+                cl = ClassLoader.getSystemClassLoader();
+            }
+            Constructor<?> constructor = create(define, targetClass, cl).getConstructors()[0];
             return (T) constructor.newInstance(targetClass);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);

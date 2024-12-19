@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Runtime;
 
 /**
  * <p>MyArrayList interface.</p>
@@ -19,6 +18,5 @@ public interface MyArrayList2 {
      * @return a {@link Object} object.
      */
     @Field.Getter("elementData")
-    @Runtime
     Object getElementData();
 }

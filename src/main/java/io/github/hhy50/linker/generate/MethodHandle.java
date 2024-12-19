@@ -16,6 +16,8 @@ import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
+import java.util.Objects;
+
 import static io.github.hhy50.linker.generate.bytecode.action.Condition.*;
 
 /**
@@ -166,6 +168,7 @@ public abstract class MethodHandle {
          * @param type the type
          */
         public DynamicClassLoad(Type type) {
+            Objects.requireNonNull(type);
             this.type = type;
         }
 

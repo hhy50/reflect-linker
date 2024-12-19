@@ -29,7 +29,9 @@ public class MyArrayListTest {
     @Test
     public void test() throws LinkerException {
         Object[] objects = new Object[10];
-        MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
+
+        MyArrayList staticLinker = LinkerFactory.createStaticLinker(MyArrayList.class, ArrayList.class);
+        MyArrayList list = staticLinker.newList();
         list.setElementData(objects);
 
         Assert.assertTrue(list instanceof TargetProvider);

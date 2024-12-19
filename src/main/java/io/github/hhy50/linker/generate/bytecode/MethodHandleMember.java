@@ -66,7 +66,7 @@ public class MethodHandleMember extends Member {
      * @param args the args
      * @return the action
      */
-    public Action invokeStatic(Action... args) {
+    public MethodInvokeAction invokeStatic(Action... args) {
         return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke", methodType.getDescriptor()))
                 .setInstance(this)
                 .setArgs(args);
@@ -79,7 +79,7 @@ public class MethodHandleMember extends Member {
      * @param args the args
      * @return the action
      */
-    public Action invokeInstance(VarInst that, Action... args) {
+    public MethodInvokeAction invokeInstance(VarInst that, Action... args) {
         Type invokerType = this.invokerType == null ? that.getType() : this.invokerType;
 
         Action[] newArgs = new Action[args.length+1];

@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.annotations.Field;
+import io.github.hhy50.linker.annotations.Method;
 import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.test.MyInteger;
 
@@ -11,15 +12,17 @@ import io.github.hhy50.linker.test.MyInteger;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Runtime
+//@Runtime
 public interface MyArrayList {
+
+    @Method.Constructor
+    MyArrayList newList();
 
     /**
      * <p>add.</p>
      *
      * @param o a {@link java.lang.Object} object.
      */
-    @Runtime
     void add(Object o);
     /**
      * <p>clear.</p>
