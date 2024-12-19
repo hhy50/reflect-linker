@@ -38,8 +38,8 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        this.targetClass = classImplBuilder.defineLookupClass("target");
         if (AnnotationUtils.isRuntime(classImplBuilder.getDefineClass())) {
+            this.targetClass = classImplBuilder.defineLookupClass("target");
             classImplBuilder.defineConstruct(Opcodes.ACC_PUBLIC, Object.class, Class.class)
                     .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor(Object.class)).setArgs(Args.of(0))
                             .andThen(this.targetClass.store(Args.of(1)))

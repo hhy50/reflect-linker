@@ -96,17 +96,13 @@ public abstract class MethodHandle {
         ));
         if (prevGetter instanceof TargetFieldGetter) {
             final ClassTypeMember targetClass = ((TargetFieldGetter) prevGetter).getTargetClass();
-            body.append(new ConditionJumpAction(
-                    isNull(lookupClass),
-                    lookupClass.store(targetClass),
-                    null
-            ));
-//            final Type defaultType = ((TargetFieldGetter) prevGetter).getTargetType();
-//            body.append(new ConditionJumpAction(
-//                    isNull(lookupClass),
-//                    lookupClass.store(loadClass(defaultType)),
-//                    null
-//            ));
+            if (targetClass != null) {
+                body.append(new ConditionJumpAction(
+                        isNull(lookupClass),
+                        lookupClass.store(targetClass),
+                        null
+                ));
+            }
         }
     }
 
