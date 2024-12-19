@@ -12,7 +12,6 @@ import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
-import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -62,7 +61,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
         MethodInvokeAction findXXX;
@@ -81,8 +80,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
             );
         }
-        mhMember.store(clinit, findXXX.setInstance(new MethodInvokeAction(Runtime.LOOKUP)
-                .setArgs(lookupClass)));
+        mhMember.store(clinit, findXXX.setInstance(lookupClass.getLookup()));
     }
 
     /**

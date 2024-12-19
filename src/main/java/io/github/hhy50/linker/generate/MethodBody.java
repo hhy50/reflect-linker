@@ -5,6 +5,8 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.asm.MethodBuilder;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
+import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -24,7 +26,7 @@ public class MethodBody {
     private final MethodVisitor writer;
     private int lvbIndex;
     private final VarInst[] args;
-    private final Map<String, LocalVarInst> classObjCache;
+    private final Map<String, ClassLoadAction> classLoadCache;
 
     /**
      * Instantiates a new Method body.
@@ -39,7 +41,7 @@ public class MethodBody {
         this.writer = mv;
         this.lvbIndex = AsmUtil.calculateLvbOffset(methodBuilder.isStatic(), argumentTypes);
         this.args = new VarInst[argumentTypes.length];
-        this.classObjCache = new HashMap<>();
+        this.classLoadCache = new HashMap<>();
         initArgsTable(argumentTypes);
     }
 
@@ -110,6 +112,17 @@ public class MethodBody {
     /**
      * New local var local var inst.
      *
+     * @param action the action
+     * @return local var inst
+     */
+    public LocalVarInst newLocalVar(TypedAction action) {
+        Type type = action.getType();
+        return newLocalVar(type, null, action);
+    }
+
+    /**
+     * New local var local var inst.
+     *
      * @param type   the type
      * @param action the action
      * @return the local var inst
@@ -161,17 +174,17 @@ public class MethodBody {
      * @param type the type
      * @return the class obj cache
      */
-    public LocalVarInst getClassObjCache(Type type) {
-        return this.classObjCache.get(type.getClassName());
+    public ClassLoadAction getClassObjCache(Type type) {
+        return this.classLoadCache.get(type.getClassName());
     }
 
     /**
      * Put class obj cache.
      *
-     * @param type     the type
-     * @param clazzVar the clazz var
+     * @param type      the type
+     * @param classload the clazz var
      */
-    public void putClassObjCache(Type type, LocalVarInst clazzVar) {
-        this.classObjCache.put(type.getClassName(), clazzVar);
+    public void putClassObjCache(Type type, ClassLoadAction classload) {
+        this.classLoadCache.put(type.getClassName(), classload);
     }
 }

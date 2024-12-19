@@ -10,7 +10,6 @@ import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
-import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -51,9 +50,9 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
         mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
-                .setInstance(new MethodInvokeAction(Runtime.LOOKUP).setArgs(lookupClass))
+                .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType)));
     }
 }

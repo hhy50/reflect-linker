@@ -5,10 +5,7 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.ConditionJumpAction;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
@@ -68,7 +65,7 @@ public abstract class MethodHandle {
      * @param methodType  the method type
      * @param isStatic    the is static
      */
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type methodType, boolean isStatic) {
 
     }
 
@@ -99,20 +96,17 @@ public abstract class MethodHandle {
         ));
         if (prevGetter instanceof TargetFieldGetter) {
             final ClassTypeMember targetClass = ((TargetFieldGetter) prevGetter).getTargetClass();
-            if (targetClass != null) {
-                body.append(new ConditionJumpAction(
-                        isNull(lookupClass),
-                        lookupClass.store(targetClass),
-                        null
-                ));
-            }
-
-            final Type defaultType = ((TargetFieldGetter) prevGetter).getTargetType();
             body.append(new ConditionJumpAction(
                     isNull(lookupClass),
-                    lookupClass.store(loadClass(defaultType)),
+                    lookupClass.store(targetClass),
                     null
             ));
+//            final Type defaultType = ((TargetFieldGetter) prevGetter).getTargetType();
+//            body.append(new ConditionJumpAction(
+//                    isNull(lookupClass),
+//                    lookupClass.store(loadClass(defaultType)),
+//                    null
+//            ));
         }
     }
 
@@ -151,16 +145,39 @@ public abstract class MethodHandle {
      * @param type the type
      * @return the class load action
      */
-    protected Action loadClass(Type type) {
-        return new DynamicClassLoad(type);
+    protected ClassLoadAction loadClass(Type type) {
+        return new ClassLoadAction() {
+            @Override
+            public Action getLookup() {
+                return body -> {
+                    ClassLoadAction classCache = body.getClassObjCache(type);
+                    if (classCache == null) {
+                        classCache = new DynamicClassLoad(type);
+                        body.putClassObjCache(type, classCache);
+                    }
+                    classCache.getLookup().apply(body);
+                };
+            }
+
+            @Override
+            public void apply(MethodBody body) {
+                ClassLoadAction classCache = body.getClassObjCache(type);
+                if (classCache == null) {
+                    classCache = new DynamicClassLoad(type);
+                    body.putClassObjCache(type, classCache);
+                }
+                classCache.apply(body);
+            }
+        };
     }
 
     /**
      * The type Dynamic class load.
      */
-    protected class DynamicClassLoad implements Action {
+    protected class DynamicClassLoad implements ClassLoadAction {
         private Type type;
         private LocalVarInst clazzVar;
+        private LocalVarInst lookupVar;
 
         /**
          * Instantiates a new Dynamic class load.
@@ -173,22 +190,28 @@ public abstract class MethodHandle {
         }
 
         @Override
+        public Action getLookup() {
+            return (body) -> {
+                if (this.lookupVar == null) {
+                    this.lookupVar = body.newLocalVar(new MethodInvokeAction(Runtime.LOOKUP).setArgs(this));
+                }
+                this.lookupVar.loadToStack();
+            };
+        }
+
+        @Override
         public void apply(MethodBody body) {
             if (AsmUtil.isPrimitiveType(type)) {
                 LdcLoadAction.of(type).load(body);
                 return;
             }
 
-            if ((this.clazzVar = body.getClassObjCache(type)) == null) {
+            if (this.clazzVar == null) {
                 AsmClassBuilder classBuilder = body.getClassBuilder();
                 Action cl = LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
                         .invokeMethod(MethodDescriptor.GET_CLASS_LOADER);
                 this.clazzVar = body.newLocalVar(Type.getType(Class.class), new MethodInvokeAction(Runtime.GET_CLASS)
                         .setArgs(cl, LdcLoadAction.of(type.getClassName())));
-
-                if (body.getMethodBuilder().isStatic()) {
-                    body.putClassObjCache(type, this.clazzVar);
-                }
             }
             clazzVar.loadToStack();
         }

@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.bytecode;
 
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -11,7 +12,7 @@ import org.objectweb.asm.Opcodes;
 /**
  * The type Class type member.
  */
-public class ClassTypeMember extends Member {
+public class ClassTypeMember extends Member implements ClassLoadAction {
 
     private boolean inited;
 
@@ -47,5 +48,10 @@ public class ClassTypeMember extends Member {
         if (inited) return;
         this.store(clinit, classLoadAction);
         inited = true;
+    }
+
+    @Override
+    public Action getLookup() {
+        return this::getLookup;
     }
 }

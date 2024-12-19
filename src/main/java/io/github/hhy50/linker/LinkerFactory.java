@@ -59,6 +59,10 @@ public class LinkerFactory {
             if (cl == null) {
                 cl = ClassLoader.getSystemClassLoader();
             }
+//            Constructor<?>[] constructors = create(define, targetClass, cl).getConstructors();
+//            if (constructors.length == 1) {
+//                return (T) constructors[0].newInstance(targetClass);
+//            }
             Constructor<?> constructor = create(define, targetClass, cl).getConstructors()[0];
             return (T) constructor.newInstance(targetClass);
         } catch (Exception e) {

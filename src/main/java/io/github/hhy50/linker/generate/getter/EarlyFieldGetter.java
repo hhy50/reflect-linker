@@ -8,7 +8,6 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -50,9 +49,9 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICGETTER : MethodDescriptor.LOOKUP_FINDGETTER);
-        findGetter.setInstance(new MethodInvokeAction(Runtime.LOOKUP).setArgs(lookupClass))
+        findGetter.setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
         mhMember.store(clinit, findGetter);
     }

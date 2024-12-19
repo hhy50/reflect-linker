@@ -11,7 +11,6 @@ import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.invoker.Invoker;
-import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -59,9 +58,9 @@ public class Constructor extends Invoker<ConstructorRef> {
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, Action lookupClass, String args0, Type methodType, boolean args1) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String args0, Type methodType, boolean args1) {
         MethodInvokeAction findConstructor = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
-                .setInstance(new MethodInvokeAction(Runtime.LOOKUP).setArgs(lookupClass))
+                .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),
                                 Actions.asArray(Type.getType(Class.class),
