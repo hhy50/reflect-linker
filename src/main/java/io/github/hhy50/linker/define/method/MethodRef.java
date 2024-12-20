@@ -28,6 +28,11 @@ public abstract class MethodRef {
     protected String superClass;
 
     /**
+     *
+     */
+    protected String fullName;
+
+    /**
      * Instantiates a new Method ref.
      *
      * @param owner the owner
@@ -36,6 +41,7 @@ public abstract class MethodRef {
     public MethodRef(FieldRef owner, String name) {
         this.owner = owner;
         this.name = name;
+        this.fullName = owner.getUniqueName()+"_$$_"+name+"_"+COUNTER.getAndIncrement();
     }
 
     /**
@@ -62,7 +68,7 @@ public abstract class MethodRef {
      * @return the full name
      */
     public String getFullName() {
-        return owner.getUniqueName()+"_$$_"+name+"_"+COUNTER.getAndIncrement();
+        return fullName;
     }
 
     /**
