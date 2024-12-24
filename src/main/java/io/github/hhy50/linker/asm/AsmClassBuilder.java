@@ -4,13 +4,13 @@ import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.ClassBuildException;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.Member;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.*;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -184,7 +184,7 @@ public class AsmClassBuilder {
      */
     public AsmClassBuilder end() {
         if (clinit != null) {
-            clinit.append((Consumer<MethodVisitor>) mv -> mv.visitInsn(Opcodes.RETURN));
+            clinit.append(Actions.vreturn());
             clinit.end();
         }
         this.classWriter.visitEnd();

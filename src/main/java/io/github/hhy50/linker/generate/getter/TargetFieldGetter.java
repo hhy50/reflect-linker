@@ -14,7 +14,6 @@ import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.util.AnnotationUtils;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 
 /**
@@ -43,7 +42,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
             classImplBuilder.defineConstruct(Opcodes.ACC_PUBLIC, Object.class, Class.class)
                     .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor(Object.class)).setArgs(Args.of(0))
                             .andThen(this.targetClass.store(Args.of(1)))
-                            .andThen(Actions.areturn(Type.VOID_TYPE)));
+                            .andThen(Actions.vreturn()));
         } else {
 
         }

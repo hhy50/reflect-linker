@@ -166,6 +166,7 @@ public class MethodBody {
         if (classBuilder.isAutoCompute()) {
             this.writer.visitMaxs(0, 0);
         }
+        this.writer.visitEnd();
     }
 
     /**

@@ -64,6 +64,17 @@ public class MethodBuilder {
     }
 
     /**
+     * Accept asm class builder.
+     *
+     * @param consumer the consumer
+     * @return the asm class builder
+     */
+    public AsmClassBuilder acceptWithEnd(Consumer<MethodBody> consumer) {
+        consumer.accept(methodBody);
+        return this.classBuilder;
+    }
+
+    /**
      * Add annotation method builder.
      *
      * @param descriptor the descriptor

@@ -156,4 +156,10 @@ public interface Actions {
             AsmUtil.areturn(body.getWriter(), rType);
         };
     }
+
+    static Action vreturn() {
+        return body ->  {
+            AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
+        };
+    }
 }

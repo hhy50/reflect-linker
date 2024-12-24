@@ -45,7 +45,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
                 .intercept((field.isStatic()
                         ? mhMember.invokeStatic(Args.loadArgs())
                         : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
-                        .andThen(Actions.areturn(Type.VOID_TYPE))
+                        .andThen(Actions.vreturn())
                 );
     }
 
