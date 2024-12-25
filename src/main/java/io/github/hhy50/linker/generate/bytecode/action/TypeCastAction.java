@@ -5,10 +5,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
+
 /**
  * The type Type cast action.
  */
-public class TypeCastAction implements Action {
+public class TypeCastAction implements TypedAction {
     private final Action obj;
     private final Type type;
 
@@ -19,6 +23,9 @@ public class TypeCastAction implements Action {
      * @param type the type
      */
     public TypeCastAction(Action obj, Type type) {
+        requireNonNull(obj);
+        requireNonNull(type);
+
         this.obj = obj;
         this.type = type;
     }
@@ -32,5 +39,10 @@ public class TypeCastAction implements Action {
         }
         MethodVisitor mv = body.getWriter();
         mv.visitTypeInsn(Opcodes.CHECKCAST, type.getInternalName());
+    }
+
+    @Override
+    public Type getType() {
+        return type;
     }
 }
