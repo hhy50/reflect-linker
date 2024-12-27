@@ -117,15 +117,47 @@ public class ClassUtil {
     public static boolean polymorphismMatch(Parameter[] parameters, String[] argTypes) {
         if (parameters.length != argTypes.length) return false;
         for (int i = 0; i < parameters.length; i++) {
-            if (parameters[i].getType() == Object.class
+            Class<?> pType = parameters[i].getType();
+            if (pType == Object.class
                     || argTypes[i].equals(Object.class.getName())) {
                 continue;
             }
-            if (!parameters[i].getType().getName().equals(argTypes[i])) {
+            if (pType.isPrimitive()) {
+                pType = toBoxType(pType);
+            }
+            if (!pType.getName().equals(argTypes[i])) {
                 return false;
             }
         }
         return true;
+    }
+
+    private static Class<?> toBoxType(Class<?> pType) {
+        if (pType.getName().equals("byte")) {
+            return Byte.class;
+        }
+        if (pType.getName().equals("short")) {
+            return Short.class;
+        }
+        if (pType.getName().equals("int")) {
+            return Integer.class;
+        }
+        if (pType.getName().equals("long")) {
+            return Long.class;
+        }
+        if (pType.getName().equals("float")) {
+            return Float.class;
+        }
+        if (pType.getName().equals("double")) {
+            return Double.class;
+        }
+        if (pType.getName().equals("char")) {
+            return Character.class;
+        }
+        if (pType.getName().equals("boolean")) {
+            return Boolean.class;
+        }
+        return Object.class;
     }
 
     /**

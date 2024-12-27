@@ -13,6 +13,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 
 /**
@@ -34,7 +35,7 @@ public class Runtime {
     /**
      * The constant FIND_METHOD_DESC.
      */
-    public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;";
     /**
      * The constant FIND_FIELD.
      */
@@ -168,16 +169,30 @@ public class Runtime {
      * @param clazz      the clazz
      * @param methodName the method name
      * @param superClass the super class
-     * @param argsType   the args type
+     * @param args       the args
      * @return the method handle
      * @throws IllegalAccessException the illegal access exception
      * @throws NoSuchMethodException  the no such method exception
      */
-    public static MethodHandle findMethod(MethodHandles.Lookup lookup, Class<?> clazz, String methodName, String superClass, String[] argsType) throws IllegalAccessException, NoSuchMethodException {
-        Method method = ReflectUtil.matchMethod(clazz, methodName, superClass, argsType);
+    public static MethodHandle findMethod(MethodHandles.Lookup lookup, Class<?> clazz, String methodName, String superClass, Object[] args) throws IllegalAccessException, NoSuchMethodException {
+        Method method = ReflectUtil.matchMethod(clazz, methodName, superClass, Arrays.stream(args).map(Object::getClass).map(Class::getName).toArray(String[]::new));
+
+        boolean scatter = false;
+        if (method == null && args.length == 1 && args[0] instanceof Object[]
+                && ((Object[]) args[0]).length > 0) {
+            args = (Object[]) args[0];
+            method = ReflectUtil.matchMethod(clazz, methodName, superClass,
+                    Arrays.stream(args).map(Object::getClass).map(Class::getName).toArray(String[]::new));
+            scatter = true;
+        }
+
         if (method == null) {
             throw new NoSuchMethodException("not found method '"+methodName+"' in class "+clazz.getName());
         }
-        return superClass == null ? lookup.unreflect(method) : lookup.unreflectSpecial(method, clazz);
+        MethodHandle mh = superClass == null ? lookup.unreflect(method) : lookup.unreflectSpecial(method, clazz);
+        if (!scatter) {
+            return mh;
+        }
+        return mh;
     }
 }

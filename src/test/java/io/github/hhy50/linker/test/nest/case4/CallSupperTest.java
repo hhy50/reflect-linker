@@ -4,7 +4,7 @@ import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import org.junit.Assert;
 
-public class Test {
+public class CallSupperTest {
 
 
     @org.junit.Test

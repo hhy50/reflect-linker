@@ -172,4 +172,9 @@ public class MethodDescriptor {
     public String getDesc() {
         return methodDesc;
     }
+
+    public Type getRtype() {
+        int index = methodDesc.lastIndexOf(")")+1;
+        return Type.getType(methodDesc.substring(index));
+    }
 }

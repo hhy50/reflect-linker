@@ -131,18 +131,4 @@ public class ReflectUtil {
         }
         return null;
     }
-
-    /**
-     * Sets field value.
-     *
-     * @param obj       the obj
-     * @param fieldName the field name
-     * @param val       the val
-     * @throws IllegalAccessException the illegal access exception
-     */
-    public static void setFieldValue(Object obj, String fieldName, Object val) throws IllegalAccessException {
-        Field field = getField(obj.getClass(), fieldName);
-        field.setAccessible(true);
-        field.set(obj, val);
-    }
 }

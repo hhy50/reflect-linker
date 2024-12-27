@@ -1,8 +1,5 @@
 package io.github.hhy50.linker.define;
 
-
-import io.github.hhy50.linker.util.ReflectUtil;
-
 /**
  * The type Method holder.
  */
@@ -12,6 +9,11 @@ public class SmartMethodDescriptor extends MethodDescriptor {
      * The constant EMPTY_NAME.
      */
     public static final String EMPTY_NAME = "$$";
+
+    /**
+     *
+     */
+    protected String owner;
 
     /**
      * Instantiates a new Smart method descriptor.
@@ -38,10 +40,17 @@ public class SmartMethodDescriptor extends MethodDescriptor {
      * @param owner the owner
      */
     public void setOwner(String owner) {
-        try {
-            ReflectUtil.setFieldValue(this, "owner", owner);
-        } catch (IllegalAccessException e) {
-            //
+        this.owner = owner;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOwner() {
+        if (this.owner != null) {
+            return this.owner;
         }
+        return super.getOwner();
     }
 }
