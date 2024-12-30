@@ -80,6 +80,7 @@ public class RuntimeUtil {
      * @throws LinkerException the linker exception
      */
     public static boolean isStatic(MethodHandle methodHandle) throws LinkerException {
+        if (methodHandle.getClass().getName().contains("BoundMethodHandle")) return false;
         DirectMethodHandleLinker mh = AccessTool.createSysLinker(DirectMethodHandleLinker.class, methodHandle);
         return Modifier.isStatic(mh.modifiers());
     }

@@ -1,12 +1,12 @@
 package io.github.hhy50.linker.syslinker;
 
-import io.github.hhy50.linker.annotations.Target;
+import io.github.hhy50.linker.annotations.Runtime;
 
 
 /**
  * The interface Class loader linker.
  */
-@Target.Bind("java.lang.ClassLoader")
+@Runtime
 public interface ClassLoaderLinker {
 
     /**

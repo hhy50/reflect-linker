@@ -209,12 +209,16 @@ public class AsmUtil {
      * @return the type
      */
     public static Type getType(String clazz) {
-        Type primitiveType = getPrimitiveType(clazz);
-        if (primitiveType != null) return primitiveType;
-        if (clazz.startsWith("[")) {
-            return Type.getType(ClassUtil.className2path(clazz));
+        String prefix = "";
+        while (clazz.endsWith("[]")) {
+            clazz = clazz.substring(0, clazz.length()-2);
+            prefix += "[";
         }
-        return Type.getType(toTypeDesc(clazz));
+        Type primitiveType = getPrimitiveType(clazz);
+        if (primitiveType != null) {
+            return Type.getType(prefix+primitiveType.getDescriptor());
+        }
+        return Type.getType(prefix+toTypeDesc(clazz));
     }
 
     /**

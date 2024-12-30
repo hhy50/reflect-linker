@@ -7,14 +7,13 @@ import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
-import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
+import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 /**
  * The type Invoker.
@@ -76,9 +75,12 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass,
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
-                        Actions.asArray(Type.getType(Object.class),
-                                IntStream.range(0, methodBody.getArgs().length)
-                                        .mapToObj(Args::of).map(BoxAction::new).toArray(Action[]::new))
+                        Actions.asArray(Type.getType(String.class), Arrays.stream(method.getArgsType())
+                                .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
+                        // Object[] args
+//                        Actions.asArray(Type.getType(Object.class),
+//                                IntStream.range(0, methodBody.getArgs().length)
+//                                        .mapToObj(Args::of).map(BoxAction::new).toArray(Action[]::new))
                 );
         mhMember.store(methodBody, fineMethod);
     }

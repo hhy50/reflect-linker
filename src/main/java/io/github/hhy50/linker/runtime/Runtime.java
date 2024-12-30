@@ -9,12 +9,10 @@ import io.github.hhy50.linker.util.ReflectUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.MutableCallSite;
+import java.lang.reflect.*;
 import java.util.Arrays;
-
 
 /**
  * The type Runtime.
@@ -35,7 +33,7 @@ public class Runtime {
     /**
      * The constant FIND_METHOD_DESC.
      */
-    public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;";
+    public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
     /**
      * The constant FIND_FIELD.
      */
@@ -169,30 +167,62 @@ public class Runtime {
      * @param clazz      the clazz
      * @param methodName the method name
      * @param superClass the super class
-     * @param args       the args
+     * @param argsType   the args type
      * @return the method handle
      * @throws IllegalAccessException the illegal access exception
      * @throws NoSuchMethodException  the no such method exception
      */
-    public static MethodHandle findMethod(MethodHandles.Lookup lookup, Class<?> clazz, String methodName, String superClass, Object[] args) throws IllegalAccessException, NoSuchMethodException {
-        Method method = ReflectUtil.matchMethod(clazz, methodName, superClass, Arrays.stream(args).map(Object::getClass).map(Class::getName).toArray(String[]::new));
-
-        boolean scatter = false;
-        if (method == null && args.length == 1 && args[0] instanceof Object[]
-                && ((Object[]) args[0]).length > 0) {
-            args = (Object[]) args[0];
-            method = ReflectUtil.matchMethod(clazz, methodName, superClass,
-                    Arrays.stream(args).map(Object::getClass).map(Class::getName).toArray(String[]::new));
-            scatter = true;
-        }
-
+    public static MethodHandle findMethod(MethodHandles.Lookup lookup, Class<?> clazz, String methodName, String superClass, String[] argsType) throws IllegalAccessException, NoSuchMethodException {
+        Method method = ReflectUtil.matchMethod(clazz, methodName, superClass, argsType);
         if (method == null) {
+            if (argsType.length == 1 && argsType[0].equals("java.lang.Object[]")) {
+                return new InvokeDynamic(lookup, superClass, clazz, methodName)
+                        .dynamicInvoker();
+            }
             throw new NoSuchMethodException("not found method '"+methodName+"' in class "+clazz.getName());
         }
-        MethodHandle mh = superClass == null ? lookup.unreflect(method) : lookup.unreflectSpecial(method, clazz);
-        if (!scatter) {
-            return mh;
+        return superClass == null ? lookup.unreflect(method) : lookup.unreflectSpecial(method, clazz);
+    }
+
+    static class InvokeDynamic extends MutableCallSite {
+        static final MethodHandle BOOTSTRAP_METHOD;
+
+        static {
+            try {
+                BOOTSTRAP_METHOD = MethodHandles.lookup().findVirtual(InvokeDynamic.class,
+                        "bootstrap", MethodType.methodType(Object.class, Object.class, Object[].class));
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return mh;
+
+        private final String superClass;
+        private final Class<?> clazz;
+        private final String methodName;
+        private final MethodHandles.Lookup lookup;
+
+        public InvokeDynamic(MethodHandles.Lookup lookup, String superClass, Class<?> clazz, String methodName) {
+            super(MethodType.methodType(Object.class, Object.class, Object[].class));
+            this.superClass = superClass;
+            this.clazz = clazz;
+            this.methodName = methodName;
+            this.lookup = lookup;
+            setTarget(BOOTSTRAP_METHOD.bindTo(this));
+        }
+
+        public Object bootstrap(Object obj, Object[] args) throws Throwable {
+            Method method = ReflectUtil.matchMethod(clazz, methodName, superClass,
+                    Arrays.stream(args).map(Object::getClass).map(Class::getName).toArray(String[]::new));
+            if (method == null) {
+                throw new NoSuchMethodException("not found method '"+methodName+"' in class "+clazz.getName());
+            }
+            MethodHandle mh = superClass == null ? lookup.unreflect(method) : lookup.unreflectSpecial(method, clazz);
+            if (!Modifier.isStatic(method.getModifiers())) {
+                mh = mh.bindTo(obj);
+            }
+            return mh.invokeWithArguments(args);
+        }
     }
 }

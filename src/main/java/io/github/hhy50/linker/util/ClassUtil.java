@@ -118,16 +118,11 @@ public class ClassUtil {
         if (parameters.length != argTypes.length) return false;
         for (int i = 0; i < parameters.length; i++) {
             Class<?> pType = parameters[i].getType();
-            if (pType == Object.class
-                    || argTypes[i].equals(Object.class.getName())) {
-                continue;
-            }
-            if (pType.isPrimitive()) {
-                pType = toBoxType(pType);
-            }
-            if (!pType.getName().equals(argTypes[i])) {
-                return false;
-            }
+            if (pType == Object.class && !argTypes[i].equals("java.lang.Object[]")) continue;
+            if (argTypes[i].equals(Object.class.getName())) continue;;
+            if (pType.getName().equals(argTypes[i])) continue;
+            if (pType == getPrimitiveClass(argTypes[i])) continue;
+            return false;
         }
         return true;
     }

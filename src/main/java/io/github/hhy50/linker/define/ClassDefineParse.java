@@ -205,11 +205,12 @@ public class ClassDefineParse {
                     if (StringUtil.isNotEmpty(typed)) {
                         return typed;
                     }
-                    String bind = AnnotationUtils.getBind(item.getType());
+                    Class<?> type = item.getType();
+                    String bind = AnnotationUtils.getBind(type);
                     if (StringUtil.isNotEmpty(bind)) {
                         return bind;
                     }
-                    return item.getType().getName();
+                    return type.isArray() ? type.getCanonicalName() : type.getName();
                 }).toArray(String[]::new);
     }
 
