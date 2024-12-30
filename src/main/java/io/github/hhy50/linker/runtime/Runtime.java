@@ -176,7 +176,7 @@ public class Runtime {
         Method method = ReflectUtil.matchMethod(clazz, methodName, superClass, argsType);
         if (method == null) {
             if (argsType.length == 1 && argsType[0].equals("java.lang.Object[]")) {
-                return new InvokeDynamic(lookup, superClass, clazz, methodName)
+                return new InvokeDynamic(lookup, clazz, superClass, methodName)
                         .dynamicInvoker();
             }
             throw new NoSuchMethodException("not found method '"+methodName+"' in class "+clazz.getName());
@@ -203,7 +203,7 @@ public class Runtime {
         private final String methodName;
         private final MethodHandles.Lookup lookup;
 
-        public InvokeDynamic(MethodHandles.Lookup lookup, String superClass, Class<?> clazz, String methodName) {
+        public InvokeDynamic(MethodHandles.Lookup lookup, Class<?> clazz, String superClass, String methodName) {
             super(MethodType.methodType(Object.class, Object.class, Object[].class));
             this.superClass = superClass;
             this.clazz = clazz;

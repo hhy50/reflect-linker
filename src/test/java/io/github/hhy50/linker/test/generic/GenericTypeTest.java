@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-public class GenericType {
+public class GenericTypeTest {
 
     @Test
     public void test() throws LinkerException {
@@ -19,5 +19,9 @@ public class GenericType {
 
         Assert.assertEquals(myMap.get("key1"), "value1");
         Assert.assertEquals(myMap.get("key2"), "value2");
+
+        MyStaticUser user = LinkerFactory.createStaticLinker(MyStaticUser.class, StaticUser.class);
+        Assert.assertEquals(user.getName("linker"), "linker");
+        Assert.assertEquals(user.getName(), "default");
     }
 }

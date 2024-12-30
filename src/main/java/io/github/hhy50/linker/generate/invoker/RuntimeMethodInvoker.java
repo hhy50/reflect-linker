@@ -53,7 +53,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                     if (method.isDesignateStatic()) {
                         body.append(method.isStatic() ? mhMember.invokeStatic(body.getArgs()) : mhMember.invokeInstance(objVar, body.getArgs()));
                     } else {
-                        body.append(mhMember.invoke(objVar, body.getArgs()));
+                        body.append(mhMember.invokeOfNull(objVar, body.getArgs()));
                     }
                     AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
                 });

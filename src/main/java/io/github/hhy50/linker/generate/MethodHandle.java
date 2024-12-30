@@ -97,9 +97,18 @@ public abstract class MethodHandle {
         if (prevGetter instanceof TargetFieldGetter) {
             final ClassTypeMember targetClass = ((TargetFieldGetter) prevGetter).getTargetClass();
             if (targetClass != null) {
+                // runtime
                 body.append(new ConditionJumpAction(
                         isNull(lookupClass),
                         lookupClass.store(targetClass),
+                        null
+                ));
+            } else {
+                // not runtime
+                Type defaultType = ((TargetFieldGetter) prevGetter).getTargetType();
+                body.append(new ConditionJumpAction(
+                        isNull(lookupClass),
+                        lookupClass.store(loadClass(defaultType)),
                         null
                 ));
             }

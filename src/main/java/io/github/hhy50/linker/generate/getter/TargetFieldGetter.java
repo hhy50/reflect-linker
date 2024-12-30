@@ -14,6 +14,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.util.AnnotationUtils;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 
 /**
@@ -61,5 +62,9 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
      */
     public ClassTypeMember getTargetClass() {
         return targetClass;
+    }
+
+    public Type getTargetType() {
+        return this.field.getType();
     }
 }
