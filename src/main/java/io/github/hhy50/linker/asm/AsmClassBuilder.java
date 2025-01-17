@@ -24,7 +24,7 @@ public class AsmClassBuilder {
     /**
      * The Auto compute.
      */
-    private static final int AUTO_COMPUTE = COMPUTE_MAXS | COMPUTE_FRAMES;
+    protected static final int AUTO_COMPUTE = COMPUTE_MAXS | COMPUTE_FRAMES;
     /**
      * The Class name.
      */
@@ -48,7 +48,14 @@ public class AsmClassBuilder {
     /**
      * The Members.
      */
-    protected final Map<String, Member> members;
+    protected Map<String, Member> members;
+
+    /**
+     * Instantiates a new Asm class builder.
+     */
+    protected AsmClassBuilder() {
+
+    }
 
     /**
      * Instantiates a new Asm class builder.
@@ -143,7 +150,7 @@ public class AsmClassBuilder {
      */
     public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions) {
         MethodVisitor mv = this.classWriter.visitMethod(access, methodName, methodDesc, null, exceptions);
-        return new MethodBuilder(this, MethodDescriptor.of(classOwner, methodName, methodDesc), (access & Opcodes.ACC_STATIC) > 0, mv);
+        return new MethodBuilder(this, access, MethodDescriptor.of(classOwner, methodName, methodDesc), mv);
     }
 
     /**

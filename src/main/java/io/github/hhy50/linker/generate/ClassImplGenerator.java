@@ -44,9 +44,7 @@ public class ClassImplGenerator {
         for (MethodDefine methodDefine : defineClass.getMethodDefines()) {
             Method method = methodDefine.method;
             classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null)
-                    .accept(body -> {
-                        generateMethodImpl(classBuilder, body, methodDefine);
-                    });
+                    .intercept(body -> generateMethodImpl(classBuilder, body, methodDefine));
         }
         byte[] bytecode = classBuilder.end().toBytecode();
         String outputPath = System.getProperty("linker.output.path");

@@ -5,6 +5,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -20,20 +21,20 @@ public class MethodBuilder {
 
     private final MethodDescriptor methodDescriptor;
 
-    private final boolean isStatic;
+    private final int access;
 
     /**
      * Instantiates a new Method builder.
      *
      * @param classBuilder  the class builder
+     * @param access        the is access
      * @param md            the md
-     * @param isStatic      the is static
      * @param methodVisitor the method visitor
      */
-    public MethodBuilder(AsmClassBuilder classBuilder, MethodDescriptor md, boolean isStatic, MethodVisitor methodVisitor) {
+    public MethodBuilder(AsmClassBuilder classBuilder, int access, MethodDescriptor md, MethodVisitor methodVisitor) {
         this.classBuilder = classBuilder;
+        this.access = access;
         this.methodDescriptor = md;
-        this.isStatic = isStatic;
         this.methodBody = new MethodBody(this, methodVisitor);
     }
 
@@ -43,11 +44,9 @@ public class MethodBuilder {
      * @param consumer the consumer
      * @return the asm class builder
      */
-    public AsmClassBuilder accept(Consumer<MethodBody> consumer) {
+    public MethodBuilder accept(Consumer<MethodBody> consumer) {
         consumer.accept(methodBody);
-
-        this.methodBody.end();
-        return this.classBuilder;
+        return this;
     }
 
     /**
@@ -58,19 +57,16 @@ public class MethodBuilder {
      */
     public AsmClassBuilder intercept(Action action) {
         action.apply(methodBody);
-
-        this.methodBody.end();
-        return this.classBuilder;
+        return this.end();
     }
 
     /**
-     * Accept asm class builder.
+     * End asm class builder.
      *
-     * @param consumer the consumer
      * @return the asm class builder
      */
-    public AsmClassBuilder acceptWithEnd(Consumer<MethodBody> consumer) {
-        consumer.accept(methodBody);
+    public AsmClassBuilder end() {
+        this.methodBody.end();
         return this.classBuilder;
     }
 
@@ -130,11 +126,20 @@ public class MethodBuilder {
     }
 
     /**
+     * Gets access.
+     *
+     * @return access
+     */
+    public int getAccess() {
+        return this.access;
+    }
+
+    /**
      * Is static boolean.
      *
      * @return boolean boolean
      */
     public boolean isStatic() {
-        return isStatic;
+        return (access & Opcodes.ACC_STATIC) > 0;
     }
 }

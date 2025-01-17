@@ -39,7 +39,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
         classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
-                .accept(body -> {
+                .intercept(body -> {
                     VarInst objVar = ownerGetter.invoke(body);
 
                     checkLookClass(body, lookupClass, objVar, ownerGetter);

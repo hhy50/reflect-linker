@@ -34,23 +34,25 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
         this.lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
 
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null).accept(body -> {
-            VarInst objVar = getter.invoke(body);
+        classImplBuilder
+                .defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+                .intercept(body -> {
+                    VarInst objVar = getter.invoke(body);
 
-            checkLookClass(body, lookupClass, objVar, getter);
-            ClassTypeMember prevLookupClass = getter.getLookupClass();
-            if (prevLookupClass != null) {
-                staticCheckClass(body, lookupClass, prevField.fieldName, prevLookupClass);
-            }
-            checkMethodHandle(body, lookupClass, mhMember, objVar);
+                    checkLookClass(body, lookupClass, objVar, getter);
+                    ClassTypeMember prevLookupClass = getter.getLookupClass();
+                    if (prevLookupClass != null) {
+                        staticCheckClass(body, lookupClass, prevField.fieldName, prevLookupClass);
+                    }
+                    checkMethodHandle(body, lookupClass, mhMember, objVar);
 
-            // mh.invoke(obj)
-            if (field.isDesignateStatic()) {
-                body.append(field.isStatic() ? mhMember.invokeStatic() : mhMember.invokeInstance(objVar));
-            } else {
-                body.append(mhMember.invoke(objVar));
-            }
-            AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
-        });
+                    // mh.invoke(obj)
+                    if (field.isDesignateStatic()) {
+                        body.append(field.isStatic() ? mhMember.invokeStatic() : mhMember.invokeInstance(objVar));
+                    } else {
+                        body.append(mhMember.invoke(objVar));
+                    }
+                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
+                });
     }
 }
