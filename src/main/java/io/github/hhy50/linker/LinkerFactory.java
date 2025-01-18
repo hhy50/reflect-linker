@@ -33,12 +33,11 @@ public class LinkerFactory {
             throw new NullPointerException("target");
         }
         try {
-            Class<?> targetClass = target.getClass();
-            ClassLoader cl = target.getClass().getClassLoader();
+            ClassLoader cl = define.getClassLoader();
             if (cl == null) {
                 cl = ClassLoader.getSystemClassLoader();
             }
-            Class<?> gClass = create(define, targetClass, cl);
+            Class<?> gClass = create(define, target.getClass(), cl);
             return (T) newInstance(target, null, gClass);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);
@@ -56,7 +55,7 @@ public class LinkerFactory {
      */
     public static <T> T createStaticLinker(Class<T> define, Class<?> targetClass) throws LinkerException {
         try {
-            ClassLoader cl = targetClass.getClassLoader();
+            ClassLoader cl = define.getClassLoader();
             if (cl == null) {
                 cl = ClassLoader.getSystemClassLoader();
             }
@@ -79,7 +78,7 @@ public class LinkerFactory {
      */
     public static <T> T createStaticLinker(Class<T> define, ClassLoader cl) throws LinkerException {
         try {
-            Class<?> gClass = create(define, null, cl);
+            Class<?> gClass = create(define, cl);
             return (T) newInstance(null, null, gClass);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);
@@ -97,7 +96,12 @@ public class LinkerFactory {
      * @throws IOException            the io exception
      */
     static Class<?> create(Class<?> define, Class<?> targetClass, ClassLoader cl) throws ClassNotFoundException, IOException {
-        InterfaceImplClassDefine defineClass = ClassDefineParse.parseClass(define, targetClass, cl);
+        InterfaceImplClassDefine defineClass = ClassDefineParse.parseClass(define, targetClass);
+        return BytecodeClassLoader.load(cl, defineClass.getClassName(), defineClass.getBytecode());
+    }
+
+    static Class<?> create(Class<?> define, ClassLoader cl) throws ClassNotFoundException, IOException {
+        InterfaceImplClassDefine defineClass = ClassDefineParse.parseClass(define, cl);
         return BytecodeClassLoader.load(cl, defineClass.getClassName(), defineClass.getBytecode());
     }
 
@@ -112,7 +116,12 @@ public class LinkerFactory {
      */
     static <T> T createSysLinker(Class<T> define, Object obj) throws LinkerException {
         try {
-            Class<?> gClass = create(define, obj != null ? obj.getClass() : null, SysLinkerClassLoader.getInstance());
+            Class<?> gClass;
+            if (obj == null) {
+                gClass = create(define, SysLinkerClassLoader.getInstance());
+            } else {
+                gClass = create(define, obj.getClass(), SysLinkerClassLoader.getInstance());
+            }
             return (T) newInstance(obj, null, gClass);
         } catch (Exception e) {
             throw new LinkerException("create linker exception", e);

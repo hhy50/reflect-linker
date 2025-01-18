@@ -40,25 +40,38 @@ public class ClassDefineParse {
     /**
      * Parse class interface impl class define.
      *
-     * @param define      the define
-     * @param targetClass the target class
-     * @param cl          the cl
-     * @return interface impl class define
+     * @param define the define
+     * @param cl     the cl
+     * @return the interface impl class define
      * @throws ParseException         the parse exception
      * @throws ClassNotFoundException the class not found exception
      * @throws IOException            the io exception
      */
-    public static InterfaceImplClassDefine parseClass(Class<?> define, Class<?> targetClass, ClassLoader cl) throws ParseException,
-            ClassNotFoundException, IOException {
+    public static InterfaceImplClassDefine parseClass(Class<?> define, ClassLoader cl) throws ParseException, ClassNotFoundException, IOException {
+        Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
+        if (bindAnno == null) {
+            throw new VerifyException("use @Target.Bind specified a class  \n"+
+                    "                  or use @Runtime designated as runtime");
+        }
+        Class<?> targetClass = cl.loadClass(bindAnno.value());
+        return parseClass(define, targetClass);
+    }
+
+    /**
+     * Parse class interface impl class define.
+     *
+     * @param define      the define
+     * @param targetClass the target class
+     * @return interface impl class define
+     * @throws ParseException         the parse exception
+     * @throws IOException            the io exception
+     * @throws ClassNotFoundException the class not found exception
+     */
+    public static InterfaceImplClassDefine parseClass(Class<?> define, Class<?> targetClass) throws ParseException, IOException, ClassNotFoundException {
+        ClassLoader cl = targetClass.getClassLoader();
+        if (cl == null) cl = ClassLoader.getSystemClassLoader();
         if (isRuntime(define)) {
             targetClass = Object.class;
-        } else if (targetClass == null) {
-            Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
-            if (bindAnno == null) {
-                throw new VerifyException("use @Target.Bind specified a class  \n"+
-                        "                  or use @Runtime designated as runtime");
-            }
-            targetClass = cl.loadClass(bindAnno.value());
         }
 
         String dynKey = targetClass == Object.class ? "runtime" : targetClass.getName().replace('.', '_');
@@ -70,7 +83,7 @@ public class ClassDefineParse {
         defineClass = doParseClass(define, targetClass, cl);
         defineClass.setClassName(define.getName()+"$"+dynKey);
 
-        ClassImplGenerator.generateBytecode(defineClass, cl);
+        ClassImplGenerator.generateBytecode(defineClass);
         putCache(define, dynKey, defineClass);
         return defineClass;
     }

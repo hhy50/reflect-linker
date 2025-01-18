@@ -25,14 +25,9 @@ public class ClassImplGenerator {
      * Generate bytecode.
      *
      * @param defineClass the define class
-     * @param cl          the cl
      * @throws IOException the io exception
      */
-    public static void generateBytecode(InterfaceImplClassDefine defineClass, final ClassLoader cl) throws IOException {
-        if (cl == null) {
-            throw new IllegalArgumentException("classLoader must not be null");
-        }
-
+    public static void generateBytecode(InterfaceImplClassDefine defineClass) throws IOException {
         Class<?> define = defineClass.getDefine();
         String implClassName = defineClass.getClassName();
         Class<?> targetClass = defineClass.getTargetClass();
