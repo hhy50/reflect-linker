@@ -37,19 +37,19 @@ public class Constructor extends Invoker<ConstructorRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), null, methodType);
-        initStaticMethodHandle(clinit, mhMember, loadClass(method.getDeclareType()), null, this.methodType, false);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), null, descriptor.getType());
+        initStaticMethodHandle(clinit, mhMember, loadClass(method.getDeclareType()), null, descriptor.getType(), false);
 
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(mhMember.invokeStatic(Args.loadArgs()).thenReturn());
     }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        MethodInvokeAction invoker = new MethodInvokeAction(methodDescriptor)
+        MethodInvokeAction invoker = new MethodInvokeAction(descriptor)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
-        return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
+        return methodBody.newLocalVar(descriptor.getReturnType(), null, invoker);
     }
 
     @Override

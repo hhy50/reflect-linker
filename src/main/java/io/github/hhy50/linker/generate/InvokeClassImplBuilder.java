@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
-import io.github.hhy50.linker.constant.MethodHandle;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
@@ -28,6 +27,8 @@ import org.objectweb.asm.Type;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.github.hhy50.linker.util.TypeUtils.METHOD_HANDLER_TYPE;
 
 /**
  * The type Invoke class impl builder.
@@ -162,7 +163,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type invokedType, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            super.defineField(access, mhMemberName, MethodHandle.TYPE, null, null);
+            super.defineField(access, mhMemberName, METHOD_HANDLER_TYPE, null, null);
         }
         return new MethodHandleMember(members.get(mhMemberName), invokedType, methodType);
     }
@@ -176,7 +177,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public MethodHandleMember defineMethodHandle(String mhMemberName, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
-            super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, MethodHandle.TYPE, null, null);
+            super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, METHOD_HANDLER_TYPE, null, null);
         }
         return new MethodHandleMember(members.get(mhMemberName), methodType);
     }

@@ -52,11 +52,16 @@ public class MethodBuilder {
     /**
      * Intercept asm class builder.
      *
-     * @param action the action
+     * @param actions the actions
      * @return asm class builder
      */
-    public AsmClassBuilder intercept(Action action) {
-        action.apply(methodBody);
+    public AsmClassBuilder intercept(Action... actions) {
+        if (actions.length == 0) {
+            throw new IllegalArgumentException("intercepts is empty");
+        }
+        for (Action action : actions) {
+            action.apply(methodBody);
+        }
         return this.end();
     }
 

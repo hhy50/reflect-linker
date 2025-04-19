@@ -37,11 +37,11 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), null, this.methodType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), null, descriptor.getType());
         initStaticMethodHandle(clinit, mhMember, loadClass(field.getDeclaredType()), field.fieldName, field.getType(), field.isStatic());
 
         // 定义当前字段的 setter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept((field.isStatic()
                         ? mhMember.invokeStatic(Args.loadArgs())
                         : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))

@@ -30,12 +30,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     /**
      * The Method holder.
      */
-    protected MethodDescriptor methodDescriptor;
-
-    /**
-     * The Method type.
-     */
-    protected Type methodType;
+    protected MethodDescriptor descriptor;
 
     /**
      * Instantiates a new Setter.
@@ -45,15 +40,15 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
      */
     public Setter(String implClass, T field) {
         this.field = field;
-        this.methodType = Type.getMethodType(Type.VOID_TYPE, AsmUtil.isPrimitiveType(field.getType()) ? field.getType() : ObjectVar.TYPE);
-        this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(), this.methodType.getDescriptor());
+        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(),
+                Type.getMethodType(Type.VOID_TYPE, AsmUtil.isPrimitiveType(field.getType()) ? field.getType() : ObjectVar.TYPE));
     }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        methodBody.append(new MethodInvokeAction(methodDescriptor)
-                    .setInstance(LoadAction.LOAD0)
-                    .setArgs(methodBody.getArgs()));
+        methodBody.append(new MethodInvokeAction(descriptor)
+                .setInstance(LoadAction.LOAD0)
+                .setArgs(methodBody.getArgs()));
         return null;
     }
 

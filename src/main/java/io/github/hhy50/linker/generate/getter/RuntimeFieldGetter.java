@@ -32,10 +32,10 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
 
         // 保存当前lookup类型
         this.lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), methodType);
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(field.getGetterName(), descriptor.getType());
 
         classImplBuilder
-                .defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+                .defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(body -> {
                     VarInst objVar = getter.invoke(body);
 
@@ -52,7 +52,7 @@ public class RuntimeFieldGetter extends Getter<RuntimeFieldRef> {
                     } else {
                         body.append(mhMember.invoke(objVar));
                     }
-                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
+                    AsmUtil.areturn(body.getWriter(), descriptor.getReturnType());
                 });
     }
 }

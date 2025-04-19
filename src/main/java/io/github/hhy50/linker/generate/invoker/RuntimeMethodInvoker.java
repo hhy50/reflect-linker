@@ -35,10 +35,10 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         ownerGetter.define(classImplBuilder);
         
         ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(method.getFullName());
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), methodType);
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), descriptor.getType());
 
         classImplBuilder
-                .defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+                .defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(body -> {
                     VarInst objVar = ownerGetter.invoke(body);
 
@@ -55,7 +55,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                     } else {
                         body.append(mhMember.invokeOfNull(objVar, body.getArgs()));
                     }
-                    AsmUtil.areturn(body.getWriter(), methodType.getReturnType());
+                    AsmUtil.areturn(body.getWriter(), descriptor.getReturnType());
                 });
     }
 }

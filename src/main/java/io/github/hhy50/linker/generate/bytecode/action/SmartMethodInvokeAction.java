@@ -18,7 +18,7 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
     /**
      * The Descriptor.
      */
-    protected MethodDescriptor descriptor;
+    protected MethodDescriptor smartDescriptor;
 
     /**
      * Instantiates a new Smart method invoke action.
@@ -63,8 +63,9 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
     public MethodDescriptor getMethodDescriptor(MethodBody body) {
         if (this.methodDescriptor != null)
             return this.methodDescriptor;
-        this.descriptor = new SmartMethodDescriptor(body.getMethodDescriptor());
-        return this.descriptor;
+        if (this.smartDescriptor == null)
+            this.smartDescriptor = new SmartMethodDescriptor(body.getMethodDescriptor());
+        return this.smartDescriptor;
     }
 
     /**
@@ -86,7 +87,7 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
         if (methodDescriptor != null) {
             return super.getType();
         }
-        requireNonNull(descriptor);
-        return Type.getMethodType(descriptor.getDesc()).getReturnType();
+        requireNonNull(smartDescriptor);
+        return Type.getMethodType(smartDescriptor.getDesc()).getReturnType();
     }
 }

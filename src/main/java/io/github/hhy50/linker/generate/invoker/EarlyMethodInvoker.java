@@ -47,16 +47,16 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getDeclareType(), methodType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getDeclareType(), descriptor.getType());
         initStaticMethodHandle(clinit, mhMember, loadClass(method.getDeclareType()), method.getName(), method.getMethodType(), method.isStatic());
         mhMember.setInvokeExact(!this.generic);
 
         // 定义当前方法的invoker
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept((method.isStatic()
                         ? mhMember.invokeStatic(Args.loadArgs())
                         : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
-                        .andThen(Actions.areturn(methodType.getReturnType()))
+                        .andThen(Actions.areturn(descriptor.getReturnType()))
                 );
     }
 

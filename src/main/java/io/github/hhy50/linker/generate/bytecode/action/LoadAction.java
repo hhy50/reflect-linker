@@ -15,6 +15,18 @@ public interface LoadAction extends TypedAction {
      * The constant LOAD0.
      */
     Action LOAD0 = body -> body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
+    LoadAction LOAD_0 = new LoadAction() {
+        Type thisType;
+        @Override
+        public void load(MethodBody body) {
+            thisType = Type.getType(body.getClassBuilder().getClassOwner());
+            LOAD0.apply(body);
+        }
+        @Override
+        public Type getType() {
+            return thisType;
+        }
+    };
 
     @Override
     default void apply(MethodBody body) {

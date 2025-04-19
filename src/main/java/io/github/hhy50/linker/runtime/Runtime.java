@@ -6,6 +6,7 @@ import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.syslinker.LookupLinker;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.ReflectUtil;
+import io.github.hhy50.linker.util.TypeUtils;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -25,19 +26,19 @@ public class Runtime {
     /**
      * The constant FIND_GETTER_DESC.
      */
-    public static String FIND_GETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static org.objectweb.asm.Type FIND_GETTER_DESC = TypeUtils.getMethodType(MethodHandle.class, MethodHandles.Lookup.class, Class.class, String.class);
     /**
      * The constant FIND_SETTER_DESC.
      */
-    public static String FIND_SETTER_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static org.objectweb.asm.Type FIND_SETTER_DESC = TypeUtils.getMethodType(MethodHandle.class, MethodHandles.Lookup.class, Class.class, String.class);
     /**
      * The constant FIND_METHOD_DESC.
      */
-    public static String FIND_METHOD_DESC = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/Class;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/invoke/MethodHandle;";
+    public static org.objectweb.asm.Type FIND_METHOD_DESC = TypeUtils.getMethodType(MethodHandle.class, MethodHandles.Lookup.class, Class.class, String.class, String.class, String[].class);
     /**
      * The constant FIND_FIELD.
      */
-    public static final MethodDescriptor FIND_FIELD = MethodDescriptor.of(Runtime.OWNER, "findField", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Class;");
+    public static final MethodDescriptor FIND_FIELD = MethodDescriptor.of(Runtime.OWNER, "findField", TypeUtils.getMethodType(Class.class, Class.class, String.class));
     /**
      * The constant FIND_GETTER.
      */
@@ -53,11 +54,11 @@ public class Runtime {
     /**
      * The constant LOOKUP.
      */
-    public static final MethodDescriptor LOOKUP = MethodDescriptor.of(Runtime.OWNER, "lookup", "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandles$Lookup;");
+    public static final MethodDescriptor LOOKUP = MethodDescriptor.of(Runtime.OWNER, "lookup", TypeUtils.getMethodType(MethodHandles.Lookup.class, Class.class));
     /**
      * The constant GET_CLASS.
      */
-    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of(Runtime.OWNER, "getClass", "(Ljava/lang/ClassLoader;Ljava/lang/String;)Ljava/lang/Class;");
+    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of(Runtime.OWNER, "getClass", TypeUtils.getMethodType(Class.class, ClassLoader.class, String.class));
 
     /**
      * The constant LOOKUP_LINKER.

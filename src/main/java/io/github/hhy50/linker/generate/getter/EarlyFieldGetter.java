@@ -36,15 +36,15 @@ public class EarlyFieldGetter extends Getter<EarlyFieldRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // 定义当前字段的getter mh, init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), null, this.methodType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getGetterName(), null, descriptor.getType());
         initStaticMethodHandle(clinit, mhMember, loadClass(field.getDeclaredType()), field.fieldName, field.getType(), field.isStatic());
 
         // 定义当前字段的getter
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, methodDescriptor.getMethodName(), methodDescriptor.getDesc(), null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept((field.isStatic()
                         ? mhMember.invokeStatic()
                         : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst)))
-                        .andThen(Actions.areturn(methodType.getReturnType()))
+                        .andThen(Actions.areturn(descriptor.getReturnType()))
                 );
     }
 

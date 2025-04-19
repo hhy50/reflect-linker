@@ -3,11 +3,13 @@ package io.github.hhy50.linker.define;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.util.StringUtil;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Type;
 
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * The type Method holder.
@@ -17,7 +19,7 @@ public class MethodDescriptor {
     /**
      * The constant OBJECT_GET_CLASS.
      */
-    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of("java/lang/Object", "getClass", "()Ljava/lang/Class;");
+    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of("java/lang/Object", "getClass", Type.getMethodType(Type.getType(Class.class)));
     /**
      * The constant LOOKUP_FIND_GETTER_METHOD.
      */
@@ -54,50 +56,57 @@ public class MethodDescriptor {
     /**
      * The constant METHOD_TYPE.
      */
-    public static final MethodDescriptor METHOD_TYPE = MethodDescriptor.of("java/lang/invoke/MethodType", "methodType", "(Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/invoke/MethodType;");
+    public static final MethodDescriptor METHOD_TYPE = MethodDescriptor.of("java/lang/invoke/MethodType", "methodType",
+            MethodType.class, Class.class, Class[].class);
     /**
      * The constant ARRAYS_ASLIST.
      */
-    public static final MethodDescriptor ARRAYS_ASLIST = MethodDescriptor.of("java/util/Arrays", "asList", "([Ljava/lang/Object;)Ljava/util/List;");
+    public static final MethodDescriptor ARRAYS_ASLIST = MethodDescriptor.of("java/util/Arrays", "asList",
+            List.class, Object[].class);
     /**
      * The constant DEFAULT_PROVIDER_GET_TARGET.
      */
-    public static final MethodDescriptor DEFAULT_PROVIDER_GET_TARGET = MethodDescriptor.of("io/github/hhy50/linker/define/provider/DefaultTargetProviderImpl", "getTarget", "()Ljava/lang/Object;");
+    public static final MethodDescriptor DEFAULT_PROVIDER_GET_TARGET = MethodDescriptor.of("io/github/hhy50/linker/define/provider/DefaultTargetProviderImpl", "getTarget",
+            Object.class);
     /**
      * The constant LINKER_FACTORY_CREATE_LINKER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createLinker", "(Ljava/lang/Class;Ljava/lang/Object;)Ljava/lang/Object;");
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createLinker",
+            Object.class, Class.class, Object.class);
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createStaticLinker", "(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;");
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createStaticLinker",
+            Object.class, Class.class, Class.class);
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createStaticLinker", "(Ljava/lang/Class;Ljava/lang/ClassLoader;)Ljava/lang/Object;");
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createStaticLinker",
+            Object.class, Class.class, ClassLoader.class);
     /**
      * The constant GET_CLASS_LOADER.
      */
-    public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of("java/lang/Class", "getClassLoader", "()Ljava/lang/ClassLoader;");
+    public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of("java/lang/Class", "getClassLoader",
+            ClassLoader.class);
 
     private final String owner;
-    private final String methodName;
-    private final String methodDesc;
+    private final String name;
+    private final Type type;
 
     /**
      * Instantiates a new Method holder.
      *
-     * @param owner      the owner
-     * @param methodName the method name
-     * @param methodDesc the method desc
+     * @param owner the owner
+     * @param name  the method name
+     * @param type  the method desc
      */
-    public MethodDescriptor(String owner, String methodName, String methodDesc) {
-        if (StringUtil.isEmpty(owner) || StringUtil.isEmpty(methodName) || StringUtil.isEmpty(methodDesc)) {
-            throw new IllegalArgumentException("owner or methodName or methodDesc can not be null");
+    public MethodDescriptor(String owner, String name, Type type) {
+        if (StringUtil.isEmpty(owner) || StringUtil.isEmpty(name) || Objects.isNull(type)) {
+            throw new IllegalArgumentException("owner or name or type can not be null");
         }
         this.owner = owner;
-        this.methodName = methodName;
-        this.methodDesc = methodDesc;
+        this.name = name;
+        this.type = type;
     }
 
     /**
@@ -113,15 +122,14 @@ public class MethodDescriptor {
     /**
      * of method descriptor.
      *
-     * @param clazzName  the clazz name
-     * @param methodName the method name
-     * @param rType      the r type
-     * @param argsType   the args type
+     * @param clazzName the clazz name
+     * @param name      the method name
+     * @param rType     the r type
+     * @param argsType  the args type
      * @return method descriptor
      */
-    public static MethodDescriptor of(String clazzName, String methodName, Class<?> rType, Class<?>... argsType) {
-        return of(AsmUtil.toOwner(clazzName), methodName,
-                "("+Arrays.stream(argsType).map(Type::getDescriptor).collect(Collectors.joining())+")"+Type.getDescriptor(rType));
+    public static MethodDescriptor of(String clazzName, String name, Class<?> rType, Class<?>... argsType) {
+        return of(AsmUtil.toOwner(clazzName), name, TypeUtils.getMethodType(rType, argsType));
     }
 
     /**
@@ -131,19 +139,19 @@ public class MethodDescriptor {
      * @return method descriptor
      */
     public static MethodDescriptor ofConstructor(Class<?>... argsType) {
-        return new SmartMethodDescriptor("<init>", "("+Arrays.stream(argsType).map(Type::getDescriptor).collect(Collectors.joining())+")V");
+        return new SmartMethodDescriptor("<init>", TypeUtils.getMethodType(void.class, argsType));
     }
 
     /**
      * Of method descriptor.
      *
-     * @param owner      the owner
-     * @param methodName the method name
-     * @param methodDesc the method desc
+     * @param owner the owner
+     * @param name  the method name
+     * @param mType the method desc
      * @return the method descriptor
      */
-    public static MethodDescriptor of(String owner, String methodName, String methodDesc) {
-        return new MethodDescriptor(owner, methodName, methodDesc);
+    public static MethodDescriptor of(String owner, String name, Type mType) {
+        return new MethodDescriptor(owner, name, mType);
     }
 
     /**
@@ -161,7 +169,16 @@ public class MethodDescriptor {
      * @return the method name
      */
     public String getMethodName() {
-        return methodName;
+        return name;
+    }
+
+    /**
+     * Gets type.
+     *
+     * @return
+     */
+    public Type getType() {
+        return type;
     }
 
     /**
@@ -170,6 +187,14 @@ public class MethodDescriptor {
      * @return the desc
      */
     public String getDesc() {
-        return methodDesc;
+        return type.getDescriptor();
+    }
+
+
+    /**
+     * @return
+     */
+    public Type getReturnType() {
+        return this.type.getReturnType();
     }
 }

@@ -76,7 +76,7 @@ public class MethodHandleMember extends Member {
      * @return the action
      */
     public MethodInvokeAction invokeStatic(Action... args) {
-        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke", methodType.getDescriptor()))
+        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke", methodType))
                 .setInstance(this)
                 .setArgs(args);
     }
@@ -96,7 +96,8 @@ public class MethodHandleMember extends Member {
         System.arraycopy(args, 0, newArgs, 1, args.length);
 
         // 动态签名
-        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke", AsmUtil.addArgsDesc(methodType, invokerType, true).getDescriptor()))
+        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke",
+                AsmUtil.addArgsDesc(methodType, invokerType, true)))
                 .setInstance(this)
                 .setArgs(newArgs);
     }

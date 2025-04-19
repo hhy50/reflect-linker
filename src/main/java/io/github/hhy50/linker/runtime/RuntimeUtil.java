@@ -4,8 +4,10 @@ package io.github.hhy50.linker.runtime;
 import io.github.hhy50.linker.AccessTool;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.LinkerException;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.syslinker.DirectMethodHandleLinker;
 import io.github.hhy50.linker.util.ClassUtil;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Type;
 import sun.misc.Unsafe;
 
@@ -25,43 +27,45 @@ public class RuntimeUtil {
     /**
      * The constant IS_STATIC.
      */
-    public static final MethodDescriptor IS_STATIC = MethodDescriptor.of(OWNER, "isStatic", "(Ljava/lang/invoke/MethodHandle;)Z");
+    public static final MethodDescriptor IS_STATIC = MethodDescriptor.of(OWNER, "isStatic",
+            TypeUtils.getMethodType(boolean.class, MethodHandle.class));
     /**
      * The constant UNWRAP_BYTE_DESC.
      */
-    public static final String UNWRAP_BYTE_DESC = "(Ljava/lang/Object;)"+Type.BYTE_TYPE;
+    public static final Type UNWRAP_BYTE_DESC = Type.getMethodType(Type.BYTE_TYPE, ObjectVar.TYPE);
     /**
      * The constant UNWRAP_SHORT_DESC.
      */
-    public static final String UNWRAP_SHORT_DESC = "(Ljava/lang/Object;)"+Type.SHORT;
+    public static final Type UNWRAP_SHORT_DESC = Type.getMethodType(Type.SHORT_TYPE, ObjectVar.TYPE);
     /**
      * The constant UNWRAP_INT_DESC.
      */
-    public static final String UNWRAP_INT_DESC = "(Ljava/lang/Object;)"+Type.INT_TYPE;
+    public static final Type UNWRAP_INT_DESC = Type.getMethodType(Type.INT_TYPE, ObjectVar.TYPE);
     /**
      * The constant UNWRAP_LONG_DESC.
      */
-    public static final String UNWRAP_LONG_DESC = "(Ljava/lang/Object;)"+Type.LONG_TYPE;
+    public static final Type UNWRAP_LONG_DESC = Type.getMethodType(Type.LONG_TYPE, ObjectVar.TYPE);
     /**
      * The constant UNWRAP_FLOAT_DESC.
      */
-    public static final String UNWRAP_FLOAT_DESC = "(Ljava/lang/Object;)"+Type.FLOAT_TYPE;
+    public static final Type UNWRAP_FLOAT_DESC = Type.getMethodType(Type.FLOAT_TYPE, ObjectVar.TYPE);
     /**
      * The constant UNWRAP_DOUBLE_DESC.
      */
-    public static final String UNWRAP_DOUBLE_DESC = "(Ljava/lang/Object;)"+Type.DOUBLE_TYPE;
+    public static final Type UNWRAP_DOUBLE_DESC = Type.getMethodType(Type.DOUBLE_TYPE, ObjectVar.TYPE);
     /**
      * The constant UNWRAP_CHAR_DESC.
      */
-    public static final String UNWRAP_CHAR_DESC = "(Ljava/lang/Object;)"+Type.CHAR_TYPE;
+    public static final Type UNWRAP_CHAR_DESC = Type.getMethodType(Type.CHAR_TYPE, ObjectVar.TYPE);
     /**
      * The constant UNWRAP_BOOL_DESC.
      */
-    public static final String UNWRAP_BOOL_DESC = "(Ljava/lang/Object;)"+Type.BOOLEAN_TYPE;
+    public static final Type UNWRAP_BOOL_DESC = Type.getMethodType(Type.BOOLEAN_TYPE, ObjectVar.TYPE);
     /**
      * The constant TYPE_MATCH.
      */
-    public static final MethodDescriptor TYPE_MATCH = MethodDescriptor.of(OWNER, "typeMatch", "(Ljava/lang/Class;Ljava/lang/String;)Z");
+    public static final MethodDescriptor TYPE_MATCH = MethodDescriptor.of(OWNER, "typeMatch",
+            TypeUtils.getMethodType(boolean.class, Class.class, String.class));
 
     /**
      * Check null.

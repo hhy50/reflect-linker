@@ -38,7 +38,7 @@ public class ClassImplGenerator {
 
         for (MethodDefine methodDefine : defineClass.getMethodDefines()) {
             Method method = methodDefine.method;
-            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getMethodDescriptor(method), null)
+            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getType(method), null)
                     .intercept(body -> generateMethodImpl(classBuilder, body, methodDefine));
         }
         byte[] bytecode = classBuilder.end().toBytecode();

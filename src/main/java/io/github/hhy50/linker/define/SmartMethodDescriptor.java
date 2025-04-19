@@ -1,5 +1,7 @@
 package io.github.hhy50.linker.define;
 
+import org.objectweb.asm.Type;
+
 /**
  * The type Method holder.
  */
@@ -18,11 +20,11 @@ public class SmartMethodDescriptor extends MethodDescriptor {
     /**
      * Instantiates a new Smart method descriptor.
      *
-     * @param methodName the method name
-     * @param methodDesc the method desc
+     * @param name the method name
+     * @param name the method desc
      */
-    public SmartMethodDescriptor(String methodName, String methodDesc) {
-        super(EMPTY_NAME, methodName, methodDesc);
+    public SmartMethodDescriptor(String name, Type type) {
+        super(EMPTY_NAME, name, type);
     }
 
     /**
@@ -31,7 +33,7 @@ public class SmartMethodDescriptor extends MethodDescriptor {
      * @param descriptor the descriptor
      */
     public SmartMethodDescriptor(MethodDescriptor descriptor) {
-        super(descriptor.getOwner(), descriptor.getMethodName(), descriptor.getDesc());
+        super(descriptor.getOwner(), descriptor.getMethodName(), descriptor.getType());
     }
 
     /**

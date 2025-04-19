@@ -28,11 +28,11 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
      * The Method type.
      */
-    protected final Type methodType;
+//    protected final Type methodType;
     /**
      * The Method holder.
      */
-    protected final MethodDescriptor methodDescriptor;
+    protected final MethodDescriptor descriptor;
 
     /**
      * Instantiates a new Invoker.
@@ -43,24 +43,23 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      */
     public Invoker(String implClass, T method, Type mType) {
         this.method = method;
-        this.methodType = mType;
-        this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass),
+        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass),
                 "invoke_"+method.getFullName(),
-                this.methodType.getDescriptor());
+                mType);
     }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        MethodInvokeAction invoker = new MethodInvokeAction(methodDescriptor)
+        MethodInvokeAction invoker = new MethodInvokeAction(descriptor)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
 
-        Type rType = methodType.getReturnType();
+        Type rType = descriptor.getReturnType();
         if (rType.getSort() == Type.VOID) {
             methodBody.append(invoker);
             return null;
         } else {
-            return methodBody.newLocalVar(methodType.getReturnType(), null, invoker);
+            return methodBody.newLocalVar(rType, null, invoker);
         }
     }
 

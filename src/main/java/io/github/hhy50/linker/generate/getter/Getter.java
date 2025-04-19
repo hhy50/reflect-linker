@@ -35,11 +35,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     /**
      * The Method holder.
      */
-    protected MethodDescriptor methodDescriptor;
-    /**
-     * The Method type.
-     */
-    protected Type methodType;
+    protected MethodDescriptor descriptor;
     /**
      * The Lookup class.
      */
@@ -54,15 +50,15 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     public Getter(String implClass, T field) {
         this.implClass = implClass;
         this.field = field;
-        this.methodType = Type.getMethodType(AsmUtil.isPrimitiveType(field.getType()) ? field.getType(): ObjectVar.TYPE);
-        this.methodDescriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(), this.methodType.getDescriptor());
+        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(),
+                Type.getMethodType(AsmUtil.isPrimitiveType(field.getType()) ? field.getType(): ObjectVar.TYPE));
     }
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        MethodInvokeAction invoker = new MethodInvokeAction(methodDescriptor)
+        MethodInvokeAction invoker = new MethodInvokeAction(descriptor)
                 .setInstance(LoadAction.LOAD0);
-        return methodBody.newLocalVar(methodType.getReturnType(), field.fieldName, invoker);
+        return methodBody.newLocalVar(descriptor.getReturnType(), field.fieldName, invoker);
     }
 
     @Override

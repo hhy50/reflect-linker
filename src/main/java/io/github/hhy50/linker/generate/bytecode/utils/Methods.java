@@ -105,7 +105,7 @@ public class Methods {
      * @return method invoke action
      */
     public static MethodInvokeAction invoke(String methodName, Type methodType) {
-        return new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType.getDescriptor()));
+        return new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType));
     }
 
     /**

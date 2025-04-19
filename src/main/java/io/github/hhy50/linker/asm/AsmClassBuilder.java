@@ -6,12 +6,12 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.util.ClassUtil;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.*;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
@@ -130,13 +130,7 @@ public class AsmClassBuilder {
      * @return the method builder
      */
     public MethodBuilder defineConstruct(int access, Class<?>... argsType) {
-        String types = "";
-        if (argsType != null && argsType.length > 0) {
-            types = Arrays.stream(argsType)
-                    .map(Type::getDescriptor)
-                    .collect(Collectors.joining());
-        }
-        return defineMethod(access, "<init>", "("+types+")V", null);
+        return defineMethod(access, "<init>", TypeUtils.getMethodType(void.class, argsType), null);
     }
 
     /**
@@ -144,13 +138,13 @@ public class AsmClassBuilder {
      *
      * @param access     the access
      * @param methodName the method name
-     * @param methodDesc the method desc
+     * @param mType      the method desc
      * @param exceptions the exceptions
      * @return the method builder
      */
-    public MethodBuilder defineMethod(int access, String methodName, String methodDesc, String[] exceptions) {
-        MethodVisitor mv = this.classWriter.visitMethod(access, methodName, methodDesc, null, exceptions);
-        return new MethodBuilder(this, access, MethodDescriptor.of(classOwner, methodName, methodDesc), mv);
+    public MethodBuilder defineMethod(int access, String methodName, Type mType, String[] exceptions) {
+        MethodVisitor mv = this.classWriter.visitMethod(access, methodName, mType.getDescriptor(), null, exceptions);
+        return new MethodBuilder(this, access, MethodDescriptor.of(classOwner, methodName, mType), mv);
     }
 
     /**
@@ -178,7 +172,7 @@ public class AsmClassBuilder {
      */
     public MethodBody getClinit() {
         if (this.clinit == null) {
-            MethodBuilder methodBuilder = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null);
+            MethodBuilder methodBuilder = this.defineMethod(Opcodes.ACC_STATIC, "<clinit>", Type.getMethodType(Type.getType(void.class)), null);
             this.clinit = methodBuilder.getMethodBody();
         }
         return this.clinit;
