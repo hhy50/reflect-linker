@@ -61,8 +61,8 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
      * @return the method descriptor
      */
     public MethodDescriptor getMethodDescriptor(MethodBody body) {
-        if (this.methodDescriptor != null)
-            return this.methodDescriptor;
+        if (this.descriptor != null)
+            return this.descriptor;
         if (this.smartDescriptor == null)
             this.smartDescriptor = new SmartMethodDescriptor(body.getMethodDescriptor());
         return this.smartDescriptor;
@@ -76,7 +76,7 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
      */
     public Action[] getArgs(MethodBody body) {
         if (args != null) return args;
-        if (this.methodDescriptor == null) {
+        if (this.descriptor == null) {
             return body.getArgs();
         }
         return new VarInst[0];
@@ -84,7 +84,7 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
 
     @Override
     public Type getType() {
-        if (methodDescriptor != null) {
+        if (descriptor != null) {
             return super.getType();
         }
         requireNonNull(smartDescriptor);

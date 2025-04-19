@@ -17,7 +17,7 @@ public class MethodInvokeAction implements LoadAction {
     /**
      * The Method descriptor.
      */
-    protected final MethodDescriptor methodDescriptor;
+    protected final MethodDescriptor descriptor;
     /**
      * The Instance.
      */
@@ -30,10 +30,10 @@ public class MethodInvokeAction implements LoadAction {
     /**
      * Instantiates a new Method invoke action.
      *
-     * @param methodDescriptor the method holder
+     * @param descriptor the method holder
      */
-    public MethodInvokeAction(MethodDescriptor methodDescriptor) {
-        this.methodDescriptor = methodDescriptor;
+    public MethodInvokeAction(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class MethodInvokeAction implements LoadAction {
 
         int opCode = getOpCode();
         mv.visitMethodInsn(opCode,
-                methodDescriptor.getOwner(), methodDescriptor.getMethodName(), methodDescriptor.getDesc(), opCode == INVOKEINTERFACE);
+                descriptor.getOwner(), descriptor.getMethodName(), descriptor.getDesc(), opCode == INVOKEINTERFACE);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class MethodInvokeAction implements LoadAction {
      * @return the op code
      */
     public int getOpCode() {
-        if (methodDescriptor.getMethodName().equals("<init>")) {
+        if (descriptor.getMethodName().equals("<init>")) {
             return Opcodes.INVOKESPECIAL;
         }
         return instance != null ? Opcodes.INVOKEVIRTUAL : Opcodes.INVOKESTATIC;
@@ -92,7 +92,7 @@ public class MethodInvokeAction implements LoadAction {
 
     @Override
     public Type getType() {
-        requireNonNull(this.methodDescriptor);
-        return Type.getMethodType(methodDescriptor.getDesc()).getReturnType();
+        requireNonNull(this.descriptor);
+        return Type.getMethodType(descriptor.getDesc()).getReturnType();
     }
 }
