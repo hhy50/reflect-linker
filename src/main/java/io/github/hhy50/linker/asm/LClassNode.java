@@ -26,7 +26,7 @@ public interface LClassNode {
     String getSignature();
 
     @Field.Getter("fields")
-    List<LFieldNode> getFields();
+    List<Object> getFields();
 
     @Field.Getter("methods")
     List<LMethodNode> getMethods();

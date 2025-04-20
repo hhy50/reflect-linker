@@ -1,7 +1,9 @@
 package io.github.hhy50.linker.asm;
 
+import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.ClassBuildException;
+import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
@@ -254,14 +256,16 @@ public class AsmClassBuilder {
     }
 
 
-    public static AsmClassBuilder wrap(LClassNode classNode) {
+
+    public static AsmClassBuilder wrap(LClassNode classNode) throws LinkerException {
         AsmClassBuilder classBuilder = new AsmClassBuilder();
         classBuilder.classOwner = classNode.getName();
         classBuilder.className = ClassUtil.classpath2name(classNode.getName());
         classBuilder.superOwner = classNode.getSuperName();
         classBuilder.members = new HashMap<>();
 
-        for (LFieldNode field : classNode.getFields()) {
+        for (Object fieldO : classNode.getFields()) {
+            LFieldNode field = LinkerFactory.createLinker(LFieldNode.class, fieldO);
             classBuilder.members.put(field.getName(), new Member(field.getAccess(), classNode.getName(),
                     field.getName(), Type.getType(field.getDesc())));
         }
