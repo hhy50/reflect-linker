@@ -119,9 +119,10 @@ public class ClassUtil {
         if (parameters.length != argTypes.length) return false;
         for (int i = 0; i < parameters.length; i++) {
             Class<?> pType = parameters[i].getType();
+            String pName = pType.isArray() ? pType.getCanonicalName() : pType.getName();
             if (pType == Object.class && !argTypes[i].equals("java.lang.Object[]")) continue;
             if (argTypes[i].equals(Object.class.getName())) continue;;
-            if (pType.getName().equals(argTypes[i])) continue;
+            if (pName.equals(argTypes[i])) continue;
             if (pType == getPrimitiveClass(argTypes[i])) continue;
             return false;
         }
