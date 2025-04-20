@@ -251,10 +251,11 @@ public class AsmClassBuilder {
      * @return boolean boolean
      */
     public boolean isAutoCompute() {
-        //return classWriter.hasFlags(AUTO_COMPUTE);
+        if (classWriter instanceof ClassWriter) {
+            return ((ClassWriter) classWriter).hasFlags(AUTO_COMPUTE);
+        }
         return true;
     }
-
 
 
     public static AsmClassBuilder wrap(LClassNode classNode) throws LinkerException {

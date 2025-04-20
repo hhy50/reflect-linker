@@ -2,6 +2,7 @@ package io.github.hhy50.linker.asm;
 
 import org.objectweb.asm.*;
 
+import static io.github.hhy50.linker.asm.AsmClassBuilder.AUTO_COMPUTE;
 import static org.objectweb.asm.Opcodes.ASM9;
 
 public class ClassNodeWrap extends ClassVisitor {
@@ -28,7 +29,7 @@ public class ClassNodeWrap extends ClassVisitor {
     }
 
     public byte[] toByteArray() {
-        ClassWriter classWriter = new ClassWriter(0);
+        ClassWriter classWriter = new ClassWriter(AUTO_COMPUTE);
         classNode.accept(classWriter);
         return classWriter.toByteArray();
     }
