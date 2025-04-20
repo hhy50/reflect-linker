@@ -1,18 +1,20 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.exceptions.TypeNotMatchException;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.type.AutoBox;
+import io.github.hhy50.linker.generate.type.ContainerCast;
+import io.github.hhy50.linker.generate.type.TypeCast;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.AnnotationUtils;
 import io.github.hhy50.linker.util.StringUtil;
 import org.objectweb.asm.Type;
 
-import static org.objectweb.asm.Opcodes.ILOAD;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The type Abstract decorator.
@@ -45,7 +47,7 @@ public abstract class AbstractDecorator extends MethodHandle {
                 arg = methodBody.newLocalVar(type, arg.getTarget(type));
             }
 
-            VarInst newArg = typeCheck(methodBody, arg, expectType);
+            VarInst newArg = typeCast(methodBody, arg, expectType);
             realArgs[i] = newArg;
         }
     }
@@ -65,7 +67,7 @@ public abstract class AbstractDecorator extends MethodHandle {
         Type expectType = Type.getType(resultTypeClass);
         String bindClass = AnnotationUtils.getBind(resultTypeClass);
         if (!autoLinkResult) {
-            varInst = typeCheck(methodBody, varInst, StringUtil.isNotEmpty(bindClass)
+            varInst = typeCast(methodBody, varInst, StringUtil.isNotEmpty(bindClass)
                     ? AsmUtil.getType(bindClass) : expectType);
         }
         if (StringUtil.isNotEmpty(bindClass) || autoLinkResult) {
@@ -77,40 +79,23 @@ public abstract class AbstractDecorator extends MethodHandle {
         return varInst;
     }
 
-
     /**
-     * Type check var inst.
      *
-     * @param methodBody the method body
-     * @param varInst    the var inst
-     * @param expectType the expect type
-     * @return the var inst
+     * @param methodBody
+     * @param varInst
+     * @param expectType 预期的类型
+     * @return
      */
-    protected VarInst typeCheck(MethodBody methodBody, VarInst varInst, Type expectType) {
+    protected VarInst typeCast(MethodBody methodBody, VarInst varInst, Type expectType) {
         if (varInst.getType().equals(expectType)) {
             return varInst;
         }
-
-        boolean r1 = AsmUtil.isPrimitiveType(expectType);
-        boolean r2 = AsmUtil.isPrimitiveType(varInst.getType());
-        if (r1 && r2) {
-            if (varInst.getType().getOpcode(ILOAD) == expectType.getOpcode(ILOAD)) {
-                return varInst;
-            }
-            throw new TypeNotMatchException(varInst.getType(), expectType);
+        List<TypeCast> types = Arrays.asList(new AutoBox(), new ContainerCast());
+        for (TypeCast type : types) {
+            varInst = type.cast(methodBody, varInst, expectType);
         }
 
-        // 拆装箱
-        if (r1 && (AsmUtil.isWrapType(varInst.getType()) || varInst.getType().getClassName().equals(Object.class.getName()))) {
-            return methodBody.newLocalVar(expectType, new UnBoxAction(varInst, expectType));
-        } else if (r2 && (AsmUtil.isWrapType(expectType) || expectType.getClassName().equals(Object.class.getName()))) {
-            return methodBody.newLocalVar(expectType, new BoxAction(varInst).andThen(new TypeCastAction(Actions.stackTop(), expectType)));
-        }
-
-        if (r1 == r2) {
-            if (expectType.equals(ObjectVar.TYPE)) {
-                return varInst;
-            }
+        if (!varInst.getType().equals(expectType)) {
             methodBody.append(new ConditionJumpAction(
                     Condition.must(Condition.notNull(varInst),
                             Condition.ifFalse(new MethodInvokeAction(RuntimeUtil.TYPE_MATCH)
@@ -119,10 +104,9 @@ public abstract class AbstractDecorator extends MethodHandle {
                     Actions.throwTypeCastException(varInst.getName(), expectType),
                     null
             ));
-            return methodBody.newLocalVar(expectType, new TypeCastAction(varInst, expectType));
-        } else {
-            throw new TypeNotMatchException(varInst.getType(), expectType);
+            varInst = methodBody.newLocalVar(expectType, new TypeCastAction(varInst, expectType));
         }
+        return varInst;
     }
 
     @Override

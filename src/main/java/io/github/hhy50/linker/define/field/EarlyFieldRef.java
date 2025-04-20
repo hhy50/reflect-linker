@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.define.field;
 
 
+import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
@@ -12,10 +13,9 @@ import java.lang.reflect.Modifier;
 public class EarlyFieldRef extends FieldRef {
 
     private Class<?> declaredType;
-
+    private java.lang.reflect.Type genericType;
     private final Type fieldType;
     private final Class<?> fieldRealTypeClass;
-
     private boolean isStatic;
 
     /**
@@ -28,6 +28,7 @@ public class EarlyFieldRef extends FieldRef {
     public EarlyFieldRef(FieldRef prev, Field field, Class<?> assignedType) {
         super(prev, prev.getUniqueName(), field.getName());
         this.declaredType = field.getDeclaringClass();
+        this.genericType = field.getGenericType();
         this.fieldRealTypeClass = assignedType == null ? field.getType() : assignedType;
         this.fieldType = Type.getType(field.getType());
         this.isStatic = Modifier.isStatic(field.getModifiers());
@@ -77,5 +78,13 @@ public class EarlyFieldRef extends FieldRef {
      */
     public Class<?> getClassType() {
         return this.fieldRealTypeClass;
+    }
+
+    @Override
+    public boolean isInvisible() {
+        if (ClassUtil.isPublic(this.fieldRealTypeClass)) {
+            return false;
+        }
+        return super.isInvisible();
     }
 }

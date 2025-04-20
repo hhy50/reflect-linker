@@ -1,6 +1,8 @@
 package io.github.hhy50.linker.define;
 
+import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.asm.AsmUtil;
+import io.github.hhy50.linker.define.provider.TargetProvider;
 import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.util.StringUtil;
 import io.github.hhy50.linker.util.TypeUtils;
@@ -8,6 +10,7 @@ import org.objectweb.asm.Type;
 
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,37 +59,37 @@ public class MethodDescriptor {
     /**
      * The constant METHOD_TYPE.
      */
-    public static final MethodDescriptor METHOD_TYPE = MethodDescriptor.of("java/lang/invoke/MethodType", "methodType",
+    public static final MethodDescriptor METHOD_TYPE = MethodDescriptor.of(MethodType.class.getName(), "methodType",
             MethodType.class, Class.class, Class[].class);
     /**
      * The constant ARRAYS_ASLIST.
      */
-    public static final MethodDescriptor ARRAYS_ASLIST = MethodDescriptor.of("java/util/Arrays", "asList",
+    public static final MethodDescriptor ARRAYS_ASLIST = MethodDescriptor.of(Arrays.class.getName(), "asList",
             List.class, Object[].class);
     /**
      * The constant DEFAULT_PROVIDER_GET_TARGET.
      */
-    public static final MethodDescriptor DEFAULT_PROVIDER_GET_TARGET = MethodDescriptor.of("io/github/hhy50/linker/define/provider/DefaultTargetProviderImpl", "getTarget",
+    public static final MethodDescriptor DEFAULT_PROVIDER_GET_TARGET = MethodDescriptor.of(TargetProvider.class .getName(), "getTarget",
             Object.class);
     /**
      * The constant LINKER_FACTORY_CREATE_LINKER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createLinker",
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of(LinkerFactory.class.getName(), "createLinker",
             Object.class, Class.class, Object.class);
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createStaticLinker",
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER = MethodDescriptor.of(LinkerFactory.class.getName(), "createStaticLinker",
             Object.class, Class.class, Class.class);
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER = MethodDescriptor.of("io/github/hhy50/linker/LinkerFactory", "createStaticLinker",
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER = MethodDescriptor.of(LinkerFactory.class.getName(), "createStaticLinker",
             Object.class, Class.class, ClassLoader.class);
     /**
      * The constant GET_CLASS_LOADER.
      */
-    public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of("java/lang/Class", "getClassLoader",
+    public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of(Class.class.getName(), "getClassLoader",
             ClassLoader.class);
 
     private final String owner;

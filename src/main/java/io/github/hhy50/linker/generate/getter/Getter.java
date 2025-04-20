@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.getter;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -51,7 +50,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         this.implClass = implClass;
         this.field = field;
         this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(),
-                Type.getMethodType(AsmUtil.isPrimitiveType(field.getType()) ? field.getType(): ObjectVar.TYPE));
+                Type.getMethodType(field.isInvisible() ? ObjectVar.TYPE : field.getType()));
     }
 
     @Override

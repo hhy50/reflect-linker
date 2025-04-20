@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.define.field;
 
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
@@ -116,5 +117,14 @@ public abstract class FieldRef {
 //        RuntimeFieldRef runtime = new RuntimeFieldRef(this.getPrev(), this.objName, this.fieldName);
 //        runtime.designateStatic(((EarlyFieldRef) this).isStatic());
         return new RuntimeFieldRef(this.getPrev(), this.objName, this.fieldName);
+    }
+
+    /**
+     * Is unreachable boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isInvisible() {
+        return !AsmUtil.isPrimitiveType(getType());
     }
 }

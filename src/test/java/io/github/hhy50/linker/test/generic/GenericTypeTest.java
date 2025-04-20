@@ -11,6 +11,9 @@ public class GenericTypeTest {
 
     @Test
     public void test() throws LinkerException {
+        GenericTypeLinker linker = LinkerFactory.createLinker(GenericTypeLinker.class, new GenericType());
+        Assert.assertNotNull(linker.getUsers());
+
         HashMap<Object, Object> map = new HashMap<>();
         MyHashMap myMap = LinkerFactory.createLinker(MyHashMap.class, map);
 

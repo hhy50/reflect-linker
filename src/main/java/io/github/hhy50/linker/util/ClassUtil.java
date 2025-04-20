@@ -4,6 +4,7 @@ package io.github.hhy50.linker.util;
 import io.github.hhy50.linker.annotations.Typed;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -153,6 +154,15 @@ public class ClassUtil {
             return Boolean.class;
         }
         return Object.class;
+    }
+
+    /**
+     *
+     * @param clazz
+     * @return
+     */
+    public static boolean isPublic(Class<?> clazz) {
+        return Modifier.isPublic(clazz.getModifiers());
     }
 
     /**

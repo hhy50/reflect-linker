@@ -10,6 +10,7 @@ import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ public class AsmClassBuilder {
     /**
      * The Class writer.
      */
-    protected ClassWriter classWriter;
+    protected ClassVisitor classWriter;
     /**
      * The Members.
      */
@@ -198,7 +199,12 @@ public class AsmClassBuilder {
      * @return the byte [ ]
      */
     public byte[] toBytecode() {
-        return classWriter.toByteArray();
+        if (classWriter instanceof ClassWriter) {
+            return ((ClassWriter) classWriter).toByteArray();
+        } else if (classWriter instanceof ClassNodeWrap) {
+            return ((ClassNodeWrap) classWriter).toByteArray();
+        }
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -243,6 +249,24 @@ public class AsmClassBuilder {
      * @return boolean boolean
      */
     public boolean isAutoCompute() {
-        return classWriter.hasFlags(AUTO_COMPUTE);
+        //return classWriter.hasFlags(AUTO_COMPUTE);
+        return true;
+    }
+
+
+    public static AsmClassBuilder wrap(LClassNode classNode) {
+        AsmClassBuilder classBuilder = new AsmClassBuilder();
+        classBuilder.classOwner = classNode.getName();
+        classBuilder.className = ClassUtil.classpath2name(classNode.getName());
+        classBuilder.superOwner = classNode.getSuperName();
+        classBuilder.members = new HashMap<>();
+
+        for (LFieldNode field : classNode.getFields()) {
+            classBuilder.members.put(field.getName(), new Member(field.getAccess(), classNode.getName(),
+                    field.getName(), Type.getType(field.getDesc())));
+        }
+
+        classBuilder.classWriter = new ClassNodeWrap(classNode);
+        return classBuilder;
     }
 }

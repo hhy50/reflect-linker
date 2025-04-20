@@ -7,6 +7,8 @@ import org.objectweb.asm.Type;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import static io.github.hhy50.linker.util.ClassUtil.isPublic;
+
 /**
  * The type Early method ref.
  */
@@ -76,12 +78,12 @@ public class EarlyMethodRef extends MethodRef {
      *
      * @return the boolean
      */
-    public boolean isUnreachable() {
-        if (!Modifier.isPublic(method.getReturnType().getModifiers())) {
+    public boolean isInvisible() {
+        if (!isPublic(method.getReturnType())) {
             return true;
         }
         for (Class<?> parameterType : method.getParameterTypes()) {
-            if (!Modifier.isPublic(parameterType.getModifiers())) {
+            if (!isPublic(parameterType)) {
                 return true;
             }
         }
