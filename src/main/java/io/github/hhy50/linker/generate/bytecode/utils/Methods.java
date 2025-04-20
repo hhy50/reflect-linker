@@ -115,10 +115,10 @@ public class Methods {
         /**
          * Instantiates a new Method invoke action.
          *
-         * @param methodDescriptor the method holder
+         * @param descriptor the method holder
          */
-        public InvokeInterface(MethodDescriptor methodDescriptor) {
-            super(methodDescriptor);
+        public InvokeInterface(MethodDescriptor descriptor) {
+            super(descriptor);
         }
 
         @Override

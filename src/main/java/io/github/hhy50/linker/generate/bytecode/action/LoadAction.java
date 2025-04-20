@@ -19,7 +19,7 @@ public interface LoadAction extends TypedAction {
         Type thisType;
         @Override
         public void load(MethodBody body) {
-            thisType = Type.getType(body.getClassBuilder().getClassOwner());
+            thisType = Type.getObjectType(body.getClassBuilder().getClassOwner());
             LOAD0.apply(body);
         }
         @Override

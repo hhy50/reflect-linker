@@ -19,7 +19,7 @@ public class MethodBuilder {
 
     private final MethodBody methodBody;
 
-    private final MethodDescriptor methodDescriptor;
+    private final MethodDescriptor descriptor;
 
     private final int access;
 
@@ -28,13 +28,13 @@ public class MethodBuilder {
      *
      * @param classBuilder  the class builder
      * @param access        the is access
-     * @param md            the md
+     * @param descriptor    the descriptor
      * @param methodVisitor the method visitor
      */
-    public MethodBuilder(AsmClassBuilder classBuilder, int access, MethodDescriptor md, MethodVisitor methodVisitor) {
+    public MethodBuilder(AsmClassBuilder classBuilder, int access, MethodDescriptor descriptor, MethodVisitor methodVisitor) {
         this.classBuilder = classBuilder;
         this.access = access;
-        this.methodDescriptor = md;
+        this.descriptor = descriptor;
         this.methodBody = new MethodBody(this, methodVisitor);
     }
 
@@ -117,17 +117,8 @@ public class MethodBuilder {
      *
      * @return method descriptor
      */
-    public MethodDescriptor getMethodDescriptor() {
-        return methodDescriptor;
-    }
-
-    /**
-     * Gets method desc.
-     *
-     * @return method desc
-     */
-    public String getMethodDesc() {
-        return methodDescriptor.getDesc();
+    public MethodDescriptor getDescriptor() {
+        return this.descriptor;
     }
 
     /**

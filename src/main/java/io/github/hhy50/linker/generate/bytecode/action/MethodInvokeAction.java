@@ -93,6 +93,6 @@ public class MethodInvokeAction implements LoadAction {
     @Override
     public Type getType() {
         requireNonNull(this.descriptor);
-        return Type.getMethodType(descriptor.getDesc()).getReturnType();
+        return descriptor.getReturnType();
     }
 }

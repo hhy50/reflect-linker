@@ -3,7 +3,6 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.asm.MethodBuilder;
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
@@ -37,7 +36,7 @@ public class MethodBody {
     public MethodBody(MethodBuilder methodBuilder, MethodVisitor mv) {
         this.methodBuilder = methodBuilder;
 
-        Type[] argumentTypes = Type.getArgumentTypes(methodBuilder.getMethodDesc());
+        Type[] argumentTypes = methodBuilder.getDescriptor().getType().getArgumentTypes();
         this.writer = mv;
         this.lvbIndex = AsmUtil.calculateLvbOffset(methodBuilder.isStatic(), argumentTypes);
         this.args = new VarInst[argumentTypes.length];
@@ -138,15 +137,6 @@ public class MethodBody {
      */
     public AsmClassBuilder getClassBuilder() {
         return methodBuilder.getClassBuilder();
-    }
-
-    /**
-     * Gets method builder.
-     *
-     * @return method descriptor
-     */
-    public MethodDescriptor getMethodDescriptor() {
-        return methodBuilder.getMethodDescriptor();
     }
 
     /**
