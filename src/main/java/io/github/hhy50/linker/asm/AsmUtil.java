@@ -225,7 +225,7 @@ public class AsmUtil {
      * Gets primitive type.
      *
      * @param clazz the clazz
-     * @return primitive type
+     * @return the primitive type
      */
     public static Type getPrimitiveType(String clazz) {
         // 判断是否是基本数据类

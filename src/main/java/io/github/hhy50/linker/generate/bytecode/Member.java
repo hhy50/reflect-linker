@@ -3,6 +3,7 @@ package io.github.hhy50.linker.generate.bytecode;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -35,6 +36,11 @@ public class Member implements LoadAction {
     protected final Type type;
 
     /**
+     * The Field visitor.
+     */
+    protected FieldVisitor fieldVisitor;
+
+    /**
      * Instantiates a new Member.
      *
      * @param access     the access
@@ -47,6 +53,23 @@ public class Member implements LoadAction {
         this.owner = owner;
         this.memberName = memberName;
         this.type = type;
+    }
+
+    /**
+     * Instantiates a new Member.
+     *
+     * @param access       the access
+     * @param owner        the owner
+     * @param memberName   the member name
+     * @param type         the type
+     * @param fieldVisitor the field visitor
+     */
+    public Member(int access, String owner, String memberName, Type type, FieldVisitor fieldVisitor) {
+        this.access = access;
+        this.owner = owner;
+        this.memberName = memberName;
+        this.type = type;
+        this.fieldVisitor = fieldVisitor;
     }
 
     /**
@@ -65,6 +88,15 @@ public class Member implements LoadAction {
      */
     public int getAccess() {
         return access;
+    }
+
+    /**
+     * Gets field visitor.
+     *
+     * @return the field visitor
+     */
+    public FieldVisitor getFieldWriter() {
+        return fieldVisitor;
     }
 
     /**

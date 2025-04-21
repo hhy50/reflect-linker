@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.vars.ClassVar;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -49,7 +49,7 @@ public class LdcLoadAction implements LoadAction {
     @Override
     public Type getType() {
         if (ldcConstVar instanceof String) {
-            return Type.getType(String.class);
+            return TypeUtils.STRING_TYPE;
         } else if (ldcConstVar instanceof Boolean) {
             return Type.BOOLEAN_TYPE;
         } else if (ldcConstVar instanceof Character) {
@@ -65,7 +65,7 @@ public class LdcLoadAction implements LoadAction {
         } else if (ldcConstVar instanceof Long) {
             return Type.LONG_TYPE;
         } else if (ldcConstVar instanceof Type) {
-            return ClassVar.TYPE;
+            return TypeUtils.CLASS_TYPE;
         }
         return ObjectVar.TYPE;
     }

@@ -12,6 +12,7 @@ import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -65,7 +66,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
         MethodInvokeAction findXXX;
-        Action argsType = Actions.asArray(Type.getType(Class.class), Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
+        Action argsType = Actions.asArray(TypeUtils.CLASS_TYPE, Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
         if (invokeSpecial) {
             findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDSPECIAL).setArgs(
                     LdcLoadAction.of(AsmUtil.getType(superClass)),

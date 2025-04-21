@@ -11,7 +11,6 @@ import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
-import io.github.hhy50.linker.generate.bytecode.vars.ClassVar;
 import io.github.hhy50.linker.generate.getter.EarlyFieldGetter;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.RuntimeFieldGetter;
@@ -22,6 +21,7 @@ import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
 import io.github.hhy50.linker.generate.setter.EarlyFieldSetter;
 import io.github.hhy50.linker.generate.setter.RuntimeFieldSetter;
 import io.github.hhy50.linker.generate.setter.Setter;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -191,7 +191,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public ClassTypeMember defineLookupClass(String mName) {
         mName = mName+"_lookup_$_class_type";
         if (!members.containsKey(mName)) {
-            Member member = super.defineField(Opcodes.ACC_PUBLIC, mName, ClassVar.TYPE, null, null);
+            Member member = super.defineField(Opcodes.ACC_PUBLIC, mName, TypeUtils.CLASS_TYPE, null, null);
             ClassTypeMember classTypeMember = new ClassTypeMember(member);
             this.members.put(mName, classTypeMember);
             return classTypeMember;

@@ -23,6 +23,7 @@ public interface MyArrayList {
      * @param o a {@link java.lang.Object} object.
      */
     void add(Object o);
+
     /**
      * <p>clear.</p>
      */

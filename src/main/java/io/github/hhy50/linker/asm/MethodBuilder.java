@@ -27,7 +27,7 @@ public class MethodBuilder {
      * Instantiates a new Method builder.
      *
      * @param classBuilder  the class builder
-     * @param access        the is access
+     * @param access        the access
      * @param descriptor    the descriptor
      * @param methodVisitor the method visitor
      */
@@ -39,10 +39,10 @@ public class MethodBuilder {
     }
 
     /**
-     * Accept asm class builder.
+     * Accept method builder.
      *
      * @param consumer the consumer
-     * @return the asm class builder
+     * @return the method builder
      */
     public MethodBuilder accept(Consumer<MethodBody> consumer) {
         consumer.accept(methodBody);
@@ -53,7 +53,7 @@ public class MethodBuilder {
      * Intercept asm class builder.
      *
      * @param actions the actions
-     * @return asm class builder
+     * @return the asm class builder
      */
     public AsmClassBuilder intercept(Action... actions) {
         if (actions.length == 0) {
@@ -106,16 +106,16 @@ public class MethodBuilder {
     /**
      * Gets method body.
      *
-     * @return method body
+     * @return the method body
      */
     public MethodBody getMethodBody() {
         return methodBody;
     }
 
     /**
-     * Gets method name.
+     * Gets descriptor.
      *
-     * @return method descriptor
+     * @return the descriptor
      */
     public MethodDescriptor getDescriptor() {
         return this.descriptor;
@@ -124,7 +124,7 @@ public class MethodBuilder {
     /**
      * Gets access.
      *
-     * @return access
+     * @return the access
      */
     public int getAccess() {
         return this.access;
@@ -133,7 +133,7 @@ public class MethodBuilder {
     /**
      * Is static boolean.
      *
-     * @return boolean boolean
+     * @return the boolean
      */
     public boolean isStatic() {
         return (access & Opcodes.ACC_STATIC) > 0;

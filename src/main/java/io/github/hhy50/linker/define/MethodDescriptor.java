@@ -22,7 +22,7 @@ public class MethodDescriptor {
     /**
      * The constant OBJECT_GET_CLASS.
      */
-    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of("java/lang/Object", "getClass", Type.getMethodType(Type.getType(Class.class)));
+    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of("java/lang/Object", "getClass", Type.getMethodType(TypeUtils.CLASS_TYPE));
     /**
      * The constant LOOKUP_FIND_GETTER_METHOD.
      */

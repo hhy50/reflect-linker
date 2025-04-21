@@ -11,6 +11,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import io.github.hhy50.linker.runtime.Runtime;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Type;
 
 import java.util.Objects;
@@ -215,7 +216,7 @@ public abstract class MethodHandle {
                 AsmClassBuilder classBuilder = body.getClassBuilder();
                 Action cl = LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
                         .invokeMethod(MethodDescriptor.GET_CLASS_LOADER);
-                this.clazzVar = body.newLocalVar(Type.getType(Class.class), new MethodInvokeAction(Runtime.GET_CLASS)
+                this.clazzVar = body.newLocalVar(TypeUtils.CLASS_TYPE, new MethodInvokeAction(Runtime.GET_CLASS)
                         .setArgs(cl, LdcLoadAction.of(type.getClassName())));
             }
             clazzVar.loadToStack();

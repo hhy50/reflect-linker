@@ -10,6 +10,7 @@ import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
@@ -74,7 +75,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass,
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
-                        Actions.asArray(Type.getType(String.class), Arrays.stream(method.getArgsType())
+                        Actions.asArray(TypeUtils.STRING_TYPE, Arrays.stream(method.getArgsType())
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
                         // Object[] args
 //                        Actions.asArray(Type.getType(Object.class),
