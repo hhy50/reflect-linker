@@ -314,7 +314,7 @@ public class AsmClassBuilder {
      */
     public static AsmClassBuilder wrap(LClassVisitor classVisitor) throws LinkerException {
         AsmClassBuilder classBuilder = new AsmClassBuilder();
-        classBuilder.access = classBuilder.getAccess();
+        classBuilder.access = classVisitor.getAccess();
         classBuilder.flags = AUTO_COMPUTE;
         classBuilder.classOwner = classVisitor.getName();
         classBuilder.className = ClassUtil.classpath2name(classVisitor.getName());
