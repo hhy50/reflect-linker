@@ -2,7 +2,7 @@ package io.github.hhy50.linker.test.finalfield;
 
 import io.github.hhy50.linker.annotations.Field;
 
-public interface UserVisitor {
+public interface LUser {
 
     @Field.Getter("name")
     String getName();

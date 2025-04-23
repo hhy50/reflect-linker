@@ -1,34 +1,38 @@
 package io.github.hhy50.linker.test.nest.case2;
 
+import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
 import io.github.hhy50.linker.test.MyInteger;
 
 
 /**
- * <p>MyObjectVisitor interface.</p>
+ * <p>LMyObject interface.</p>
  *
  * @author hanhaiyang
  * @version $Id: $Id
  * @since 1.0.0
  */
-public interface MyObjectVisitor {
+@Autolink
+public interface Linker {
 
     /**
      * <p>getUser.</p>
      *
-     * @return a {@link UserVisitor} object.
+     * @return a {@link LUser} object.
      */
+//    @Autolink
     @Field.Getter("user")
-    UserVisitor getUser();
+    LUser getUser();
 
     /**
      * <p>setUser.</p>
      *
-     * @param user a {@link UserVisitor} object.
+     * @param user a {@link LUser} object.
      */
+    @Autolink
     @Field.Setter("user")
-    void setUser(UserVisitor user);
+    void setUser(LUser user);
 
     /**
      * <p>getName.</p>

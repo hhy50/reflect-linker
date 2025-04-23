@@ -28,8 +28,8 @@ public abstract class DefaultTargetProviderImpl implements TargetProvider {
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
-        if (obj instanceof DefaultTargetProviderImpl) {
-            return Objects.equals(target, ((DefaultTargetProviderImpl) obj).target);
+        if (obj instanceof TargetProvider) {
+            return Objects.equals(target, ((TargetProvider) obj).getTarget());
         }
         return Objects.equals(target, obj);
     }

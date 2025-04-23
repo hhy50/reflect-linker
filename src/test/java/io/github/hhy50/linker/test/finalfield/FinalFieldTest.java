@@ -7,11 +7,10 @@ import org.junit.Test;
 
 public class FinalFieldTest {
 
-
     @Test
     public void test1() throws LinkerException {
         User user = new User("1234");
-        UserVisitor linker = LinkerFactory.createLinker(UserVisitor.class, user);
+        LUser linker = LinkerFactory.createLinker(LUser.class, user);
         linker.setName("111");
         linker.setStaticName("111");
 

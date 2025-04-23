@@ -11,6 +11,7 @@ import org.objectweb.asm.Type;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -76,6 +77,10 @@ public class MethodDescriptor {
      */
     public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of(LinkerFactory.class.getName(), "createLinker",
             Object.class, Class.class, Object.class);
+
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER_COLLECT = MethodDescriptor.of(LinkerFactory.class.getName(), "createLinkerCollect",
+            Object.class, Class.class, Collection.class);
+
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER.
      */

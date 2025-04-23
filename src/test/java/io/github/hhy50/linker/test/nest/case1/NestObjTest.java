@@ -24,15 +24,16 @@ public class NestObjTest {
     @Test
     public void test1() throws LinkerException {
         // get
-        ObjVisitor obj = LinkerFactory.createLinker(ObjVisitor.class, new Obj());
-//        ObjVisitor$impl obj = new ObjVisitor$impl(new Obj());
-        Object a = obj.getA();
-        Object b = obj.getB();
-        Object c = obj.getC();
-        Object c2 = obj.getC2();
-        String str = obj.getStr2();
-        String str2 = obj.getStr2();
-        Object d = obj.getD();
+        LA_Runtime obj = LinkerFactory.createLinker(LA_Runtime.class, new Object() {
+            A a = new A2();
+        });
+        Object a = obj.get_a();
+        Object b = obj.get_a_b();
+        Object c = obj.get_a_b_c();
+        String str = obj.get_a_c_str();
+        Object c2 = obj.get_a_c();
+        String str2 = obj.get_a_c_str();
+        Object d = obj.get_a_d();
 
         Assert.assertNotNull(a);
         Assert.assertNotNull(b);
@@ -52,20 +53,20 @@ public class NestObjTest {
         str2 = "new_string_2";
         d = 20;
 
-        obj.setA(a);
-        obj.setB(b);
-        obj.setC(c);
-        obj.setC2(c2);
-        obj.setStr(str);
-        obj.setStr2(str2);
-        obj.setD((Integer) d);
+        obj.set_a(a);
+        obj.set_a_b(b);
+        obj.set_a_b_c(c);
+        obj.set_a_c(c2);
+        obj.set_a_b_c_str(str);
+        obj.set_a_c_str(str2);
+        obj.set_a_d((Integer) d);
 
-        Assert.assertEquals(obj.getA(), a);
-        Assert.assertEquals(obj.getB(), b);
-        Assert.assertEquals(obj.getC(), c);
-        Assert.assertEquals(obj.getStr(), str);
-        Assert.assertEquals(obj.getStr2(), str2);
-        Assert.assertEquals(obj.getD(), d);
+        Assert.assertEquals(obj.get_a(), a);
+        Assert.assertEquals(obj.get_a_b(), b);
+        Assert.assertEquals(obj.get_a_b_c(), c);
+        Assert.assertEquals(obj.get_a_b_c_str(), str);
+        Assert.assertEquals(obj.get_a_c_str(), str2);
+        Assert.assertEquals(obj.get_a_d(), d);
     }
 
     /**
@@ -76,15 +77,17 @@ public class NestObjTest {
     @Test
     public void test2() throws LinkerException {
         // get
-        ObjVisitor2 obj = LinkerFactory.createLinker(ObjVisitor2.class, new Obj());
-//        ObjVisitor$impl obj = new ObjVisitor$impl(new Obj());
-        Object a = obj.getA();
-        Object b = obj.getB();
-        Object c = obj.getC();
-        Object c2 = obj.getC2();
-        String str = obj.getStr2();
-        String str2 = obj.getStr2();
-        Object d = obj.getD();
+        LA_Typed obj = LinkerFactory.createLinker(LA_Typed.class, new Object() {
+            A a = new A2();
+        });
+
+        Object a = obj.get_a();
+        Object b = obj.get_a_b();
+        Object c = obj.get_a_b_c();
+        String str = obj.get_a_c_str();
+        Object c2 = obj.get_a_c();
+        String str2 = obj.get_a_c_str();
+        Object d = obj.get_a_d();
 
         Assert.assertNotNull(a);
         Assert.assertNotNull(b);
@@ -104,19 +107,19 @@ public class NestObjTest {
         str2 = "new_string_2";
         d = 20;
 
-        obj.setA(a);
+        obj.set_a(a);
         obj.setB(b);
-        obj.setC(c);
-        obj.setC2(c2);
-        obj.setStr(str);
-        obj.setStr2(str2);
-        obj.setD((Integer) d);
+        obj.set_a_b_c(c);
+        obj.set_a_c(c2);
+        obj.set_a_b_c_str(str);
+        obj.get_a_c_str(str2);
+        obj.set_a_d((Integer) d);
 
-        Assert.assertEquals(obj.getA(), a);
-        Assert.assertEquals(obj.getB(), b);
-        Assert.assertEquals(obj.getC(), c);
-        Assert.assertEquals(obj.getStr(), str);
-        Assert.assertEquals(obj.getStr2(), str2);
-        Assert.assertEquals(obj.getD(), d);
+        Assert.assertEquals(obj.get_a(), a);
+        Assert.assertEquals(obj.get_a_b(), b);
+        Assert.assertEquals(obj.get_a_b_c(), c);
+        Assert.assertEquals(obj.get_a_b_c_str(), str);
+        Assert.assertEquals(obj.get_a_c_str(), str2);
+        Assert.assertEquals(obj.get_a_d(), d);
     }
 }

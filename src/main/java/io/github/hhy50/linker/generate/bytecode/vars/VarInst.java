@@ -2,7 +2,7 @@ package io.github.hhy50.linker.generate.bytecode.vars;
 
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
+import io.github.hhy50.linker.define.provider.TargetProvider;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
@@ -11,6 +11,8 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.function.Consumer;
+
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.multi;
 
 /**
  * The type Var inst.
@@ -114,16 +116,27 @@ public abstract class VarInst implements LoadAction {
      * @return the target
      */
     public Action getTarget(Type providerType) {
-        Type defaultType = Type.getType(DefaultTargetProviderImpl.class);
-        Action typecast = Actions.empty();
-        if (!this.type.equals(defaultType)) {
-            typecast = new TypeCastAction(this, defaultType);
-        }
-        return Actions.multi(
-                typecast,
-                Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
-                        .setInstance(this),
-                new TypeCastAction(Actions.stackTop(), providerType)
+        return new TypeCastAction(Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
+                .setInstance(this), providerType);
+    }
+
+    /**
+     * Gets target.
+     *
+     * @return the target
+     */
+    public Action tryGetTarget() {
+        return new ConditionJumpAction(
+                Condition.instanceOf(this, Type.getType(TargetProvider.class)),
+                multi(
+                        Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
+                                .setInstance(new TypeCastAction(this, Type.getType(TargetProvider.class)))
+                ), this
         );
+    }
+
+    public void tryGetTarget1() {
+        Object o = new Object();
+        o = o instanceof TargetProvider ? ((TargetProvider) o).getTarget() : null;
     }
 }

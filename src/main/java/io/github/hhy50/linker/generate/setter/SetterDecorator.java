@@ -17,7 +17,6 @@ public class SetterDecorator extends AbstractDecorator {
 
     private Setter setter;
     private final FieldRef fieldRef;
-    private final MethodDefine methodDefine;
 
     /**
      * Instantiates a new Setter decorator.
@@ -27,9 +26,9 @@ public class SetterDecorator extends AbstractDecorator {
      * @param methodDefine the method define
      */
     public SetterDecorator(Setter setter, FieldRef fieldRef, MethodDefine methodDefine) {
+        super(methodDefine);
         this.setter = setter;
         this.fieldRef = fieldRef;
-        this.methodDefine = methodDefine;
     }
 
     @Override
@@ -40,7 +39,7 @@ public class SetterDecorator extends AbstractDecorator {
     @Override
     public VarInst invoke(MethodBody methodBody) {
         // 方法定义的类型
-        typecastArgs(methodBody, methodBody.getArgs(), methodDefine.method.getParameterTypes(), new Type[]{fieldRef.getType()});
+        typecastArgs(methodBody, methodBody.getArgs(), new Type[]{fieldRef.getType()});
         setter.invoke(methodBody);
         AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);
         return null;

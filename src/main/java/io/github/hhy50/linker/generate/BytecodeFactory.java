@@ -32,7 +32,7 @@ public class BytecodeFactory {
             prev = prev.getPrev();
         }
         Getter<?> getter = classBuilder.defineGetter(fieldRef.getUniqueName(), fieldRef);
-        return new GetterDecorator(getter, fieldRef, methodDefine.method);
+        return new GetterDecorator(getter, fieldRef, methodDefine);
     }
 
     /**

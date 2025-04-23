@@ -6,28 +6,24 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
 /**
- * The type Create linker action.
+ * The type Create linker collect action.
  */
-public class CreateLinkerAction implements Action {
-
-    protected final Type linkerType;
-    protected final VarInst obj;
+public class CreateLinkerCollectAction extends CreateLinkerAction {
 
     /**
-     * Instantiates a new Create linker action.
+     * Instantiates a new Create linker collect action.
      *
      * @param linkerType the linker type
      * @param obj        the obj
      */
-    public CreateLinkerAction(Type linkerType, VarInst obj) {
-        this.linkerType = linkerType;
-        this.obj = obj;
+    public CreateLinkerCollectAction(Type linkerType, VarInst obj) {
+        super(linkerType, obj);
     }
 
 
     @Override
     public void apply(MethodBody body) {
-        body.append(obj.ifNull(Actions.returnNull(), new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER)
+        body.append(obj.ifNull(Actions.returnNull(), new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER_COLLECT)
                 .setArgs(LdcLoadAction.of(linkerType), obj)));
     }
 }

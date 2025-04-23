@@ -12,7 +12,7 @@ import io.github.hhy50.linker.annotations.Typed;
  * @since 1.0.0
  */
 @Typed(name = "user", type = "io.github.hhy50.linker.test.nest.case2.UserVo")
-public interface MyObjectVisitor2 {
+public interface Linker_Typed {
 
     /**
      * <p>getUser.</p>

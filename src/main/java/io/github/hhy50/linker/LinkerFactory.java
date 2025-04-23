@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 
 /**
  * <p>LinkerFactory class.</p>
@@ -18,6 +19,30 @@ import java.lang.reflect.InvocationTargetException;
  * @version $Id : $Id
  */
 public class LinkerFactory {
+
+    /**
+     *
+     * @param define
+     * @param target
+     * @return
+     * @param <T>
+     * @throws LinkerException
+     */
+    public static <T> T createLinkerCollect(Class<T> define, Collection<?> target) throws LinkerException {
+        if (target == null) {
+            throw new NullPointerException("target");
+        }
+        try {
+            ClassLoader cl = define.getClassLoader();
+            if (cl == null) {
+                cl = ClassLoader.getSystemClassLoader();
+            }
+            Class<?> gClass = create(define, target.getClass(), cl);
+            return (T) newInstance(target, null, gClass);
+        } catch (Exception e) {
+            throw new LinkerException("create linker exception", e);
+        }
+    }
 
     /**
      * <p>createLinker.</p>

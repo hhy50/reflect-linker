@@ -30,12 +30,12 @@ public class InvokerDecorator extends AbstractDecorator {
      * @param methodDefine the method define
      */
     public InvokerDecorator(Invoker<?> realInvoker, MethodDefine methodDefine) {
+        super(methodDefine);
         Objects.requireNonNull(realInvoker);
-        Objects.requireNonNull(methodDefine);
 
         this.realInvoker = realInvoker;
         this.methodDefine = methodDefine;
-        this.autoLinkResult = realInvoker instanceof Constructor;
+        this.autolink = this.autolink || realInvoker instanceof Constructor;
     }
 
     @Override
@@ -48,12 +48,12 @@ public class InvokerDecorator extends AbstractDecorator {
         MethodRef methodRef = methodDefine.methodRef;
         Type[] argsType = methodRef.getArgsType();
 
-        typecastArgs(methodBody, methodBody.getArgs(), methodDefine.method.getParameterTypes(), argsType);
+        typecastArgs(methodBody, methodBody.getArgs(), argsType);
         VarInst result = realInvoker.invoke(methodBody);
 
         Class<?> rClassType = methodDefine.method.getReturnType();
         if (result != null && rClassType != Void.TYPE) {
-            typecastResult(methodBody, result, rClassType)
+            typecastResult(methodBody, result)
                     .returnThis();
         } else {
             AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);

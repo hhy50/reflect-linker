@@ -13,13 +13,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
- * <p>MyArrayListTest class.</p>
+ * <p>LArrayListTest class.</p>
  *
  * @author hanhaiyang
  * @version $Id: $Id
  * @since 1.0.0
  */
-public class MyArrayListTest {
+public class ArrayListTest {
 
     /**
      * <p>test.</p>
@@ -28,10 +28,11 @@ public class MyArrayListTest {
      */
     @Test
     public void test() throws LinkerException {
-        Object[] objects = new Object[10];
+        LinkerFactory.setOutputPath("C:\\Users\\49168\\IdeaProjects\\reflect-linker\\target");
 
-        MyArrayList staticLinker = LinkerFactory.createStaticLinker(MyArrayList.class, ArrayList.class);
-        MyArrayList list = staticLinker.newList();
+        Object[] objects = new Object[10];
+        LArrayList staticLinker = LinkerFactory.createStaticLinker(LArrayList.class, ArrayList.class);
+        LArrayList list = staticLinker.newList();
         list.setElementData(objects);
 
         Assert.assertTrue(list instanceof TargetProvider);
@@ -49,7 +50,7 @@ public class MyArrayListTest {
         Assert.assertEquals(objects[4], list.get(4));
         Assert.assertEquals(list.size(), list.size());
 
-        MyArrayList3 list3 = LinkerFactory.createLinker(MyArrayList3.class, new ArrayList<>());
+        LArrayListRuntime list3 = LinkerFactory.createLinker(LArrayListRuntime.class, new ArrayList<>());
         list3.add(1);
         list3.add(2);
         list3.add(3);
@@ -61,9 +62,9 @@ public class MyArrayListTest {
         Assert.assertEquals(4, list3.get(3));
         Assert.assertEquals("5", list3.get(4));
 
-        LinkerFactory.createLinker(MyArrayList.class, new LinkedList<>());
-        LinkerFactory.createLinker(MyArrayList.class, new Vector<>());
-        LinkerFactory.createLinker(MyArrayList.class, new CopyOnWriteArrayList<>());
+        LinkerFactory.createLinker(LArrayList.class, new LinkedList<>());
+        LinkerFactory.createLinker(LArrayList.class, new Vector<>());
+        LinkerFactory.createLinker(LArrayList.class, new CopyOnWriteArrayList<>());
     }
 
     public static void check() {

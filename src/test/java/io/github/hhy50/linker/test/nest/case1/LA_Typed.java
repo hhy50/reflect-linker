@@ -11,14 +11,14 @@ import io.github.hhy50.linker.annotations.Typed;
  * @since 1.0.0
  */
 @Typed(name = "a", type = "io.github.hhy50.linker.test.nest.case1.A2")
-public interface ObjVisitor2 {
+public interface LA_Typed {
     /**
      * <p>getA.</p>
      *
      * @return a {@link java.lang.Object} object.
      */
     @Field.Getter("a")
-    Object getA();
+    Object get_a();
 
     /**
      * <p>setA.</p>
@@ -26,7 +26,7 @@ public interface ObjVisitor2 {
      * @param a a {@link java.lang.Object} object.
      */
     @Field.Setter("a")
-    void setA(Object a);
+    void set_a(Object a);
 
     /**
      * <p>getB.</p>
@@ -34,7 +34,7 @@ public interface ObjVisitor2 {
      * @return a {@link java.lang.Object} object.
      */
     @Field.Getter("a.b")
-    Object getB();
+    Object get_a_b();
 
     /**
      * <p>setB.</p>
@@ -50,7 +50,7 @@ public interface ObjVisitor2 {
      * @return a {@link java.lang.Object} object.
      */
     @Field.Getter("a.b.c")
-    Object getC();
+    Object get_a_b_c();
 
     /**
      * <p>setC.</p>
@@ -58,23 +58,7 @@ public interface ObjVisitor2 {
      * @param c a {@link java.lang.Object} object.
      */
     @Field.Setter("a.b.c")
-    void setC(Object c);
-
-    /**
-     * <p>getC2.</p>
-     *
-     * @return a {@link java.lang.Object} object.
-     */
-    @Field.Getter("a.c")
-    Object getC2();
-
-    /**
-     * <p>setC2.</p>
-     *
-     * @param c a {@link java.lang.Object} object.
-     */
-    @Field.Setter("a.c")
-    void setC2(Object c);
+    void set_a_b_c(Object c);
 
     /**
      * <p>getStr.</p>
@@ -82,7 +66,7 @@ public interface ObjVisitor2 {
      * @return a {@link java.lang.String} object.
      */
     @Field.Getter("a.b.c.str")
-    String getStr();
+    String get_a_b_c_str();
 
     /**
      * <p>setStr.</p>
@@ -90,7 +74,23 @@ public interface ObjVisitor2 {
      * @param c a {@link java.lang.Object} object.
      */
     @Field.Setter("a.b.c.str")
-    void setStr(Object c);
+    void set_a_b_c_str(Object c);
+
+    /**
+     * <p>getC2.</p>
+     *
+     * @return a {@link java.lang.Object} object.
+     */
+    @Field.Getter("a.c")
+    Object get_a_c();
+
+    /**
+     * <p>setC2.</p>
+     *
+     * @param c a {@link java.lang.Object} object.
+     */
+    @Field.Setter("a.c")
+    void set_a_c(Object c);
 
     /**
      * <p>getStr2.</p>
@@ -98,7 +98,7 @@ public interface ObjVisitor2 {
      * @return a {@link java.lang.String} object.
      */
     @Field.Getter("a.c.str")
-    String getStr2();
+    String get_a_c_str();
 
     /**
      * <p>setStr2.</p>
@@ -106,7 +106,7 @@ public interface ObjVisitor2 {
      * @param str2 a {@link java.lang.String} object.
      */
     @Field.Setter("a.c.str")
-    void setStr2(String str2);
+    void get_a_c_str(String str2);
 
     /**
      * <p>getD.</p>
@@ -114,7 +114,7 @@ public interface ObjVisitor2 {
      * @return a {@link java.lang.Object} object.
      */
     @Field.Getter("a.d")
-    Object getD();
+    Object get_a_d();
 
     /**
      * <p>setD.</p>
@@ -122,5 +122,5 @@ public interface ObjVisitor2 {
      * @param d a int.
      */
     @Field.Setter("a.d")
-    void setD(int d);
+    void set_a_d(int d);
 }

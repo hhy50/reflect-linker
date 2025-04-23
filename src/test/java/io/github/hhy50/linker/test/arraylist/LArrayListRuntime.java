@@ -12,6 +12,6 @@ import java.util.List;
  * @since 1.0.0
  */
 @Runtime
-public interface MyArrayList3 extends List {
+public interface LArrayListRuntime extends List {
 
 }

@@ -1,9 +1,7 @@
 package io.github.hhy50.linker.util;
 
+import io.github.hhy50.linker.annotations.*;
 import io.github.hhy50.linker.annotations.Runtime;
-import io.github.hhy50.linker.annotations.Static;
-import io.github.hhy50.linker.annotations.Target;
-import io.github.hhy50.linker.annotations.Typed;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -81,5 +79,16 @@ public class AnnotationUtils {
             }
         }
         return s;
+    }
+
+    /**
+     * Is auto link result boolean.
+     *
+     * @param method the method
+     * @return the boolean
+     */
+    public static boolean isAutolink(Method method) {
+        return method.getDeclaredAnnotation(Autolink.class) != null ||
+                method.getDeclaringClass().getDeclaredAnnotation(Autolink.class) != null;
     }
 }

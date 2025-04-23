@@ -12,10 +12,10 @@ import io.github.hhy50.linker.test.MyInteger;
  * @since 1.0.0
  */
 //@Runtime
-public interface MyArrayList {
+public interface LArrayList {
 
     @Method.Constructor
-    MyArrayList newList();
+    LArrayList newList();
 
     /**
      * <p>add.</p>
