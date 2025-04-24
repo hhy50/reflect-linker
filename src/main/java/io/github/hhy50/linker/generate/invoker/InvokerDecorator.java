@@ -46,7 +46,7 @@ public class InvokerDecorator extends AbstractDecorator {
     @Override
     public VarInst invoke(MethodBody methodBody) {
         MethodRef methodRef = methodDefine.methodRef;
-        Type[] argsType = methodRef.getArgsType();
+        Type[] argsType = methodRef.getMethodType().getArgumentTypes();
 
         typecastArgs(methodBody, methodBody.getArgs(), argsType);
         VarInst result = realInvoker.invoke(methodBody);

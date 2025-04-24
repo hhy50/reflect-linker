@@ -3,9 +3,11 @@ package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 
 /**
@@ -32,6 +34,18 @@ public class RuntimeMethodRef extends MethodRef {
         this.returnType = returnType;
     }
 
+    @Override
+    public Type getMethodType() {
+        Type[] newArgsType = new Type[argsType.length];
+        Arrays.fill(newArgsType, ObjectVar.TYPE);
+        return Type.getMethodType(ObjectVar.TYPE, newArgsType);
+    }
+
+    /**
+     * Get args type type [ ].
+     *
+     * @return the type [ ]
+     */
     public Type[] getArgsType() {
         return argsType;
     }

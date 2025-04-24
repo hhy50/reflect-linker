@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
@@ -26,9 +27,8 @@ public class ConstructorRef extends MethodRef {
         this.constructor = constructor;
     }
 
-    @Override
-    public Type[] getArgsType() {
-        return Type.getType(constructor).getArgumentTypes();
+    public Type getMethodType() {
+        return Type.getMethodType(ObjectVar.TYPE, Type.getType(constructor).getArgumentTypes());
     }
 
     /**

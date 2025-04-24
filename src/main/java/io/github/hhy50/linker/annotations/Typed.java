@@ -26,5 +26,5 @@ public @interface Typed {
      *
      * @return the string
      */
-    String type();
+    String value();
 }

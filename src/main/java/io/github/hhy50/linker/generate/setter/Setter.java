@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.setter;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -10,7 +9,6 @@ import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
@@ -41,7 +39,7 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     public Setter(String implClass, T field) {
         this.field = field;
         this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(),
-                Type.getMethodType(Type.VOID_TYPE, AsmUtil.isPrimitiveType(field.getType()) ? field.getType() : ObjectVar.TYPE));
+                Type.getMethodType(Type.VOID_TYPE, field.getType()));
     }
 
     @Override

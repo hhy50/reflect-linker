@@ -11,7 +11,6 @@ public class GenericTypeTest {
 
     @Test
     public void test() throws LinkerException {
-        LinkerFactory.setOutputPath("/home/hanhaiyang/IdeaProjects/reflect-linker/target");
         GenericTypeLinker linker = LinkerFactory.createLinker(GenericTypeLinker.class, new GenericType());
         Assert.assertNotNull(linker.getUsers());
         for (GenericTypeLinker.LUser user : linker.getUsers()) {

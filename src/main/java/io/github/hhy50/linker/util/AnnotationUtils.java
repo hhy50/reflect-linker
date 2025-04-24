@@ -32,7 +32,7 @@ public class AnnotationUtils {
      */
     public static String getTyped(Parameter parameter) {
         Typed typedAnno = parameter.getDeclaredAnnotation(Typed.class);
-        return typedAnno != null ? typedAnno.type() : null;
+        return typedAnno != null ? typedAnno.value() : null;
     }
 
     /**

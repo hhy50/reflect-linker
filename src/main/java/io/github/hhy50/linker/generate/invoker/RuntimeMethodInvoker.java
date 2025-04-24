@@ -6,11 +6,9 @@ import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 
 /**
@@ -25,7 +23,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
      * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(String implClass, RuntimeMethodRef methodRef) {
-        super(implClass, methodRef, Type.getMethodType(ObjectVar.TYPE, methodRef.getArgsType()));
+        super(implClass, methodRef, methodRef.getMethodType());
     }
 
     @Override

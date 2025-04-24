@@ -12,6 +12,10 @@ import org.objectweb.asm.Type;
 
 import java.util.function.Consumer;
 
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.loadNull;
+import static io.github.hhy50.linker.generate.bytecode.action.Condition.instanceOf;
+import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
+
 /**
  * The type Var inst.
  */
@@ -60,7 +64,7 @@ public abstract class VarInst implements LoadAction {
      * @return the name
      */
     public String getName() {
-        return "slot[" + lvbIndex + ",type=" + type.getClassName() + "]";
+        return "slot["+lvbIndex+",type="+type.getClassName()+"]";
     }
 
     /**
@@ -110,12 +114,15 @@ public abstract class VarInst implements LoadAction {
     /**
      * Gets target.
      *
-     * @param providerType the provider type
      * @return the target
      */
-    public TypeCastAction getTarget(Type providerType) {
-        return new TypeCastAction(Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
-                .setInstance(new TypeCastAction(this, Type.getType(TargetProvider.class))), providerType);
+    public Action getTarget() {
+        return new ConditionJumpAction(
+                notNull(this),
+                Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
+                        .setInstance(new TypeCastAction(this, Type.getType(TargetProvider.class)))
+                , loadNull()
+        );
     }
 
     /**
@@ -124,11 +131,6 @@ public abstract class VarInst implements LoadAction {
      * @return the target
      */
     public Action tryGetTarget() {
-        return new ConditionJumpAction(
-                Condition.instanceOf(this, Type.getType(TargetProvider.class)),
-                Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
-                        .setInstance(new TypeCastAction(this, Type.getType(TargetProvider.class)))
-                , this
-        );
+        return new ConditionJumpAction(instanceOf(this, Type.getType(TargetProvider.class)), this.getTarget(), this);
     }
 }

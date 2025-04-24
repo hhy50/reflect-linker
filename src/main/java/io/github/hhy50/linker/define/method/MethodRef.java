@@ -28,7 +28,7 @@ public abstract class MethodRef {
     protected String superClass;
 
     /**
-     *
+     * The Full name.
      */
     protected String fullName;
 
@@ -99,9 +99,16 @@ public abstract class MethodRef {
     }
 
     /**
-     * Get args type type [ ].
+     * Gets method type.
      *
-     * @return the type [ ]
+     * @return the method type
      */
-    public abstract Type[] getArgsType();
+    public abstract Type getMethodType();
+
+//    /**
+//     * Get args type type [ ].
+//     *
+//     * @return the type [ ]
+//     */
+//    public abstract Type[] getArgsType();
 }

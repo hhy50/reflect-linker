@@ -1,7 +1,9 @@
 package io.github.hhy50.linker.define.method;
 
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -14,7 +16,6 @@ import static io.github.hhy50.linker.util.ClassUtil.isPublic;
  */
 public class EarlyMethodRef extends MethodRef {
     private Method method;
-    private final Type methodType;
 
     /**
      * Instantiates a new Early method ref.
@@ -25,7 +26,6 @@ public class EarlyMethodRef extends MethodRef {
     public EarlyMethodRef(FieldRef owner, Method method) {
         super(owner, method.getName());
         this.method = method;
-        this.methodType = Type.getType(method);
     }
 
     /**
@@ -38,21 +38,20 @@ public class EarlyMethodRef extends MethodRef {
     }
 
     /**
-     * Gets method type.
+     * Gets lookup class.
      *
-     * @return the method type
+     * @return the lookup class
      */
+    public Type getLookupClass() {
+        return Type.getType(method.getDeclaringClass());
+    }
+
     public Type getMethodType() {
-        return this.methodType;
-    }
-
-    public Type[] getArgsType() {
-        return this.methodType.getArgumentTypes();
-    }
-
-    @Override
-    public void setSuperClass(String superClass) {
-        this.superClass = method.getDeclaringClass().getName();
+        Type type = Type.getType(this.method);
+        if (isInvisible()) {
+            return genericType(type);
+        }
+        return type;
     }
 
     /**
@@ -61,12 +60,16 @@ public class EarlyMethodRef extends MethodRef {
      * @return the declare type
      */
     public Type getDeclareType() {
-        return Type.getType(method.getDeclaringClass());
+        return Type.getType(method);
     }
 
+    @Override
+    public void setSuperClass(String superClass) {
+        this.superClass = method.getDeclaringClass().getName();
+    }
 
     /**
-     * Is unreachable boolean.
+     * Is invisible boolean.
      *
      * @return the boolean
      */
@@ -80,5 +83,25 @@ public class EarlyMethodRef extends MethodRef {
             }
         }
         return false;
+    }
+
+    /**
+     * Generic type type.
+     *
+     * @param methodType the method type
+     * @return the type
+     */
+    static Type genericType(Type methodType) {
+        Type rType = methodType.getReturnType();
+        Type[] argsType = methodType.getArgumentTypes();
+        if (!rType.equals(Type.VOID_TYPE) && AsmUtil.isObjectType(rType)) {
+            rType = ObjectVar.TYPE;
+        }
+        for (int i = 0; i < argsType.length; i++) {
+            if (!argsType[i].equals(Type.VOID_TYPE) && AsmUtil.isObjectType(argsType[i])) {
+                argsType[i] = ObjectVar.TYPE;
+            }
+        }
+        return Type.getMethodType(rType, argsType);
     }
 }

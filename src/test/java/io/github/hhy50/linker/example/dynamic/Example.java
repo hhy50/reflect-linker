@@ -41,7 +41,7 @@ interface MyObjectVisitor {
 
     String getBval();
 
-    @Typed(name = "a", type = "io.github.hhy50.linker.example.dynamic.A2")
+    @Typed(name = "a", value = "io.github.hhy50.linker.example.dynamic.A2")
     @Method.Name("a.b.getVal")
     String getBval2();
 }

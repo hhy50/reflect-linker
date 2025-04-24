@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.method.MethodRef;
+import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -44,9 +45,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      */
     public Invoker(String implClass, T method, Type mType) {
         this.method = method;
-        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass),
-                "invoke_"+method.getFullName(),
-                mType);
+        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_"+method.getFullName(), mType);
     }
 
     @Override
@@ -75,7 +74,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass,
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
-                        Actions.asArray(TypeUtils.STRING_TYPE, Arrays.stream(method.getArgsType())
+                        Actions.asArray(TypeUtils.STRING_TYPE, Arrays.stream(((RuntimeMethodRef) method).getArgsType())
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
                         // Object[] args
 //                        Actions.asArray(Type.getType(Object.class),

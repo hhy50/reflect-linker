@@ -38,7 +38,7 @@ public class EarlyFieldSetter extends Setter<EarlyFieldRef> {
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(field.getSetterName(), null, descriptor.getType());
-        initStaticMethodHandle(clinit, mhMember, loadClass(field.getDeclaredType()), field.fieldName, field.getType(), field.isStatic());
+        initStaticMethodHandle(clinit, mhMember, loadClass(field.getLookupClass()), field.fieldName, field.getDecalaredType(), field.isStatic());
 
         // 定义当前字段的 setter
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)

@@ -11,7 +11,7 @@ import io.github.hhy50.linker.annotations.Typed;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Typed(name = "user", type = "io.github.hhy50.linker.test.nest.case2.UserVo")
+@Typed(name = "user", value = "io.github.hhy50.linker.test.nest.case2.UserVo")
 interface Case2_Linker_Typed {
 
     /**

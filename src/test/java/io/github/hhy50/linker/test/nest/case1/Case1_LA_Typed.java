@@ -10,7 +10,7 @@ import io.github.hhy50.linker.annotations.Typed;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Typed(name = "a", type = "io.github.hhy50.linker.test.nest.case1.A2")
+@Typed(name = "a", value = "io.github.hhy50.linker.test.nest.case1.A2")
 interface Case1_LA_Typed {
     /**
      * <p>getA.</p>

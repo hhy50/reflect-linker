@@ -9,5 +9,5 @@ public interface MyObjectVisitor {
     MyObjectVisitor newInstance1(String name);
 
     @Method.Constructor
-    MyObjectVisitor newInstance2(@Typed(type = "java.lang.String") Object name);
+    MyObjectVisitor newInstance2(@Typed(value = "java.lang.String") Object name);
 }

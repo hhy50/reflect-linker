@@ -8,7 +8,6 @@ import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.util.TypeUtils;
@@ -30,7 +29,7 @@ public class Constructor extends Invoker<ConstructorRef> {
      * @param constructor    the constructor ref
      */
     public Constructor(String implClass, ConstructorRef constructor) {
-        super(implClass, constructor, Type.getMethodType(ObjectVar.TYPE, constructor.getArgsType()));
+        super(implClass, constructor, constructor.getMethodType());
     }
 
     @Override
@@ -50,7 +49,7 @@ public class Constructor extends Invoker<ConstructorRef> {
         MethodInvokeAction invoker = new MethodInvokeAction(descriptor)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
-        return methodBody.newLocalVar((String) null, invoker);
+        return methodBody.newLocalVar(invoker);
     }
 
     @Override

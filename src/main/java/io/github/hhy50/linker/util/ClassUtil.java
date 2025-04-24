@@ -100,10 +100,10 @@ public class ClassUtil {
     public static <T> Map<String, String> getTypeDefines(Object define) {
         if (define instanceof Class) {
             Typed[] declaredAnnotations = ((Class<?>) define).getDeclaredAnnotationsByType(Typed.class);
-            return Arrays.stream(declaredAnnotations).collect(Collectors.toMap(Typed::name, Typed::type));
+            return Arrays.stream(declaredAnnotations).collect(Collectors.toMap(Typed::name, Typed::value));
         } else if (define instanceof Method) {
             Typed[] declaredAnnotations = ((Method) define).getDeclaredAnnotationsByType(Typed.class);
-            return Arrays.stream(declaredAnnotations).collect(Collectors.toMap(Typed::name, Typed::type));
+            return Arrays.stream(declaredAnnotations).collect(Collectors.toMap(Typed::name, Typed::value));
         }
         return Collections.emptyMap();
     }

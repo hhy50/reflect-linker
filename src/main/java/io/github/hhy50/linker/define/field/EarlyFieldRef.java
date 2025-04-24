@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.define.field;
 
 
-import io.github.hhy50.linker.util.ClassUtil;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
@@ -12,10 +12,9 @@ import java.lang.reflect.Modifier;
  */
 public class EarlyFieldRef extends FieldRef {
 
-    private Class<?> declaredType;
-    private java.lang.reflect.Type genericType;
-    private final Type fieldType;
-    private final Class<?> fieldRealTypeClass;
+    private Class<?> lookup;
+    private final Class<?> declaredType;
+    private Class<?> assignedType;
     private boolean isStatic;
 
     /**
@@ -27,10 +26,9 @@ public class EarlyFieldRef extends FieldRef {
      */
     public EarlyFieldRef(FieldRef prev, Field field, Class<?> assignedType) {
         super(prev, prev.getUniqueName(), field.getName());
-        this.declaredType = field.getDeclaringClass();
-        this.genericType = field.getGenericType();
-        this.fieldRealTypeClass = assignedType == null ? field.getType() : assignedType;
-        this.fieldType = Type.getType(field.getType());
+        this.lookup = field.getDeclaringClass();
+        this.declaredType = field.getType();
+        this.assignedType = assignedType;
         this.isStatic = Modifier.isStatic(field.getModifiers());
     }
 
@@ -44,8 +42,7 @@ public class EarlyFieldRef extends FieldRef {
      */
     public EarlyFieldRef(FieldRef prev, String objName, String fieldName, Class<?> fieldTypeClass) {
         super(prev, objName, fieldName);
-        this.fieldType = Type.getType(fieldTypeClass);
-        this.fieldRealTypeClass = fieldTypeClass;
+        this.declaredType = fieldTypeClass;
     }
 
     /**
@@ -59,15 +56,27 @@ public class EarlyFieldRef extends FieldRef {
 
     @Override
     public Type getType() {
-        return this.fieldType;
+        if (this.declaredType.isPrimitive() || Modifier.isPublic(this.declaredType.getModifiers())) {
+            return Type.getType(this.declaredType);
+        }
+        return ObjectVar.TYPE;
     }
 
     /**
-     * Gets declared type.
+     * Gets lookup class.
      *
-     * @return the declared type
+     * @return the lookup class
      */
-    public Type getDeclaredType() {
+    public Type getLookupClass() {
+        return Type.getType(this.lookup);
+    }
+
+    /**
+     * Gets decalared type.
+     *
+     * @return the decalared type
+     */
+    public Type getDecalaredType() {
         return Type.getType(this.declaredType);
     }
 
@@ -77,14 +86,9 @@ public class EarlyFieldRef extends FieldRef {
      * @return the class type
      */
     public Class<?> getClassType() {
-        return this.fieldRealTypeClass;
-    }
-
-    @Override
-    public boolean isInvisible() {
-        if (ClassUtil.isPublic(this.fieldRealTypeClass)) {
-            return false;
+        if (this.assignedType != null) {
+            return this.assignedType;
         }
-        return super.isInvisible();
+        return this.declaredType;
     }
 }

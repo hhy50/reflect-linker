@@ -9,7 +9,6 @@ import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
@@ -50,7 +49,7 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
         this.implClass = implClass;
         this.field = field;
         this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(),
-                Type.getMethodType(field.isInvisible() ? ObjectVar.TYPE : field.getType()));
+                Type.getMethodType(field.getType()));
     }
 
     @Override

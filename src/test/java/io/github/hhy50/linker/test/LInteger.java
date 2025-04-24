@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.test;
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.annotations.Typed;
 
 
@@ -20,7 +19,7 @@ public interface LInteger {
      *
      * @return a int.
      */
-    @Typed(name = "target", type = "java.lang.Integer")
+    @Typed(name = "target", value = "java.lang.Integer")
     @Field.Getter("value")
     int getValue();
 }

@@ -4,14 +4,13 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDefine;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.CreateLinkerAction;
-import io.github.hhy50.linker.generate.bytecode.action.CreateLinkerCollectAction;
-import io.github.hhy50.linker.generate.bytecode.action.TypeCastAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.type.AutoBox;
 import io.github.hhy50.linker.generate.type.ContainerCast;
 import io.github.hhy50.linker.generate.type.TypeCast;
+import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.AnnotationUtils;
 import io.github.hhy50.linker.util.StringUtil;
 import org.objectweb.asm.Type;
@@ -68,8 +67,7 @@ public abstract class AbstractDecorator extends MethodHandle {
 
             String bindClass = AnnotationUtils.getBind(actualType);
             if (StringUtil.isNotEmpty(bindClass)) {
-                Type type = AsmUtil.getType(bindClass);
-                arg = methodBody.newLocalVar(arg.getTarget(type));
+                arg = methodBody.newLocalVar(ObjectVar.TYPE, null, arg.getTarget());
             } else if (this.autolink && !actualType.isPrimitive()) {
                 arg = methodBody.newLocalVar(ObjectVar.TYPE, null, arg.tryGetTarget());
             }
@@ -96,7 +94,8 @@ public abstract class AbstractDecorator extends MethodHandle {
         {
             Type expectType = Type.getType(returnClassType);
             if (StringUtil.isNotEmpty(bindClass)) {
-                expectType = AsmUtil.getType(bindClass);
+                checkType(methodBody, varInst, AsmUtil.getType(bindClass));
+                expectType = ObjectVar.TYPE;
             } else if (this.autolink) {
                 expectType = ObjectVar.TYPE;
             }
@@ -115,6 +114,17 @@ public abstract class AbstractDecorator extends MethodHandle {
                 return methodBody.newLocalVar(retType, varInst.getName(), new CreateLinkerCollectAction(Type.getType(genericType), varInst));
         }
         return varInst;
+    }
+
+    private void checkType(MethodBody methodBody, VarInst varInst, Type expectType) {
+        methodBody.append(new ConditionJumpAction(
+                Condition.must(Condition.notNull(varInst),
+                        Condition.ifFalse(new MethodInvokeAction(RuntimeUtil.TYPE_MATCH)
+                                .setArgs(varInst.getThisClass(), LdcLoadAction.of(expectType.getClassName())))
+                ),
+                Actions.throwTypeCastException(varInst.getName(), expectType),
+                null
+        ));
     }
 
     /**

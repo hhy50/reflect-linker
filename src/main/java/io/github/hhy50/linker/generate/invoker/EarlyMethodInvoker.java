@@ -9,7 +9,6 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.util.TypeUtils;
@@ -35,7 +34,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
      * @param methodRef the method ref
      */
     public EarlyMethodInvoker(String implClass, EarlyMethodRef methodRef) {
-        super(implClass, methodRef, methodRef.isInvisible() ? genericType(methodRef.getMethodType()) : methodRef.getMethodType());
+        super(implClass, methodRef, methodRef.getMethodType());
         this.generic = methodRef.isInvisible();
     }
 
@@ -48,8 +47,8 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getDeclareType(), descriptor.getType());
-        initStaticMethodHandle(clinit, mhMember, loadClass(method.getDeclareType()), method.getName(), method.getMethodType(), method.isStatic());
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getLookupClass(), descriptor.getType());
+        initStaticMethodHandle(clinit, mhMember, loadClass(method.getLookupClass()), method.getName(), method.getDeclareType(), method.isStatic());
         mhMember.setInvokeExact(!this.generic);
 
         // 定义当前方法的invoker
@@ -62,46 +61,27 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type methodType, boolean isStatic) {
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String methodName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
         MethodInvokeAction findXXX;
-        Action argsType = Actions.asArray(TypeUtils.CLASS_TYPE, Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new));
+        Action argsType = Actions.asArray(TypeUtils.CLASS_TYPE, Arrays.stream(methodType.getArgumentTypes()).map(this::loadClass).toArray(Action[]::new));
+        Action returnType = methodType.getReturnType() == Type.VOID_TYPE || AsmUtil.isPrimitiveType(methodType.getReturnType())
+                ? LdcLoadAction.of(methodType.getReturnType()) : this.loadClass(methodType.getReturnType());
         if (invokeSpecial) {
             findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDSPECIAL).setArgs(
                     LdcLoadAction.of(AsmUtil.getType(superClass)),
-                    LdcLoadAction.of(fieldName),
-                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType),
+                    LdcLoadAction.of(methodName),
+                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType),
                     lookupClass
             );
         } else {
             findXXX = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATIC : MethodDescriptor.LOOKUP_FINDVIRTUAL).setArgs(
                     superClass != null ? LdcLoadAction.of(AsmUtil.getType(superClass)) : lookupClass,
-                    LdcLoadAction.of(fieldName),
-                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(LdcLoadAction.of(methodType.getReturnType()), argsType)
+                    LdcLoadAction.of(methodName),
+                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType)
             );
         }
         mhMember.store(clinit, findXXX.setInstance(lookupClass.getLookup()));
-    }
-
-    /**
-     * Generic type type.
-     *
-     * @param methodType the method type
-     * @return the type
-     */
-    protected static Type genericType(Type methodType) {
-        Type rType = methodType.getReturnType();
-        Type[] argsType = methodType.getArgumentTypes();
-        if (!rType.equals(Type.VOID_TYPE) && AsmUtil.isObjectType(rType)) {
-            rType = ObjectVar.TYPE;
-        }
-        for (int i = 0; i < argsType.length; i++) {
-            if (!argsType[i].equals(Type.VOID_TYPE) && AsmUtil.isObjectType(argsType[i])) {
-                argsType[i] = ObjectVar.TYPE;
-            }
-        }
-
-        return Type.getMethodType(rType, argsType);
     }
 }
