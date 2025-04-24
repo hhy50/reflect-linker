@@ -79,7 +79,7 @@ public class MethodDescriptor {
             Object.class, Class.class, Object.class);
 
     public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER_COLLECT = MethodDescriptor.of(LinkerFactory.class.getName(), "createLinkerCollect",
-            Object.class, Class.class, Collection.class);
+            Collection.class, Class.class, Collection.class);
 
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER.

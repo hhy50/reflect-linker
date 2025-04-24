@@ -36,7 +36,6 @@ public class Case2LinkerTest {
      */
     @Test
     public void test1() throws LinkerException {
-        LinkerFactory.setOutputPath("/home/hanhaiyang/IdeaProjects/reflect-linker/target");
         MyObject myObject = new MyObject();
         Case2_Linker case2Linker = LinkerFactory.createLinker(Case2_Linker.class, myObject);
         LInteger age = LinkerFactory.createLinker(LInteger.class, 18);

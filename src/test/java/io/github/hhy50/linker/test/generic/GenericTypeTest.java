@@ -11,8 +11,12 @@ public class GenericTypeTest {
 
     @Test
     public void test() throws LinkerException {
+        LinkerFactory.setOutputPath("/home/hanhaiyang/IdeaProjects/reflect-linker/target");
         GenericTypeLinker linker = LinkerFactory.createLinker(GenericTypeLinker.class, new GenericType());
         Assert.assertNotNull(linker.getUsers());
+        for (GenericTypeLinker.LUser user : linker.getUsers()) {
+            Assert.assertNotNull(user.getName());
+        }
 
         HashMap<Object, Object> map = new HashMap<>();
         MyHashMap myMap = LinkerFactory.createLinker(MyHashMap.class, map);

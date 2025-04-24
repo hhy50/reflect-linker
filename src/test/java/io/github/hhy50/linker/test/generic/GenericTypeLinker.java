@@ -9,7 +9,8 @@ public interface GenericTypeLinker {
 
     @Target.Bind("io.github.hhy50.linker.test.generic.GenericType$User")
     interface LUser {
-
+        @Field.Getter("name")
+        String getName();
     }
 
     @Field.Getter("users")
