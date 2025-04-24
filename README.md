@@ -1,5 +1,5 @@
-## reflect-case2Linker
-reflect-case2Linker 是一个用于链接反射对象的库，它可以帮助你在运行时代替反射去使用对象中字段和方法。
+## reflect-linker
+reflect-linker 是一个用于链接反射对象的库，它可以帮助你在运行时代替反射去使用对象中字段和方法。
 
 简单尝试：
 
@@ -8,21 +8,21 @@ reflect-case2Linker 是一个用于链接反射对象的库，它可以帮助你
 ```xml
 <dependency>
     <groupId>io.github.hhy</groupId>
-    <artifactId>reflect-case2Linker</artifactId>
+    <artifactId>reflect-linker</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
 2. 定义访问规则
-以ArrayList举例
+   以ArrayList举例
 ```java
 @Target.Bind("java.util.ArrayList")
 public interface MyArrayList {
-    
+
     void add(Object o);
-    
+
     @Field.Getter("elementData")
     Object[] getElementData();
-    
+
     @Field.Setter("elementData")
     void setElementData(Object[] elementData);
 }
@@ -32,7 +32,7 @@ public interface MyArrayList {
 class Example {
     public static void main(String[] args) throws LinkerException {
         MyArrayList list = LinkerFactory.createLinker(MyArrayList.class, new ArrayList<>());
-        
+
         // do thing
     }
 }
@@ -50,7 +50,7 @@ class User {
 class UserWrap {
     private User user;
 }
-@Target.Bind("io.github.hhy50.case2Linker.example.nest.UserWrap")
+@Target.Bind("io.github.hhy50.linker.example.nest.UserWrap")
 interface UserVisitor {
     @Field.Getter("user")
     User getUser();
@@ -100,7 +100,7 @@ class A2 extends A {
 class MyObject {
     private A a;
 }
-@Target.Bind("io.github.hhy50.case2Linker.example.dynamic.MyObject")
+@Target.Bind("io.github.hhy50.linker.example.dynamic.MyObject")
 interface MyObjectVisitor {
     @Field.Setter("a")
     void setA(A val);
@@ -124,13 +124,13 @@ class Example {
 
 如果您非常在意执行性能, 可以使用`@Typed`指定`A class`的类型, 将`B field`变为已知的字段
 ```java
-//@Typed(name = "a", type = "io.github.hhy50.case2Linker.example.dynamic.A2") // 也可以声明在这里
-@Target.Bind("io.github.hhy50.case2Linker.example.dynamic.MyObject")
+//@Typed(name = "a", type = "io.github.hhy50.linker.example.dynamic.A2") // 也可以声明在这里
+@Target.Bind("io.github.hhy50.linker.example.dynamic.MyObject")
 interface MyObjectVisitor {
     @Field.Setter("a")
     void setA(A val);
 
-    @Typed(name = "a", type = "io.github.hhy50.case2Linker.example.dynamic.A2")
+    @Typed(name = "a", type = "io.github.hhy50.linker.example.dynamic.A2")
     @Field.Getter("a.b")
     B getB();
 }
