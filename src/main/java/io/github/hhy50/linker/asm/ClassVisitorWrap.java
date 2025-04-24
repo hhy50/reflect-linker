@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.asm;
 
+import io.github.hhy50.linker.asm.tree.LClassVisitor;
 import io.github.hhy50.linker.define.provider.TargetProvider;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;

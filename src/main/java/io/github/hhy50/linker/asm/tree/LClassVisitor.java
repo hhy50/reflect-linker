@@ -1,4 +1,4 @@
-package io.github.hhy50.linker.asm;
+package io.github.hhy50.linker.asm.tree;
 
 import io.github.hhy50.linker.annotations.Field;
 import org.objectweb.asm.AnnotationVisitor;
@@ -92,4 +92,20 @@ public interface LClassVisitor {
      * @param classVisitor the class visitor
      */
     void accept(ClassVisitor classVisitor);
+
+    /**
+     * Gets fields.
+     *
+     * @return the fields
+     */
+    @Field.Getter("fields")
+    List<LFieldNode> getFields();
+
+    /**
+     * Gets methods.
+     *
+     * @return the methods
+     */
+    @Field.Getter("methods")
+    List<Object> getMethods();
 }
