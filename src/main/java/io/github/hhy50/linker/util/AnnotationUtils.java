@@ -88,7 +88,7 @@ public class AnnotationUtils {
      * @return the boolean
      */
     public static boolean isAutolink(Method method) {
-        return method.getDeclaredAnnotation(Autolink.class) != null ||
-                method.getDeclaringClass().getDeclaredAnnotation(Autolink.class) != null;
+        return (method.getDeclaredAnnotation(Autolink.class) != null ||
+                method.getDeclaringClass().getDeclaredAnnotation(Autolink.class) != null);
     }
 }

@@ -12,8 +12,6 @@ import org.objectweb.asm.Type;
 
 import java.util.function.Consumer;
 
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.multi;
-
 /**
  * The type Var inst.
  */
@@ -62,7 +60,7 @@ public abstract class VarInst implements LoadAction {
      * @return the name
      */
     public String getName() {
-        return "slot["+lvbIndex+",type="+type.getClassName()+"]";
+        return "slot[" + lvbIndex + ",type=" + type.getClassName() + "]";
     }
 
     /**
@@ -115,9 +113,9 @@ public abstract class VarInst implements LoadAction {
      * @param providerType the provider type
      * @return the target
      */
-    public Action getTarget(Type providerType) {
+    public TypeCastAction getTarget(Type providerType) {
         return new TypeCastAction(Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
-                .setInstance(this), providerType);
+                .setInstance(new TypeCastAction(this, Type.getType(TargetProvider.class))), providerType);
     }
 
     /**
@@ -128,15 +126,9 @@ public abstract class VarInst implements LoadAction {
     public Action tryGetTarget() {
         return new ConditionJumpAction(
                 Condition.instanceOf(this, Type.getType(TargetProvider.class)),
-                multi(
-                        Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
-                                .setInstance(new TypeCastAction(this, Type.getType(TargetProvider.class)))
-                ), this
+                Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
+                        .setInstance(new TypeCastAction(this, Type.getType(TargetProvider.class)))
+                , this
         );
-    }
-
-    public void tryGetTarget1() {
-        Object o = new Object();
-        o = o instanceof TargetProvider ? ((TargetProvider) o).getTarget() : null;
     }
 }

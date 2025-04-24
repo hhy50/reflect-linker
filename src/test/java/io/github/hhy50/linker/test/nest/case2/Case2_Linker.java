@@ -3,7 +3,8 @@ package io.github.hhy50.linker.test.nest.case2;
 import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
-import io.github.hhy50.linker.test.MyInteger;
+import io.github.hhy50.linker.annotations.Runtime;
+import io.github.hhy50.linker.test.LInteger;
 
 
 /**
@@ -14,7 +15,8 @@ import io.github.hhy50.linker.test.MyInteger;
  * @since 1.0.0
  */
 @Autolink
-public interface Linker {
+//@Runtime
+interface Case2_Linker {
 
     /**
      * <p>getUser.</p>
@@ -53,18 +55,18 @@ public interface Linker {
     /**
      * <p>getAge.</p>
      *
-     * @return a {@link MyInteger} object.
+     * @return a {@link LInteger} object.
      */
     @Field.Getter("user.age")
-    MyInteger getAge();
+    LInteger getAge();
 
     /**
      * <p>setAge.</p>
      *
-     * @param age a {@link MyInteger} object.
+     * @param age a {@link LInteger} object.
      */
     @Field.Setter("user.age")
-    void setAge(MyInteger age);
+    void setAge(LInteger age);
 
     /**
      * <p>getAddress.</p>

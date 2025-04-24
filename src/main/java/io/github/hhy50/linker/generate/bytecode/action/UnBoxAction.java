@@ -67,6 +67,6 @@ public class UnBoxAction implements LoadAction {
 
     @Override
     public Type getType() {
-        return obj.getType();
+        return this.primitiveType;
     }
 }

@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class StaticFieldTest {
 
-    interface Linker {
+    interface Case3_Linker {
         @Field.Getter("b.c.CLASS_NAME")
         String getThreeClass();
 
@@ -19,7 +19,7 @@ public class StaticFieldTest {
 
     @Test
     public void test1() throws LinkerException {
-        Linker linker = LinkerFactory.createStaticLinker(Linker.class, A.class);
+        Case3_Linker linker = LinkerFactory.createStaticLinker(Case3_Linker.class, A.class);
         Assert.assertEquals(linker.getThreeClass(), C.class.getName());
 
         linker.setThreeClass("1234");

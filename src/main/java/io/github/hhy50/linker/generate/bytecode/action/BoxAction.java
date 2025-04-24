@@ -13,14 +13,16 @@ import org.objectweb.asm.Type;
  */
 public class BoxAction implements LoadAction {
     private final LoadAction obj;
+    private final Type wrapperType;
 
     /**
      * Instantiates a new Wrap type action.
      *
      * @param obj the obj
      */
-    public BoxAction(LoadAction obj) {
+    public BoxAction(LoadAction obj, Type wrapperType) {
         this.obj = obj;
+        this.wrapperType = wrapperType;
     }
 
     @Override
@@ -36,6 +38,9 @@ public class BoxAction implements LoadAction {
 
     @Override
     public Type getType() {
+        if (this.wrapperType != null) {
+            return this.wrapperType;
+        }
         return ObjectVar.TYPE;
     }
 }

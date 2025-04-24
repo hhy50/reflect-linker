@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.hhy50</groupId>
-    <artifactId>reflect-linker</artifactId>
+    <artifactId>reflect-case2Linker</artifactId>
     <version>1.0.11</version>
     <url>${gitprojectUrl}</url>
-    <description>reflect-linker</description>
+    <description>reflect-case2Linker</description>
 
     <properties>
-        <gitprojectUrl>https://github.com/haiyanghan/reflect-linker</gitprojectUrl>
+        <gitprojectUrl>https://github.com/haiyanghan/reflect-case2Linker</gitprojectUrl>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -107,15 +107,15 @@
 <!--                    </execution>-->
 <!--                </executions>-->
 <!--            </plugin>-->
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.5.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.sonatype.central</groupId>-->
+<!--                <artifactId>central-publishing-maven-plugin</artifactId>-->
+<!--                <version>0.5.0</version>-->
+<!--                <extensions>true</extensions>-->
+<!--                <configuration>-->
+<!--                    <publishingServerId>central</publishingServerId>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>

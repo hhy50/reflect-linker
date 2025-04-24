@@ -1,8 +1,9 @@
 package io.github.hhy50.linker.test.arraylist;
 
+import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
-import io.github.hhy50.linker.test.MyInteger;
+import io.github.hhy50.linker.test.LInteger;
 
 /**
  * <p>MyArrayList interface.</p>
@@ -38,9 +39,10 @@ public interface LArrayList {
     /**
      * <p>size.</p>
      *
-     * @return a {@link MyInteger} object.
+     * @return a {@link LInteger} object.
      */
-    MyInteger size();
+    @Autolink
+    LInteger size();
 
     /**
      * <p>getElementData.</p>
@@ -61,8 +63,9 @@ public interface LArrayList {
     /**
      * <p>modCount.</p>
      *
-     * @return a {@link MyInteger} object.
+     * @return a {@link LInteger} object.
      */
+    @Autolink
     @Field.Getter("modCount")
-    MyInteger modCount();
+    LInteger modCount();
 }

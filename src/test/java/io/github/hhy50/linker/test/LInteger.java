@@ -12,8 +12,8 @@ import io.github.hhy50.linker.annotations.Typed;
  * @version $Id: $Id
  * @since 1.0.0
  */
-@Target.Bind("java.lang.Integer")
-public interface MyInteger {
+//@Target.Bind("java.lang.Integer")
+public interface LInteger {
 
     /**
      * <p>getValue.</p>

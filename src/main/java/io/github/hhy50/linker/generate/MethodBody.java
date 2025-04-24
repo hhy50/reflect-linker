@@ -115,19 +115,19 @@ public class MethodBody {
      * @return local var inst
      */
     public LocalVarInst newLocalVar(TypedAction action) {
-        Type type = action.getType();
-        return newLocalVar(type, null, action);
+        return newLocalVar((String) null, action);
     }
 
     /**
      * New local var local var inst.
      *
-     * @param type   the type
      * @param action the action
-     * @return the local var inst
+     * @return local var inst
      */
-    public LocalVarInst newLocalVar(Type type, Action action) {
-        return newLocalVar(type, null, action);
+    public LocalVarInst newLocalVar(String name, TypedAction action) {
+        // 部分TypedAction可能拿不到早期的类型定义, 只有执行后才确定类型
+        Type type = action.getType();
+        return newLocalVar(type, name, action);
     }
 
     /**

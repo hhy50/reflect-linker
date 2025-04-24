@@ -37,24 +37,6 @@ public class RuntimeMethodRef extends MethodRef {
     }
 
     /**
-     * Gets retunr type.
-     *
-     * @return the retunr type
-     */
-    public Type getRetunrType() {
-        return Type.getType(returnType);
-    }
-
-    /**
-     * Gets method type.
-     *
-     * @return the method type
-     */
-    public Type getMethodType() {
-        return Type.getMethodType(getRetunrType(), getArgsType());
-    }
-
-    /**
      * Is designate static boolean.
      *
      * @return the boolean

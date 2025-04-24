@@ -1,15 +1,17 @@
 package io.github.hhy50.linker.test.nest.case1;
 
 import io.github.hhy50.linker.annotations.Field;
+import io.github.hhy50.linker.annotations.Typed;
 
 /**
- * <p>ObjVisitor interface.</p>
+ * <p>ObjVisitor2 interface.</p>
  *
  * @author hanhaiyang
  * @version $Id: $Id
  * @since 1.0.0
  */
-public interface LA_Runtime {
+@Typed(name = "a", type = "io.github.hhy50.linker.test.nest.case1.A2")
+interface Case1_LA_Typed {
     /**
      * <p>getA.</p>
      *
@@ -40,7 +42,7 @@ public interface LA_Runtime {
      * @param b a {@link java.lang.Object} object.
      */
     @Field.Setter("a.b")
-    void set_a_b(Object b);
+    void setB(Object b);
 
     /**
      * <p>getC.</p>
@@ -104,7 +106,7 @@ public interface LA_Runtime {
      * @param str2 a {@link java.lang.String} object.
      */
     @Field.Setter("a.c.str")
-    void set_a_c_str(String str2);
+    void get_a_c_str(String str2);
 
     /**
      * <p>getD.</p>

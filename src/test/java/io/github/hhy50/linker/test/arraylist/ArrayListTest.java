@@ -28,7 +28,7 @@ public class ArrayListTest {
      */
     @Test
     public void test() throws LinkerException {
-        LinkerFactory.setOutputPath("C:\\Users\\49168\\IdeaProjects\\reflect-linker\\target");
+        LinkerFactory.setOutputPath("/home/hanhaiyang/IdeaProjects/reflect-linker/target");
 
         Object[] objects = new Object[10];
         LArrayList staticLinker = LinkerFactory.createStaticLinker(LArrayList.class, ArrayList.class);

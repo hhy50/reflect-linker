@@ -4,7 +4,6 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
-import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Opcodes;
@@ -35,7 +34,7 @@ public class ClassTypeMember extends Member implements ClassLoadAction {
         if ((this.access & Opcodes.ACC_STATIC) > 0) {
 
         }
-        return body.newLocalVar(LookupVar.TYPE, new MethodInvokeAction(Runtime.LOOKUP).setArgs(this));
+        return body.newLocalVar(new MethodInvokeAction(Runtime.LOOKUP).setArgs(this));
     }
 
     /**

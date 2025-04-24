@@ -4,7 +4,6 @@ import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
 
 
 /**
@@ -29,8 +28,7 @@ public class ConstructorRef extends MethodRef {
 
     @Override
     public Type[] getArgsType() {
-        return Arrays.stream(this.constructor.getParameterTypes()).map(Type::getType)
-                .toArray(Type[]::new);
+        return Type.getType(constructor).getArgumentTypes();
     }
 
     /**

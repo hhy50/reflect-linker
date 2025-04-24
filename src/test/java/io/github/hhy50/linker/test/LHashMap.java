@@ -10,7 +10,7 @@ import io.github.hhy50.linker.annotations.Field;
  * @version $Id: $Id
  * @since 1.0.0
  */
-public interface MyHashMap {
+public interface LHashMap {
 
     /**
      * <p>add.</p>

@@ -27,10 +27,10 @@ public class Constructor extends Invoker<ConstructorRef> {
      * Instantiates a new Constructor.
      *
      * @param implClass the impl class
-     * @param method    the constructor ref
+     * @param constructor    the constructor ref
      */
-    public Constructor(String implClass, ConstructorRef method) {
-        super(implClass, method, Type.getMethodType(ObjectVar.TYPE, method.getArgsType()));
+    public Constructor(String implClass, ConstructorRef constructor) {
+        super(implClass, constructor, Type.getMethodType(ObjectVar.TYPE, constructor.getArgsType()));
     }
 
     @Override
@@ -50,7 +50,7 @@ public class Constructor extends Invoker<ConstructorRef> {
         MethodInvokeAction invoker = new MethodInvokeAction(descriptor)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
-        return methodBody.newLocalVar(descriptor.getReturnType(), null, invoker);
+        return methodBody.newLocalVar((String) null, invoker);
     }
 
     @Override

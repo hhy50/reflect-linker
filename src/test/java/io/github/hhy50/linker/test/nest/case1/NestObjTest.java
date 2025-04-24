@@ -24,7 +24,7 @@ public class NestObjTest {
     @Test
     public void test1() throws LinkerException {
         // get
-        LA_Runtime obj = LinkerFactory.createLinker(LA_Runtime.class, new Object() {
+        Case1_LA_Runtime obj = LinkerFactory.createLinker(Case1_LA_Runtime.class, new Object() {
             A a = new A2();
         });
         Object a = obj.get_a();
@@ -77,7 +77,7 @@ public class NestObjTest {
     @Test
     public void test2() throws LinkerException {
         // get
-        LA_Typed obj = LinkerFactory.createLinker(LA_Typed.class, new Object() {
+        Case1_LA_Typed obj = LinkerFactory.createLinker(Case1_LA_Typed.class, new Object() {
             A a = new A2();
         });
 

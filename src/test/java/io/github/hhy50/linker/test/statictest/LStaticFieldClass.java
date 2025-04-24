@@ -9,7 +9,7 @@ import io.github.hhy50.linker.annotations.Field;
  * @version $Id: $Id
  * @since 1.0.0
  */
-public interface MyStaticClass {
+interface LStaticFieldClass {
 
     /**
      * <p>getA.</p>

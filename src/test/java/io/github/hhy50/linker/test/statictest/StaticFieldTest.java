@@ -12,7 +12,7 @@ import org.junit.Test;
  * @version $Id: $Id
  * @since 1.0.0
  */
-public class StaticTest {
+public class StaticFieldTest {
 
 
 
@@ -23,7 +23,7 @@ public class StaticTest {
      */
     @Test
     public void test1() throws LinkerException {
-        MyStaticClass myObj = LinkerFactory.createStaticLinker(MyStaticClass.class, StaticClass.class);
+        LStaticFieldClass myObj = LinkerFactory.createStaticLinker(LStaticFieldClass.class, StaticClass.class);
         Assert.assertNotNull(myObj.getObjAaa2());
         Assert.assertNotNull(myObj.getObj2Aaa2());
         Assert.assertTrue(myObj.getA() == StaticClass.getA());

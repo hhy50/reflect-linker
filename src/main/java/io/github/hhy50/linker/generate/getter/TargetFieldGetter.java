@@ -52,7 +52,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        return methodBody.newLocalVar(ObjectVar.TYPE, field.fieldName, this.targetObj);
+        return methodBody.newLocalVar(field.fieldName, this.targetObj);
     }
 
     /**

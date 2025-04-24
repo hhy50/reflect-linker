@@ -12,7 +12,7 @@ import org.junit.Test;
  * @version $Id: $Id
  * @since 1.0.0
  */
-public class MyIntegerTest {
+public class IntegerTest {
 
 
     /**
@@ -22,7 +22,7 @@ public class MyIntegerTest {
      */
     @Test
     public void test() throws LinkerException {
-        MyInteger myInteger = LinkerFactory.createLinker(MyInteger.class, new Integer(10));
+        LInteger myInteger = LinkerFactory.createLinker(LInteger.class, new Integer(10));
         Assert.assertEquals(myInteger, 10);
     }
 }

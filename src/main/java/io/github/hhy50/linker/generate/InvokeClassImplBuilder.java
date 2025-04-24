@@ -156,16 +156,16 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * Define static method handle method handle member.
      *
      * @param mhMemberName the mh member name
-     * @param invokedType  the method invokedType
+     * @param lookupType  the method invokedType
      * @param methodType   the method type
      * @return the method handle member
      */
-    public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type invokedType, Type methodType) {
+    public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type lookupType, Type methodType) {
         if (!members.containsKey(mhMemberName)) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
             super.defineField(access, mhMemberName, METHOD_HANDLER_TYPE, null, null);
         }
-        return new MethodHandleMember(members.get(mhMemberName), invokedType, methodType);
+        return new MethodHandleMember(members.get(mhMemberName), lookupType, methodType);
     }
 
     /**

@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.test.statictest.anonymous;
 
 import io.github.hhy50.linker.LinkerFactory;
+import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,6 +19,10 @@ public class AnonymousClassTest {
         }
     }
 
+    @Runtime
+    interface Linker {
+        String run();
+    }
 
     @Test
     public void test() throws LinkerException {

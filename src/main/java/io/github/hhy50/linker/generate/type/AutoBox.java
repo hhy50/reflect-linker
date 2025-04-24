@@ -3,9 +3,7 @@ package io.github.hhy50.linker.generate.type;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.exceptions.TypeNotMatchException;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.BoxAction;
-import io.github.hhy50.linker.generate.bytecode.action.TypeCastAction;
 import io.github.hhy50.linker.generate.bytecode.action.UnBoxAction;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -29,9 +27,9 @@ public class AutoBox implements TypeCast {
             }
             throw new TypeNotMatchException(varInst.getType(), expectType);
         } else if (r1 && (AsmUtil.isWrapType(varInst.getType()) || varInst.getType().equals(ObjectVar.TYPE))) {
-            return methodBody.newLocalVar(expectType, new UnBoxAction(varInst, expectType));
+            return methodBody.newLocalVar(new UnBoxAction(varInst, expectType));
         } else if (r2 && (AsmUtil.isWrapType(expectType) || expectType.equals(ObjectVar.TYPE))) {
-            return methodBody.newLocalVar(expectType, new BoxAction(varInst).andThen(new TypeCastAction(Actions.stackTop(), expectType)));
+            return methodBody.newLocalVar(new BoxAction(varInst, expectType));
         } else if (r1 || r2) {
             throw new TypeNotMatchException(varInst.getType(), expectType);
         } else {
