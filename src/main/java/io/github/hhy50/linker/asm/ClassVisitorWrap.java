@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.asm;
 
-import io.github.hhy50.linker.asm.tree.LClassVisitor;
+import io.github.hhy50.linker.asm.tree.LClassNode;
 import io.github.hhy50.linker.define.provider.TargetProvider;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -13,14 +13,14 @@ import static org.objectweb.asm.Opcodes.ASM9;
  * The type Class visitor wrap.
  */
 public class ClassVisitorWrap extends ClassVisitor {
-    private LClassVisitor classVisitor;
+    private LClassNode classVisitor;
 
     /**
      * Instantiates a new Class visitor wrap.
      *
      * @param classVisitor the class visitor
      */
-    protected ClassVisitorWrap(LClassVisitor classVisitor) {
+    protected ClassVisitorWrap(LClassNode classVisitor) {
         super(ASM9);
         this.classVisitor = classVisitor;
     }

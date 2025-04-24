@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.asm;
 
 import io.github.hhy50.linker.LinkerFactory;
-import io.github.hhy50.linker.asm.tree.LClassVisitor;
+import io.github.hhy50.linker.asm.tree.LClassNode;
 import io.github.hhy50.linker.asm.tree.LFieldNode;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.ClassBuildException;
@@ -315,7 +315,7 @@ public class AsmClassBuilder {
      * @return the asm class builder
      * @throws LinkerException the linker exception
      */
-    public static AsmClassBuilder wrap(LClassVisitor classVisitor) throws LinkerException {
+    public static AsmClassBuilder wrap(LClassNode classVisitor) throws LinkerException {
         AsmClassBuilder classBuilder = new AsmClassBuilder();
         classBuilder.access = classVisitor.getAccess();
         classBuilder.flags = AUTO_COMPUTE;

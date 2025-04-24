@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * The interface L class visitor.
  */
-public interface LClassVisitor {
+public interface LClassNode {
 
     /**
      * Gets access.
