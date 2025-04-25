@@ -63,13 +63,13 @@ public class AnnotationUtils {
      * @return the designate static fields
      */
     public static Map<String, Boolean> getDesignateStaticFields(Method method, String lastToken) {
-        Static[] staticAnnos = method.getAnnotationsByType(Static.class);
+        Runtime.Static[] staticAnnos = method.getAnnotationsByType(Runtime.Static.class);
         if (staticAnnos == null) {
             return Collections.emptyMap();
         }
 
         Map<String, Boolean> s = new HashMap<>();
-        for (Static staticAnno : staticAnnos) {
+        for (Runtime.Static staticAnno : staticAnnos) {
             if (staticAnno.name().length == 0) {
                 s.put(lastToken, staticAnno.value());
             } else {

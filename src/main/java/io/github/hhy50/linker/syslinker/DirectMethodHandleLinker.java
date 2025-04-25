@@ -2,15 +2,13 @@ package io.github.hhy50.linker.syslinker;
 
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Target;
+import io.github.hhy50.linker.annotations.Runtime;
 
-
-//@Runtime
 
 /**
  * The interface Direct method handle linker.
  */
-@Target.Bind(value = "java.lang.invoke.DirectMethodHandle")
+@Runtime
 public interface DirectMethodHandleLinker {
 
     /**
@@ -18,7 +16,7 @@ public interface DirectMethodHandleLinker {
      *
      * @return the int
      */
-//    @Static(value = false, name = {"member", "flags"})
+    @Runtime.Static(value = false)
     @Field.Getter("member.flags")
     int modifiers();
 
@@ -27,6 +25,7 @@ public interface DirectMethodHandleLinker {
      *
      * @return the member
      */
+    @Runtime.Static(value = false)
     @Field.Getter("member")
     MemberNameLinker getMember();
 }

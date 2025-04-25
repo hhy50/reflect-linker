@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
@@ -22,7 +22,7 @@ public class ConstructorRef extends MethodRef {
      * @param name        the name
      * @param constructor the constructor
      */
-    public ConstructorRef(EarlyFieldRef owner, String name, Constructor<?> constructor) {
+    public ConstructorRef(FieldRef owner, String name, Constructor<?> constructor) {
         super(owner, name);
         this.constructor = constructor;
     }
