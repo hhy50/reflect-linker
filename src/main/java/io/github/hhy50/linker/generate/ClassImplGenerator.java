@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.InterfaceImplClassDefine;
+import io.github.hhy50.linker.define.InterfaceImplClass;
 import io.github.hhy50.linker.define.MethodDefine;
 import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
@@ -27,10 +27,8 @@ public class ClassImplGenerator {
      * @param defineClass the define class
      * @throws IOException the io exception
      */
-    public static void generateBytecode(InterfaceImplClassDefine defineClass) throws IOException {
-        Class<?> define = defineClass.getDefine();
+    public static void generateBytecode(Class<?> define, Class<?> targetClass, InterfaceImplClass defineClass) throws IOException {
         String implClassName = defineClass.getClassName();
-        Class<?> targetClass = defineClass.getTargetClass();
         InvokeClassImplBuilder classBuilder = InvokeClassImplBuilder
                 .builder(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
                 .setTarget(targetClass)
