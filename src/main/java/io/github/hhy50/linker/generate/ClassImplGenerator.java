@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.InterfaceImplClass;
 import io.github.hhy50.linker.define.AbsMethodDefine;
+import io.github.hhy50.linker.define.InterfaceImplClass;
 import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.util.ClassUtil;

@@ -45,7 +45,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      */
     public Invoker(String implClass, T method, Type mType) {
         this.method = method;
-        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_"+method.getFullName(), mType);
+        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_"+method.getUniqueName(), mType);
     }
 
     @Override

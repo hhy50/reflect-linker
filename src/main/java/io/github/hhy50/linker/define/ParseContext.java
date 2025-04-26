@@ -26,6 +26,7 @@ import java.util.*;
  * The type Parse context.
  */
 public class ParseContext {
+    private static final String CURRENT_TOKEN = "$";
     private static final String FIRST_OBJ_NAME = "target";
 
     /**
@@ -37,27 +38,27 @@ public class ParseContext {
      */
     Class<?> targetClass;
     /**
-     * 解析过程需要用到的ClassLoader
+     * The Class loader.
      */
     ClassLoader classLoader;
 
     /**
-     * 第一个字段
+     * The Target root.
      */
     FieldRef targetRoot;
 
     /**
-     * 解析过程中的字段
+     * The Parsed fields.
      */
     final Map<String, FieldRef> parsedFields = new HashMap<>();
     /**
-     * 解析过程中指定的字段类型
+     * The Typed fields.
      */
     final Map<String, String> typedFields = new HashMap<>();
     /**
-     * 解析过程中指定的静态字段
+     * The constant staticTokens.
      */
-    final Map<String, Boolean> staticFields = new HashMap<>();
+    final Map<String, Boolean> staticTokens = new HashMap<>();
 
     /**
      * The Token parser.
@@ -89,15 +90,25 @@ public class ParseContext {
         for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
             String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
             if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Typed of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
+                throw new VerifyException("@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
             }
         }
-        for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticFields(method, null).entrySet()) {
-            Boolean type = this.staticFields.put(fieldEntry.getKey(), fieldEntry.getValue());
-            if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Static of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
+        for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticTokens(method, CURRENT_TOKEN).entrySet()) {
+            String name = fieldEntry.getKey();
+            Boolean isStatic = this.staticTokens.put(name, fieldEntry.getValue());
+            if (isStatic != null && !isStatic.equals(fieldEntry.getValue())) {
+                throw new VerifyException("@Static of field '" + name + "' defined twice is inconsistent");
             }
         }
+    }
+
+    /**
+     * Post parse.
+     *
+     * @param absMethod the abs method
+     */
+    void postParse(AbsMethodDefine absMethod) {
+        this.staticTokens.remove(CURRENT_TOKEN);
     }
 
     /**
@@ -128,16 +139,18 @@ public class ParseContext {
         for (Method method : this.defineClass.getMethods()) {
             if (!Modifier.isAbstract(method.getModifiers())) continue;
             preParse(method);
-            absMethodDefines.add(parseMethod(method));
+            AbsMethodDefine absMethod = parseMethod(method);
+            absMethodDefines.add(absMethod);
+            postParse(absMethod);
         }
         return absMethodDefines;
     }
 
     /**
-     * Parse method method define.
+     * Parse method abs method define.
      *
      * @param method the method
-     * @return the method define
+     * @return the abs method define
      * @throws VerifyException        the verify exception
      * @throws ClassNotFoundException the class not found exception
      */
@@ -160,7 +173,7 @@ public class ParseContext {
             String[] argsType = parseArgsType(method);
             Constructor<?> constructor = ReflectUtil.matchConstructor(instanceType, argsType);
             if (constructor == null) {
-                throw new ParseException("Constructor not found in class '"+instanceType+"' with args "+Arrays.toString(argsType));
+                throw new ParseException("Constructor not found in class '" + instanceType + "' with args " + Arrays.toString(argsType));
             }
             absMethodDefine.methodRef = new ConstructorRef(targetRoot, method.getName(), constructor);
         } else {
@@ -169,7 +182,7 @@ public class ParseContext {
             int i;
             if ((i = methodName.lastIndexOf('.')) != -1) {
                 fieldExpr = methodName.substring(0, i);
-                methodName = methodName.substring(i+1);
+                methodName = methodName.substring(i + 1);
             }
             absMethodDefine.methodRef = parseMethodExpr(methodName, method, tokenParser.parse(fieldExpr));
         }
@@ -177,7 +190,6 @@ public class ParseContext {
     }
 
     private MethodRef parseMethodExpr(String methodName, Method methodDefine, final Tokens fieldTokens) throws ClassNotFoundException {
-        Map<String, Boolean> staticTokens = AnnotationUtils.getDesignateStaticFields(methodDefine, methodName);
         FieldRef owner = parseFieldExpr(fieldTokens);
 
         String[] argsType = parseArgsType(methodDefine);
@@ -189,15 +201,13 @@ public class ParseContext {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getClassType();
             Method method = ReflectUtil.matchMethod(ownerClass, methodName, superClass, argsType);
             if (method == null && this.typedFields.containsKey(owner.getFullName())) {
-                throw new ParseException("can not find method "+methodName+" in class "+ownerClass.getName());
+                throw new ParseException("can not find method " + methodName + " in class " + ownerClass.getName());
             }
             methodRef = method == null ? null : new EarlyMethodRef(owner, method);
         }
         if (methodRef == null) {
             methodRef = new RuntimeMethodRef(owner, methodName, argsType, returnClass);
-            if (staticTokens.containsKey(methodName)) {
-                ((RuntimeMethodRef) methodRef).designateStatic(staticTokens.get(methodName));
-            }
+            designateStatic(methodRef);
         }
         if (superClass != null) {
             methodRef.setSuperClass(superClass);
@@ -212,7 +222,7 @@ public class ParseContext {
         for (Token token : tokens) {
             Field earlyField = currentType == null ? null : token.getField(currentType);
             currentType = earlyField == null ? null : earlyField.getType();
-            fullField = Optional.ofNullable(fullField).map(i -> i+"."+token.value()).orElseGet(token::value);
+            fullField = Optional.ofNullable(fullField).map(i -> i + "." + token.value()).orElseGet(token::value);
             if (!this.parsedFields.containsKey(fullField)) {
                 // 使用@Typed指定的类型
                 Class<?> assignedType = getFieldTyped(fullField, token.value());
@@ -260,12 +270,17 @@ public class ParseContext {
         return null;
     }
 
-    private void designateStatic(FieldRef fieldRef) {
-        if (fieldRef instanceof RuntimeFieldRef) {
-            if (staticFields.containsKey(fieldRef.getFullName())) {
-                ((RuntimeFieldRef) fieldRef).designateStatic(staticFields.get(fieldRef.getFullName()));
-            } else if (staticFields.containsKey(fieldRef.fieldName)) {
-                ((RuntimeFieldRef) fieldRef).designateStatic(staticFields.get(fieldRef.fieldName));
+    private void designateStatic(Object refObj) {
+        if (refObj instanceof RuntimeFieldRef) {
+            String fullName = ((RuntimeFieldRef) refObj).getFullName();
+            if (staticTokens.containsKey(fullName)) {
+                ((RuntimeFieldRef) refObj).designateStatic(staticTokens.get(fullName));
+            } else if (staticTokens.containsKey(CURRENT_TOKEN)) {
+                ((RuntimeFieldRef) refObj).designateStatic(staticTokens.get(CURRENT_TOKEN));
+            }
+        } else if (refObj instanceof RuntimeMethodRef) {
+            if (staticTokens.containsKey(CURRENT_TOKEN)) {
+                ((RuntimeMethodRef) refObj).designateStatic(staticTokens.get(CURRENT_TOKEN));
             }
         }
     }
@@ -276,35 +291,35 @@ public class ParseContext {
         io.github.hhy50.linker.annotations.Method.Constructor constructor = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Constructor.class);
         // Field.Setter和@Field.Getter只能有一个
         if (getter != null && setter != null) {
-            throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"] cannot have two annotations @Field.getter and @Field.setter");
+            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations @Field.getter and @Field.setter");
         }
         if (getter != null) {
             if (StringUtil.isEmpty(getter.value())) {
-                throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method, must be specified field-expression");
+                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
             }
             if (method.getReturnType() == void.class || method.getParameters().length > 0) {
-                throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method,its return value cannot be of type void, and the parameter length must be 0");
+                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method,its return value cannot be of type void, and the parameter length must be 0");
             }
         } else if (setter != null) {
             if (StringUtil.isEmpty(setter.value())) {
-                throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"] is getter method, must be specified field-expression");
+                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
             }
             if (method.getReturnType() != void.class || method.getParameters().length != 1) {
-                throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"] is setter method,its return value must be of type void, and the parameter length must be 1");
+                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is setter method,its return value must be of type void, and the parameter length must be 1");
             }
         } else if (constructor != null) {
             boolean runtime = method.getDeclaringClass().getDeclaredAnnotation(Runtime.class) != null;
             if (runtime)
-                throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"], @Constructor cannot be used with @Runtime");
+                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "], @Constructor cannot be used with @Runtime");
             if (method.getReturnType() != method.getDeclaringClass()) {
-                throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"], return type must be this class");
+                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "], return type must be this class");
             }
         }
 
         io.github.hhy50.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy50.linker.annotations.Method.Name.class);
         // @Field 和 @Method相关的注解不能同时存在
         if ((getter != null || setter != null) & (methodNameAnn != null)) {
-            throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
+            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
         }
     }
 }

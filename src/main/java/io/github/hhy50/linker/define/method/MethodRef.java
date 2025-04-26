@@ -30,7 +30,7 @@ public abstract class MethodRef {
     /**
      * The Full name.
      */
-    protected String fullName;
+    protected String uniqueName;
 
     /**
      * Instantiates a new Method ref.
@@ -41,7 +41,7 @@ public abstract class MethodRef {
     public MethodRef(FieldRef owner, String name) {
         this.owner = owner;
         this.name = name;
-        this.fullName = owner.getUniqueName()+"_$$_"+name+"_"+COUNTER.getAndIncrement();
+        this.uniqueName = owner.getUniqueName()+"_$$_"+name+"_"+COUNTER.getAndIncrement();
     }
 
     /**
@@ -63,12 +63,12 @@ public abstract class MethodRef {
     }
 
     /**
-     * Gets full name.
+     * Gets unique name.
      *
      * @return the full name
      */
-    public String getFullName() {
-        return fullName;
+    public String getUniqueName() {
+        return uniqueName;
     }
 
     /**
@@ -77,7 +77,7 @@ public abstract class MethodRef {
      * @return the invoker name
      */
     public String getInvokerName() {
-        return getFullName()+"_invoker_mh";
+        return getUniqueName()+"_invoker_mh";
     }
 
     /**

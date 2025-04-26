@@ -32,7 +32,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         Getter<?> ownerGetter = classImplBuilder.defineGetter(owner.getUniqueName(), owner);
         ownerGetter.define(classImplBuilder);
         
-        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(method.getFullName());
+        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(method.getUniqueName());
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), descriptor.getType());
 
         classImplBuilder
