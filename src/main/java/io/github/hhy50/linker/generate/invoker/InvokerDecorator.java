@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.MethodDefine;
+import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
@@ -21,20 +21,20 @@ public class InvokerDecorator extends AbstractDecorator {
      * The Real invoker.
      */
     protected Invoker<?> realInvoker;
-    private final MethodDefine methodDefine;
+    private final AbsMethodDefine absMethodDefine;
 
     /**
      * Instantiates a new Invoker decorator.
      *
      * @param realInvoker  the real invoker
-     * @param methodDefine the method define
+     * @param absMethodDefine the method define
      */
-    public InvokerDecorator(Invoker<?> realInvoker, MethodDefine methodDefine) {
-        super(methodDefine);
+    public InvokerDecorator(Invoker<?> realInvoker, AbsMethodDefine absMethodDefine) {
+        super(absMethodDefine);
         Objects.requireNonNull(realInvoker);
 
         this.realInvoker = realInvoker;
-        this.methodDefine = methodDefine;
+        this.absMethodDefine = absMethodDefine;
         this.autolink = this.autolink || realInvoker instanceof Constructor;
     }
 
@@ -45,13 +45,13 @@ public class InvokerDecorator extends AbstractDecorator {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        MethodRef methodRef = methodDefine.methodRef;
+        MethodRef methodRef = absMethodDefine.methodRef;
         Type[] argsType = methodRef.getMethodType().getArgumentTypes();
 
         typecastArgs(methodBody, methodBody.getArgs(), argsType);
         VarInst result = realInvoker.invoke(methodBody);
 
-        Class<?> rClassType = methodDefine.method.getReturnType();
+        Class<?> rClassType = absMethodDefine.method.getReturnType();
         if (result != null && rClassType != Void.TYPE) {
             typecastResult(methodBody, result)
                     .returnThis();

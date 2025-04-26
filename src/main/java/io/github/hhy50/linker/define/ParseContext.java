@@ -73,14 +73,31 @@ public class ParseContext {
     ParseContext(Class<?> defineClass, Class<?> targetClass) {
         this.defineClass = defineClass;
         this.targetClass = targetClass;
+        this.targetRoot = AnnotationUtils.isRuntime(defineClass)
+                ? new RuntimeFieldRef(null, null, FIRST_OBJ_NAME) : new EarlyFieldRef(null, null, FIRST_OBJ_NAME, targetClass);
     }
 
     /**
+     * Pre parse.
      *
+     * @param method the method
      */
     void preParse(Method method) {
+        verify(method);
+
         Map<String, String> typeDefines = ClassUtil.getTypeDefines(method);
-        Map<String, Boolean> designateStaticFields = AnnotationUtils.getDesignateStaticFields(method);
+        for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
+            String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
+            if (type != null && !type.equals(fieldEntry.getValue())) {
+                throw new VerifyException("@Typed of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
+            }
+        }
+        for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticFields(method, null).entrySet()) {
+            Boolean type = this.staticFields.put(fieldEntry.getKey(), fieldEntry.getValue());
+            if (type != null && !type.equals(fieldEntry.getValue())) {
+                throw new VerifyException("@Static of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
+            }
+        }
     }
 
     /**
@@ -102,18 +119,18 @@ public class ParseContext {
      * @throws ClassNotFoundException the class not found exception
      * @throws ParseException         the parse exception
      */
-    public List<MethodDefine> parse() throws ClassNotFoundException, ParseException {
+    public List<AbsMethodDefine> parse() throws ClassNotFoundException, ParseException {
         return doParseClass();
     }
 
-    private List<MethodDefine> doParseClass() throws ClassNotFoundException, ParseException {
-        List<MethodDefine> methodDefines = new ArrayList<>();
+    private List<AbsMethodDefine> doParseClass() throws ClassNotFoundException, ParseException {
+        List<AbsMethodDefine> absMethodDefines = new ArrayList<>();
         for (Method method : this.defineClass.getMethods()) {
             if (!Modifier.isAbstract(method.getModifiers())) continue;
             preParse(method);
-            methodDefines.add(parseMethod(method));
+            absMethodDefines.add(parseMethod(method));
         }
-        return methodDefines;
+        return absMethodDefines;
     }
 
     /**
@@ -121,11 +138,10 @@ public class ParseContext {
      *
      * @param method the method
      * @return the method define
+     * @throws VerifyException        the verify exception
      * @throws ClassNotFoundException the class not found exception
      */
-    public MethodDefine parseMethod(Method method) throws VerifyException, ClassNotFoundException {
-        verify(method);
-
+    public AbsMethodDefine parseMethod(Method method) throws VerifyException, ClassNotFoundException {
         String fieldExpr = null;
         io.github.hhy50.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);
         io.github.hhy50.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Setter.class);
@@ -135,29 +151,29 @@ public class ParseContext {
             fieldExpr = Util.getOrElseDefault(setter.value(), method.getName());
         }
 
-        MethodDefine methodDefine = new MethodDefine(method);
+        AbsMethodDefine absMethodDefine = new AbsMethodDefine(method);
         if (fieldExpr != null) {
             Tokens tokens = tokenParser.parse(fieldExpr);
-            methodDefine.fieldRef = parseFieldExpr(tokens);
-        } else if (methodDefine.hasConstructor()) {
+            absMethodDefine.fieldRef = parseFieldExpr(tokens);
+        } else if (absMethodDefine.hasConstructor()) {
             Class<?> instanceType = ((EarlyFieldRef) targetRoot).getClassType();
             String[] argsType = parseArgsType(method);
             Constructor<?> constructor = ReflectUtil.matchConstructor(instanceType, argsType);
             if (constructor == null) {
                 throw new ParseException("Constructor not found in class '"+instanceType+"' with args "+Arrays.toString(argsType));
             }
-            methodDefine.methodRef = new ConstructorRef(targetRoot, method.getName(), constructor);
+            absMethodDefine.methodRef = new ConstructorRef(targetRoot, method.getName(), constructor);
         } else {
             io.github.hhy50.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy50.linker.annotations.Method.Name.class);
-            String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), methodDefine.getName());
+            String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), absMethodDefine.getName());
             int i;
             if ((i = methodName.lastIndexOf('.')) != -1) {
                 fieldExpr = methodName.substring(0, i);
                 methodName = methodName.substring(i+1);
             }
-            methodDefine.methodRef = parseMethodExpr(methodName, method, tokenParser.parse(fieldExpr));
+            absMethodDefine.methodRef = parseMethodExpr(methodName, method, tokenParser.parse(fieldExpr));
         }
-        return methodDefine;
+        return absMethodDefine;
     }
 
     private MethodRef parseMethodExpr(String methodName, Method methodDefine, final Tokens fieldTokens) throws ClassNotFoundException {
@@ -209,11 +225,11 @@ public class ParseContext {
                 lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType)
                         : new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
                 lastField.setFullName(fullField);
-                designateStatic(lastField);
                 this.parsedFields.put(fullField, lastField);
             } else {
                 lastField = this.parsedFields.get(fullField);
             }
+            designateStatic(lastField);
         }
         return lastField;
     }

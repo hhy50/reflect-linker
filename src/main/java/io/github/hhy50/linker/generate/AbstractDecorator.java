@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.MethodDefine;
+import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
@@ -30,7 +30,7 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * The Method define.
      */
-    protected final MethodDefine methodDefine;
+    protected final AbsMethodDefine absMethodDefine;
 
     /**
      * The Auto link result.
@@ -40,13 +40,13 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * Instantiates a new Abstract decorator.
      *
-     * @param methodDefine the method define
+     * @param absMethodDefine the method define
      */
-    protected AbstractDecorator(MethodDefine methodDefine) {
-        Objects.requireNonNull(methodDefine);
+    protected AbstractDecorator(AbsMethodDefine absMethodDefine) {
+        Objects.requireNonNull(absMethodDefine);
 
-        this.methodDefine = methodDefine;
-        this.autolink = AnnotationUtils.isAutolink(methodDefine.method);
+        this.absMethodDefine = absMethodDefine;
+        this.autolink = AnnotationUtils.isAutolink(absMethodDefine.method);
     }
 
     /**
@@ -56,7 +56,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      * @param args       the args
      */
     protected void typecastArgs(MethodBody methodBody, VarInst[] args, Type[] argsType) {
-        Class<?>[] parameterTypes = methodDefine.method.getParameterTypes();
+        Class<?>[] parameterTypes = absMethodDefine.method.getParameterTypes();
 
         // 校验入参类型
         VarInst[] realArgs = methodBody.getArgs();
@@ -85,7 +85,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      * @return the var inst
      */
     protected VarInst typecastResult(MethodBody methodBody, VarInst varInst) {
-        Method method = methodDefine.method;
+        Method method = absMethodDefine.method;
         Class<?> returnClassType = method.getReturnType();
         if (returnClassType == Object.class && !AsmUtil.isPrimitiveType(varInst.getType())) {
             return varInst;

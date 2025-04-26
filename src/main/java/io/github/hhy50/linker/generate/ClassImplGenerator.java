@@ -2,7 +2,7 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.InterfaceImplClass;
-import io.github.hhy50.linker.define.MethodDefine;
+import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.util.ClassUtil;
@@ -34,10 +34,10 @@ public class ClassImplGenerator {
                 .setTarget(targetClass)
                 .setDefineClass(define);
 
-        for (MethodDefine methodDefine : defineClass.getMethodDefines()) {
-            Method method = methodDefine.method;
+        for (AbsMethodDefine absMethodDefine : defineClass.getAbsMethods()) {
+            Method method = absMethodDefine.method;
             classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getType(method), null)
-                    .intercept(body -> generateMethodImpl(classBuilder, body, methodDefine));
+                    .intercept(body -> generateMethodImpl(classBuilder, body, absMethodDefine));
         }
         byte[] bytecode = classBuilder.end().toBytecode();
         String outputPath = System.getProperty("linker.output.path");
@@ -47,18 +47,18 @@ public class ClassImplGenerator {
         defineClass.setBytecode(bytecode);
     }
 
-    private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodBody body, MethodDefine methodDefine) {
+    private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodBody body, AbsMethodDefine absMethodDefine) {
         MethodHandle mh = null;
-        if (methodDefine.hasGetter()) {
-            mh = BytecodeFactory.generateGetter(classBuilder, methodDefine, methodDefine.fieldRef);
-        } else if (methodDefine.hasSetter()) {
-            mh = BytecodeFactory.generateSetter(classBuilder, methodDefine, methodDefine.fieldRef);
-        } else if (methodDefine.hasConstructor()) {
-            mh = BytecodeFactory.generateConstructor(classBuilder, methodDefine, (ConstructorRef) methodDefine.methodRef);
-        } else if (methodDefine.methodRef != null) {
-            mh = BytecodeFactory.generateInvoker(classBuilder, methodDefine, methodDefine.methodRef);
+        if (absMethodDefine.hasGetter()) {
+            mh = BytecodeFactory.generateGetter(classBuilder, absMethodDefine, absMethodDefine.fieldRef);
+        } else if (absMethodDefine.hasSetter()) {
+            mh = BytecodeFactory.generateSetter(classBuilder, absMethodDefine, absMethodDefine.fieldRef);
+        } else if (absMethodDefine.hasConstructor()) {
+            mh = BytecodeFactory.generateConstructor(classBuilder, absMethodDefine, (ConstructorRef) absMethodDefine.methodRef);
+        } else if (absMethodDefine.methodRef != null) {
+            mh = BytecodeFactory.generateInvoker(classBuilder, absMethodDefine, absMethodDefine.methodRef);
         } else {
-            AsmUtil.throwNoSuchMethod(body.getWriter(), methodDefine.method.getName());
+            AsmUtil.throwNoSuchMethod(body.getWriter(), absMethodDefine.method.getName());
         }
         if (mh != null) {
             mh.define(classBuilder);

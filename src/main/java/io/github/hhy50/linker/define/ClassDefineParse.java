@@ -62,7 +62,7 @@ public class ClassDefineParse {
 
         ParseContext parseContext = new ParseContext(define, targetClass);
         parseContext.setClassLoader(targetClass.getClassLoader());
-        List<MethodDefine> absMethods = parseContext.parse();
+        List<AbsMethodDefine> absMethods = parseContext.parse();
 
         defineClass = new InterfaceImplClass(define.getName()+"$"+dynKey, absMethods);
         ClassImplGenerator.generateBytecode(define, targetClass, defineClass);

@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate.setter;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.MethodDefine;
+import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
@@ -23,10 +23,10 @@ public class SetterDecorator extends AbstractDecorator {
      *
      * @param setter       the setter
      * @param fieldRef     the field ref
-     * @param methodDefine the method define
+     * @param absMethodDefine the method define
      */
-    public SetterDecorator(Setter setter, FieldRef fieldRef, MethodDefine methodDefine) {
-        super(methodDefine);
+    public SetterDecorator(Setter setter, FieldRef fieldRef, AbsMethodDefine absMethodDefine) {
+        super(absMethodDefine);
         this.setter = setter;
         this.fieldRef = fieldRef;
     }

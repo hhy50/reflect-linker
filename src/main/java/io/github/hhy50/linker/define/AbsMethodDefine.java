@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 /**
  * The type Method define.
  */
-public class MethodDefine {
+public class AbsMethodDefine {
 
     /**
      * The Method.
@@ -32,7 +32,7 @@ public class MethodDefine {
      *
      * @param method the method
      */
-    public MethodDefine(Method method) {
+    public AbsMethodDefine(Method method) {
         this.method = method;
     }
 

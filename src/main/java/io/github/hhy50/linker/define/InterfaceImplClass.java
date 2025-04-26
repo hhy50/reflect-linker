@@ -7,19 +7,31 @@ import java.util.List;
  * The type Interface impl class.
  */
 public class InterfaceImplClass {
+
+    /**
+     * 实现类的类名
+     */
     private final String className;
-    private final List<MethodDefine> methodDefines;
+
+    /**
+     * 需要实现的抽象方法
+     */
+    private final List<AbsMethodDefine> absMethods;
+
+    /**
+     * 字节码
+     */
     private byte[] bytecode;
 
     /**
      * Instantiates a new Interface impl class.
      *
      * @param className     the class name
-     * @param methodDefines the method defines
+     * @param absMethods the method defines
      */
-    public InterfaceImplClass(String className, List<MethodDefine> methodDefines) {
+    public InterfaceImplClass(String className, List<AbsMethodDefine> absMethods) {
         this.className = className;
-        this.methodDefines = methodDefines;
+        this.absMethods = absMethods;
     }
 
     /**
@@ -27,8 +39,8 @@ public class InterfaceImplClass {
      *
      * @return the method defines
      */
-    public List<MethodDefine> getMethodDefines() {
-        return methodDefines;
+    public List<AbsMethodDefine> getAbsMethods() {
+        return absMethods;
     }
 
     /**

@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.getter;
 
-import io.github.hhy50.linker.define.MethodDefine;
+import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
@@ -20,10 +20,10 @@ public class GetterDecorator extends AbstractDecorator {
      *
      * @param getter       the getter
      * @param fieldRef     the field ref
-     * @param methodDefine the method define
+     * @param absMethodDefine the method define
      */
-    public GetterDecorator(Getter getter, FieldRef fieldRef, MethodDefine methodDefine) {
-        super(methodDefine);
+    public GetterDecorator(Getter getter, FieldRef fieldRef, AbsMethodDefine absMethodDefine) {
+        super(absMethodDefine);
         this.getter = getter;
         this.fieldRef = fieldRef;
     }
