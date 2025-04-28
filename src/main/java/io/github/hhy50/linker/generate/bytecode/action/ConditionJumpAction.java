@@ -32,21 +32,22 @@ public class ConditionJumpAction implements Action {
 
         Label ifLabel = new Label();
         Label elseLabel = new Label();
-        Label endLabel = new Label();
+        Label endLabel = this.elseBlock == null ? elseLabel : new Label();
 
-        condition.jump(body, ifLabel, elseLabel, endLabel);
-        mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
+        condition.jump(body, ifLabel, elseLabel);
 
         // if {}
-        mv.visitLabel(ifLabel);
-        if (ifBlock != null)
+        if (ifBlock != null) {
+            mv.visitLabel(ifLabel);
             ifBlock.apply(body);
-        mv.visitJumpInsn(Opcodes.GOTO, endLabel);
+        }
 
         // else {}
-        mv.visitLabel(elseLabel);
-        if (elseBlock != null)
+        if (elseBlock != null) {
+            mv.visitJumpInsn(Opcodes.GOTO, endLabel);
+            mv.visitLabel(elseLabel);
             elseBlock.apply(body);
+        }
 
         mv.visitLabel(endLabel);
     }
