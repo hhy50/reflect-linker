@@ -25,8 +25,8 @@ public class Constructor extends Invoker<ConstructorRef> {
     /**
      * Instantiates a new Constructor.
      *
-     * @param implClass the impl class
-     * @param constructor    the constructor ref
+     * @param implClass   the impl class
+     * @param constructor the constructor ref
      */
     public Constructor(String implClass, ConstructorRef constructor) {
         super(implClass, constructor, constructor.getMethodType());
@@ -53,7 +53,7 @@ public class Constructor extends Invoker<ConstructorRef> {
     }
 
     @Override
-    protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         throw new RuntimeException("not support runtime constructor");
     }
 

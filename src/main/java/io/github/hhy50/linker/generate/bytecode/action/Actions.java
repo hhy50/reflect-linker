@@ -157,6 +157,11 @@ public interface Actions {
         };
     }
 
+    /**
+     * Vreturn action.
+     *
+     * @return the action
+     */
     static Action vreturn() {
         return body ->  {
             AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);

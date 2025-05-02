@@ -1,7 +1,10 @@
 package io.github.hhy50.linker.test.private_class;
 
 import io.github.hhy50.linker.LinkerFactory;
-import io.github.hhy50.linker.annotations.*;
+import io.github.hhy50.linker.annotations.Autolink;
+import io.github.hhy50.linker.annotations.Field;
+import io.github.hhy50.linker.annotations.Method;
+import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.test.private_class.inner.InnerHolder;
 import org.junit.Assert;
@@ -12,10 +15,8 @@ public class PrivateClassTest {
     interface LInnerHolder {
         @Field.Getter("inner")
         LInner getInner();
-
         @Field.Setter("inner")
         void setInner(LInner inner);
-
         LInner run(LInner lInner);
     }
 
@@ -26,9 +27,9 @@ public class PrivateClassTest {
     }
 
     @Test
-    public void test1() throws LinkerException {
+    public void test1() throws LinkerException, ClassNotFoundException {
         LInnerHolder innerHolder = LinkerFactory.createLinker(LInnerHolder.class, new InnerHolder());
-        LInner innerLinker = LinkerFactory.createStaticLinker(LInner.class, LInner.class.getClassLoader());
+        LInner innerLinker = LinkerFactory.createStaticLinker(LInner.class, Class.forName("io.github.hhy50.linker.test.private_class.inner.Inner"));
         Assert.assertNotNull(innerHolder.getInner());
 
         innerHolder.setInner(null);
@@ -59,6 +60,8 @@ public class PrivateClassTest {
 
 //    @Test
     public void test2() throws LinkerException, ClassNotFoundException {
+        LinkerFactory.setOutputPath("C:\\Users\\49168\\IdeaProjects\\reflect-linker\\target");
+
         LInnerHolder_AutoLink innerHolder = LinkerFactory.createLinker(LInnerHolder_AutoLink.class, new InnerHolder());
         LInner_Autolink innerLinker = LinkerFactory.createStaticLinker(LInner_Autolink.class, Class.forName("io.github.hhy50.linker.test.private_class.inner.Inner"));
         Assert.assertNotNull(innerHolder.getInner());

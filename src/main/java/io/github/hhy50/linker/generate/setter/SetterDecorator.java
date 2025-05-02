@@ -21,8 +21,8 @@ public class SetterDecorator extends AbstractDecorator {
     /**
      * Instantiates a new Setter decorator.
      *
-     * @param setter       the setter
-     * @param fieldRef     the field ref
+     * @param setter          the setter
+     * @param fieldRef        the field ref
      * @param absMethodDefine the method define
      */
     public SetterDecorator(Setter setter, FieldRef fieldRef, AbsMethodDefine absMethodDefine) {

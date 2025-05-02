@@ -26,7 +26,7 @@ public class InvokerDecorator extends AbstractDecorator {
     /**
      * Instantiates a new Invoker decorator.
      *
-     * @param realInvoker  the real invoker
+     * @param realInvoker     the real invoker
      * @param absMethodDefine the method define
      */
     public InvokerDecorator(Invoker<?> realInvoker, AbsMethodDefine absMethodDefine) {

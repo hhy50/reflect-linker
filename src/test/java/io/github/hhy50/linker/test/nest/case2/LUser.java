@@ -2,7 +2,6 @@ package io.github.hhy50.linker.test.nest.case2;
 
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.annotations.Target;
 
 /**
  * <p>UserVisitor interface.</p>

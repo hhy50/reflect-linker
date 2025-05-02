@@ -1,14 +1,18 @@
 package io.github.hhy50.linker.example.dynamic;
 
 import io.github.hhy50.linker.LinkerFactory;
+import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
 import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.LinkerException;
 
-class A { }
+class A {
+}
+
 class B {
     String val = "this is b'val";
+
     public String getVal() {
         return val;
     }
@@ -16,15 +20,17 @@ class B {
 
 class A2 extends A {
     public B b;
+
     public A2(B b) {
         this.b = b;
     }
 }
+
 class MyObject {
     private A a;
 
     public String getBval() {
-        return ((A2)a).b.getVal();
+        return ((A2) a).b.getVal();
     }
 }
 
@@ -32,6 +38,7 @@ interface AVisitor {
 
 }
 
+@Autolink
 interface MyObjectVisitor {
     @Field.Setter("a")
     void setA(AVisitor val);

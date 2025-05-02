@@ -3,7 +3,6 @@ package io.github.hhy50.linker.test.nest.case2;
 import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
-import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.test.LInteger;
 
 

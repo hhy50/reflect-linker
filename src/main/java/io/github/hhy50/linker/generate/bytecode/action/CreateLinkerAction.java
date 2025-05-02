@@ -10,7 +10,13 @@ import org.objectweb.asm.Type;
  */
 public class CreateLinkerAction implements Action {
 
+    /**
+     * The Linker type.
+     */
     protected final Type linkerType;
+    /**
+     * The Obj.
+     */
     protected final VarInst obj;
 
     /**

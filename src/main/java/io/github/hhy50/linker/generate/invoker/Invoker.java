@@ -64,7 +64,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     }
 
     @Override
-    protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         Class<Action> __ = Action.class;
         Action superClassLoad = Optional.ofNullable(method.getSuperClass())
                 .map(LdcLoadAction::of)

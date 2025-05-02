@@ -23,6 +23,7 @@ public class StaticFieldTest {
      */
     @Test
     public void test1() throws LinkerException {
+        LinkerFactory.setOutputPath("C:\\Users\\49168\\IdeaProjects\\reflect-linker\\target");
         LStaticFieldClass myObj = LinkerFactory.createStaticLinker(LStaticFieldClass.class, StaticClass.class);
         Assert.assertNotNull(myObj.getObjAaa2());
         Assert.assertNotNull(myObj.getObj2Aaa2());

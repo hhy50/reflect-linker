@@ -18,7 +18,8 @@ public class BoxAction implements LoadAction {
     /**
      * Instantiates a new Wrap type action.
      *
-     * @param obj the obj
+     * @param obj         the obj
+     * @param wrapperType the wrapper type
      */
     public BoxAction(LoadAction obj, Type wrapperType) {
         this.obj = obj;

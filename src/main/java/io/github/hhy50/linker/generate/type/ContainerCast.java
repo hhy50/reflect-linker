@@ -5,6 +5,9 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
 
+/**
+ * The type Container cast.
+ */
 public class ContainerCast implements TypeCast {
 
     @Override

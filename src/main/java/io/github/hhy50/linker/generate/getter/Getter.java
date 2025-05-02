@@ -1,11 +1,15 @@
 package io.github.hhy50.linker.generate.getter;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.define.field.RuntimeFieldRef;
+import io.github.hhy50.linker.generate.FieldOpsMethodHandler;
+import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
@@ -17,23 +21,18 @@ import org.objectweb.asm.Type;
 
 /**
  * The type Getter.
- *
- * @param <T> the type parameter
  */
-public abstract class Getter<T extends FieldRef> extends MethodHandle {
+public class Getter extends FieldOpsMethodHandler {
 
     /**
      * The Field.
      */
-    protected final T field;
+    protected final FieldRef field;
     /**
      * The Impl class.
      */
     protected final String implClass;
-    /**
-     * The Method holder.
-     */
-    protected MethodDescriptor descriptor;
+
     /**
      * The Lookup class.
      */
@@ -45,11 +44,19 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
      * @param implClass the impl class
      * @param field     the field
      */
-    public Getter(String implClass, T field) {
+    public Getter(String implClass, FieldRef field) {
+        super(field.getGetterName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(),
+                Type.getMethodType(field.getType())));
         this.implClass = implClass;
         this.field = field;
-        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(),
-                Type.getMethodType(field.getType()));
+    }
+
+    protected void define0(InvokeClassImplBuilder classImplBuilder) {
+        if (field instanceof RuntimeFieldRef) {
+            super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
+        } else {
+            super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
+        }
     }
 
     @Override
@@ -60,12 +67,19 @@ public abstract class Getter<T extends FieldRef> extends MethodHandle {
     }
 
     @Override
-    protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass, LdcLoadAction.of(field.fieldName));
         mhMember.store(methodBody, findGetter);
     }
 
+    @Override
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+        MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICGETTER : MethodDescriptor.LOOKUP_FINDGETTER);
+        findGetter.setInstance(lookupClass.getLookup())
+                .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
+        mhMember.store(clinit, findGetter);
+    }
 
     /**
      * Gets lookup class.

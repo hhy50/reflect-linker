@@ -77,7 +77,7 @@ public abstract class MethodHandle {
      * @param mhMember    the mh member
      * @param objVar      the obj var
      */
-    protected abstract void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar);
+    protected abstract void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar);
 
     /**
      * Check look class.
@@ -87,7 +87,7 @@ public abstract class MethodHandle {
      * @param varInst     the var inst
      * @param prevGetter  the prev getter
      */
-    protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst, Getter<?> prevGetter) {
+    protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst, Getter prevGetter) {
         body.append(new ConditionJumpAction(
                 must(notNull(varInst),
                         any(isNull(lookupClass), notEq(varInst.getThisClass(), lookupClass))),
@@ -141,7 +141,7 @@ public abstract class MethodHandle {
      * @param objVar      the obj var
      */
     protected void checkMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        methodBody.append(mhMember.ifNull(body -> mhReassign(body, lookupClass, mhMember, objVar)));
+        methodBody.append(mhMember.ifNull(body -> initRuntimeMethodHandle(body, lookupClass, mhMember, objVar)));
     }
 
     /**

@@ -26,7 +26,7 @@ public class InterfaceImplClass {
     /**
      * Instantiates a new Interface impl class.
      *
-     * @param className     the class name
+     * @param className  the class name
      * @param absMethods the method defines
      */
     public InterfaceImplClass(String className, List<AbsMethodDefine> absMethods) {

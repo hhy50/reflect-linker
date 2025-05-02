@@ -60,41 +60,44 @@ public class MethodDescriptor {
     /**
      * The constant METHOD_TYPE.
      */
-    public static final MethodDescriptor METHOD_TYPE = MethodDescriptor.of(MethodType.class.getName(), "methodType",
+    public static final MethodDescriptor METHOD_TYPE = MethodDescriptor.of(MethodType.class, "methodType",
             MethodType.class, Class.class, Class[].class);
     /**
      * The constant ARRAYS_ASLIST.
      */
-    public static final MethodDescriptor ARRAYS_ASLIST = MethodDescriptor.of(Arrays.class.getName(), "asList",
+    public static final MethodDescriptor ARRAYS_ASLIST = MethodDescriptor.of(Arrays.class, "asList",
             List.class, Object[].class);
     /**
      * The constant DEFAULT_PROVIDER_GET_TARGET.
      */
-    public static final MethodDescriptor DEFAULT_PROVIDER_GET_TARGET = MethodDescriptor.of(TargetProvider.class .getName(), "getTarget",
+    public static final MethodDescriptor DEFAULT_PROVIDER_GET_TARGET = MethodDescriptor.of(TargetProvider.class, "getTarget",
             Object.class);
     /**
      * The constant LINKER_FACTORY_CREATE_LINKER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of(LinkerFactory.class.getName(), "createLinker",
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of(LinkerFactory.class, "createLinker",
             Object.class, Class.class, Object.class);
 
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER_COLLECT = MethodDescriptor.of(LinkerFactory.class.getName(), "createLinkerCollect",
+    /**
+     * The constant LINKER_FACTORY_CREATE_LINKER_COLLECT.
+     */
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER_COLLECT = MethodDescriptor.of(LinkerFactory.class, "createLinkerCollect",
             Collection.class, Class.class, Collection.class);
 
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER = MethodDescriptor.of(LinkerFactory.class.getName(), "createStaticLinker",
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER = MethodDescriptor.of(LinkerFactory.class, "createStaticLinker",
             Object.class, Class.class, Class.class);
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER.
      */
-    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER = MethodDescriptor.of(LinkerFactory.class.getName(), "createStaticLinker",
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER = MethodDescriptor.of(LinkerFactory.class, "createStaticLinker",
             Object.class, Class.class, ClassLoader.class);
     /**
      * The constant GET_CLASS_LOADER.
      */
-    public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of(Class.class.getName(), "getClassLoader",
+    public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of(Class.class, "getClassLoader",
             ClassLoader.class);
 
     private final String owner;
@@ -124,7 +127,7 @@ public class MethodDescriptor {
      * @return method descriptor
      */
     public static MethodDescriptor of(Method method) {
-        return of(method.getDeclaringClass().getName(), method.getName(), method.getReturnType(), method.getParameterTypes());
+        return of(method.getDeclaringClass(), method.getName(), method.getReturnType(), method.getParameterTypes());
     }
 
     /**
@@ -136,8 +139,8 @@ public class MethodDescriptor {
      * @param argsType  the args type
      * @return method descriptor
      */
-    public static MethodDescriptor of(String clazzName, String name, Class<?> rType, Class<?>... argsType) {
-        return of(AsmUtil.toOwner(clazzName), name, TypeUtils.getMethodType(rType, argsType));
+    public static MethodDescriptor of(Class<?> clazzName, String name, Class<?> rType, Class<?>... argsType) {
+        return of(AsmUtil.toOwner(clazzName.getName()), name, TypeUtils.getMethodType(rType, argsType));
     }
 
     /**
@@ -183,7 +186,7 @@ public class MethodDescriptor {
     /**
      * Gets type.
      *
-     * @return
+     * @return type
      */
     public Type getType() {
         return type;
@@ -200,7 +203,9 @@ public class MethodDescriptor {
 
 
     /**
-     * @return
+     * Gets return type.
+     *
+     * @return return type
      */
     public Type getReturnType() {
         return this.type.getReturnType();
