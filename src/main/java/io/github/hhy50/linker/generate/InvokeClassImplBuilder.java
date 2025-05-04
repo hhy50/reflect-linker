@@ -31,6 +31,7 @@ import static io.github.hhy50.linker.util.TypeUtils.METHOD_HANDLER_TYPE;
 public class InvokeClassImplBuilder extends AsmClassBuilder {
     private Class<?> defineClass;
     private final Map<String, Getter> getters;
+    private final Map<String, Setter> setters;
 
     /**
      * Instantiates a new Invoke class impl builder.
@@ -44,6 +45,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
         this.getters = new HashMap<>();
+        this.setters = new HashMap<>();
 
         this.defineConstruct(Opcodes.ACC_PUBLIC, Object.class)
                 .intercept(Methods.invokeSuper().thenReturn());
@@ -128,7 +130,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the setter
      */
     public Setter defineSetter(String fieldName, FieldRef fieldRef) {
-        return new Setter(getClassName(), fieldRef);
+        return setters.computeIfAbsent(fieldName, key -> {
+            return new Setter(getClassName(), fieldRef);
+        });
     }
 
     /**

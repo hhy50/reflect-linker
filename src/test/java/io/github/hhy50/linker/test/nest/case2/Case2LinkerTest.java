@@ -53,6 +53,13 @@ public class Case2LinkerTest {
         Assert.assertEquals("name2", case2Linker.getName2());
         Assert.assertEquals("name3", case2Linker.getName3());
         Assert.assertEquals("name4", case2Linker.getName4());
+
+        case2Linker.setAge2(19);
+        Assert.assertEquals(case2Linker.getAge(), 19);
+
+        case2Linker.setAge3(20);
+        Assert.assertEquals(case2Linker.getAge(), 20);
+
     }
 
     /**

@@ -2,10 +2,13 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.util.function.Function;
 
 
 /**
@@ -118,6 +121,28 @@ public interface Actions {
      */
     static Action asArray(Type arrType, Action... actions) {
         return body -> {
+            MethodVisitor mv = body.getWriter();
+            // BIPUSH, -128 <--> 127
+            mv.visitIntInsn(Opcodes.BIPUSH, actions.length);
+            mv.visitTypeInsn(Opcodes.ANEWARRAY, arrType.getInternalName());
+            for (int i = 0; i < actions.length; i++) {
+                mv.visitInsn(Opcodes.DUP);
+                mv.visitIntInsn(Opcodes.BIPUSH, i);
+                actions[i].apply(body);
+                mv.visitInsn(arrType.getOpcode(Opcodes.IASTORE));
+            }
+        };
+    }
+
+    /**
+     * As array action.
+     *
+     * @param arrType the arr type
+     * @return the action
+     */
+    static Action asArray(Type arrType, Function<MethodBody, Action[]> actionsProvider) {
+        return body -> {
+            Action[] actions = actionsProvider.apply(body);
             MethodVisitor mv = body.getWriter();
             // BIPUSH, -128 <--> 127
             mv.visitIntInsn(Opcodes.BIPUSH, actions.length);

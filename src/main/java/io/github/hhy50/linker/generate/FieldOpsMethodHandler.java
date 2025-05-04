@@ -28,6 +28,11 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      */
     protected MethodDescriptor descriptor;
 
+    /**
+     *
+     */
+    public ClassTypeMember lookupClass;
+
 
     /**
      * Instantiates a new Field ops method handler.
@@ -51,18 +56,18 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         Getter preFieldGetter = classImplBuilder.getGetter(prevField.getUniqueName());
         preFieldGetter.define(classImplBuilder);
 
-        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(runtimeField.getUniqueName());
+        this.lookupClass = classImplBuilder.defineLookupClass(runtimeField.getUniqueName());
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(mhName, descriptor.getType());
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(ChainAction.of(preFieldGetter::invoke)
-                                .peek((body, ownerVar) -> checkLookClass(body, lookupClass, ownerVar, preFieldGetter))
+                                .peek((body, ownerVar) -> checkLookClass(body, this.lookupClass, ownerVar, preFieldGetter))
                                 .peek((body, ownerVar) -> {
-                                    ClassTypeMember prevLookupClass = preFieldGetter.getLookupClass();
+                                    ClassTypeMember prevLookupClass = preFieldGetter.lookupClass;
                                     if (prevLookupClass != null) {
-                                        staticCheckClass(body, lookupClass, prevField.fieldName, prevLookupClass);
+                                        staticCheckClass(body, this.lookupClass, prevField.fieldName, prevLookupClass);
                                     }
                                 })
-                                .peek((body, ownerVar) -> checkMethodHandle(body, lookupClass, mhMember, ownerVar))
+                                .peek((body, ownerVar) -> checkMethodHandle(body, this.lookupClass, mhMember, ownerVar))
                                 .then(runtimeField.isDesignateStatic() ?
                                         (runtimeField.isStatic() ? ownerVar -> mhMember.invokeStatic(Args.loadArgs())
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, Args.loadArgs()))

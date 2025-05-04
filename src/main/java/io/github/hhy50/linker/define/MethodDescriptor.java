@@ -120,6 +120,10 @@ public class MethodDescriptor {
         this.type = type;
     }
 
+    public MethodDescriptor(MethodDescriptor base) {
+        this(base.owner, base.name, base.type);
+    }
+
     /**
      * of method descriptor.
      *

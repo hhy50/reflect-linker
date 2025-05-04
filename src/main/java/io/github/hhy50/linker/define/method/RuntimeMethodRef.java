@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.define.method;
 
-
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -13,10 +12,11 @@ import java.util.Arrays;
  * The type Runtime method ref.
  */
 public class RuntimeMethodRef extends MethodRef {
+    private Type methodType;
     private Type[] argsType;
-    private Class<?> returnType;
     private boolean designateStatic;
     private boolean isStatic;
+    private boolean isAutolink;
 
     /**
      * Instantiates a new Runtime method ref.
@@ -28,16 +28,17 @@ public class RuntimeMethodRef extends MethodRef {
      */
     public RuntimeMethodRef(FieldRef owner, String name, String[] argsType, Class<?> returnType) {
         super(owner, name);
+
+        Type[] newArgsType = new Type[argsType.length];
+        Arrays.fill(newArgsType, ObjectVar.TYPE);
+        this.methodType = Type.getMethodType(ObjectVar.TYPE, newArgsType);
         this.argsType = Arrays.stream(argsType)
                 .map(AsmUtil::getType).toArray(Type[]::new);
-        this.returnType = returnType;
     }
 
     @Override
     public Type getMethodType() {
-        Type[] newArgsType = new Type[argsType.length];
-        Arrays.fill(newArgsType, ObjectVar.TYPE);
-        return Type.getMethodType(ObjectVar.TYPE, newArgsType);
+        return methodType;
     }
 
     /**
@@ -46,7 +47,11 @@ public class RuntimeMethodRef extends MethodRef {
      * @return the type [ ]
      */
     public Type[] getArgsType() {
-        return argsType;
+        return this.argsType;
+    }
+
+    public void setArgsType(Type[] argsType) {
+        this.argsType = argsType;
     }
 
     /**
@@ -75,5 +80,23 @@ public class RuntimeMethodRef extends MethodRef {
     public void designateStatic(boolean isStatic) {
         this.designateStatic = true;
         this.isStatic = isStatic;
+    }
+
+    /**
+     * Is autolink boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isAutolink() {
+        return isAutolink;
+    }
+
+    /**
+     * Sets autolink.
+     *
+     * @param autolink the autolink
+     */
+    public void setAutolink(boolean autolink) {
+        this.isAutolink = autolink;
     }
 }

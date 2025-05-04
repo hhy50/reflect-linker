@@ -99,19 +99,4 @@ public abstract class FieldRef {
     public String getFullName() {
         return fullName;
     }
-
-    /**
-     * To runtime field ref.
-     *
-     * @return the field ref
-     */
-    public FieldRef toRuntime() {
-        if (this instanceof RuntimeFieldRef) {
-            return this;
-        }
-
-//        RuntimeFieldRef runtime = new RuntimeFieldRef(this.getPrev(), this.objName, this.fieldName);
-//        runtime.designateStatic(((EarlyFieldRef) this).isStatic());
-        return new RuntimeFieldRef(this.getPrev(), this.objName, this.fieldName);
-    }
 }

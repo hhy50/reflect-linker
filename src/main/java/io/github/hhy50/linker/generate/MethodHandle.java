@@ -33,8 +33,9 @@ public abstract class MethodHandle {
      * @param classImplBuilder the class impl builder
      */
     public final void define(InvokeClassImplBuilder classImplBuilder) {
-        if (this.defined) return;
-        define0(classImplBuilder);
+        if (!this.defined) {
+            define0(classImplBuilder);
+        }
         this.defined = true;
     }
 

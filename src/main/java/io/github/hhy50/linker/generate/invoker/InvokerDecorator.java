@@ -3,6 +3,7 @@ package io.github.hhy50.linker.generate.invoker;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.method.MethodRef;
+import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -40,6 +41,9 @@ public class InvokerDecorator extends AbstractDecorator {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
+        if (autolink && this.realInvoker.method instanceof RuntimeMethodRef) {
+            ((RuntimeMethodRef) this.realInvoker.method).setAutolink(true);
+        }
         this.realInvoker.define(classImplBuilder);
     }
 

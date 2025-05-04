@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.runtime;
 
 import io.github.hhy50.linker.AccessTool;
-import io.github.hhy50.linker.AutoLinker;
+import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.syslinker.LookupLinker;
@@ -9,10 +9,7 @@ import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.ReflectUtil;
 import io.github.hhy50.linker.util.TypeUtils;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.invoke.MutableCallSite;
+import java.lang.invoke.*;
 import java.lang.reflect.*;
 import java.util.Arrays;
 
@@ -185,8 +182,9 @@ public class Runtime {
             if (argsType.length == 1 && argsType[0].equals("java.lang.Object[]")) {
                 return new InvokeDynamic(lookup, clazz, superClass, methodName)
                         .dynamicInvoker();
-            } else if (argsType.length == 1 && argsType[0].equals(AutoLinker.class.getName())) {
-
+            } else if (argsType.length == 1 && argsType[0].equals(Autolink.class.getName())) {
+                return new InvokeDynamic(lookup, clazz, superClass, methodName)
+                        .dynamicInvoker();
             }
             throw new NoSuchMethodException("not found method '"+methodName+"' in class "+clazz.getName());
         }
@@ -245,7 +243,7 @@ public class Runtime {
          */
         public Object bootstrap(Object obj, Object[] args) throws Throwable {
             Method method = ReflectUtil.matchMethod(clazz, methodName, superClass,
-                    Arrays.stream(args).map(Object::getClass).map(Class::getCanonicalName).toArray(String[]::new));
+                    Arrays.stream(args).map(o -> o == null ? Object.class : o.getClass()).map(Class::getCanonicalName).toArray(String[]::new));
             if (method == null) {
                 throw new NoSuchMethodException("not found method '"+methodName+"' in class "+clazz.getName());
             }

@@ -34,11 +34,6 @@ public class Getter extends FieldOpsMethodHandler {
     protected final String implClass;
 
     /**
-     * The Lookup class.
-     */
-    protected ClassTypeMember lookupClass;
-
-    /**
      * Instantiates a new Getter.
      *
      * @param implClass the impl class
@@ -79,14 +74,5 @@ public class Getter extends FieldOpsMethodHandler {
         findGetter.setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
         mhMember.store(clinit, findGetter);
-    }
-
-    /**
-     * Gets lookup class.
-     *
-     * @return the lookup class
-     */
-    public ClassTypeMember getLookupClass() {
-        return this.lookupClass;
     }
 }
