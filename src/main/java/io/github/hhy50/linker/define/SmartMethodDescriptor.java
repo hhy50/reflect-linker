@@ -13,7 +13,7 @@ public class SmartMethodDescriptor extends MethodDescriptor {
     public static final String EMPTY_NAME = "$$";
 
     /**
-     *
+     * The Owner.
      */
     protected String owner;
 
@@ -21,7 +21,7 @@ public class SmartMethodDescriptor extends MethodDescriptor {
      * Instantiates a new Smart method descriptor.
      *
      * @param name the method name
-     * @param name the method desc
+     * @param type the type
      */
     public SmartMethodDescriptor(String name, Type type) {
         super(EMPTY_NAME, name, type);

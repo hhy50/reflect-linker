@@ -12,14 +12,14 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
  */
 public class GetterDecorator extends AbstractDecorator {
 
-    private Getter<?> getter;
+    private final Getter getter;
     private final FieldRef fieldRef;
 
     /**
      * Instantiates a new Getter decorator.
      *
-     * @param getter       the getter
-     * @param fieldRef     the field ref
+     * @param getter          the getter
+     * @param fieldRef        the field ref
      * @param absMethodDefine the method define
      */
     public GetterDecorator(Getter getter, FieldRef fieldRef, AbsMethodDefine absMethodDefine) {

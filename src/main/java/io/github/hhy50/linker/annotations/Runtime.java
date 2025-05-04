@@ -15,7 +15,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Runtime {
 
 
-
     /**
      * 用于给runtime字段强制指定是否是静态字段/方法
      *

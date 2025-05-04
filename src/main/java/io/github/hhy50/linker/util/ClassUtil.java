@@ -119,7 +119,7 @@ public class ClassUtil {
         if (parameters.length != argTypes.length) return false;
         for (int i = 0; i < parameters.length; i++) {
             Class<?> pType = parameters[i].getType();
-            String pName = pType.isArray() ? pType.getCanonicalName() : pType.getName();
+            String pName = pType.getCanonicalName();
             if (pType == Object.class && !argTypes[i].equals("java.lang.Object[]")) continue;
             if (argTypes[i].equals(Object.class.getName())) continue;;
             if (pName.equals(argTypes[i])) continue;
@@ -129,38 +129,11 @@ public class ClassUtil {
         return true;
     }
 
-    private static Class<?> toBoxType(Class<?> pType) {
-        if (pType.getName().equals("byte")) {
-            return Byte.class;
-        }
-        if (pType.getName().equals("short")) {
-            return Short.class;
-        }
-        if (pType.getName().equals("int")) {
-            return Integer.class;
-        }
-        if (pType.getName().equals("long")) {
-            return Long.class;
-        }
-        if (pType.getName().equals("float")) {
-            return Float.class;
-        }
-        if (pType.getName().equals("double")) {
-            return Double.class;
-        }
-        if (pType.getName().equals("char")) {
-            return Character.class;
-        }
-        if (pType.getName().equals("boolean")) {
-            return Boolean.class;
-        }
-        return Object.class;
-    }
-
     /**
+     * Is public boolean.
      *
-     * @param clazz
-     * @return
+     * @param clazz the clazz
+     * @return boolean
      */
     public static boolean isPublic(Class<?> clazz) {
         return Modifier.isPublic(clazz.getModifiers());
@@ -173,30 +146,6 @@ public class ClassUtil {
      * @return primitive class
      */
     public static Class<?> getPrimitiveClass(String clazz) {
-        if (clazz.equals("byte[]")) {
-            return byte[].class;
-        }
-        if (clazz.equals("short[]")) {
-            return short[].class;
-        }
-        if (clazz.equals("int[]")) {
-            return int[].class;
-        }
-        if (clazz.equals("long[]")) {
-            return long[].class;
-        }
-        if (clazz.equals("char[]")) {
-            return char[].class;
-        }
-        if (clazz.equals("boolean[]")) {
-            return boolean[].class;
-        }
-        if (clazz.equals("double[]")) {
-            return double[].class;
-        }
-        if (clazz.equals("float[]")) {
-            return float[].class;
-        }
         if (clazz.equals("byte")) {
             return byte.class;
         }

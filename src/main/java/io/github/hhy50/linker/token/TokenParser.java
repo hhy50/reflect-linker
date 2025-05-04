@@ -47,7 +47,7 @@ public class TokenParser {
         /**
          * The constant INDEX_ACCESS_START_SYMBOL.
          */
-        // 索引访问符
+// 索引访问符
         public static final char INDEX_ACCESS_START_SYMBOL = '[';
         /**
          * The constant INDEX_ACCESS_END_SYMBOL.

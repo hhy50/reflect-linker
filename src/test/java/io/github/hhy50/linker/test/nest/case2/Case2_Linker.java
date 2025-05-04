@@ -3,7 +3,6 @@ package io.github.hhy50.linker.test.nest.case2;
 import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
-import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.test.LInteger;
 
 
@@ -25,6 +24,7 @@ interface Case2_Linker {
      */
 //    @Autolink
     @Field.Getter("user")
+    @Autolink
     LUser getUser();
 
     /**
@@ -57,6 +57,7 @@ interface Case2_Linker {
      *
      * @return a {@link LInteger} object.
      */
+    @Autolink
     @Field.Getter("user.age")
     LInteger getAge();
 
@@ -65,8 +66,17 @@ interface Case2_Linker {
      *
      * @param age a {@link LInteger} object.
      */
+    @Autolink
     @Field.Setter("user.age")
     void setAge(LInteger age);
+
+    @Autolink
+    @Field.Setter("user.age")
+    void setAge2(int age);
+
+    @Autolink
+    @Field.Setter("user.age")
+    void setAge3(int age);
 
     /**
      * <p>getAddress.</p>

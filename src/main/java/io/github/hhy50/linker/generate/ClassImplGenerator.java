@@ -24,6 +24,8 @@ public class ClassImplGenerator {
     /**
      * Generate bytecode.
      *
+     * @param define      the define
+     * @param targetClass the target class
      * @param defineClass the define class
      * @throws IOException the io exception
      */

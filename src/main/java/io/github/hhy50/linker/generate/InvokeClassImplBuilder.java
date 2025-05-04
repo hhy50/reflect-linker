@@ -3,7 +3,6 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
@@ -11,15 +10,11 @@ import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
-import io.github.hhy50.linker.generate.getter.EarlyFieldGetter;
 import io.github.hhy50.linker.generate.getter.Getter;
-import io.github.hhy50.linker.generate.getter.RuntimeFieldGetter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
-import io.github.hhy50.linker.generate.setter.EarlyFieldSetter;
-import io.github.hhy50.linker.generate.setter.RuntimeFieldSetter;
 import io.github.hhy50.linker.generate.setter.Setter;
 import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Opcodes;
@@ -35,7 +30,8 @@ import static io.github.hhy50.linker.util.TypeUtils.METHOD_HANDLER_TYPE;
  */
 public class InvokeClassImplBuilder extends AsmClassBuilder {
     private Class<?> defineClass;
-    private final Map<String, Getter<?>> getters;
+    private final Map<String, Getter> getters;
+    private final Map<String, Setter> setters;
 
     /**
      * Instantiates a new Invoke class impl builder.
@@ -49,6 +45,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
         this.getters = new HashMap<>();
+        this.setters = new HashMap<>();
 
         this.defineConstruct(Opcodes.ACC_PUBLIC, Object.class)
                 .intercept(Methods.invokeSuper().thenReturn());
@@ -109,13 +106,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @param fieldRef  the field ref
      * @return the getter
      */
-    public Getter<?> defineGetter(String fieldName, FieldRef fieldRef) {
+    public Getter defineGetter(String fieldName, FieldRef fieldRef) {
         return getters.computeIfAbsent(fieldName, key -> {
-            if (fieldRef instanceof EarlyFieldRef) {
-                return new EarlyFieldGetter(getClassName(), (EarlyFieldRef) fieldRef);
-            } else {
-                return new RuntimeFieldGetter(getClassName(), (RuntimeFieldRef) fieldRef);
-            }
+            return new Getter(getClassName(), fieldRef);
         });
     }
 
@@ -125,7 +118,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @param fieldName the field name
      * @return the getter
      */
-    public Getter<?> getGetter(String fieldName) {
+    public Getter getGetter(String fieldName) {
         return getters.get(fieldName);
     }
 
@@ -136,9 +129,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @param fieldRef  the field ref
      * @return the setter
      */
-    public Setter<?> defineSetter(String fieldName, FieldRef fieldRef) {
-        return fieldRef instanceof EarlyFieldRef ? new EarlyFieldSetter(getClassName(), (EarlyFieldRef) fieldRef)
-                : new RuntimeFieldSetter(getClassName(), (RuntimeFieldRef) fieldRef);
+    public Setter defineSetter(String fieldName, FieldRef fieldRef) {
+        return setters.computeIfAbsent(fieldName, key -> {
+            return new Setter(getClassName(), fieldRef);
+        });
     }
 
     /**
@@ -156,7 +150,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * Define static method handle method handle member.
      *
      * @param mhMemberName the mh member name
-     * @param lookupType  the method invokedType
+     * @param lookupType   the method invokedType
      * @param methodType   the method type
      * @return the method handle member
      */

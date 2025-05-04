@@ -54,6 +54,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      *
      * @param methodBody the method body
      * @param args       the args
+     * @param argsType   the args type
      */
     protected void typecastArgs(MethodBody methodBody, VarInst[] args, Type[] argsType) {
         Class<?>[] parameterTypes = absMethodDefine.method.getParameterTypes();
@@ -151,7 +152,7 @@ public abstract class AbstractDecorator extends MethodHandle {
     }
 
     @Override
-    protected void mhReassign(MethodBody methodBody, ClassTypeMember classType, MethodHandleMember mhMember, VarInst objVar) {
+    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember classType, MethodHandleMember mhMember, VarInst objVar) {
         throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 }

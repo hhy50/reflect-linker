@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.MethodBody;
 
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -25,7 +26,7 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
 
     @Override
     public void apply(MethodBody body) {
-        T t = doChain(body);
+        T t = doChain(body, body);
         if (t instanceof Action) {
             ((Action) t).apply(body);
         }
@@ -38,6 +39,19 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
      * @return the chain action
      */
     public final ChainAction<T> peek(Consumer<T> consumer) {
+        addConsumer((body, val) -> {
+            consumer.accept(val);
+        });
+        return this;
+    }
+
+    /**
+     * Peek chain action.
+     *
+     * @param consumer the consumer
+     * @return the chain action
+     */
+    public final ChainAction<T> peek(BiConsumer<MethodBody, T> consumer) {
         addConsumer(consumer);
         return this;
     }
@@ -101,7 +115,7 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
          */
         public Next(ChainAction<In> prevAction, BiFunction<In, MethodBody, Out> func) {
             super((body) -> {
-                In in = prevAction.doChain(body);
+                In in = prevAction.doChain(body, body);
                 return func.apply(in, body);
             });
         }
@@ -114,7 +128,7 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
          */
         public Next(ChainAction<In> prevAction, Function<In, Out> func) {
             super((body) -> {
-                In in = prevAction.doChain(body);
+                In in = prevAction.doChain(body, body);
                 return func.apply(in);
             });
         }

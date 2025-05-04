@@ -1,11 +1,15 @@
 package io.github.hhy50.linker.generate.setter;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.define.field.RuntimeFieldRef;
+import io.github.hhy50.linker.generate.FieldOpsMethodHandler;
+import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
@@ -16,19 +20,13 @@ import org.objectweb.asm.Type;
 
 /**
  * The type Setter.
- *
- * @param <T> the type parameter
  */
-public abstract class Setter<T extends FieldRef> extends MethodHandle {
+public class Setter extends FieldOpsMethodHandler {
 
     /**
      * The Field.
      */
-    protected final T field;
-    /**
-     * The Method holder.
-     */
-    protected MethodDescriptor descriptor;
+    protected final FieldRef field;
 
     /**
      * Instantiates a new Setter.
@@ -36,10 +34,18 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
      * @param implClass the impl class
      * @param field     the field
      */
-    public Setter(String implClass, T field) {
+    public Setter(String implClass, FieldRef field) {
+        super(field.getSetterName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(),
+                Type.getMethodType(Type.VOID_TYPE, field.getType())));
         this.field = field;
-        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(),
-                Type.getMethodType(Type.VOID_TYPE, field.getType()));
+    }
+
+    public void define0(InvokeClassImplBuilder classImplBuilder) {
+        if (field instanceof RuntimeFieldRef) {
+            super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
+        } else {
+            super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
+        }
     }
 
     @Override
@@ -51,8 +57,15 @@ public abstract class Setter<T extends FieldRef> extends MethodHandle {
     }
 
     @Override
-    protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         mhMember.store(methodBody, new MethodInvokeAction(Runtime.FIND_SETTER)
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass, LdcLoadAction.of(this.field.fieldName)));
+    }
+
+    @Override
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+        mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
+                .setInstance(lookupClass.getLookup())
+                .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType)));
     }
 }

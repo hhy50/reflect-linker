@@ -60,6 +60,13 @@ public class MethodHandleMember extends Member {
         );
     }
 
+    /**
+     * Invoke of null action.
+     *
+     * @param that the that
+     * @param args the args
+     * @return the action
+     */
     public Action invokeOfNull(VarInst that, Action... args) {
         MethodInvokeAction isStatic = new MethodInvokeAction(RuntimeUtil.IS_STATIC)
                 .setArgs(this);

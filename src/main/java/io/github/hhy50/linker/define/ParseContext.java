@@ -256,7 +256,7 @@ public class ParseContext {
                     if (StringUtil.isNotEmpty(bind)) {
                         return bind;
                     }
-                    return type.isArray() ? type.getCanonicalName() : type.getName();
+                    return type.getCanonicalName();
                 }).toArray(String[]::new);
     }
 

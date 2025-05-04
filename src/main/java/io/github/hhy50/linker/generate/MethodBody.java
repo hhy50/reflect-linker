@@ -121,6 +121,7 @@ public class MethodBody {
     /**
      * New local var local var inst.
      *
+     * @param name   the name
      * @param action the action
      * @return local var inst
      */

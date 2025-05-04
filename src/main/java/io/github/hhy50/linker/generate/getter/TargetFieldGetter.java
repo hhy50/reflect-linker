@@ -20,7 +20,7 @@ import org.objectweb.asm.Type;
 /**
  * The type Target field getter.
  */
-public class TargetFieldGetter extends Getter<EarlyFieldRef> {
+public class TargetFieldGetter extends Getter {
     private final Member targetObj;
 
     private ClassTypeMember targetClass;
@@ -47,7 +47,7 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         } else {
 
         }
-        super.define0(classImplBuilder);
+//        super.define0(classImplBuilder);
     }
 
     @Override
@@ -64,6 +64,11 @@ public class TargetFieldGetter extends Getter<EarlyFieldRef> {
         return targetClass;
     }
 
+    /**
+     * Gets target type.
+     *
+     * @return the target type
+     */
     public Type getTargetType() {
         return this.field.getType();
     }

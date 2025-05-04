@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
@@ -27,10 +28,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      * The Method.
      */
     protected final T method;
-    /**
-     * The Method type.
-     */
-//    protected final Type methodType;
+
     /**
      * The Method holder.
      */
@@ -64,7 +62,8 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     }
 
     @Override
-    protected void mhReassign(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+        RuntimeMethodRef runtime = (RuntimeMethodRef) method;
         Class<Action> __ = Action.class;
         Action superClassLoad = Optional.ofNullable(method.getSuperClass())
                 .map(LdcLoadAction::of)
@@ -74,7 +73,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass,
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
-                        Actions.asArray(TypeUtils.STRING_TYPE, Arrays.stream(((RuntimeMethodRef) method).getArgsType())
+                        Actions.asArray(TypeUtils.STRING_TYPE, Arrays.stream(runtime.getArgsType())
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
                         // Object[] args
 //                        Actions.asArray(Type.getType(Object.class),
@@ -82,5 +81,30 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
 //                                        .mapToObj(Args::of).map(BoxAction::new).toArray(Action[]::new))
                 );
         mhMember.store(methodBody, fineMethod);
+    }
+
+    @Override
+    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String methodName, Type methodType, boolean isStatic) {
+        String superClass = this.method.getSuperClass();
+        boolean invokeSpecial = superClass != null & !isStatic;
+        MethodInvokeAction findXXX;
+        Action argsType = Actions.asArray(TypeUtils.CLASS_TYPE, Arrays.stream(methodType.getArgumentTypes()).map(this::loadClass).toArray(Action[]::new));
+        Action returnType = methodType.getReturnType() == Type.VOID_TYPE || AsmUtil.isPrimitiveType(methodType.getReturnType())
+                ? LdcLoadAction.of(methodType.getReturnType()) : this.loadClass(methodType.getReturnType());
+        if (invokeSpecial) {
+            findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDSPECIAL).setArgs(
+                    LdcLoadAction.of(AsmUtil.getType(superClass)),
+                    LdcLoadAction.of(methodName),
+                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType),
+                    lookupClass
+            );
+        } else {
+            findXXX = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATIC : MethodDescriptor.LOOKUP_FINDVIRTUAL).setArgs(
+                    superClass != null ? LdcLoadAction.of(AsmUtil.getType(superClass)) : lookupClass,
+                    LdcLoadAction.of(methodName),
+                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType)
+            );
+        }
+        mhMember.store(clinit, findXXX.setInstance(lookupClass.getLookup()));
     }
 }

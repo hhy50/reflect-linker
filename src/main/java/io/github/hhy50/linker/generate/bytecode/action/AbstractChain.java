@@ -1,9 +1,11 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 
+import io.github.hhy50.linker.generate.MethodBody;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -22,7 +24,7 @@ public abstract class AbstractChain<In, Out> implements Action {
     /**
      * The Consumers.
      */
-    protected List<Consumer<Out>> consumers;
+    protected List<BiConsumer<MethodBody, Out>> consumers;
 
     /**
      * Instantiates a new Abstract chain.
@@ -36,14 +38,15 @@ public abstract class AbstractChain<In, Out> implements Action {
     /**
      * Do chain out.
      *
-     * @param in the in
+     * @param body the body
+     * @param in   the in
      * @return the out
      */
-    public Out doChain(In in) {
+    public Out doChain(MethodBody body, In in) {
         Out o = func.apply(in);
         if (consumers != null) {
-            for (Consumer<Out> consumer : consumers) {
-                consumer.accept(o);
+            for (BiConsumer<MethodBody, Out> consumer : consumers) {
+                consumer.accept(body, o);
             }
         }
         return o;
@@ -54,7 +57,7 @@ public abstract class AbstractChain<In, Out> implements Action {
      *
      * @param consumer the consumer
      */
-    public void addConsumer(Consumer<Out> consumer) {
+    public void addConsumer(BiConsumer<MethodBody, Out> consumer) {
         if (consumers == null) {
             consumers = new ArrayList<>();
         }
