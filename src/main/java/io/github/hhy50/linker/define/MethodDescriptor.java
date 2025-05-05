@@ -3,11 +3,12 @@ package io.github.hhy50.linker.define;
 import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.provider.TargetProvider;
-import io.github.hhy50.linker.generate.bytecode.vars.LookupVar;
 import io.github.hhy50.linker.util.StringUtil;
 import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Type;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -19,44 +20,50 @@ import java.util.Objects;
  * The type Method holder.
  */
 public class MethodDescriptor {
-
     /**
      * The constant OBJECT_GET_CLASS.
      */
-    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of("java/lang/Object", "getClass", Type.getMethodType(TypeUtils.CLASS_TYPE));
+    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of(Object.class, "getClass", Class.class);
     /**
      * The constant LOOKUP_FIND_GETTER_METHOD.
      */
-    public static final MethodDescriptor LOOKUP_FINDGETTER = MethodDescriptor.of(LookupVar.OWNER, "findGetter", LookupVar.FIND_XETTER_DESC);
+    public static final MethodDescriptor LOOKUP_FINDGETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findGetter",
+            MethodHandle.class, Class.class, String.class, Class.class);
     /**
      * The constant LOOKUP_FIND_STATIC_GETTER_METHOD.
      */
-    public static final MethodDescriptor LOOKUP_FINDSTATICGETTER = MethodDescriptor.of(LookupVar.OWNER, "findStaticGetter", LookupVar.FIND_XETTER_DESC);
+    public static final MethodDescriptor LOOKUP_FINDSTATICGETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findStaticGetter",
+            MethodHandle.class, Class.class, String.class, Class.class);
     /**
      * The constant LOOKUP_FIND_SETTER_METHOD.
      */
-    public static final MethodDescriptor LOOKUP_FINDSETTER = MethodDescriptor.of(LookupVar.OWNER, "findSetter", LookupVar.FIND_XETTER_DESC);
+    public static final MethodDescriptor LOOKUP_FINDSETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findSetter",
+            MethodHandle.class, Class.class, String.class, Class.class);
     /**
      * The constant LOOKUP_FIND_STATIC_SETTER_METHOD.
      */
-    public static final MethodDescriptor LOOKUP_FINDSTATICSETTER = MethodDescriptor.of(LookupVar.OWNER, "findStaticSetter", LookupVar.FIND_XETTER_DESC);
+    public static final MethodDescriptor LOOKUP_FINDSTATICSETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findStaticSetter",
+            MethodHandle.class, Class.class, String.class, Class.class);
     /**
      * The constant LOOKUP_FIND_FINDVIRTUAL.
      */
-    public static final MethodDescriptor LOOKUP_FINDVIRTUAL = MethodDescriptor.of(LookupVar.OWNER, "findVirtual", LookupVar.FIND_XXXXX);
-
+    public static final MethodDescriptor LOOKUP_FINDVIRTUAL = MethodDescriptor.of(MethodHandles.Lookup.class, "findVirtual",
+            MethodHandle.class, Class.class, String.class, MethodType.class);
     /**
      * The constant LOOKUP_FIND_FINDSTATIC.
      */
-    public static final MethodDescriptor LOOKUP_FINDSTATIC = MethodDescriptor.of(LookupVar.OWNER, "findStatic", LookupVar.FIND_XXXXX);
+    public static final MethodDescriptor LOOKUP_FINDSTATIC = MethodDescriptor.of(MethodHandles.Lookup.class, "findStatic",
+            MethodHandle.class, Class.class, String.class, MethodType.class);
     /**
      * The constant LOOKUP_FIND_FINDSPECIAL.
      */
-    public static final MethodDescriptor LOOKUP_FINDSPECIAL = MethodDescriptor.of(LookupVar.OWNER, "findSpecial", LookupVar.FIND_SPECIAL);
+    public static final MethodDescriptor LOOKUP_FINDSPECIAL = MethodDescriptor.of(MethodHandles.Lookup.class, "findSpecial",
+            MethodHandle.class, Class.class, String.class, MethodType.class, Class.class);
     /**
      * The constant LOOKUP_FIND_CONSTRUCTOR.
      */
-    public static final MethodDescriptor LOOKUP_FINDCONSTRUCTOR = MethodDescriptor.of(LookupVar.OWNER, "findConstructor", LookupVar.FIND_CONSTRUCTOR);
+    public static final MethodDescriptor LOOKUP_FINDCONSTRUCTOR = MethodDescriptor.of(MethodHandles.Lookup.class, "findConstructor",
+            MethodHandle.class, Class.class, MethodType.class);
     /**
      * The constant METHOD_TYPE.
      */
@@ -70,20 +77,18 @@ public class MethodDescriptor {
     /**
      * The constant DEFAULT_PROVIDER_GET_TARGET.
      */
-    public static final MethodDescriptor DEFAULT_PROVIDER_GET_TARGET = MethodDescriptor.of(TargetProvider.class, "getTarget",
+    public static final MethodDescriptor TARGET_PROVIDER_GET_TARGET = MethodDescriptor.of(TargetProvider.class, "getTarget",
             Object.class);
     /**
      * The constant LINKER_FACTORY_CREATE_LINKER.
      */
     public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of(LinkerFactory.class, "createLinker",
             Object.class, Class.class, Object.class);
-
     /**
      * The constant LINKER_FACTORY_CREATE_LINKER_COLLECT.
      */
     public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER_COLLECT = MethodDescriptor.of(LinkerFactory.class, "createLinkerCollect",
             Collection.class, Class.class, Collection.class);
-
     /**
      * The constant LINKER_FACTORY_CREATE_STATIC_LINKER.
      */
@@ -105,26 +110,6 @@ public class MethodDescriptor {
     private final Type type;
 
     /**
-     * Instantiates a new Method holder.
-     *
-     * @param owner the owner
-     * @param name  the method name
-     * @param type  the method desc
-     */
-    public MethodDescriptor(String owner, String name, Type type) {
-        if (StringUtil.isEmpty(owner) || StringUtil.isEmpty(name) || Objects.isNull(type)) {
-            throw new IllegalArgumentException("owner or name or type can not be null");
-        }
-        this.owner = owner;
-        this.name = name;
-        this.type = type;
-    }
-
-    public MethodDescriptor(MethodDescriptor base) {
-        this(base.owner, base.name, base.type);
-    }
-
-    /**
      * of method descriptor.
      *
      * @param method the method
@@ -132,19 +117,6 @@ public class MethodDescriptor {
      */
     public static MethodDescriptor of(Method method) {
         return of(method.getDeclaringClass(), method.getName(), method.getReturnType(), method.getParameterTypes());
-    }
-
-    /**
-     * of method descriptor.
-     *
-     * @param clazzName the clazz name
-     * @param name      the method name
-     * @param rType     the r type
-     * @param argsType  the args type
-     * @return method descriptor
-     */
-    public static MethodDescriptor of(Class<?> clazzName, String name, Class<?> rType, Class<?>... argsType) {
-        return of(AsmUtil.toOwner(clazzName.getName()), name, TypeUtils.getMethodType(rType, argsType));
     }
 
     /**
@@ -158,15 +130,48 @@ public class MethodDescriptor {
     }
 
     /**
+     * of method descriptor.
+     *
+     * @param clazzName the clazz name
+     * @param name      the method name
+     * @param rType     the r type
+     * @param argsType  the args type
+     * @return method descriptor
+     */
+    public static MethodDescriptor of(Class<?> clazzName, String name, Class<?> rType, Class<?>... argsType) {
+        return new MethodDescriptor(AsmUtil.toOwner(clazzName.getName()), name, TypeUtils.getMethodType(rType, argsType));
+    }
+
+    /**
      * Of method descriptor.
      *
      * @param owner the owner
      * @param name  the method name
-     * @param mType the method desc
+     * @param mType the method type
      * @return the method descriptor
      */
     public static MethodDescriptor of(String owner, String name, Type mType) {
         return new MethodDescriptor(owner, name, mType);
+    }
+
+    public MethodDescriptor(MethodDescriptor base) {
+        this(base.owner, base.name, base.type);
+    }
+
+    /**
+     * Instantiates a new Method holder.
+     *
+     * @param owner the owner
+     * @param name  the method name
+     * @param type  the method desc
+     */
+    public MethodDescriptor(String owner, String name, Type type) {
+        if (StringUtil.isEmpty(owner) || StringUtil.isEmpty(name) || Objects.isNull(type)) {
+            throw new IllegalArgumentException("owner or name or type can not be null");
+        }
+        this.owner = owner;
+        this.name = name;
+        this.type = type;
     }
 
     /**

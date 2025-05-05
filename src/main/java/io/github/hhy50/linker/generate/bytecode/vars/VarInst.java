@@ -107,7 +107,6 @@ public abstract class VarInst implements LoadAction {
      * Return this.
      */
     public void returnThis() {
-        loadToStack();
         thenReturn().apply(body);
     }
 
@@ -119,7 +118,7 @@ public abstract class VarInst implements LoadAction {
     public Action getTarget() {
         return new ConditionJumpAction(
                 notNull(this),
-                Methods.invokeInterface(MethodDescriptor.DEFAULT_PROVIDER_GET_TARGET)
+                Methods.invokeInterface(MethodDescriptor.TARGET_PROVIDER_GET_TARGET)
                         .setInstance(new TypeCastAction(this, Type.getType(TargetProvider.class)))
                 , loadNull()
         );
