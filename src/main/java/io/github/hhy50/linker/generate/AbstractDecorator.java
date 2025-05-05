@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static io.github.hhy50.linker.generate.bytecode.action.Condition.*;
+
 /**
  * The type Abstract decorator.
  */
@@ -105,6 +107,10 @@ public abstract class AbstractDecorator extends MethodHandle {
 
         Type retType = Type.getType(returnClassType);
         if ((StringUtil.isNotEmpty(bindClass) || (autolink && returnClassType.isInterface()))) {
+            methodBody.append(new ConditionJumpAction(
+                    any(isNull(varInst), instanceOf(varInst, retType)),
+                    varInst.thenReturn(), null));
+
             return methodBody.newLocalVar(varInst.getName(), new TypeCastAction(new CreateLinkerAction(retType, varInst), retType));
         } else if (!varInst.getType().equals(retType)) {
             return methodBody.newLocalVar(varInst.getName(), new TypeCastAction(varInst, retType));

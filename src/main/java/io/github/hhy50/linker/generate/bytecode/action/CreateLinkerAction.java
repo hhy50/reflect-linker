@@ -33,7 +33,7 @@ public class CreateLinkerAction implements Action {
 
     @Override
     public void apply(MethodBody body) {
-        body.append(obj.ifNull(Actions.returnNull(), new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER)
-                .setArgs(LdcLoadAction.of(linkerType), obj)));
+        body.append(new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER)
+                .setArgs(LdcLoadAction.of(linkerType), obj));
     }
 }

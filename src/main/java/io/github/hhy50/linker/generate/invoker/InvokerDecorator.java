@@ -8,7 +8,6 @@ import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.generate.constructor.Constructor;
 import org.objectweb.asm.Type;
 
 import java.util.Objects;
@@ -36,7 +35,7 @@ public class InvokerDecorator extends AbstractDecorator {
 
         this.realInvoker = realInvoker;
         this.absMethodDefine = absMethodDefine;
-        this.autolink = this.autolink || realInvoker instanceof Constructor;
+        this.autolink = this.autolink || absMethodDefine.hasConstructor();
     }
 
     @Override

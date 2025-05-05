@@ -7,7 +7,6 @@ import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.syslinker.DirectMethodHandleLinker;
 import io.github.hhy50.linker.util.ClassUtil;
-import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Type;
 import sun.misc.Unsafe;
 
@@ -27,8 +26,8 @@ public class RuntimeUtil {
     /**
      * The constant IS_STATIC.
      */
-    public static final MethodDescriptor IS_STATIC = MethodDescriptor.of(OWNER, "isStatic",
-            TypeUtils.getMethodType(boolean.class, MethodHandle.class));
+    public static final MethodDescriptor IS_STATIC = MethodDescriptor.of(RuntimeUtil.class, "isStatic",
+            boolean.class, MethodHandle.class);
     /**
      * The constant UNWRAP_BYTE_DESC.
      */
@@ -64,8 +63,8 @@ public class RuntimeUtil {
     /**
      * The constant TYPE_MATCH.
      */
-    public static final MethodDescriptor TYPE_MATCH = MethodDescriptor.of(OWNER, "typeMatch",
-            TypeUtils.getMethodType(boolean.class, Class.class, String.class));
+    public static final MethodDescriptor TYPE_MATCH = MethodDescriptor.of(RuntimeUtil.class, "typeMatch",
+            boolean.class, Class.class, String.class);
 
     /**
      * Check null.

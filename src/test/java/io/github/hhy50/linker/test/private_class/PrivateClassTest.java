@@ -60,8 +60,6 @@ public class PrivateClassTest {
 
     @Test
     public void test2() throws LinkerException, ClassNotFoundException {
-        LinkerFactory.setOutputPath("C:\\Users\\49168\\IdeaProjects\\reflect-linker\\target");
-
         LInnerHolder_AutoLink innerHolder = LinkerFactory.createLinker(LInnerHolder_AutoLink.class, new InnerHolder());
         LInner_Autolink innerLinker = LinkerFactory.createStaticLinker(LInner_Autolink.class, Class.forName("io.github.hhy50.linker.test.private_class.inner.Inner"));
         Assert.assertNotNull(innerHolder.getInner());
