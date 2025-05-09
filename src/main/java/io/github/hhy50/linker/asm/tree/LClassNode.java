@@ -107,5 +107,5 @@ public interface LClassNode {
      * @return the methods
      */
     @Field.Getter("methods")
-    List<Object> getMethods();
+    List<LMethodNode> getMethods();
 }
