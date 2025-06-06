@@ -19,7 +19,7 @@ public class Args {
      * @return the action
      */
     public static Action loadArgs(int... argIndices) {
-        return body -> {
+        return block -> {
             VarInst[] args = body.getArgs();
             int[] indices = argIndices;
             if (argIndices.length == 0) {

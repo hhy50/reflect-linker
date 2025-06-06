@@ -6,6 +6,7 @@ import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
@@ -142,7 +143,7 @@ public abstract class MethodHandle {
      * @param objVar      the obj var
      */
     protected void checkMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        methodBody.append(mhMember.ifNull(body -> initRuntimeMethodHandle(body, lookupClass, mhMember, objVar)));
+        methodBody.append(mhMember.ifNull(block -> initRuntimeMethodHandle(body, lookupClass, mhMember, objVar)));
     }
 
     /**
@@ -155,7 +156,7 @@ public abstract class MethodHandle {
         return new ClassLoadAction() {
             @Override
             public Action getLookup() {
-                return body -> {
+                return block -> {
                     ClassLoadAction classCache = body.getClassObjCache(type);
                     if (classCache == null) {
                         classCache = new DynamicClassLoad(type);
@@ -166,13 +167,13 @@ public abstract class MethodHandle {
             }
 
             @Override
-            public void apply(MethodBody body) {
-                ClassLoadAction classCache = body.getClassObjCache(type);
+            public void apply(CodeBlock block) {
+                ClassLoadAction classCache = block.getClassObjCache(type);
                 if (classCache == null) {
                     classCache = new DynamicClassLoad(type);
-                    body.putClassObjCache(type, classCache);
+                    block.putClassObjCache(type, classCache);
                 }
-                classCache.apply(body);
+                classCache.apply(block);
             }
         };
     }
@@ -197,7 +198,7 @@ public abstract class MethodHandle {
 
         @Override
         public Action getLookup() {
-            return (body) -> {
+            return (block) -> {
                 if (this.lookupVar == null) {
                     this.lookupVar = body.newLocalVar(new MethodInvokeAction(Runtime.LOOKUP).setArgs(this));
                 }
@@ -206,17 +207,17 @@ public abstract class MethodHandle {
         }
 
         @Override
-        public void apply(MethodBody body) {
+        public void apply(CodeBlock block) {
             if (AsmUtil.isPrimitiveType(type)) {
-                LdcLoadAction.of(type).load(body);
+                LdcLoadAction.of(type).load(block);
                 return;
             }
 
             if (this.clazzVar == null) {
-                AsmClassBuilder classBuilder = body.getClassBuilder();
+                AsmClassBuilder classBuilder = block.getClassBuilder();
                 Action cl = LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
                         .invokeMethod(MethodDescriptor.GET_CLASS_LOADER);
-                this.clazzVar = body.newLocalVar(new MethodInvokeAction(Runtime.GET_CLASS)
+                this.clazzVar = block.newLocalVar(new MethodInvokeAction(Runtime.GET_CLASS)
                         .setArgs(cl, LdcLoadAction.of(type.getClassName())));
             }
             clazzVar.loadToStack();

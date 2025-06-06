@@ -156,6 +156,6 @@ public class Member implements LoadAction {
      * @return the action
      */
     public Action store(Action action) {
-        return (body) -> this.store(body, action);
+        return (block) -> this.store(body, action);
     }
 }

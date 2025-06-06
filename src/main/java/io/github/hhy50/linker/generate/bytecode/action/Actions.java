@@ -46,8 +46,8 @@ public interface Actions {
      * @return the action
      */
     static Action loadNull() {
-        return (body) -> {
-            MethodVisitor mv = body.getWriter();
+        return (block) -> {
+            MethodVisitor mv = block.getWriter();
             mv.visitInsn(Opcodes.ACONST_NULL);
         };
     }
@@ -59,8 +59,8 @@ public interface Actions {
      * @return the action
      */
     static Action throwNullException(String nullerr) {
-        return body -> {
-            MethodVisitor mv = body.getWriter();
+        return block -> {
+            MethodVisitor mv = block.getWriter();
             mv.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
             mv.visitInsn(Opcodes.DUP);
             mv.visitLdcInsn(nullerr);
@@ -77,7 +77,7 @@ public interface Actions {
      * @return the action
      */
     static Action throwTypeCastException(String objName, Type expectType) {
-        return body -> {
+        return block -> {
             MethodVisitor mv = body.getWriter();
             mv.visitTypeInsn(Opcodes.NEW, "java/lang/ClassCastException");
             mv.visitInsn(Opcodes.DUP);
@@ -93,7 +93,7 @@ public interface Actions {
      * @return the action
      */
     static Action returnNull() {
-        return body -> {
+        return block -> {
             MethodVisitor mv = body.getWriter();
             mv.visitInsn(Opcodes.ACONST_NULL);
             mv.visitInsn(Opcodes.ARETURN);
@@ -107,7 +107,7 @@ public interface Actions {
      * @return the action
      */
     static Action asList(Action... actions) {
-        return body -> {
+        return block -> {
             body.append(new MethodInvokeAction(MethodDescriptor.ARRAYS_ASLIST).setArgs(asArray(ObjectVar.TYPE, actions)));
         };
     }
@@ -120,7 +120,7 @@ public interface Actions {
      * @return the action
      */
     static Action asArray(Type arrType, Action... actions) {
-        return body -> {
+        return block -> {
             MethodVisitor mv = body.getWriter();
             // BIPUSH, -128 <--> 127
             mv.visitIntInsn(Opcodes.BIPUSH, actions.length);
@@ -141,7 +141,7 @@ public interface Actions {
      * @return the action
      */
     static Action asArray(Type arrType, Function<MethodBody, Action[]> actionsProvider) {
-        return body -> {
+        return block -> {
             Action[] actions = actionsProvider.apply(body);
             MethodVisitor mv = body.getWriter();
             // BIPUSH, -128 <--> 127
@@ -163,7 +163,7 @@ public interface Actions {
      * @return the action
      */
     static Action multi(Action... actions) {
-        return body -> {
+        return block -> {
             for (Action action : actions) {
                 action.apply(body);
             }
@@ -177,7 +177,7 @@ public interface Actions {
      * @return the action
      */
     static Action areturn(Type rType) {
-        return body ->  {
+        return block ->  {
             AsmUtil.areturn(body.getWriter(), rType);
         };
     }
@@ -188,7 +188,7 @@ public interface Actions {
      * @return the action
      */
     static Action vreturn() {
-        return body ->  {
+        return block ->  {
             AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
         };
     }

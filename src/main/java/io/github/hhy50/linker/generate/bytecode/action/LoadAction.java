@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -14,7 +15,7 @@ public interface LoadAction extends TypedAction {
     /**
      * The constant LOAD0.
      */
-    Action LOAD0 = body -> body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
+    Action LOAD0 = block -> block.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
     /**
      * The constant LOAD_0.
      */
@@ -32,8 +33,8 @@ public interface LoadAction extends TypedAction {
     };
 
     @Override
-    default void apply(MethodBody body) {
-        load(body);
+    default void apply(CodeBlock block) {
+        load(block);
     }
 
     /**

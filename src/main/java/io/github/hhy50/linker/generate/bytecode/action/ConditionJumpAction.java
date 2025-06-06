@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -27,26 +27,26 @@ public class ConditionJumpAction implements Action {
     }
 
     @Override
-    public void apply(MethodBody body) {
-        MethodVisitor mv = body.getWriter();
+    public void apply(CodeBlock block) {
+        MethodVisitor mv = block.getWriter();
 
         Label ifLabel = new Label();
         Label elseLabel = new Label();
         Label endLabel = this.elseBlock == null ? elseLabel : new Label();
 
-        condition.jump(body, ifLabel, elseLabel);
+        condition.jump(block, ifLabel, elseLabel);
 
         // if {}
         if (ifBlock != null) {
             mv.visitLabel(ifLabel);
-            ifBlock.apply(body);
+            ifBlock.apply(block);
         }
 
         // else {}
         if (elseBlock != null) {
             mv.visitJumpInsn(Opcodes.GOTO, endLabel);
             mv.visitLabel(elseLabel);
-            elseBlock.apply(body);
+            elseBlock.apply(block);
         }
 
         mv.visitLabel(endLabel);

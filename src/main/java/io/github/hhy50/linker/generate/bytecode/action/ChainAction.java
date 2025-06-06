@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -25,10 +26,10 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
     }
 
     @Override
-    public void apply(MethodBody body) {
-        T t = doChain(body, body);
+    public void apply(CodeBlock block) {
+        T t = doChain(block, block);
         if (t instanceof Action) {
-            ((Action) t).apply(body);
+            ((Action) t).apply(block);
         }
     }
 

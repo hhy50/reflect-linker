@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -29,9 +29,9 @@ public class TypeCastAction implements TypedAction {
     }
 
     @Override
-    public void apply(MethodBody body) {
-        obj.apply(body);
-        MethodVisitor mv = body.getWriter();
+    public void apply(CodeBlock block) {
+        obj.apply(block);
+        MethodVisitor mv = block.getWriter();
         mv.visitTypeInsn(Opcodes.CHECKCAST, type.getInternalName());
     }
 

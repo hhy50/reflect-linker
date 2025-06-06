@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -37,13 +38,13 @@ public class MethodInvokeAction implements LoadAction {
     }
 
     @Override
-    public void apply(MethodBody body) {
-        MethodVisitor mv = body.getWriter();
+    public void apply(CodeBlock block) {
+        MethodVisitor mv = block.getWriter();
         if (instance != null) {
-            instance.apply(body);
+            instance.apply(block);
         }
         for (int i = 0; i < (args == null ? 0 : args.length); i++) {
-            args[i].apply(body);
+            args[i].apply(block);
         }
 
         int opCode = getOpCode();

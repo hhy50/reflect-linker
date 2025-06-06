@@ -3,6 +3,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -30,23 +31,23 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
     }
 
     @Override
-    public void apply(MethodBody body) {
-        MethodVisitor mv = body.getWriter();
+    public void apply(CodeBlock block) {
+        MethodVisitor mv = block.getWriter();
         if (instance != null) {
-            instance.apply(body);
+            instance.apply(block);
         }
-        Action[] smartArgs = getArgs(body);
+        Action[] smartArgs = getArgs(block);
         for (int i = 0; i < (smartArgs == null ? 0 : smartArgs.length); i++) {
-            smartArgs[i].apply(body);
+            smartArgs[i].apply(block);
         }
 
-        MethodDescriptor descriptor = getMethodDescriptor(body);
+        MethodDescriptor descriptor = getMethodDescriptor(block);
         String owner = descriptor.getOwner();
         if (owner == null || owner.equals(SmartMethodDescriptor.EMPTY_NAME)) {
             if (instance != null && instance instanceof TypedAction) {
                 owner = ((TypedAction) instance).getType().getInternalName();
             } else {
-                owner = body.getClassBuilder().getClassOwner();
+                owner = block.getClassBuilder().getClassOwner();
             }
         }
         int opCode = getOpCode();

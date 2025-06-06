@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 
 /**
  * The interface Action.
@@ -10,9 +10,9 @@ public interface Action {
     /**
      * Apply.
      *
-     * @param body the body
+     * @param block the body
      */
-    void apply(MethodBody body);
+    void apply(CodeBlock block);
 
     /**
      * On after action.
@@ -21,9 +21,9 @@ public interface Action {
      * @return the action
      */
     default Action andThen(Action after) {
-        return (body) -> {
-            apply(body);
-            after.apply(body);
+        return (block) -> {
+            apply(block);
+            after.apply(block);
         };
     }
 }

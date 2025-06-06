@@ -20,10 +20,10 @@ public interface TypedAction extends Action {
      * @return action action
      */
     default Action thenReturn() {
-        return body ->  {
-            apply(body);
+        return block ->  {
+            apply(block);
             // 有些类型执行apply（也就是有了body之后）后才能确定
-            Actions.areturn(getType()).apply(body);
+            Actions.areturn(getType()).apply(block);
         };
     }
 }

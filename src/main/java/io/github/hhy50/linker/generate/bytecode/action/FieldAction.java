@@ -58,7 +58,7 @@ public class FieldAction implements LoadAction {
      * @return the action
      */
     public Action store(Action action) {
-        return (body) -> {
+        return (block) -> {
             MethodVisitor mv = body.getWriter();
             body.append(this.owner);
             action.apply(body);

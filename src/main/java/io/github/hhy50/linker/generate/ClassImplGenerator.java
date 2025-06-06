@@ -39,7 +39,7 @@ public class ClassImplGenerator {
         for (AbsMethodDefine absMethodDefine : defineClass.getAbsMethods()) {
             Method method = absMethodDefine.method;
             classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getType(method), null)
-                    .intercept(body -> generateMethodImpl(classBuilder, body, absMethodDefine));
+                    .intercept(block -> generateMethodImpl(classBuilder, body, absMethodDefine));
         }
         byte[] bytecode = classBuilder.end().toBytecode();
         String outputPath = System.getProperty("linker.output.path");

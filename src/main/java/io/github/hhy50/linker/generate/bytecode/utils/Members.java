@@ -42,7 +42,7 @@ public class Members {
      * @return the member
      */
     public static Action ofStore(String memberName, Action action) {
-        return body -> {
+        return block -> {
             AsmClassBuilder classBuilder = body.getClassBuilder();
             Member member = classBuilder.getMembers().get(memberName);
             if (member == null) {
@@ -59,7 +59,7 @@ public class Members {
      * @return the member
      */
     public static Action ofLoad(String memberName) {
-        return body -> {
+        return block -> {
             AsmClassBuilder classBuilder = body.getClassBuilder();
             Member member = classBuilder.getMembers().get(memberName);
             if (member == null) {

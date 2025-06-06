@@ -51,6 +51,6 @@ public class ClassTypeMember extends Member implements ClassLoadAction {
 
     @Override
     public Action getLookup() {
-        return this::getLookup;
+        return block -> getLookup(body);
     }
 }
