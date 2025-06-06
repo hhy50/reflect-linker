@@ -99,7 +99,7 @@ public abstract class AbstractDecorator extends MethodHandle {
             if (StringUtil.isNotEmpty(bindClass)) {
                 checkType(methodBody, varInst, AsmUtil.getType(bindClass));
                 expectType = ObjectVar.TYPE;
-            } else if (this.autolink) {
+            } else if (!returnClassType.isPrimitive() && this.autolink) {
                 expectType = ObjectVar.TYPE;
             }
             varInst = typeCast(methodBody, varInst, expectType);
