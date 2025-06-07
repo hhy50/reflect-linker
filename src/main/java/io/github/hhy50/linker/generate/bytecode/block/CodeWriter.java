@@ -10,4 +10,7 @@ public class CodeWriter {
     private MethodVisitor writer;
 
 
+    public CodeWriter(MethodVisitor writer) {
+        this.writer = writer;
+    }
 }

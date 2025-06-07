@@ -5,6 +5,7 @@ import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.provider.TargetProvider;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -21,9 +22,9 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
  */
 public abstract class VarInst implements LoadAction {
 
-    private final MethodBody body;
+    protected final CodeBlock block;
 
-    private final int lvbIndex;
+    protected final int lvbIndex;
 
     /**
      * The Type.
@@ -33,12 +34,12 @@ public abstract class VarInst implements LoadAction {
     /**
      * Instantiates a new Var inst.
      *
-     * @param body     the body
+     * @param block     the block
      * @param lvbIndex the lvb index
      * @param type     the type
      */
-    public VarInst(MethodBody body, int lvbIndex, Type type) {
-        this.body = body;
+    public VarInst(CodeBlock block, int lvbIndex, Type type) {
+        this.block = block;
         this.lvbIndex = lvbIndex;
         this.type = type;
     }

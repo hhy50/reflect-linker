@@ -6,6 +6,9 @@ import io.github.hhy50.linker.asm.MethodBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
+import io.github.hhy50.linker.generate.bytecode.block.BasicBlock;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
+import io.github.hhy50.linker.generate.bytecode.block.CodeWriter;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -20,9 +23,9 @@ import java.util.function.Consumer;
  * The type Method body.
  */
 public class MethodBody {
-    private final MethodBuilder methodBuilder;
-
-    private final MethodVisitor writer;
+    private final MethodBuilder builder;
+    private final CodeWriter codeWriter;
+    private final CodeBlock block;
     private int lvbIndex;
     private final VarInst[] args;
     private final Map<String, ClassLoadAction> classLoadCache;
@@ -30,28 +33,29 @@ public class MethodBody {
     /**
      * Instantiates a new Method body.
      *
-     * @param methodBuilder the method builder
+     * @param builder the method builder
      * @param mv            the method writer
      */
-    public MethodBody(MethodBuilder methodBuilder, MethodVisitor mv) {
-        this.methodBuilder = methodBuilder;
+    public MethodBody(MethodBuilder builder, MethodVisitor mv) {
+        Type[] argsType = builder.getDescriptor().getType().getArgumentTypes();
 
-        Type[] argumentTypes = methodBuilder.getDescriptor().getType().getArgumentTypes();
-        this.writer = mv;
-        this.lvbIndex = AsmUtil.calculateLvbOffset(methodBuilder.isStatic(), argumentTypes);
-        this.args = new VarInst[argumentTypes.length];
+        this.builder = builder;
+        this.codeWriter = new CodeWriter(mv);
+        this.block = new BasicBlock(this.codeWriter);
         this.classLoadCache = new HashMap<>();
-        initArgsTable(argumentTypes);
+        this.args = new VarInst[argsType.length];
+        initArgsTable(argsType);
     }
 
-    private void initArgsTable(Type[] argumentTypes) {
-        int index = this.methodBuilder.isStatic() ? 0 : 1;
-        for (int i = 0; i < argumentTypes.length; i++) {
-            args[i] = new ObjectVar(this, index++, argumentTypes[i]);
-            if (argumentTypes[i].getSort() == Type.DOUBLE || argumentTypes[i].getSort() == Type.LONG) {
+    private void initArgsTable(Type[] argsType) {
+        int index = this.builder.isStatic() ? 0 : 1;
+        for (int i = 0; i < argsType.length; i++) {
+            this.args[i] = new ObjectVar(this.block, index++, argsType[i]);
+            if (argsType[i].getSort() == Type.DOUBLE || argsType[i].getSort() == Type.LONG) {
                 index++;
             }
         }
+        this.lvbIndex = index;
     }
 
     /**
@@ -137,7 +141,7 @@ public class MethodBody {
      * @return the class builder
      */
     public AsmClassBuilder getClassBuilder() {
-        return methodBuilder.getClassBuilder();
+        return builder.getClassBuilder();
     }
 
     /**
@@ -145,15 +149,15 @@ public class MethodBody {
      *
      * @return the method builder
      */
-    public MethodBuilder getMethodBuilder() {
-        return this.methodBuilder;
+    public MethodBuilder getBuilder() {
+        return this.builder;
     }
 
     /**
      * End.
      */
     public void end() {
-        AsmClassBuilder classBuilder = methodBuilder.getClassBuilder();
+        AsmClassBuilder classBuilder = builder.getClassBuilder();
         if (classBuilder.isAutoCompute()) {
             this.writer.visitMaxs(0, 0);
         }

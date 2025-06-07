@@ -65,7 +65,7 @@ public class SmartMethodInvokeAction extends MethodInvokeAction {
         if (this.descriptor != null)
             return this.descriptor;
         if (this.smartDescriptor == null)
-            this.smartDescriptor = new SmartMethodDescriptor(body.getMethodBuilder().getDescriptor());
+            this.smartDescriptor = new SmartMethodDescriptor(body.getBuilder().getDescriptor());
         return this.smartDescriptor;
     }
 

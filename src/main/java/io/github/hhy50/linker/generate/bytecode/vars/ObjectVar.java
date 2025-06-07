@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode.vars;
 
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.block.CodeBlock;
 import org.objectweb.asm.Type;
 
 /**
@@ -22,11 +23,11 @@ public class ObjectVar extends VarInst {
     /**
      * Instantiates a new Object var.
      *
-     * @param body     the body
+     * @param block     the block
      * @param lvbIndex the lvb index
      * @param type     the type
      */
-    public ObjectVar(MethodBody body, int lvbIndex, Type type) {
-        super(body, lvbIndex, type);
+    public ObjectVar(CodeBlock block, int lvbIndex, Type type) {
+        super(block, lvbIndex, type);
     }
 }
