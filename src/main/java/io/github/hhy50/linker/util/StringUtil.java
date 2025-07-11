@@ -24,4 +24,16 @@ public class StringUtil {
     public static boolean isNotEmpty(String str) {
         return !isEmpty(str);
     }
+
+    /**
+     * To upper camel case string.
+     *
+     * @param name the name
+     * @return  the string
+     */
+    public static String toUpperCamelCase(String name) {
+        char[] charArray = name.toCharArray();
+        charArray[0] = Character.toUpperCase(charArray[0]);
+        return new String(charArray);
+    }
 }

@@ -11,7 +11,7 @@ import org.objectweb.asm.Type;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import static io.github.hhy50.linker.util.BytecodeUtil.*;
+import static io.github.hhy50.linker.ext.InjectUtil.*;
 
 public class ByteCodeUtilTest {
 
@@ -82,12 +82,6 @@ public class ByteCodeUtilTest {
             Assert.assertNotNull(method);
         }
     }
-
-    private Object defaultValue(Type t) {
-
-        return null;
-    }
-
 
     static class CustomClassLoader extends ClassLoader {
         private final String className;

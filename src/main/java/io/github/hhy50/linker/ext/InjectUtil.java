@@ -1,4 +1,4 @@
-package io.github.hhy50.linker.util;
+package io.github.hhy50.linker.ext;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
@@ -15,11 +15,12 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static io.github.hhy50.linker.generate.bytecode.action.Actions.multi;
+import static io.github.hhy50.linker.util.StringUtil.toUpperCamelCase;
 
 /**
  * The type Bytecode util.
  */
-public class BytecodeUtil {
+public class InjectUtil {
 
     /**
      * 注入字段的getter方法
@@ -68,8 +69,8 @@ public class BytecodeUtil {
      * @param fieldName the field name
      */
     public static void injectGetterAndSetter(AsmClassBuilder classBuilder, String fieldName) {
-        injectGetter(classBuilder, fieldName, "get" + fieldName);
-        injectSetter(classBuilder, fieldName, "set" + fieldName);
+        injectGetter(classBuilder, fieldName, null);
+        injectSetter(classBuilder, fieldName, null);
     }
 
     /**
@@ -95,15 +96,5 @@ public class BytecodeUtil {
         }
     }
 
-    /**
-     * To upper camel case string.
-     *
-     * @param name the name
-     * @return  the string
-     */
-    static String toUpperCamelCase(String name) {
-        char[] charArray = name.toCharArray();
-        charArray[0] = Character.toUpperCase(charArray[0]);
-        return new String(charArray);
-    }
+
 }
