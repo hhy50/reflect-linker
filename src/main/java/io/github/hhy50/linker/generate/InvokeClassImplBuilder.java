@@ -1,13 +1,13 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
+import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
-import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.getter.Getter;
@@ -149,31 +149,33 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define static method handle method handle member.
      *
-     * @param mhMemberName the mh member name
+     * @param fieldName the mh member name
      * @param lookupType   the method invokedType
      * @param methodType   the method type
      * @return the method handle member
      */
-    public MethodHandleMember defineStaticMethodHandle(String mhMemberName, Type lookupType, Type methodType) {
-        if (!members.containsKey(mhMemberName)) {
+    public MethodHandleMember defineStaticMethodHandle(String fieldName, Type lookupType, Type methodType) {
+        AsmField field = getField(fieldName);
+        if (field == null) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            super.defineField(access, mhMemberName, METHOD_HANDLER_TYPE, null, null);
+            field = super.defineField(access, fieldName, METHOD_HANDLER_TYPE, null, null);
         }
-        return new MethodHandleMember(members.get(mhMemberName), lookupType, methodType);
+        return new MethodHandleMember(field, lookupType, methodType);
     }
 
     /**
      * Define method handle method handle member.
      *
-     * @param mhMemberName the mh member name
+     * @param fieldName the mh member name
      * @param methodType   the method type
      * @return the method handle member
      */
-    public MethodHandleMember defineMethodHandle(String mhMemberName, Type methodType) {
-        if (!members.containsKey(mhMemberName)) {
-            super.defineField(Opcodes.ACC_PUBLIC, mhMemberName, METHOD_HANDLER_TYPE, null, null);
+    public MethodHandleMember defineMethodHandle(String fieldName, Type methodType) {
+        AsmField field = getField(fieldName);
+        if (field == null) {
+            field = super.defineField(Opcodes.ACC_PUBLIC, fieldName, METHOD_HANDLER_TYPE, null, null);
         }
-        return new MethodHandleMember(members.get(mhMemberName), methodType);
+        return new MethodHandleMember(field, methodType);
     }
 
     /**
@@ -184,12 +186,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public ClassTypeMember defineLookupClass(String mName) {
         mName = mName+"_lookup_$_class_type";
-        if (!members.containsKey(mName)) {
-            Member member = super.defineField(Opcodes.ACC_PUBLIC, mName, TypeUtils.CLASS_TYPE, null, null);
-            ClassTypeMember classTypeMember = new ClassTypeMember(member);
-            this.members.put(mName, classTypeMember);
-            return classTypeMember;
+        AsmField field = getField(mName);
+        if (field == null) {
+            field = super.defineField(Opcodes.ACC_PUBLIC, mName, TypeUtils.CLASS_TYPE, null, null);
         }
-        return (ClassTypeMember) members.get(mName);
+        return new ClassTypeMember(field);
     }
 }

@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode;
 
+import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
@@ -18,10 +19,10 @@ public class ClassTypeMember extends Member implements ClassLoadAction {
     /**
      * Instantiates a new Class type member.
      *
-     * @param member the member
+     * @param field the member
      */
-    public ClassTypeMember(Member member) {
-        super(member.access, member.owner, member.memberName, member.type);
+    public ClassTypeMember(AsmField field) {
+        super(field);
     }
 
     /**

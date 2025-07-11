@@ -13,7 +13,7 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 /**
  * The type Smart method invoke action.
  */
-public class SmartMethodInvokeAction extends MethodInvokeAction {
+public class SmartMethodInvokeAction extends MethodInvokeAction implements LazyTypedAction {
 
     /**
      * The Descriptor.

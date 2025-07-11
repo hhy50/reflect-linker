@@ -11,7 +11,7 @@ import static io.github.hhy50.linker.asm.AsmUtil.adaptLdcClassType;
 /**
  * The type Ldc load action.
  */
-public class LdcLoadAction implements LoadAction {
+public class LdcLoadAction implements LoadAction, TypedAction {
 
     private Object ldcConstVar;
 

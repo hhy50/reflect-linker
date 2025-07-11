@@ -9,27 +9,16 @@ import org.objectweb.asm.Type;
 /**
  * The interface Load action.
  */
-public interface LoadAction extends TypedAction {
+public interface LoadAction extends Action {
+    /**
+     * The constant LOAD_0.
+     */
+    LOAD0Action LOAD_0 = new LOAD0Action();
 
     /**
      * The constant LOAD0.
      */
-    Action LOAD0 = body -> body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
-    /**
-     * The constant LOAD_0.
-     */
-    LoadAction LOAD_0 = new LoadAction() {
-        Type thisType;
-        @Override
-        public void load(MethodBody body) {
-            thisType = Type.getObjectType(body.getClassBuilder().getClassOwner());
-            LOAD0.apply(body);
-        }
-        @Override
-        public Type getType() {
-            return thisType;
-        }
-    };
+    Action LOAD0 = LOAD_0;
 
     @Override
     default void apply(MethodBody body) {
@@ -55,17 +44,6 @@ public interface LoadAction extends TypedAction {
      */
     default Action ifNull(Action ifBlock, Action elseBlock) {
         return new ConditionJumpAction(Condition.isNull(this), ifBlock, elseBlock);
-    }
-
-    /**
-     * Of field.
-     *
-     * @param field the field
-     * @param type  the type
-     * @return field action
-     */
-    default FieldAction ofField(String field, Class<?> type) {
-        return new FieldAction(this, field, Type.getType(type));
     }
 
     /**
@@ -101,4 +79,17 @@ public interface LoadAction extends TypedAction {
      * @param body the body
      */
     void load(MethodBody body);
+
+    class LOAD0Action implements LoadAction, LazyTypedAction {
+        Type thisType;
+        @Override
+        public void load(MethodBody body) {
+            thisType = Type.getObjectType(body.getClassBuilder().getClassOwner());
+            body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
+        }
+        @Override
+        public Type getType() {
+            return thisType;
+        }
+    }
 }

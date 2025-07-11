@@ -8,7 +8,7 @@ import org.objectweb.asm.Type;
 /**
  * The type New object action.
  */
-public class NewObjectAction implements LoadAction {
+public class NewObjectAction implements LoadAction, TypedAction {
 
     private final Type objType;
     private final Type[] argsType;
