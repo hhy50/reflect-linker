@@ -1,14 +1,16 @@
 package io.github.hhy50.linker.token;
 
+import java.util.List;
+
 /**
- * The type Array index field token.
+ * The type Field index token.
  */
-public class ArrayIndexFieldToken extends FieldToken {
+public class FieldIndexToken extends FieldToken {
 
     /**
      * The Index.
      */
-    public String index;
+    public List<String> index;
 
     /**
      * Instantiates a new Array index field token.
@@ -16,13 +18,13 @@ public class ArrayIndexFieldToken extends FieldToken {
      * @param fieldName the field name
      * @param index     the index
      */
-    public ArrayIndexFieldToken(String fieldName, String index) {
+    public FieldIndexToken(String fieldName, List<String> index) {
         super(fieldName);
         this.index = index;
     }
 
     @Override
     public String toString() {
-        return fieldName+"["+index+"]";
+        return fieldName+"["+String.join("][", index)+"]";
     }
 }

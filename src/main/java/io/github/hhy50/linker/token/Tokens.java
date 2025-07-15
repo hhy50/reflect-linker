@@ -1,6 +1,9 @@
 package io.github.hhy50.linker.token;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The type Tokens.
  */
@@ -37,6 +40,16 @@ public class Tokens implements Iterable<Token> {
     @Override
     public Iterator iterator() {
         return new Iterator();
+    }
+
+    @Override
+    public String toString() {
+        Iterator it = this.iterator();
+        List<String> builder = new ArrayList<>();
+        while (it.hasNext()) {
+            builder.add(it.next().toString());
+        }
+        return String.join(".", builder);
     }
 
     /**
