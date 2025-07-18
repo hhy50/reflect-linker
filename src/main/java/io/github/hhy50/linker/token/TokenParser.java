@@ -4,7 +4,6 @@ package io.github.hhy50.linker.token;
 import io.github.hhy50.linker.exceptions.ParseException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -21,7 +20,7 @@ public class TokenParser {
      * Parse tokens.
      *
      * @param tokensStr the tokens str
-     * @return the tokens
+     * @return  the tokens
      */
     public Tokens parse(String tokensStr) {
         if (tokensStr == null || (tokensStr = tokensStr.trim()).length() == 0) {
@@ -40,26 +39,19 @@ public class TokenParser {
     /**
      * The interface Parser.
      */
-    interface Parser {
+    interface TokenItem {
         /**
          * Next token.
          *
-         * @return the token
+         * @return  the token
          */
-        Token next();
-
-        /**
-         * Has next boolean.
-         *
-         * @return the boolean
-         */
-        boolean hasNext();
+        Token getToken();
     }
 
     /**
      * The type Parser.
      */
-    static class ParserIter implements Parser {
+    static class ParserIter {
         /**
          * The constant SPLIT.
          */
@@ -74,12 +66,19 @@ public class TokenParser {
          */
         public static final char INDEX_ACCESS_END_SYMBOL = ']';
 
+        /**
+         * The constant METHOD_START_SYMBOL.
+         */
+        public static final char METHOD_START_SYMBOL = '(';
+        /**
+         * The constant METHOD_END_SYMBOL.
+         */
+        public static final char METHOD_END_SYMBOL = ')';
+
         private String tokenStr;
         private char[] tokenSymbols;
 
         private int pos;
-
-        private Parser current;
 
         /**
          * Instantiates a new Parser.
@@ -91,7 +90,11 @@ public class TokenParser {
             this.tokenSymbols = tokenStr.toCharArray();
         }
 
-        @Override
+        /**
+         * Has next boolean.
+         *
+         * @return  the boolean
+         */
         public boolean hasNext() {
             return pos < tokenSymbols.length;
         }
@@ -100,61 +103,88 @@ public class TokenParser {
          * Is identifier character boolean.
          *
          * @param i the
-         * @return the boolean
+         * @return  the boolean
          */
         public boolean isIdentifierCharacter(int i) {
-            if ((tokenSymbols[i] >= 'a' && tokenSymbols[i] <= 'z')
-                    || (tokenSymbols[i] >= 'A' && tokenSymbols[i] <= 'Z')
-                    || (tokenSymbols[i] >= '0' && tokenSymbols[i] <= '9')
-                    || tokenSymbols[i] == '_' || tokenSymbols[i] == '$') {
-                return true;
+            return Character.isJavaIdentifierPart(tokenSymbols[i]);
+        }
+
+        /**
+         * Check owner.
+         *
+         * @param owner the owner
+         * @param start the start
+         * @param len the len
+         */
+        public void checkOwner(char[] owner, int start, int len) {
+            if (len == 0) {
+                throwParseException("Unknown symbol "+tokenSymbols[start], start);
             }
-            return false;
+            // 如果owner的第一个字符不是a-z, A-Z, _
+            if (!Character.isJavaIdentifierStart(tokenSymbols[start])) {
+                throwParseException("Unknown symbol "+tokenSymbols[start], start);
+            }
         }
 
         /**
          * Throw parse exception.
          *
          * @param message the message
-         * @param pos     the pos
+         * @param pos the pos
          */
         public void throwParseException(String message, int pos) {
             throw new ParseException(String.format("At position %d %s", pos+1, message));
         }
 
-        @Override
+        /**
+         * Next token.
+         *
+         * @return  the token
+         */
         public Token next() {
-            if (current != null && current.hasNext()) {
-                return current.next();
-            }
-            for (int i = pos; i < tokenSymbols.length; i++) {
-                if (isIdentifierCharacter(i)) {
+            TokenItem current = null;
+            for (int i = pos; i <= tokenSymbols.length; i++) {
+                if (i == tokenSymbols.length) {
+                    checkOwner(tokenSymbols, pos, i-pos);
+                    String owner = tokenStr.substring(pos, i);
+                    pos = i+1;
+                    return new FieldToken(owner);
+                } else if (isIdentifierCharacter(i)) {
                     continue;
                 }
 
-                if (tokenSymbols[i] == INDEX_ACCESS_START_SYMBOL) {
-                    String owner = tokenStr.substring(pos, i);
-                    pos = i;
-                    current = new IndexFieldTokenParser(owner);
-                    break;
-                } else if (tokenSymbols[i] == SPLIT) {
+                if (tokenSymbols[i] == SPLIT) {
                     if (i == pos) {
-                        if (i == tokenSymbols.length-1)
+                        if (i == 0 || i == tokenSymbols.length-1) {  // 如果第一个或者最后一个字符为  .
                             throwParseException("Unknown symbol "+tokenSymbols[i], i);
-                        else {
+                        } else if (tokenSymbols[i-1] == SPLIT) { // 如果出现连续两个字符为  .
+                            throwParseException("Unknown symbol "+tokenSymbols[i], i);
+                        } else {
                             pos = i+1;
                             continue;
                         }
                     }
+                    checkOwner(tokenSymbols, pos, i-pos);
                     String owner = tokenStr.substring(pos, i);
                     pos = i+1;
                     return new FieldToken(owner);
+                } else if (tokenSymbols[i] == METHOD_START_SYMBOL) {
+                    checkOwner(tokenSymbols, pos, i-pos);
+                    String owner = tokenStr.substring(pos, i);
+                    pos = i;
+                    current = new MethodTokenParser(owner);
+                } else if (tokenSymbols[i] == INDEX_ACCESS_START_SYMBOL) {
+                    checkOwner(tokenSymbols, pos, i-pos);
+                    String owner = tokenStr.substring(pos, i);
+                    pos = i;
+                    current = new IndexFieldTokenParser(owner);
+                    break;
                 } else {
                     throwParseException("Unknown symbol "+tokenSymbols[i], i);
                 }
             }
-            if (current != null && current.hasNext()) {
-                return current.next();
+            if (current != null) {
+                return current.getToken();
             }
             return null;
 
@@ -163,10 +193,9 @@ public class TokenParser {
         /**
          * The type Index field token parser.
          */
-        class IndexFieldTokenParser implements Parser {
+        class IndexFieldTokenParser implements TokenItem {
             private List<String> index = new ArrayList<>();
             private final String owner;
-            private int start;
             private boolean in;
 
             /**
@@ -176,11 +205,10 @@ public class TokenParser {
              */
             public IndexFieldTokenParser(String owner) {
                 this.owner = owner;
-                this.start = pos;
             }
 
             @Override
-            public Token next() {
+            public Token getToken() {
                 for (int i = pos; i < tokenSymbols.length; i++) {
                     if (isIdentifierCharacter(i)) continue;
 
@@ -205,15 +233,67 @@ public class TokenParser {
                         throw new ParseException("Unknown symbol "+tokenSymbols[i]+", at position "+i);
                     }
                 }
+                if (in) {
+                    throwParseException("Parse index symbol error", pos);
+                }
                 if (index.size() == 0) {
                     throwParseException("Parse index symbol error", pos);
                 }
                 return new FieldIndexToken(owner, index);
             }
+        }
+
+        /**
+         * The type Method token parser.
+         */
+        class MethodTokenParser implements TokenItem {
+
+            private List<String> args = new ArrayList<>();
+            private String methodName;
+            private boolean in;
+
+            /**
+             * Instantiates a new Method token parser.
+             *
+             * @param methodName the method name
+             */
+            public MethodTokenParser(String methodName) {
+                this.methodName = methodName;
+            }
 
             @Override
-            public boolean hasNext() {
-                return this.start == pos;
+            public Token getToken() {
+                for (int i = pos; i < tokenSymbols.length; i++) {
+                    if (isIdentifierCharacter(i)) continue;
+
+                    if (tokenSymbols[i] == METHOD_START_SYMBOL) {
+                        if (in) {
+                            throwParseException("Unknown symbol "+tokenSymbols[i], i);
+                        }
+                        in = true;
+                        pos = i+1;
+                    } else if (tokenSymbols[i] == METHOD_END_SYMBOL) {
+                        if (!in) {
+                            throwParseException("Unknown symbol "+tokenSymbols[i], i);
+                        }
+                        in = false;
+                        index.add(tokenStr.substring(pos, i));
+                        pos = i+1;
+                    } else if (tokenSymbols[i] == '\'') {
+                        continue;
+                    } else if (tokenSymbols[i] == SPLIT) {
+                        break;
+                    } else {
+                        throw new ParseException("Unknown symbol "+tokenSymbols[i]+", at position "+i);
+                    }
+                }
+                if (in) {
+                    throwParseException("Parse index symbol error", pos);
+                }
+                if (index.size() == 0) {
+                    throwParseException("Parse index symbol error", pos);
+                }
+                return new FieldIndexToken(owner, index);
             }
         }
     }
