@@ -12,6 +12,7 @@ public class Tokens implements Iterable<Token> {
     private Token head;
 
     private Token tail;
+    private int size;
 
     /**
      * Add.
@@ -26,6 +27,7 @@ public class Tokens implements Iterable<Token> {
             tail.next = token;
             tail = tail.next;
         }
+        size++;
     }
 
     /**
@@ -35,6 +37,10 @@ public class Tokens implements Iterable<Token> {
      */
     public Token tail() {
         return tail;
+    }
+
+    public int size() {
+        return size;
     }
 
     @Override
