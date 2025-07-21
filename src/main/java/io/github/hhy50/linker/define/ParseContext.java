@@ -11,6 +11,7 @@ import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
+import io.github.hhy50.linker.token.FieldToken;
 import io.github.hhy50.linker.token.Token;
 import io.github.hhy50.linker.token.TokenParser;
 import io.github.hhy50.linker.token.Tokens;
@@ -219,7 +220,11 @@ public class ParseContext {
         Class<?> currentType = targetRoot instanceof EarlyFieldRef ? ((EarlyFieldRef) targetRoot).getClassType() : null;
         FieldRef lastField = targetRoot;
         String fullField = null;
-        for (Token token : tokens) {
+        for (Token item : tokens) {
+            if (!(item instanceof FieldToken)) {
+                throw new ParseException("Field token expected, but " + item.getClass().getSimpleName() + " found");
+            }
+            FieldToken token = (FieldToken) item;
             Field earlyField = currentType == null ? null : token.getField(currentType);
             currentType = earlyField == null ? null : earlyField.getType();
             fullField = Optional.ofNullable(fullField).map(i -> i + "." + token.value()).orElseGet(token::value);
