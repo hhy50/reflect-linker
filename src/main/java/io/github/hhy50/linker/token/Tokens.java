@@ -13,6 +13,8 @@ public class Tokens implements Iterable<Token> {
 
     private Node tail;
 
+    private int size;
+
     /**
      * Add.
      *
@@ -26,6 +28,7 @@ public class Tokens implements Iterable<Token> {
             tail.next = head = new Node(token, null);;
             tail = tail.next;
         }
+        size++;
     }
 
     class Node {
