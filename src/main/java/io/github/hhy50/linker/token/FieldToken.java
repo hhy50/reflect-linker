@@ -15,6 +15,8 @@ public class FieldToken implements Token {
      */
     public String fieldName;
 
+    private IndexToken index;
+
     /**
      * Instantiates a new Field token.
      *
@@ -31,7 +33,7 @@ public class FieldToken implements Token {
 
     @Override
     public String toString() {
-        return fieldName;
+        return fieldName+(index == null ? "" : index.toString());
     }
 
     /**
@@ -43,5 +45,9 @@ public class FieldToken implements Token {
     public Field getField(Class<?> owner) {
         String fieldName = value();
         return ReflectUtil.getField(owner, fieldName);
+    }
+
+    public void setIndex(IndexToken index) {
+        this.index = index;
     }
 }

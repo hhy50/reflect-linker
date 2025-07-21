@@ -25,15 +25,40 @@ public class Tokens implements Iterable<Token> {
             head = new Node(token, null);
             tail = head;
         } else {
-            tail.next = head = new Node(token, null);;
+            tail.next = new Node(token, null);;
             tail = tail.next;
         }
         size++;
     }
 
+    /**
+     * Size int.
+     *
+     * @return the int
+     */
+    public int size() {
+        return size;
+    }
+
+    /**
+     * The type Node.
+     */
     class Node {
+        /**
+         * The Token.
+         */
         Token token;
+        /**
+         * The Next.
+         */
         Node next;
+
+        /**
+         * Instantiates a new Node.
+         *
+         * @param token the token
+         * @param node  the node
+         */
         public Node(Token token, Node node) {
             this.token = token;
             this.next = node;

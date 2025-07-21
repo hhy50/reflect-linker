@@ -12,10 +12,13 @@ public class MethodToken implements Token {
      */
     public String methodName;
     private final List<Token> args;
-
+    private IndexToken index;
 
     /**
      * Instantiates a new Method token.
+     *
+     * @param methodName the method name
+     * @param args       the args
      */
     public MethodToken(String methodName, List<Token> args) {
         this.methodName = methodName;
@@ -25,5 +28,14 @@ public class MethodToken implements Token {
     @Override
     public String value() {
         return methodName;
+    }
+
+    @Override
+    public String toString() {
+        return methodName+("")+(index == null ? "" : index.toString());
+    }
+
+    public void setIndex(IndexToken index) {
+        this.index = index;
     }
 }

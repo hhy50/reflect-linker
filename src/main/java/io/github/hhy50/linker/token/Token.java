@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.token;
 
 /**
- * The type Token.
+ * The interface Token.
  */
 public interface Token {
 
@@ -10,5 +10,14 @@ public interface Token {
      *
      * @return the string
      */
-    public abstract String value();
+    public String value();
+
+    /**
+     * Sets index.
+     *
+     * @param index the index
+     */
+    default void setIndex(IndexToken index) {
+
+    }
 }

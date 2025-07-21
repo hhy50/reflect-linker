@@ -61,4 +61,12 @@ public class TokenParserTest {
                     "At position 44 Unknown symbol .");
         }
     }
+
+    @Test
+    public void testParseMethodExpr() {
+        String tokenExpr = "aasda.basdasd1.casdasd2.dasdasd2.easdasd3[12345]['23456'][321][1111].f.get('aa')";
+        TokenParser parser = new TokenParser();
+        Tokens tokens = parser.parse(tokenExpr);
+        Assert.assertEquals(tokenExpr, tokens.toString());
+    }
 }
