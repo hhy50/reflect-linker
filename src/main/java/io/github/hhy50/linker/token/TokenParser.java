@@ -127,6 +127,15 @@ public class TokenParser {
         }
 
         /**
+         *
+         */
+        public void skipWhitespace() {
+            while (pos < tokenSymbols.length && Character.isWhitespace(tokenSymbols[pos])) {
+                pos++;
+            }
+        }
+
+        /**
          * Throw parse exception.
          *
          * @param message the message
@@ -247,53 +256,129 @@ public class TokenParser {
          * The type Method token parser.
          */
         class MethodTokenParser implements TokenItem {
-
-            private List<String> args = new ArrayList<>();
+            private List<Token> args = new ArrayList<>();
             private String methodName;
             private boolean in;
 
-            /**
-             * Instantiates a new Method token parser.
-             *
-             * @param methodName the method name
-             */
             public MethodTokenParser(String methodName) {
                 this.methodName = methodName;
             }
 
             @Override
             public Token getToken() {
-                for (int i = pos; i < tokenSymbols.length; i++) {
-                    if (isIdentifierCharacter(i)) continue;
+                if (tokenSymbols[pos] != METHOD_START_SYMBOL) {
+                    throwParseException("Expected '('", pos);
+                }
+                pos++; // 跳过 '('
+                skipWhitespace();
 
-                    if (tokenSymbols[i] == METHOD_START_SYMBOL) {
-                        if (in) {
-                            throwParseException("Unknown symbol "+tokenSymbols[i], i);
-                        }
-                        in = true;
-                        pos = i+1;
-                    } else if (tokenSymbols[i] == METHOD_END_SYMBOL) {
-                        if (!in) {
-                            throwParseException("Unknown symbol "+tokenSymbols[i], i);
-                        }
-                        in = false;
-                        index.add(tokenStr.substring(pos, i));
-                        pos = i+1;
-                    } else if (tokenSymbols[i] == '\'') {
-                        continue;
-                    } else if (tokenSymbols[i] == SPLIT) {
+                while (pos < tokenSymbols.length) {
+                    if (tokenSymbols[pos] == METHOD_END_SYMBOL) {
+                        pos++; // 跳过 ')'
                         break;
-                    } else {
-                        throw new ParseException("Unknown symbol "+tokenSymbols[i]+", at position "+i);
+                    }
+
+                    Token arg = parseArg();
+                    args.add(arg);
+                    skipWhitespace();
+
+                    if (pos < tokenSymbols.length && tokenSymbols[pos] == ',') {
+                        pos++; // 跳过 ','
+                        skipWhitespace();
+                    } else if (tokenSymbols[pos] != METHOD_END_SYMBOL) {
+                        throwParseException("Expected ',' or ')'", pos);
                     }
                 }
-                if (in) {
-                    throwParseException("Parse index symbol error", pos);
+                return new MethodToken(methodName, args);
+            }
+
+            private Token parseArg() {
+                char c = tokenSymbols[pos];
+                if (c == '\'') {
+                    return parseString();
+                } else if (Character.isDigit(c)) {
+                    return parseInteger();
+                } else if (c == '$') {
+                    return parsePlaceholder();
+                } else if (Character.isJavaIdentifierStart(c)) {
+                    return parseProperty();
+                } else {
+                    throwParseException("Unexpected character: " + c, pos);
+                    return null;
                 }
-                if (index.size() == 0) {
-                    throwParseException("Parse index symbol error", pos);
+            }
+
+            private Token parseString() {
+                pos++; // 跳过开头的单引号
+                int start = pos;
+                while (pos < tokenSymbols.length) {
+                    if (tokenSymbols[pos] == '\'') {
+                        String value = tokenStr.substring(start, pos);
+                        pos++; // 跳过结尾的单引号
+                        return new ConstToken.Str(value);
+                    }
+                    pos++;
                 }
-                return new FieldIndexToken(owner, index);
+                throwParseException("Unclosed string", start - 1);
+                return null;
+            }
+
+            private Token parseInteger() {
+                int start = pos;
+                while (pos < tokenSymbols.length && Character.isDigit(tokenSymbols[pos])) {
+                    pos++;
+                }
+                String num = tokenStr.substring(start, pos);
+                try {
+                    return new ConstToken.Int(num);
+                } catch (NumberFormatException e) {
+                    throwParseException("Invalid integer: " + num, start);
+                    return null;
+                }
+            }
+
+            private Token parsePlaceholder() {
+                pos++; // 跳过 '$'
+                int start = pos;
+                while (pos < tokenSymbols.length && Character.isDigit(tokenSymbols[pos])) {
+                    pos++;
+                }
+                if (pos == start) {
+                    throwParseException("Expected digit after '$'", start - 1);
+                }
+                String indexStr = tokenStr.substring(start, pos);
+                try {
+                    return new PlaceholderToken(Integer.parseInt(indexStr));
+                } catch (NumberFormatException e) {
+                    throwParseException("Invalid placeholder index: " + indexStr, start);
+                    return null;
+                }
+            }
+
+            private Token parseProperty() {
+                int start = pos;
+                int depth = 0;
+                boolean inString = false;
+
+                while (pos < tokenSymbols.length) {
+                    char c = tokenSymbols[pos];
+                    if (inString) {
+                        if (c == '\'') inString = false;
+                    } else {
+                        if (c == '\'') inString = true;
+                        else if (c == '[') depth++;
+                        else if (c == ']') depth--;
+                        else if (depth == 0 && (c == ',' || c == ')' || Character.isWhitespace(c))) break;
+                    }
+                    pos++;
+                }
+
+                if (depth != 0) {
+                    throwParseException("Unmatched brackets", start);
+                }
+
+                String property = tokenStr.substring(start, pos);
+                return new FieldToken(property);
             }
         }
     }

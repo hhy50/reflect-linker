@@ -9,9 +9,9 @@ import java.util.List;
  */
 public class Tokens implements Iterable<Token> {
 
-    private Token head;
+    private Node head;
 
-    private Token tail;
+    private Node tail;
 
     /**
      * Add.
@@ -20,21 +20,21 @@ public class Tokens implements Iterable<Token> {
      */
     public void add(Token token) {
         if (head == null) {
-            head = token;
+            head = new Node(token, null);
             tail = head;
         } else {
-            tail.next = token;
+            tail.next = head = new Node(token, null);;
             tail = tail.next;
         }
     }
 
-    /**
-     * Tail token.
-     *
-     * @return token token
-     */
-    public Token tail() {
-        return tail;
+    class Node {
+        Token token;
+        Node next;
+        public Node(Token token, Node node) {
+            this.token = token;
+            this.next = node;
+        }
     }
 
     @Override
@@ -57,7 +57,7 @@ public class Tokens implements Iterable<Token> {
      */
     class Iterator implements java.util.Iterator<Token> {
 
-        private Token next;
+        private Node next;
 
         /**
          * Instantiates a new Iterator.
@@ -73,9 +73,9 @@ public class Tokens implements Iterable<Token> {
 
         @Override
         public Token next() {
-            Token n = this.next;
+            Node n = this.next;
             this.next = n.next;
-            return n;
+            return n.token;
         }
     }
 }
