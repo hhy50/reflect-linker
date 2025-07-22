@@ -20,6 +20,11 @@ public class PlaceholderToken implements Token{
     }
 
     @Override
+    public String toString() {
+        return "$"+index;
+    }
+
+    @Override
     public String value() {
         return "";
     }

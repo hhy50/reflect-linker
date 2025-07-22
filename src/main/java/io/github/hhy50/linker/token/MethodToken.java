@@ -1,7 +1,5 @@
 package io.github.hhy50.linker.token;
 
-import java.util.List;
-
 /**
  * The type Method token.
  */
@@ -11,7 +9,7 @@ public class MethodToken implements Token {
      * The Method name.
      */
     public String methodName;
-    private final List<Token> args;
+    private ArgsToken args;
     private IndexToken index;
 
     /**
@@ -20,7 +18,7 @@ public class MethodToken implements Token {
      * @param methodName the method name
      * @param args       the args
      */
-    public MethodToken(String methodName, List<Token> args) {
+    public MethodToken(String methodName, ArgsToken args) {
         this.methodName = methodName;
         this.args = args;
     }
@@ -32,7 +30,7 @@ public class MethodToken implements Token {
 
     @Override
     public String toString() {
-        return methodName+("")+(index == null ? "" : index.toString());
+        return methodName+args+(index == null ? "" : index);
     }
 
     public void setIndex(IndexToken index) {

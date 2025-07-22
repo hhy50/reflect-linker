@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * The type Tokens.
  */
-public class Tokens implements Iterable<Token> {
+public class Tokens implements Iterable<Token>, Token {
 
     private Node head;
 
@@ -29,6 +29,11 @@ public class Tokens implements Iterable<Token> {
             tail = tail.next;
         }
         size++;
+    }
+
+    @Override
+    public String value() {
+        return "";
     }
 
     /**

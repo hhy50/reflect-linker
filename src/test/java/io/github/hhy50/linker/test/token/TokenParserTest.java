@@ -15,10 +15,10 @@ public class TokenParserTest {
 
     @Test
     public void testParseToken1() {
-        String tokenExpr = "a.b.c.d.e[12345][23456][321][1111].f['a'].get(a.b, a.c, 1, '12', $1)";
+        String tokenExpr = "a.b.c.d.e[12345][23456][ 321 ][1111].f[ 'a' ].get(a.b, a.c, 1, '12', $1)";
         TokenParser parser = new TokenParser();
         Tokens tokens = parser.parse(tokenExpr);
-        Assert.assertEquals(tokenExpr, tokens.toString());
+        Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));
     }
 
     @Test
@@ -28,7 +28,6 @@ public class TokenParserTest {
         Tokens tokens = parser.parse(tokenExpr);
         Assert.assertEquals(tokenExpr, tokens.toString());
     }
-
 
     /**
      *
@@ -42,7 +41,7 @@ public class TokenParserTest {
             parser.parse(tokenExpr); // At position 18 Unknown symbol [
         } catch (Exception e) {
             Assert.assertEquals(e.getMessage(),
-                    "At position 18 Unknown symbol [");
+                    "At position 18 Identifier expected");
         }
         try {
             // ]]
@@ -50,7 +49,7 @@ public class TokenParserTest {
             parser.parse(tokenExpr); // At position 18 Unknown symbol [
         } catch (Exception e) {
             Assert.assertEquals(e.getMessage(),
-                    "At position 17 Unknown symbol ]");
+                    "At position 17 Identifier expected");
         }
         try {
             // 最后一个字符为 .
@@ -58,15 +57,39 @@ public class TokenParserTest {
             parser.parse(tokenExpr); // At position 18 Unknown symbol [
         } catch (Exception e) {
             Assert.assertEquals(e.getMessage(),
-                    "At position 44 Unknown symbol .");
+                    "At position 45 Identifier expected end");
+        }
+
+        try {
+            String tokenExpr = "a.b.c.d.e[12345]['23456'][321][1111].f['a'";
+            parser.parse(tokenExpr); // At position 18 Unknown symbol [
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(),
+                    "At position 43 Unclosed index");
+        }
+
+        try {
+            String tokenExpr = "a.b.c.d.e[12345]['23456'][321][1111].f.get(f.a.b.c[1]['123'].get())";
+            parser.parse(tokenExpr); // At position 18 Unknown symbol [
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(),
+                    "At position 43 Unclosed index");
         }
     }
 
     @Test
-    public void testParseMethodExpr() {
-        String tokenExpr = "aasda.basdasd1.casdasd2.dasdasd2.easdasd3[12345]['23456'][321][1111].f.get('aa')";
+    public void testParseMethodExpr1() {
+        String tokenExpr = "aasda.basdasd1.casdasd2.dasdasd2.easdasd3[12345]['23456'][321][1111].f.get('aa', 'bb', $1)";
         TokenParser parser = new TokenParser();
         Tokens tokens = parser.parse(tokenExpr);
-        Assert.assertEquals(tokenExpr, tokens.toString());
+        Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));
+    }
+
+    @Test
+    public void testParseMethodExpr2() {
+        String tokenExpr = "a.b.c.d.e.f.get('aa', $1, $2, 'bb', 4, a['1234'][1], a.b, a, a.b.c.d.e.f)";
+        TokenParser parser = new TokenParser();
+        Tokens tokens = parser.parse(tokenExpr);
+        Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));
     }
 }

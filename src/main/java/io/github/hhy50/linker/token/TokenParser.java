@@ -120,43 +120,52 @@ public class TokenParser {
             if (tokenSymbols[pos] == SPLIT) {
                 pos++;
             }
-            String identifier = nextIdentifier(OWNER_FLAG);
+            String identifier = nextIdentifier();
+            // 如果owner的第一个字符不是a-z, A-Z, _
+            if (!Character.isJavaIdentifierPart(identifier.charAt(0))) {
+                throwParseException("Unknown symbol "+tokenSymbols[pos], pos);
+            }
+
             Token owner = null;
-            if (tokenSymbols[pos] == METHOD_START_SYMBOL) {
+            if (pos < tokenSymbols.length && tokenSymbols[pos] == METHOD_START_SYMBOL) {
                 owner = parseMethodToken(identifier);
             } else {
                 owner = new FieldToken(identifier);
             }
-            if (tokenSymbols[pos] == INDEX_ACCESS_START_SYMBOL) {
+            if (pos < tokenSymbols.length && tokenSymbols[pos] == INDEX_ACCESS_START_SYMBOL) {
                 owner.setIndex(parseIndexToken());
             }
             return owner;
         }
 
-        private String nextIdentifier(int flag) {
+        private String nextIdentifier() {
             String identifier = null;
-            for (int i = pos; i <= tokenSymbols.length; i++) {
+            delWhitespace();
+            if (pos >= tokenSymbols.length) {
+                throwParseException("Identifier expected end", pos);
+            }
+            if (!isIdentifierCharacter(pos)) {
+                throwParseException("Identifier expected", pos);
+            }
+            for (int i = pos; i < tokenSymbols.length; i++) {
                 if (isIdentifierCharacter(i)) {
                     continue;
                 }
-                char c = tokenSymbols[i];
-                if (c != SPLIT && c != INDEX_ACCESS_START_SYMBOL && c != METHOD_START_SYMBOL
-                        && ((flag & ARG_FLAG) > 0 && c != ',') // 如果解析的是参数，那么 `,` 可以作为结束符号
-                ) {
-                    throwParseException("Unknown symbol "+tokenSymbols[i], i);
-                }
-
                 identifier = tokenStr.substring(pos, i);
-                if ((flag & OWNER_FLAG) > 0) {
-                    // 如果owner的第一个字符不是a-z, A-Z, _
-                    if (!Character.isJavaIdentifierStart(tokenSymbols[pos])) {
-                        throwParseException("Unknown symbol "+tokenSymbols[pos], pos);
-                    }
-                }
-                pos = tokenSymbols[i] == SPLIT ? i+1 : i;
+                pos = i;
                 break;
             }
+            delWhitespace();
             return identifier;
+        }
+
+        /**
+         * Del whitespace.
+         */
+        void delWhitespace() {
+            while (pos < tokenSymbols.length && Character.isWhitespace(tokenSymbols[pos])) {
+                pos++;
+            }
         }
 
         /**
@@ -175,18 +184,16 @@ public class TokenParser {
          * @return the const token
          */
         public ConstToken parseString() {
-            pos++; // 跳过开头的单引号
-            int start = pos;
-            while (pos < tokenSymbols.length) {
-                if (tokenSymbols[pos] == '\'') {
-                    String value = tokenStr.substring(start, pos);
-                    pos++; // 跳过结尾的单引号
-                    return ConstToken.ofStr(value);
-                }
-                pos++;
+            if (tokenSymbols[pos] != '\'') {
+                throwParseException("String expected", pos);
             }
-            throwParseException("Unclosed string", start-1);
-            return null;
+            pos++; // 跳过开头的单引号
+            String val = nextIdentifier();
+            if (tokenSymbols[pos] != '\'') {
+                throwParseException("String expected end", pos);
+            }
+            pos++; // 跳过结尾的单引号
+            return ConstToken.ofStr(val);
         }
 
         /**
@@ -195,15 +202,7 @@ public class TokenParser {
          * @return the const token
          */
         public ConstToken parseInt() {
-            int start = pos;
-            while (pos < tokenSymbols.length) {
-                if (isIdentifierCharacter(pos)) {
-                    pos++;
-                } else {
-                    break;
-                }
-            }
-            String val = tokenStr.substring(start, pos);
+            String val = nextIdentifier();
             Integer.parseInt(val); // check
             return ConstToken.ofInt(val);
         }
@@ -217,15 +216,18 @@ public class TokenParser {
             if (tokenSymbols[pos] != INDEX_ACCESS_START_SYMBOL) {
                 return null;
             }
+
             List<ConstToken> index = new ArrayList<>();
-            while (tokenSymbols[pos] == INDEX_ACCESS_START_SYMBOL) {
+            while (pos < tokenSymbols.length && tokenSymbols[pos] == INDEX_ACCESS_START_SYMBOL) {
                 pos++; // 跳过 [
+                delWhitespace();
                 if (tokenSymbols[pos] == '\'') {
                     index.add(parseString());
                 } else {
                     index.add(parseInt());
                 }
-                if (tokenSymbols[pos] != INDEX_ACCESS_END_SYMBOL) {
+                delWhitespace();
+                if (pos >= tokenSymbols.length || tokenSymbols[pos] != INDEX_ACCESS_END_SYMBOL) {
                     throwParseException("Unclosed index", pos);
                 }
                 pos++; // 跳过 ]
@@ -245,15 +247,39 @@ public class TokenParser {
                 throwParseException("Unknown symbol "+tokenSymbols[pos], pos);
             }
             pos++; // 跳过 (
+            delWhitespace();
 
-            List<Token> args = new ArrayList<>();
-            while (pos < tokenSymbols.length) {
-                if (tokenSymbols[pos] != METHOD_END_SYMBOL) {
-                    String identifier = nextIdentifier(ARG_FLAG);
-                    args.add(parseNextToken());
+            ArgsToken args = new ArgsToken();
+            while (pos < tokenSymbols.length && tokenSymbols[pos] != METHOD_END_SYMBOL) {
+                if (tokenSymbols[pos] == '\'') {
+                    args.add(parseString());
+                } else if (tokenSymbols[pos] > '0' && tokenSymbols[pos] <= '9') {
+                    args.add(parseInt());
+                } else if (tokenSymbols[pos] == '$') {
+                    pos++;
+                    String identifier = nextIdentifier();
+                    args.add(new PlaceholderToken(Integer.parseInt(identifier)));
+                } else {
+                    Tokens chain = new Tokens();
+                    chain.add(parseNextToken());
+                    while (pos < tokenSymbols.length && tokenSymbols[pos] == SPLIT) {
+                        pos++;
+                        chain.add(parseNextToken());
+                    }
+                    args.add(chain);
                 }
+                if (pos >= tokenSymbols.length) {
+                    throwParseException("Unclosed method", pos);
+                }
+                if (tokenSymbols[pos] == ',') {
+                    pos++;
+                } else if (tokenSymbols[pos] != METHOD_END_SYMBOL) {
+                    throwParseException("Unknown symbol '"+tokenSymbols[pos]+"'", pos);
+                }
+                delWhitespace();
             }
-            return null;
+            pos++;
+            return new MethodToken(methodName, args);
         }
 
         /**
