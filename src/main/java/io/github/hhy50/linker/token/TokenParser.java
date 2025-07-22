@@ -140,7 +140,7 @@ public class TokenParser {
 
         private String nextIdentifier() {
             String identifier = null;
-            delWhitespace();
+            skipWhitespace();
             if (pos >= tokenSymbols.length) {
                 throwParseException("Identifier expected end", pos);
             }
@@ -155,14 +155,14 @@ public class TokenParser {
                 pos = i;
                 break;
             }
-            delWhitespace();
+            skipWhitespace();
             return identifier;
         }
 
         /**
-         * Del whitespace.
+         * Skip whitespace.
          */
-        void delWhitespace() {
+        void skipWhitespace() {
             while (pos < tokenSymbols.length && Character.isWhitespace(tokenSymbols[pos])) {
                 pos++;
             }
@@ -220,13 +220,13 @@ public class TokenParser {
             List<ConstToken> index = new ArrayList<>();
             while (pos < tokenSymbols.length && tokenSymbols[pos] == INDEX_ACCESS_START_SYMBOL) {
                 pos++; // 跳过 [
-                delWhitespace();
+                skipWhitespace();
                 if (tokenSymbols[pos] == '\'') {
                     index.add(parseString());
                 } else {
                     index.add(parseInt());
                 }
-                delWhitespace();
+                skipWhitespace();
                 if (pos >= tokenSymbols.length || tokenSymbols[pos] != INDEX_ACCESS_END_SYMBOL) {
                     throwParseException("Unclosed index", pos);
                 }
@@ -247,7 +247,7 @@ public class TokenParser {
                 throwParseException("Unknown symbol "+tokenSymbols[pos], pos);
             }
             pos++; // 跳过 (
-            delWhitespace();
+            skipWhitespace();
 
             ArgsToken args = new ArgsToken();
             while (pos < tokenSymbols.length && tokenSymbols[pos] != METHOD_END_SYMBOL) {
@@ -276,7 +276,7 @@ public class TokenParser {
                 } else if (tokenSymbols[pos] != METHOD_END_SYMBOL) {
                     throwParseException("Unknown symbol '"+tokenSymbols[pos]+"'", pos);
                 }
-                delWhitespace();
+                skipWhitespace();
             }
             pos++;
             return new MethodToken(methodName, args);

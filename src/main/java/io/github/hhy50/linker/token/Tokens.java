@@ -48,7 +48,7 @@ public class Tokens implements Iterable<Token>, Token {
     /**
      * The type Node.
      */
-    class Node {
+    static class Node {
         /**
          * The Token.
          */
