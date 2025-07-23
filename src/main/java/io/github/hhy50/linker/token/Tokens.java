@@ -31,11 +31,6 @@ public class Tokens implements Iterable<Token>, Token {
         size++;
     }
 
-    @Override
-    public String value() {
-        return "";
-    }
-
     /**
      * Size int.
      *

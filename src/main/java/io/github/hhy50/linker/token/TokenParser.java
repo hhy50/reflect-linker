@@ -4,21 +4,13 @@ package io.github.hhy50.linker.token;
 import io.github.hhy50.linker.exceptions.ParseException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * The type Token parser.
  */
 public class TokenParser {
-
-    /**
-     * The Owner flag.
-     */
-    static int OWNER_FLAG = 1;
-    /**
-     * The Arg flag.
-     */
-    static int ARG_FLAG = 1 << 1;
 
     /**
      * The Empty.
@@ -31,8 +23,8 @@ public class TokenParser {
      * @param tokensStr the tokens str
      * @return the tokens
      */
-    public Tokens parse(String tokensStr) {
-        if (tokensStr == null || (tokensStr = tokensStr.trim()).length() == 0) {
+    public Tokens parse(String tokensStr) throws ParseException {
+        if (tokensStr == null || tokensStr.length() == 0) {
             return EMPTY;
         }
 
@@ -84,8 +76,7 @@ public class TokenParser {
          */
         public static final char METHOD_END_SYMBOL = ')';
 
-        private String tokenStr;
-        private char[] tokenSymbols;
+        private final char[] tokenSymbols;
 
         private int pos;
 
@@ -95,7 +86,6 @@ public class TokenParser {
          * @param tokenStr the token str
          */
         public ParserIter(String tokenStr) {
-            this.tokenStr = tokenStr;
             this.tokenSymbols = tokenStr.toCharArray();
         }
 
@@ -147,14 +137,11 @@ public class TokenParser {
             if (!isIdentifierCharacter(pos)) {
                 throwParseException("Identifier expected", pos);
             }
-            for (int i = pos; i < tokenSymbols.length; i++) {
-                if (isIdentifierCharacter(i)) {
-                    continue;
-                }
-                identifier = tokenStr.substring(pos, i);
-                pos = i;
-                break;
+            int i;
+            for (i = pos; i < tokenSymbols.length && isIdentifierCharacter(i); i++) {
             }
+            identifier = new String(Arrays.copyOfRange(tokenSymbols, pos, i));
+            pos = i;
             skipWhitespace();
             return identifier;
         }

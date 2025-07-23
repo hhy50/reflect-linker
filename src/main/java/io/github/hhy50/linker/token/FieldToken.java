@@ -27,11 +27,6 @@ public class FieldToken implements Token {
     }
 
     @Override
-    public String value() {
-        return fieldName;
-    }
-
-    @Override
     public String toString() {
         return fieldName+(index == null ? "" : index.toString());
     }
@@ -43,7 +38,7 @@ public class FieldToken implements Token {
      * @return the field
      */
     public Field getField(Class<?> owner) {
-        String fieldName = value();
+        String fieldName = toString();
         return ReflectUtil.getField(owner, fieldName);
     }
 

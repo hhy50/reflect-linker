@@ -24,11 +24,6 @@ public class MethodToken implements Token {
     }
 
     @Override
-    public String value() {
-        return methodName;
-    }
-
-    @Override
     public String toString() {
         return methodName+args+(index == null ? "" : index);
     }

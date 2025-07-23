@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.define;
 
-import io.github.hhy50.linker.annotations.Runtime;
+import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
@@ -17,11 +17,13 @@ import io.github.hhy50.linker.token.TokenParser;
 import io.github.hhy50.linker.token.Tokens;
 import io.github.hhy50.linker.util.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The type Parse context.
@@ -155,19 +157,20 @@ public class ParseContext {
      * @throws VerifyException        the verify exception
      * @throws ClassNotFoundException the class not found exception
      */
-    public AbsMethodDefine parseMethod(Method method) throws VerifyException, ClassNotFoundException {
-        String fieldExpr = null;
+    public AbsMethodDefine parseMethod(Method method) throws VerifyException, ClassNotFoundException,ParseException {
         io.github.hhy50.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);
         io.github.hhy50.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Setter.class);
-        if (getter != null) {
-            fieldExpr = Util.getOrElseDefault(getter.value(), method.getName());
-        } else if (setter != null) {
-            fieldExpr = Util.getOrElseDefault(setter.value(), method.getName());
-        }
+        io.github.hhy50.linker.annotations.Method.Expr expr = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Expr.class);
 
         AbsMethodDefine absMethodDefine = new AbsMethodDefine(method);
-        if (fieldExpr != null) {
-            Tokens tokens = tokenParser.parse(fieldExpr);
+        if (expr != null) {
+            String methodExpr = expr.value();
+            Tokens tokens = tokenParser.parse(methodExpr);
+            absMethodDefine.fieldRef = parseFieldExpr(tokens);
+        } else if (getter != null || setter != null) {
+            String exprStr = Util.getOrElseDefault(Optional.ofNullable(getter).map(io.github.hhy50.linker.annotations.Field.Getter::value)
+                    .orElseGet(() -> setter.value()), method.getName());
+            Tokens tokens = tokenParser.parse(exprStr);
             absMethodDefine.fieldRef = parseFieldExpr(tokens);
         } else if (absMethodDefine.hasConstructor()) {
             Class<?> instanceType = ((EarlyFieldRef) targetRoot).getClassType();
@@ -180,6 +183,7 @@ public class ParseContext {
         } else {
             io.github.hhy50.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy50.linker.annotations.Method.Name.class);
             String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), absMethodDefine.getName());
+            String fieldExpr = null;
             int i;
             if ((i = methodName.lastIndexOf('.')) != -1) {
                 fieldExpr = methodName.substring(0, i);
@@ -225,12 +229,13 @@ public class ParseContext {
                 throw new ParseException("Field token expected, but " + item.getClass().getSimpleName() + " found");
             }
             FieldToken token = (FieldToken) item;
+            String fieldName = token.fieldName;
             Field earlyField = currentType == null ? null : token.getField(currentType);
             currentType = earlyField == null ? null : earlyField.getType();
-            fullField = Optional.ofNullable(fullField).map(i -> i + "." + token.value()).orElseGet(token::value);
+            fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);
             if (!this.parsedFields.containsKey(fullField)) {
                 // 使用@Typed指定的类型
-                Class<?> assignedType = getFieldTyped(fullField, token.value());
+                Class<?> assignedType = getFieldTyped(fullField, fieldName);
                 if (assignedType != null) {
                     if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
                         throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
@@ -238,7 +243,7 @@ public class ParseContext {
                     currentType = assignedType;
                 }
                 lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType)
-                        : new RuntimeFieldRef(lastField, lastField.fieldName, token.value());
+                        : new RuntimeFieldRef(lastField, lastField.fieldName, fieldName);
                 lastField.setFullName(fullField);
                 this.parsedFields.put(fullField, lastField);
             } else {
@@ -291,40 +296,27 @@ public class ParseContext {
     }
 
     private static void verify(Method method) throws VerifyException {
-        io.github.hhy50.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);
-        io.github.hhy50.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Setter.class);
-        io.github.hhy50.linker.annotations.Method.Constructor constructor = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Constructor.class);
-        // Field.Setter和@Field.Getter只能有一个
-        if (getter != null && setter != null) {
-            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations @Field.getter and @Field.setter");
+        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
+        List<Class<? extends Annotation>> uniques = Arrays.stream(declaredAnnotations)
+                .map(Annotation::annotationType)
+                .filter(item -> item.getDeclaredAnnotation(Verify.Unique.class) != null).collect(Collectors.toList());
+        if (uniques.size() > 1) {
+            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations ["+
+                    uniques.stream().map(Class::getSimpleName).collect(Collectors.joining(", @", "@", "")) +"]");
         }
-        if (getter != null) {
-            if (StringUtil.isEmpty(getter.value())) {
-                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
+        for (Annotation annotation : declaredAnnotations) {
+            Verify.Custom custom = annotation.annotationType().getDeclaredAnnotation(Verify.Custom.class);
+            if (custom != null) {
+                Verifier verifier = null;
+                try {
+                    verifier = custom.value().newInstance();
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new VerifyException(e);
+                }
+                if (!verifier.test(method, annotation)) {
+                    throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] verify failed");
+                }
             }
-            if (method.getReturnType() == void.class || method.getParameters().length > 0) {
-                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method,its return value cannot be of type void, and the parameter length must be 0");
-            }
-        } else if (setter != null) {
-            if (StringUtil.isEmpty(setter.value())) {
-                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
-            }
-            if (method.getReturnType() != void.class || method.getParameters().length != 1) {
-                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is setter method,its return value must be of type void, and the parameter length must be 1");
-            }
-        } else if (constructor != null) {
-            boolean runtime = method.getDeclaringClass().getDeclaredAnnotation(Runtime.class) != null;
-            if (runtime)
-                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "], @Constructor cannot be used with @Runtime");
-            if (method.getReturnType() != method.getDeclaringClass()) {
-                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "], return type must be this class");
-            }
-        }
-
-        io.github.hhy50.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy50.linker.annotations.Method.Name.class);
-        // @Field 和 @Method相关的注解不能同时存在
-        if ((getter != null || setter != null) & (methodNameAnn != null)) {
-            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "], @Method.Name and @Field.Setter|@Field.Getter only one can exist");
         }
     }
 }

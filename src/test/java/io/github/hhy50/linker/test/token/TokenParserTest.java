@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.test.token;
 
-import io.github.hhy50.linker.annotations.Expr;
 import io.github.hhy50.linker.token.TokenParser;
 import io.github.hhy50.linker.token.Tokens;
 import org.junit.Assert;
@@ -9,7 +8,6 @@ import org.junit.Test;
 public class TokenParserTest {
 
     interface TestClass {
-        @Expr("a.get('1').run($1)")
         Object exec(String arg);
     }
 

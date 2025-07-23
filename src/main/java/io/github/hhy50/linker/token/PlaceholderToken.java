@@ -23,9 +23,4 @@ public class PlaceholderToken implements Token{
     public String toString() {
         return "$"+index;
     }
-
-    @Override
-    public String value() {
-        return "";
-    }
 }

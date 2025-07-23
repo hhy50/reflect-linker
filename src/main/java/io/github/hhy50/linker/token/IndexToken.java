@@ -27,9 +27,4 @@ public class IndexToken implements Token {
         String collect = index.stream().map(Object::toString).collect(Collectors.joining("]["));
         return "["+collect+"]";
     }
-
-    @Override
-    public String value() {
-        return "";
-    }
 }

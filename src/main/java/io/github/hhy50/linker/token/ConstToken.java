@@ -25,11 +25,6 @@ public interface ConstToken extends Token {
         public String toString() {
             return this.val;
         }
-
-        @Override
-        public String value() {
-            return "";
-        }
     }
 
     /**
@@ -45,11 +40,6 @@ public interface ConstToken extends Token {
          */
         public Str(String val) {
             this.val = val;
-        }
-
-        @Override
-        public String value() {
-            return "";
         }
 
         @Override

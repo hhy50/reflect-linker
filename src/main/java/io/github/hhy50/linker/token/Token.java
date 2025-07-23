@@ -6,13 +6,6 @@ package io.github.hhy50.linker.token;
 public interface Token {
 
     /**
-     * Value string.
-     *
-     * @return the string
-     */
-    public String value();
-
-    /**
      * Sets index.
      *
      * @param index the index

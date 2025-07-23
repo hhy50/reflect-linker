@@ -33,9 +33,4 @@ public class ArgsToken implements Token {
     public String toString() {
         return "(" + args.stream().map(Object::toString).collect(Collectors.joining(",")) + ")";
     }
-
-    @Override
-    public String value() {
-        return "";
-    }
 }
