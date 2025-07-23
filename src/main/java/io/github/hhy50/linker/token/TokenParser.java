@@ -15,13 +15,14 @@ public class TokenParser {
     /**
      * The Empty.
      */
-    static Tokens EMPTY = new Tokens();
+    public static Tokens EMPTY = new Tokens();
 
     /**
      * Parse tokens.
      *
      * @param tokensStr the tokens str
      * @return the tokens
+     * @throws ParseException the parse exception
      */
     public Tokens parse(String tokensStr) throws ParseException {
         if (tokensStr == null || tokensStr.length() == 0) {

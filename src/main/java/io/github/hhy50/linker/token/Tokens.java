@@ -25,7 +25,8 @@ public class Tokens implements Iterable<Token>, Token {
             head = new Node(token, null);
             tail = head;
         } else {
-            tail.next = new Node(token, null);;
+            tail.next = new Node(token, null);
+            ;
             tail = tail.next;
         }
         size++;
@@ -38,6 +39,15 @@ public class Tokens implements Iterable<Token>, Token {
      */
     public int size() {
         return size;
+    }
+
+    /**
+     * Split with MethodToken.
+     *
+     * @return the java . util . iterator
+     */
+    public java.util.Iterator<SplitToken> splitWithMethod() {
+        return new IteratorSplitMethod(this);
     }
 
     /**
@@ -104,6 +114,45 @@ public class Tokens implements Iterable<Token>, Token {
             Node n = this.next;
             this.next = n.next;
             return n.token;
+        }
+    }
+
+    /**
+     * The type Iterator split method.
+     */
+    static class IteratorSplitMethod implements java.util.Iterator<SplitToken> {
+        private Node next;
+
+        /**
+         * Instantiates a new Iterator split method.
+         *
+         * @param head the head
+         */
+        public IteratorSplitMethod(Tokens head) {
+            this.next = head.head;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return next != null;
+        }
+
+        @Override
+        public SplitToken next() {
+            Tokens tokens = new Tokens();
+            Token method = null;
+            while (next != null) {
+                Token token = next.token;
+                next = next.next;
+
+                if (token instanceof MethodToken) {
+                    method = token;
+                    break;
+                } else {
+                    tokens.add(token);
+                }
+            }
+            return new SplitToken(tokens, method);
         }
     }
 }

@@ -102,8 +102,12 @@ interface Case2_Linker {
      * @return a {@link java.lang.String} object.
      */
     @Method.InvokeSuper
-    @Method.Name("user.getName")
+    @Method.Expr("user.getName(a.b.c.d, a.b.c.d, a.b.c, a.b.c.d.getAA('a'), 1).a.b.c.d.get()")
     String getSuperName();
+
+    @Method.InvokeSuper
+    @Method.Expr("user.a.b.c.d.e.f.e.a.a.a.a")
+    String getA();
 
     // runtime
     /**
@@ -111,21 +115,21 @@ interface Case2_Linker {
      *
      * @return a {@link java.lang.String} object.
      */
-    @Method.Name("user.getName2")
+    @Method.Expr("user.getName2()")
     String getName2();
     /**
      * <p>getName3.</p>
      *
      * @return a {@link java.lang.String} object.
      */
-    @Method.Name("user.getName3")
+    @Method.Expr("user.getName3()")
     String getName3();
     /**
      * <p>getName4.</p>
      *
      * @return a {@link java.lang.String} object.
      */
-    @Method.Name("user.getName4")
+    @Method.Expr("user.getName4()")
     String getName4();
 
 //    @Typed(name = "user", type = "io.github.hhy50.linker.test.nest.case2.UserVo")
@@ -135,6 +139,6 @@ interface Case2_Linker {
      * @return a {@link java.lang.String} object.
      */
     @Method.InvokeSuper
-    @Method.Name("user.toString")
+    @Method.Expr("user.toString()")
     String superToString();
 }

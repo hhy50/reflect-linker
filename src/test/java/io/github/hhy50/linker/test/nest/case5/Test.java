@@ -16,20 +16,20 @@ public class Test {
         @Field.Setter("inner")
         void setInner(LInner inner);
 
-        @Method.Name("toString")
+        @Method.Expr("toString()")
         String out_to_string();
 
-        @Method.Name("inner.toString")
+        @Method.Expr("inner.toString()")
         String inner_tostring();
     }
 
     @Target.Bind("io.github.hhy50.linker.test.nest.case5.Out$Inner")
     interface LInner {
-        @Method.Name("toString")
+        @Method.Expr("toString()")
         String toString();
 
         @Method.InvokeSuper
-        @Method.Name("toString")
+        @Method.Expr("toString()")
         String superToString();
     }
 

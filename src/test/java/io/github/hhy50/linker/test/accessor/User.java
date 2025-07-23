@@ -101,21 +101,21 @@ interface LUser {
     @Field.Getter("age")
     int getAge();
 
-    @Method.Name("test1")
+    @Method.Expr("test1()")
     void test1();
 
-    @Method.Name("test2")
+    @Method.Expr("test2()")
     void test2();
 
-    @Method.Name("toString")
+    @Method.Expr("toString()")
     LString toString_1();
 
     @Method.InvokeSuper
-    @Method.Name("toString")
+    @Method.Expr("toString()")
     String toString_2();
 
     @Method.InvokeSuper("java.lang.Object")
-    @Method.Name("toString")
+    @Method.Expr("toString()")
     String toString_3();
 }
 
