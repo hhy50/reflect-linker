@@ -67,11 +67,11 @@ public class TokenParserTest {
         }
 
         try {
-            String tokenExpr = "a.b.c.d.e[12345]['23456'][321][1111].f.get(f.a.b.c[1]['123'].get())";
+            String tokenExpr = "a.a23456'][b.c.d.e[12345]['321][1111].f.get(f.a.b.c[1]['123'].get())";
             parser.parse(tokenExpr); // At position 18 Unknown symbol [
         } catch (Exception e) {
             Assert.assertEquals(e.getMessage(),
-                    "At position 43 Unclosed index");
+                    "At position 9 Identifier expected");
         }
     }
 
@@ -85,7 +85,7 @@ public class TokenParserTest {
 
     @Test
     public void testParseMethodExpr2() {
-        String tokenExpr = "a.b.c.d.e.f.get('aa', $1, $2, 'bb', 4, a['1234'][1], a.b, a, a.b.c.d.e.f)";
+        String tokenExpr = "a.b.c.d.e.f.get('aa', $1, $2, 'bb', 4, a['1234'][1].get(a.get(1123, '1234')), a.b, a, a.b.c.d.e.f)";
         TokenParser parser = new TokenParser();
         Tokens tokens = parser.parse(tokenExpr);
         Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));

@@ -113,8 +113,8 @@ public class TokenParser {
             }
             String identifier = nextIdentifier();
             // 如果owner的第一个字符不是a-z, A-Z, _
-            if (!Character.isJavaIdentifierPart(identifier.charAt(0))) {
-                throwParseException("Unknown symbol "+tokenSymbols[pos], pos);
+            if (!Character.isJavaIdentifierStart(identifier.charAt(0))) {
+                throwParseException("Illegal identifier "+tokenSymbols[pos-identifier.length()], pos-identifier.length());
             }
 
             Token owner = null;
