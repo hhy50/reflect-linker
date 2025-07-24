@@ -176,12 +176,17 @@ public class TokenParser {
                 throwParseException("String expected", pos);
             }
             pos++; // 跳过开头的单引号
-            String val = nextIdentifier();
+            StringBuilder val = new StringBuilder();
+            val.append(nextIdentifier());
+            while (pos < tokenSymbols.length && tokenSymbols[pos] != '\'') {
+                val.append(tokenSymbols[pos]);
+                pos++;
+            }
             if (tokenSymbols[pos] != '\'') {
-                throwParseException("String expected end", pos);
+                throwParseException("String expected", pos);
             }
             pos++; // 跳过结尾的单引号
-            return ConstToken.ofStr(val);
+            return ConstToken.ofStr(val.toString());
         }
 
         /**

@@ -24,9 +24,8 @@ public class RuntimeMethodRef extends MethodRef {
      * @param owner      the owner
      * @param name       the name
      * @param argsType   the args type
-     * @param returnType the return type
      */
-    public RuntimeMethodRef(FieldRef owner, String name, String[] argsType, Class<?> returnType) {
+    public RuntimeMethodRef(FieldRef owner, String name, String[] argsType) {
         super(owner, name);
 
         Type[] newArgsType = new Type[argsType.length];

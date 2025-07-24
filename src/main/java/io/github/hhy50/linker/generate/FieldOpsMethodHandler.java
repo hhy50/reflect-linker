@@ -14,6 +14,8 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import org.objectweb.asm.Opcodes;
 
+import java.util.Optional;
+
 /**
  * The type Field ops method handler.
  */
@@ -83,8 +85,8 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      * @param field            the field
      */
     protected void defineMethod(InvokeClassImplBuilder classImplBuilder, EarlyFieldRef field) {
-        FieldRef prevField = field.getPrev();
-        Getter getter = classImplBuilder.getGetter(prevField.getUniqueName());
+        String uname = Optional.ofNullable(field.getPrev()).map(FieldRef::getUniqueName).orElse("target");
+        Getter getter = classImplBuilder.getGetter(uname);
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();

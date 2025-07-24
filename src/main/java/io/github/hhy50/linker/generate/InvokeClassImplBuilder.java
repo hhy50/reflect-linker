@@ -5,6 +5,7 @@ import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
+import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -13,6 +14,7 @@ import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
+import io.github.hhy50.linker.generate.invoker.ExprMethodInvoker;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
 import io.github.hhy50.linker.generate.setter.Setter;
@@ -92,7 +94,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the target
      */
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
-        EarlyFieldRef targetField = new EarlyFieldRef(null, null, "target", bindTarget);
+        EarlyFieldRef targetField = new EarlyFieldRef(null, "target", bindTarget);
         TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), targetField);
 
         this.getters.put(targetField.getUniqueName(), targetFieldGetter);
@@ -144,6 +146,10 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     public Invoker<?> defineInvoker(MethodRef methodRef) {
         return methodRef instanceof EarlyMethodRef ? new EarlyMethodInvoker(getClassName(), (EarlyMethodRef) methodRef)
                 : new RuntimeMethodInvoker(getClassName(), (RuntimeMethodRef) methodRef);
+    }
+
+    public Invoker<?> defineExprInvoker(MethodExprRef methodRef) {
+        return new ExprMethodInvoker(getClassName(), methodRef);
     }
 
     /**

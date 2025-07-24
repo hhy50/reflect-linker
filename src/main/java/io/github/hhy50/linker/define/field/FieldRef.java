@@ -4,12 +4,12 @@ package io.github.hhy50.linker.define.field;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Method;
+
 /**
  * The type Field ref.
  */
 public abstract class FieldRef {
-
-    private String objName;
 
     /**
      * The Field name.
@@ -23,13 +23,11 @@ public abstract class FieldRef {
     /**
      * Instantiates a new Field ref.
      *
-     * @param prev    the prev
-     * @param objName the obj name
-     * @param name    the name
+     * @param prev the prev
+     * @param name the name
      */
-    public FieldRef(FieldRef prev, String objName, String name) {
+    public FieldRef(FieldRef prev, String name) {
         this.prev = prev;
-        this.objName = objName;
         this.fieldName = name;
     }
 
@@ -98,5 +96,9 @@ public abstract class FieldRef {
      */
     public String getFullName() {
         return fullName;
+    }
+
+    public Method findMethod(String methodName, String[] argsType, String superClass) {
+        return null;
     }
 }

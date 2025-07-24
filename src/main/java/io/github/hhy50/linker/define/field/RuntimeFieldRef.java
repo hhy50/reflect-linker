@@ -13,11 +13,10 @@ public class RuntimeFieldRef extends FieldRef {
      * Instantiates a new Runtime field ref.
      *
      * @param prev      the prev
-     * @param objName   the obj name
      * @param fieldName the field name
      */
-    public RuntimeFieldRef(FieldRef prev, String objName, String fieldName) {
-        super(prev, objName, fieldName);
+    public RuntimeFieldRef(FieldRef prev, String fieldName) {
+        super(prev, fieldName);
     }
 
     /**

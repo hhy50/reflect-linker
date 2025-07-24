@@ -3,10 +3,9 @@ package io.github.hhy50.linker.define;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.define.field.MethodTmpFieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
-import io.github.hhy50.linker.define.method.ConstructorRef;
-import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.define.method.RuntimeMethodRef;
+import io.github.hhy50.linker.define.method.*;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
@@ -21,8 +20,6 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static io.github.hhy50.linker.token.TokenParser.EMPTY;
 
 /**
  * The type Parse context.
@@ -43,12 +40,6 @@ public class ParseContext {
      * The Class loader.
      */
     ClassLoader classLoader;
-
-    /**
-     * The Target root.
-     */
-    FieldRef targetRoot;
-
     /**
      * The Parsed fields.
      */
@@ -76,8 +67,6 @@ public class ParseContext {
     ParseContext(Class<?> defineClass, Class<?> targetClass) {
         this.defineClass = defineClass;
         this.targetClass = targetClass;
-        this.targetRoot = AnnotationUtils.isRuntime(defineClass)
-                ? new RuntimeFieldRef(null, null, FIRST_OBJ_NAME) : new EarlyFieldRef(null, null, FIRST_OBJ_NAME, targetClass);
     }
 
     /**
@@ -166,15 +155,14 @@ public class ParseContext {
             String exprStr = Util.getOrElseDefault(Optional.ofNullable(getter).map(io.github.hhy50.linker.annotations.Field.Getter::value)
                     .orElseGet(() -> setter.value()), method.getName());
             Tokens tokens = tokenParser.parse(exprStr);
-            absMethodDefine.fieldRef = parseFieldExpr(tokens);
+            absMethodDefine.fieldRef = parseFieldExpr(targetClass, tokens);
         } else if (absMethodDefine.hasConstructor()) {
-            Class<?> instanceType = ((EarlyFieldRef) targetRoot).getClassType();
-            String[] argsType = parseArgsType(method);
-            Constructor<?> constructor = ReflectUtil.matchConstructor(instanceType, argsType);
+            String[] argsType = parseArgsType(method, null);
+            Constructor<?> constructor = ReflectUtil.matchConstructor(targetClass, argsType);
             if (constructor == null) {
-                throw new ParseException("Constructor not found in class '"+instanceType+"' with args "+Arrays.toString(argsType));
+                throw new ParseException("Constructor not found in class '"+targetClass+"' with args "+Arrays.toString(argsType));
             }
-            absMethodDefine.methodRef = new ConstructorRef(targetRoot, method.getName(), constructor);
+            absMethodDefine.methodRef = new ConstructorRef(null, method.getName(), constructor);
         } else {
             String methodExpr = Optional.ofNullable(expr).map(io.github.hhy50.linker.annotations.Method.Expr::value).orElseGet(() ->
                     method.getName()+"("+IntStream.range(0, method.getParameterCount()).mapToObj(i -> "$"+i).collect(Collectors.joining(","))+")"
@@ -185,45 +173,44 @@ public class ParseContext {
     }
 
     private MethodRef parseMethodExpr(Method methodDefine, final Tokens tokens) throws ClassNotFoundException {
-        FieldRef rootField = parseFieldExpr(EMPTY);
-        Iterator<SplitToken> tokensIterator = tokens.splitWithMethod();
-        SplitToken current = tokensIterator.next();
-        while (tokensIterator.hasNext()) {
-            SplitToken token = tokensIterator.next();
-            if (token.prefix == null) {
-                token.prefix = current;
-            } else {
-                token = new SplitToken(current, token);
-            }
-            current = token;
-        }
+        io.github.hhy50.linker.annotations.Method.InvokeSuper invokeSuper = methodDefine
+                .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class);
 
-//        String[] argsType = parseArgsType(methodDefine);
-//        Class<?> returnClass = methodDefine.getReturnType();
-//        io.github.hhy50.linker.annotations.Method.InvokeSuper invokeSuperAnno = methodDefine.getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class);
-//        String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
-//        MethodRef methodRef = null;
-//        if (owner instanceof EarlyFieldRef) {
-//            Class<?> ownerClass = ((EarlyFieldRef) owner).getClassType();
-//            Method method = ReflectUtil.matchMethod(ownerClass, methodName, superClass, argsType);
-//            if (method == null && this.typedFields.containsKey(owner.getFullName())) {
-//                throw new ParseException("can not find method " + methodName + " in class " + ownerClass.getName());
-//            }
-//            methodRef = method == null ? null : new EarlyMethodRef(owner, method);
-//        }
-//        if (methodRef == null) {
-//            methodRef = new RuntimeMethodRef(owner, methodName, argsType, returnClass);
-//            designateStatic(methodRef);
-//        }
-//        if (superClass != null) {
-//            methodRef.setSuperClass(superClass);
-//        }
-        return null;
+        Iterator<SplitToken> tokensIterator = tokens.splitWithMethod();
+
+        Class<?> curType = targetClass;
+        ArrayList<MethodRef> methods = new ArrayList<>();
+        while (tokensIterator.hasNext()) {
+            SplitToken splitToken = tokensIterator.next();
+            Tokens fieldToken = (Tokens) splitToken.prefix;
+            MethodToken methodToken = (MethodToken) splitToken.suffix;
+
+            FieldRef owner = null;
+            if (fieldToken != null && fieldToken.size() > 0) {
+                owner = parseFieldExpr(curType, fieldToken);
+            } else if (methods.size() > 0) {
+                owner = new MethodTmpFieldRef(methods.get(methods.size()-1), "tmp_");
+            } else {
+                owner = new EarlyFieldRef(null, "target", targetClass);
+            }
+            if (methodToken != null) {
+                String[] argsType = parseArgsType(methodDefine, methodToken);
+                Method method = owner.findMethod(methodToken.methodName, argsType, null);
+                if (method != null) {
+                    methods.add(new EarlyMethodRef(owner, method));
+                    curType = method.getReturnType();
+                } else {
+                    methods.add(new RuntimeMethodRef(owner, methodToken.methodName, argsType));
+                    curType = Object.class;
+                }
+            }
+        }
+        return new MethodExprRef(methodDefine, methods);
     }
 
-    private FieldRef parseFieldExpr(final Tokens tokens) throws ClassNotFoundException {
-        Class<?> currentType = targetRoot instanceof EarlyFieldRef ? ((EarlyFieldRef) targetRoot).getClassType() : null;
-        FieldRef lastField = targetRoot;
+    private FieldRef parseFieldExpr(Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
+        Class<?> currentType = rootType;
+        FieldRef lastField = null;
         String fullField = null;
         for (Token item : tokens) {
             if (!(item instanceof FieldToken)) {
@@ -244,7 +231,7 @@ public class ParseContext {
                     currentType = assignedType;
                 }
                 lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType)
-                        : new RuntimeFieldRef(lastField, lastField.fieldName, fieldName);
+                        : new RuntimeFieldRef(lastField, fieldName);
                 lastField.setFullName(fullField);
                 this.parsedFields.put(fullField, lastField);
             } else {
@@ -255,8 +242,8 @@ public class ParseContext {
         return lastField;
     }
 
-    private static String[] parseArgsType(Method method) {
-        return Arrays.stream(method.getParameters())
+    private static String[] parseArgsType(Method methodDefine, MethodToken methodToken) {
+        return Arrays.stream(methodDefine.getParameters())
                 .map(item -> {
                     String typed = AnnotationUtils.getTyped(item);
                     if (StringUtil.isNotEmpty(typed)) {

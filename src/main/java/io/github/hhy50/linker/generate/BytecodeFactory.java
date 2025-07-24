@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.ConstructorRef;
-import io.github.hhy50.linker.define.method.MethodRef;
+import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.generate.constructor.Constructor;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.GetterDecorator;
@@ -59,19 +59,12 @@ public class BytecodeFactory {
      *
      * @param classBuilder    the class builder
      * @param absMethodDefine the method define
-     * @param methodRef       the method ref
+     * @param methodExprRef       the method ref
      * @return the method handle
      */
-    public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodRef methodRef) {
-        FieldRef owner = methodRef.getOwner();
-        classBuilder.defineGetter(owner.getUniqueName(), owner);
+    public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodExprRef methodExprRef) {
 
-        FieldRef prev = owner.getPrev();
-        while (prev != null) {
-            classBuilder.defineGetter(prev.getUniqueName(), prev);
-            prev = prev.getPrev();
-        }
-        return new InvokerDecorator(classBuilder.defineInvoker(methodRef), absMethodDefine);
+        return new InvokerDecorator(classBuilder.defineExprInvoker(methodExprRef), absMethodDefine);
     }
 
     /**

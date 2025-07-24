@@ -15,7 +15,7 @@ import static io.github.hhy50.linker.util.ClassUtil.isPublic;
  * The type Early method ref.
  */
 public class EarlyMethodRef extends MethodRef {
-    private Method method;
+    public Method method;
 
     /**
      * Instantiates a new Early method ref.
@@ -66,6 +66,10 @@ public class EarlyMethodRef extends MethodRef {
     @Override
     public void setSuperClass(String superClass) {
         this.superClass = method.getDeclaringClass().getName();
+    }
+
+    public Class<?> getReturnType() {
+        return method.getReturnType();
     }
 
     /**
