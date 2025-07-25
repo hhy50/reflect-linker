@@ -71,4 +71,8 @@ public interface LArrayList extends TargetProvider<List> {
     @Autolink
     @Field.Getter("modCount")
     LInteger modCount();
+
+    @Autolink
+    @Field.Setter("modCount")
+    void setModCount(LInteger i);
 }

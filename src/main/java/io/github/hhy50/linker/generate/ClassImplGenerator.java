@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.util.List;
 
 /**
  * The type Class impl generator.
@@ -28,10 +29,11 @@ public class ClassImplGenerator {
      * @param defineClass the define class
      * @throws IOException the io exception
      */
-    public static void generateBytecode(Class<?> define, Class<?> targetClass, InterfaceImplClass defineClass) throws IOException {
+    public static void generateBytecode(Class<?> define, Class<?> targetClass, InterfaceImplClass defineClass, List<Class<?>> interfaces) throws IOException {
         String implClassName = defineClass.getClassName();
         InvokeClassImplBuilder classBuilder = InvokeClassImplBuilder
-                .builder(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), new String[]{define.getName()}, "")
+                .builder(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), interfaces.stream()
+                        .map(Class::getName).toArray(String[]::new), "")
                 .setTarget(targetClass)
                 .setDefineClass(define);
 

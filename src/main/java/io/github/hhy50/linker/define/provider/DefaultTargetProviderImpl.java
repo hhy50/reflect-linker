@@ -1,13 +1,18 @@
 package io.github.hhy50.linker.define.provider;
 
+import io.github.hhy50.linker.exceptions.ResetTargetException;
+import io.github.hhy50.linker.generate.builtin.RuntimeProvider;
+import io.github.hhy50.linker.generate.builtin.SetTargetProvider;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The type Default target provider.
  */
-public abstract class DefaultTargetProviderImpl implements TargetProvider {
+public class DefaultTargetProviderImpl implements TargetProvider, SetTargetProvider {
 
     /**
      * The Target.
@@ -25,6 +30,17 @@ public abstract class DefaultTargetProviderImpl implements TargetProvider {
 
     public Object getTarget() {
         return target;
+    }
+
+    @Override
+    public void setValue(Object target) {
+        requireNonNull(target);
+        if (this.target.getClass().getName().equals(target.getClass().getName()) ||
+                this instanceof RuntimeProvider) {
+            this.target = target;
+            return;
+        }
+        throw new ResetTargetException("Class type not match");
     }
 
     @Override
