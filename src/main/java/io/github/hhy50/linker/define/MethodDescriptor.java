@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.LinkerFactory;
-import io.github.hhy50.linker.define.provider.TargetProvider;
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.util.StringUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;

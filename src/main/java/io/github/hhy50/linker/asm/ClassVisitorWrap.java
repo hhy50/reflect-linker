@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.asm;
 
 import io.github.hhy50.linker.asm.tree.LClassNode;
-import io.github.hhy50.linker.define.provider.TargetProvider;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -46,7 +45,7 @@ public class ClassVisitorWrap extends ClassVisitor {
      * @return the target
      */
     public ClassVisitor getTarget() {
-        return (ClassVisitor) ((TargetProvider) classVisitor).getTarget();
+        return classVisitor.getTarget();
     }
 
     /**

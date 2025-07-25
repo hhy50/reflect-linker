@@ -3,7 +3,10 @@ package io.github.hhy50.linker.test.arraylist;
 import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.test.LInteger;
+
+import java.util.List;
 
 /**
  * <p>MyArrayList interface.</p>
@@ -13,7 +16,7 @@ import io.github.hhy50.linker.test.LInteger;
  * @since 1.0.0
  */
 //@Runtime
-public interface LArrayList {
+public interface LArrayList extends TargetProvider<List> {
 
     @Method.Constructor
     LArrayList newList();

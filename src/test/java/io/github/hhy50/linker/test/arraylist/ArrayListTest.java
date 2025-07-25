@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.LinkerFactory;
-import io.github.hhy50.linker.define.provider.TargetProvider;
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class ArrayListTest {
         Assert.assertEquals(4, list3.get(3));
         Assert.assertEquals("5", list3.get(4));
 
-        LinkerFactory.createLinker(LArrayList.class, new LinkedList<>());
+        LinkerFactory.createLinker(LArrayList.class, new LinkedList<>()).getTarget();
         LinkerFactory.createLinker(LArrayList.class, new Vector<>());
         LinkerFactory.createLinker(LArrayList.class, new CopyOnWriteArrayList<>());
     }

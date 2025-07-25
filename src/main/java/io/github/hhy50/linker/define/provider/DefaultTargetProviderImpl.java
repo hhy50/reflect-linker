@@ -1,5 +1,7 @@
 package io.github.hhy50.linker.define.provider;
 
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
+
 import java.util.Objects;
 
 /**

@@ -1,4 +1,4 @@
-package io.github.hhy50.linker.ext;
+package io.github.hhy50.linker.tools;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
