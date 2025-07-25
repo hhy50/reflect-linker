@@ -2,9 +2,7 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.define.method.ConstructorRef;
-import io.github.hhy50.linker.define.method.MethodExprRef;
-import io.github.hhy50.linker.generate.constructor.Constructor;
+import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.GetterDecorator;
 import io.github.hhy50.linker.generate.invoker.InvokerDecorator;
@@ -59,23 +57,17 @@ public class BytecodeFactory {
      *
      * @param classBuilder    the class builder
      * @param absMethodDefine the method define
-     * @param methodExprRef       the method ref
+     * @param methodRef       the method ref
      * @return the method handle
      */
-    public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodExprRef methodExprRef) {
-        return new InvokerDecorator(classBuilder.defineExprInvoker(methodExprRef), absMethodDefine);
-    }
-
-    /**
-     * Generate constructor method handle.
-     *
-     * @param classBuilder    the class builder
-     * @param absMethodDefine the method define
-     * @param constructorRef  the class ConstructorRef
-     * @return method handle
-     */
-    public static MethodHandle generateConstructor(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, ConstructorRef constructorRef) {
-        return new InvokerDecorator(
-                new Constructor(constructorRef), absMethodDefine);
+    public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodRef methodRef) {
+        FieldRef owner = methodRef.getOwner();
+        classBuilder.defineGetter(owner.getUniqueName(), owner);
+        FieldRef prev = owner.getPrev();
+        while (prev != null) {
+            classBuilder.defineGetter(prev.getUniqueName(), prev);
+            prev = prev.getPrev();
+        }
+        return new InvokerDecorator(classBuilder.defineInvoker(methodRef), absMethodDefine);
     }
 }

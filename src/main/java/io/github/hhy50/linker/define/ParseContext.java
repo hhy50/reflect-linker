@@ -1,11 +1,14 @@
 package io.github.hhy50.linker.define;
 
+import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.define.field.MethodTmpFieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
-import io.github.hhy50.linker.define.method.*;
+import io.github.hhy50.linker.define.method.ConstructorRef;
+import io.github.hhy50.linker.define.method.EarlyMethodRef;
+import io.github.hhy50.linker.define.method.MethodRef;
+import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
@@ -40,6 +43,12 @@ public class ParseContext {
      * The Class loader.
      */
     ClassLoader classLoader;
+
+    /**
+     * The Target root.
+     */
+    FieldRef targetRoot;
+
     /**
      * The Parsed fields.
      */
@@ -67,6 +76,8 @@ public class ParseContext {
     ParseContext(Class<?> defineClass, Class<?> targetClass) {
         this.defineClass = defineClass;
         this.targetClass = targetClass;
+        this.targetRoot = AnnotationUtils.isRuntime(defineClass)
+                ? new RuntimeFieldRef(null, null, FIRST_OBJ_NAME) : new EarlyFieldRef(null, null, FIRST_OBJ_NAME, targetClass);
     }
 
     /**
@@ -81,14 +92,14 @@ public class ParseContext {
         for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
             String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
             if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Typed of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
+                throw new VerifyException("@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
             }
         }
         for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticTokens(method, CURRENT_TOKEN).entrySet()) {
             String name = fieldEntry.getKey();
             Boolean isStatic = this.staticTokens.put(name, fieldEntry.getValue());
             if (isStatic != null && !isStatic.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Static of field '"+name+"' defined twice is inconsistent");
+                throw new VerifyException("@Static of field '" + name + "' defined twice is inconsistent");
             }
         }
     }
@@ -162,7 +173,7 @@ public class ParseContext {
             if (constructor == null) {
                 throw new ParseException("Constructor not found in class '"+targetClass+"' with args "+Arrays.toString(argsType));
             }
-            absMethodDefine.methodRef = new ConstructorRef(null, method.getName(), constructor);
+            absMethodDefine.methodRef = new ConstructorRef(targetClass, method.getName(), constructor);
         } else {
             String methodExpr = Optional.ofNullable(expr).map(io.github.hhy50.linker.annotations.Method.Expr::value).orElseGet(() ->
                     method.getName()+"("+IntStream.range(0, method.getParameterCount()).mapToObj(i -> "$"+i).collect(Collectors.joining(","))+")"
@@ -211,7 +222,7 @@ public class ParseContext {
 
     private FieldRef parseFieldExpr(Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
         Class<?> currentType = rootType;
-        FieldRef lastField = null;
+        FieldRef lastField = targetRoot;
         String fullField = null;
         for (Token item : tokens) {
             if (!(item instanceof FieldToken)) {

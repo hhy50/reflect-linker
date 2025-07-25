@@ -47,7 +47,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        MethodInvokeAction invoker = new MethodInvokeAction(descriptor)
+        MethodInvokeAction invoker = new SmartMethodInvokeAction(descriptor)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
 
