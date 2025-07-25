@@ -25,11 +25,10 @@ public class Constructor extends Invoker<ConstructorRef> {
     /**
      * Instantiates a new Constructor.
      *
-     * @param implClass   the impl class
      * @param constructor the constructor ref
      */
-    public Constructor(String implClass, ConstructorRef constructor) {
-        super(implClass, constructor, constructor.getMethodType());
+    public Constructor(ConstructorRef constructor) {
+        super(constructor, constructor.getMethodType());
     }
 
     @Override
@@ -50,11 +49,6 @@ public class Constructor extends Invoker<ConstructorRef> {
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(methodBody.getArgs());
         return methodBody.newLocalVar(invoker);
-    }
-
-    @Override
-    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        throw new RuntimeException("not support runtime constructor");
     }
 
     @Override

@@ -78,7 +78,9 @@ public abstract class MethodHandle {
      * @param mhMember    the mh member
      * @param objVar      the obj var
      */
-    protected abstract void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar);
+    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+
+    }
 
     /**
      * Check look class.

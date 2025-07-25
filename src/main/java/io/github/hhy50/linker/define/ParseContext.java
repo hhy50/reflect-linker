@@ -189,7 +189,8 @@ public class ParseContext {
             if (fieldToken != null && fieldToken.size() > 0) {
                 owner = parseFieldExpr(curType, fieldToken);
             } else if (methods.size() > 0) {
-                owner = new MethodTmpFieldRef(methods.get(methods.size()-1), "tmp_");
+                MethodRef methodRef = methods.get(methods.size()-1);
+                owner = new MethodTmpFieldRef(methodRef, "invoke_"+methodRef.getName());
             } else {
                 owner = new EarlyFieldRef(null, "target", targetClass);
             }

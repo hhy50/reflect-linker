@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -11,7 +12,6 @@ import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
-import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Type;
 
@@ -37,13 +37,12 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
      * Instantiates a new Invoker.
      *
-     * @param implClass the impl class
      * @param method    the method
      * @param mType     the m type
      */
-    public Invoker(String implClass, T method, Type mType) {
+    public Invoker(T method, Type mType) {
         this.method = method;
-        this.descriptor = MethodDescriptor.of(ClassUtil.className2path(implClass), "invoke_"+method.getUniqueName(), mType);
+        this.descriptor = new SmartMethodDescriptor("invoke_"+method.getUniqueName(), mType);
     }
 
     @Override
@@ -75,10 +74,6 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                         superClassLoad,
                         Actions.asArray(TypeUtils.STRING_TYPE, Arrays.stream(runtime.getArgsType())
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
-                        // Object[] args
-//                        Actions.asArray(Type.getType(Object.class),
-//                                IntStream.range(0, methodBody.getArgs().length)
-//                                        .mapToObj(Args::of).map(BoxAction::new).toArray(Action[]::new))
                 );
         mhMember.store(methodBody, fineMethod);
     }

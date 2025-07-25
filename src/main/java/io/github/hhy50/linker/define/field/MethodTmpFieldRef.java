@@ -31,4 +31,8 @@ public class MethodTmpFieldRef extends FieldRef {
         }
         return null;
     }
+
+    public MethodRef getMethodRef() {
+        return methodRef;
+    }
 }

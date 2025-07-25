@@ -4,19 +4,13 @@ import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.define.method.EarlyMethodRef;
-import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
-import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
-import io.github.hhy50.linker.generate.invoker.ExprMethodInvoker;
 import io.github.hhy50.linker.generate.invoker.Invoker;
-import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
 import io.github.hhy50.linker.generate.setter.Setter;
 import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Opcodes;
@@ -144,12 +138,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the invoker
      */
     public Invoker<?> defineInvoker(MethodRef methodRef) {
-        return methodRef instanceof EarlyMethodRef ? new EarlyMethodInvoker(getClassName(), (EarlyMethodRef) methodRef)
-                : new RuntimeMethodInvoker(getClassName(), (RuntimeMethodRef) methodRef);
-    }
-
-    public Invoker<?> defineExprInvoker(MethodExprRef methodRef) {
-        return new ExprMethodInvoker(getClassName(), methodRef);
+        return methodRef.defineInvoker();
     }
 
     /**

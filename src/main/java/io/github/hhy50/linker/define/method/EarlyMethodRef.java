@@ -4,6 +4,8 @@ package io.github.hhy50.linker.define.method;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
+import io.github.hhy50.linker.generate.invoker.Invoker;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -52,6 +54,11 @@ public class EarlyMethodRef extends MethodRef {
             return genericType(type);
         }
         return type;
+    }
+
+    @Override
+    public Invoker<?> defineInvoker() {
+        return new EarlyMethodInvoker((EarlyMethodRef) this);
     }
 
     /**

@@ -3,6 +3,8 @@ package io.github.hhy50.linker.define.method;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.invoker.Invoker;
+import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
@@ -97,5 +99,10 @@ public class RuntimeMethodRef extends MethodRef {
      */
     public void setAutolink(boolean autolink) {
         this.isAutolink = autolink;
+    }
+
+    @Override
+    public Invoker<?> defineInvoker() {
+        return new RuntimeMethodInvoker((RuntimeMethodRef) this);
     }
 }

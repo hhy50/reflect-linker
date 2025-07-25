@@ -63,7 +63,6 @@ public class BytecodeFactory {
      * @return the method handle
      */
     public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodExprRef methodExprRef) {
-
         return new InvokerDecorator(classBuilder.defineExprInvoker(methodExprRef), absMethodDefine);
     }
 
@@ -77,6 +76,6 @@ public class BytecodeFactory {
      */
     public static MethodHandle generateConstructor(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, ConstructorRef constructorRef) {
         return new InvokerDecorator(
-                new Constructor(classBuilder.getClassName(), constructorRef), absMethodDefine);
+                new Constructor(constructorRef), absMethodDefine);
     }
 }

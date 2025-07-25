@@ -25,11 +25,10 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     /**
      * Instantiates a new Early method invoker.
      *
-     * @param implClass the impl class
      * @param methodRef the method ref
      */
-    public EarlyMethodInvoker(String implClass, EarlyMethodRef methodRef) {
-        super(implClass, methodRef, methodRef.getMethodType());
+    public EarlyMethodInvoker(EarlyMethodRef methodRef) {
+        super(methodRef, methodRef.getMethodType());
         this.generic = methodRef.isInvisible();
     }
 

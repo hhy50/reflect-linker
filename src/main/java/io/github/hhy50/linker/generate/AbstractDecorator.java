@@ -156,9 +156,4 @@ public abstract class AbstractDecorator extends MethodHandle {
         }
         return varInst;
     }
-
-    @Override
-    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember classType, MethodHandleMember mhMember, VarInst objVar) {
-        throw new RuntimeException("Decorator not impl mhReassign() method");
-    }
 }

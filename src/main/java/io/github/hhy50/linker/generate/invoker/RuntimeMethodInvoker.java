@@ -25,23 +25,24 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     /**
      * Instantiates a new Runtime method invoker.
      *
-     * @param implClass the impl class
      * @param methodRef the method ref
      */
-    public RuntimeMethodInvoker(String implClass, RuntimeMethodRef methodRef) {
-        super(implClass, methodRef, methodRef.getMethodType());
+    public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
+        super(methodRef, methodRef.getMethodType());
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         boolean autolink = method.isAutolink();
         FieldRef owner = method.getOwner();
-        Getter ownerGetter = classImplBuilder.defineGetter(owner.getUniqueName(), owner);
+        Getter ownerGetter = classImplBuilder.getGetter(owner.getUniqueName());
         ownerGetter.define(classImplBuilder);
 
         Type mhType = descriptor.getType();
         Action args = autolink ? Actions.asArray(ObjectVar.TYPE, MethodBody::getArgs) : Args.loadArgs();
         if (autolink) {
+            // 根据实参寻找方法，具体逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
+            // 因为一般是根据形参寻找, 但是链接器的类型对不上
             mhType = Type.getMethodType(descriptor.getReturnType(), Type.getType(Object[].class));
             method.setArgsType(new Type[]{Type.getType(Autolink.class)});
         }

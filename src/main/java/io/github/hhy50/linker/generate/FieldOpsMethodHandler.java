@@ -5,6 +5,7 @@ import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
+import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
@@ -101,5 +102,29 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
                         : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
                         .andThen(Actions.areturn(descriptor.getReturnType()))
                 );
+    }
+
+    /**
+     *
+     * @param classImplBuilder
+     * @param method
+     */
+    protected void defineInvokeMethod(InvokeClassImplBuilder classImplBuilder, MethodRef method) {
+//        String uname = Optional.ofNullable(field.getPrev()).map(FieldRef::getUniqueName).orElse("target");
+//        Getter getter = classImplBuilder.getGetter(uname);
+//        getter.define(classImplBuilder);
+//
+//        MethodBody clinit = classImplBuilder.getClinit();
+//
+//        // init methodHandle
+//        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(mhName, null, descriptor.getType());
+//        initStaticMethodHandle(clinit, mhMember, loadClass(field.getLookupClass()), field.fieldName, field.getDecalaredType(), field.isStatic());
+//
+//        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
+//                .intercept((field.isStatic()
+//                        ? mhMember.invokeStatic(Args.loadArgs())
+//                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
+//                        .andThen(Actions.areturn(descriptor.getReturnType()))
+//                );
     }
 }

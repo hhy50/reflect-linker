@@ -58,7 +58,7 @@ public interface Field {
     class GetterVerifier implements Verifier {
         @Override
         public boolean test(Method method, Annotation anno) {
-            assert anno instanceof Getter;
+            assert anno.annotationType() == Getter.class;
             Getter getter = (Getter) anno;
             if (StringUtil.isEmpty(getter.value())) {
                 throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
@@ -76,7 +76,7 @@ public interface Field {
     class SetterVerifier implements Verifier {
         @Override
         public boolean test(Method method, Annotation anno) {
-            assert anno instanceof Setter;
+            assert anno.annotationType() == Setter.class;
             Setter setter = (Setter) anno;
             if (StringUtil.isEmpty(setter.value())) {
                 throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] is getter method, must be specified field-expression");
