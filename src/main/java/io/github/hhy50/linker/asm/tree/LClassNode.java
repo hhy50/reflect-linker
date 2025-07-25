@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.asm.tree;
 
 import io.github.hhy50.linker.annotations.Field;
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * The interface L class visitor.
  */
-public interface LClassNode {
+public interface LClassNode extends TargetProvider<ClassVisitor> {
 
     /**
      * Gets access.

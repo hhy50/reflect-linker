@@ -4,8 +4,10 @@ import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
 import io.github.hhy50.linker.generate.ClassImplGenerator;
+import io.github.hhy50.linker.generate.builtin.RuntimeProvider;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +52,8 @@ public class ClassDefineParse {
      * @throws ClassNotFoundException the class not found exception
      */
     public static InterfaceImplClass parseClass(Class<?> define, Class<?> targetClass) throws ParseException, IOException, ClassNotFoundException {
-        if (isRuntime(define)) {
+        boolean runtime = isRuntime(define);
+        if (runtime) {
             targetClass = Object.class;
         }
 
@@ -64,8 +67,14 @@ public class ClassDefineParse {
         parseContext.setClassLoader(targetClass.getClassLoader());
         List<AbsMethodDefine> absMethods = parseContext.parse();
 
+        List<Class<?>> interfaces = new ArrayList<>();
+        interfaces.add(define);
+        if (runtime) {
+            interfaces.add(RuntimeProvider.class);
+        }
+
         defineClass = new InterfaceImplClass(define.getName()+"$"+dynKey, absMethods);
-        ClassImplGenerator.generateBytecode(define, targetClass, defineClass);
+        ClassImplGenerator.generateBytecode(define, targetClass, defineClass, interfaces);
         putCache(define, dynKey, defineClass);
         return defineClass;
     }

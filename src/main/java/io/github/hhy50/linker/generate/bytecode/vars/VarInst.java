@@ -2,8 +2,8 @@ package io.github.hhy50.linker.generate.bytecode.vars;
 
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.provider.TargetProvider;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.objectweb.asm.MethodVisitor;

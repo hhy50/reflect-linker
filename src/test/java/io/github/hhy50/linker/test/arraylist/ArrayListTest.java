@@ -1,8 +1,9 @@
 package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.LinkerFactory;
-import io.github.hhy50.linker.define.provider.TargetProvider;
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.exceptions.LinkerException;
+import io.github.hhy50.linker.test.LInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -48,6 +49,13 @@ public class ArrayListTest {
         Assert.assertEquals(objects[4], list.get(4));
         Assert.assertEquals(list.size(), list.size());
 
+        LInteger modCount = list.modCount();
+        modCount.setValue(10086);
+        list.setModCount(modCount);
+
+        Assert.assertEquals(modCount, 10086);
+        Assert.assertEquals(list.modCount(), 10086);
+
         LArrayListRuntime list3 = LinkerFactory.createLinker(LArrayListRuntime.class, new ArrayList<>());
         list3.add(1);
         list3.add(2);
@@ -60,7 +68,7 @@ public class ArrayListTest {
         Assert.assertEquals(4, list3.get(3));
         Assert.assertEquals("5", list3.get(4));
 
-        LinkerFactory.createLinker(LArrayList.class, new LinkedList<>());
+        LinkerFactory.createLinker(LArrayList.class, new LinkedList<>()).getTarget();
         LinkerFactory.createLinker(LArrayList.class, new Vector<>());
         LinkerFactory.createLinker(LArrayList.class, new CopyOnWriteArrayList<>());
     }
