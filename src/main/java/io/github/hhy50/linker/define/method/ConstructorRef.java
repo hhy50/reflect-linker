@@ -18,6 +18,7 @@ public class ConstructorRef extends MethodRef {
     /**
      * Instantiates a new Constructor ref.
      *
+     * @param owner       the owner
      * @param name        the name
      * @param constructor the constructor
      */
