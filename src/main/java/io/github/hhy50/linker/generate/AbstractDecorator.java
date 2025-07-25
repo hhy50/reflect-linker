@@ -11,6 +11,7 @@ import io.github.hhy50.linker.generate.type.TypeCast;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.AnnotationUtils;
 import io.github.hhy50.linker.util.StringUtil;
+import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -144,11 +145,13 @@ public abstract class AbstractDecorator extends MethodHandle {
         if (varInst.getType().equals(expectType)) {
             return varInst;
         }
+        if (expectType.equals(ObjectVar.TYPE) && !AsmUtil.isPrimitiveType(varInst.getType())) {
+            return varInst;
+        }
         List<TypeCast> types = Arrays.asList(new AutoBox(), new ContainerCast());
         for (TypeCast type : types) {
             varInst = type.cast(methodBody, varInst, expectType);
         }
-
         if (!varInst.getType().equals(expectType)) {
             varInst = methodBody.newLocalVar(new TypeCastAction(varInst, expectType));
         }
