@@ -49,7 +49,7 @@ public class Getter extends FieldOpsMethodHandler {
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         if (field instanceof RuntimeFieldRef) {
             super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
-        } else {
+        } else if (field instanceof EarlyFieldRef) {
             super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
         }
     }

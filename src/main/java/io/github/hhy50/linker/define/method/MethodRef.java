@@ -1,8 +1,10 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.generate.invoker.Invoker;
 import org.objectweb.asm.Type;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -41,7 +43,7 @@ public abstract class MethodRef {
     public MethodRef(FieldRef owner, String name) {
         this.owner = owner;
         this.name = name;
-        this.uniqueName = owner.getUniqueName()+"_$$_"+name+"_"+COUNTER.getAndIncrement();
+        this.uniqueName = Optional.ofNullable(owner).map(FieldRef::getUniqueName).orElse("target")+"_$$_"+name+"_"+COUNTER.getAndIncrement();
     }
 
     /**
@@ -104,6 +106,12 @@ public abstract class MethodRef {
      * @return the method type
      */
     public abstract Type getMethodType();
+
+    /**
+     *
+     * @return
+     */
+    public abstract Invoker<?> defineInvoker();
 
 //    /**
 //     * Get args type type [ ].

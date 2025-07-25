@@ -4,19 +4,14 @@ import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.asm.tree.LClassNode;
 import io.github.hhy50.linker.asm.tree.LFieldNode;
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.exceptions.ClassBuildException;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.TypeUtils;
 import org.objectweb.asm.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
@@ -61,7 +56,7 @@ public class AsmClassBuilder {
     /**
      * The Members.
      */
-    protected Map<String, Member> members;
+    protected List<AsmField> fields;
 
     /**
      * Instantiates a new Asm class builder.
@@ -99,7 +94,7 @@ public class AsmClassBuilder {
         this.className = className;
         this.classOwner = ClassUtil.className2path(className);
         this.superOwner = Optional.ofNullable(superName).map(ClassUtil::className2path).orElse("java/lang/Object");
-        this.members = new java.util.HashMap<>();
+        this.fields = new ArrayList<>();
         this.classWriter = new ClassWriter(asmFlags);
         this.classWriter.visit(Opcodes.V1_8, access, this.classOwner, signature, this.superOwner,
                 Arrays.stream(interfaces == null ? new String[0] : interfaces).map(ClassUtil::className2path).toArray(String[]::new));
@@ -113,7 +108,7 @@ public class AsmClassBuilder {
      * @param type   the type
      * @return the member
      */
-    public Member defineField(int access, String name, Class<?> type) {
+    public AsmField defineField(int access, String name, Class<?> type) {
         return defineField(access, name, Type.getType(type), null, null);
     }
 
@@ -127,14 +122,11 @@ public class AsmClassBuilder {
      * @param value     the value
      * @return the member
      */
-    public Member defineField(int access, String name, Type type, String signature, Object value) {
-        return members.compute(name, (k, v) -> {
-            if (v != null) {
-                throw new ClassBuildException("Repeatedly defining fields with the same name");
-            }
-            FieldVisitor fieldVisitor = this.classWriter.visitField(access, name, type.getDescriptor(), signature, value);
-            return new Member(access, classOwner, name, type, fieldVisitor);
-        });
+    public AsmField defineField(int access, String name, Type type, String signature, Object value) {
+        FieldVisitor visitor = this.classWriter.visitField(access, name, type.getDescriptor(), signature, value);
+        AsmField field = new AsmField(access, classOwner, name, type, visitor);
+        this.fields.add(field);
+        return field;
     }
 
     /**
@@ -146,7 +138,6 @@ public class AsmClassBuilder {
     public MethodBuilder defineConstruct(int access) {
         return defineMethod(access, "<init>", Type.getMethodType(Type.VOID_TYPE), null);
     }
-
 
     /**
      * Define construct method builder.
@@ -213,6 +204,23 @@ public class AsmClassBuilder {
             this.clinit = methodBuilder.getMethodBody();
         }
         return this.clinit;
+    }
+
+    /**
+     * Get field member.
+     * @param name
+     * @return
+     */
+    public AsmField getField(String name) {
+        return fields.stream().filter(f -> f.name.equals(name)).findFirst().orElse(null);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<AsmField> getFields() {
+        return fields;
     }
 
     /**
@@ -291,15 +299,6 @@ public class AsmClassBuilder {
     }
 
     /**
-     * Gets members.
-     *
-     * @return the members
-     */
-    public Map<String, Member> getMembers() {
-        return members;
-    }
-
-    /**
      * Is auto compute boolean.
      *
      * @return the boolean
@@ -322,11 +321,11 @@ public class AsmClassBuilder {
         classBuilder.classOwner = classVisitor.getName();
         classBuilder.className = ClassUtil.classpath2name(classVisitor.getName());
         classBuilder.superOwner = classVisitor.getSuperName();
-        classBuilder.members = new HashMap<>();
+        classBuilder.fields = new ArrayList<>();
 
         for (Object fieldO : classVisitor.getFields()) {
             LFieldNode field = LinkerFactory.createLinker(LFieldNode.class, fieldO);
-            classBuilder.members.put(field.getName(), new Member(field.getAccess(), classVisitor.getName(),
+            classBuilder.fields.add(new AsmField(field.getAccess(), classVisitor.getName(),
                     field.getName(), Type.getType(field.getDesc())));
         }
 

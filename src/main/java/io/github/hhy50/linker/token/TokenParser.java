@@ -3,7 +3,9 @@ package io.github.hhy50.linker.token;
 
 import io.github.hhy50.linker.exceptions.ParseException;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The type Token parser.
@@ -13,32 +15,45 @@ public class TokenParser {
     /**
      * The Empty.
      */
-    static Tokens EMPTY = new Tokens();
+    public static Tokens EMPTY = new Tokens();
 
     /**
      * Parse tokens.
      *
      * @param tokensStr the tokens str
      * @return the tokens
+     * @throws ParseException the parse exception
      */
-    public Tokens parse(String tokensStr) {
-        if (tokensStr == null || (tokensStr = tokensStr.trim()).length() == 0) {
+    public Tokens parse(String tokensStr) throws ParseException {
+        if (tokensStr == null || tokensStr.length() == 0) {
             return EMPTY;
         }
 
         Tokens tokens = new Tokens();
-        Parser parser = new Parser(tokensStr);
+        ParserIter parser = new ParserIter(tokensStr);
         while (parser.hasNext()) {
-            Token next = parser.next();
+            Token next = parser.parseNextToken();
             tokens.add(next);
         }
         return tokens;
     }
 
     /**
-     * The type Parser.
+     * The interface Token item.
      */
-    static class Parser implements Iterator<Token> {
+    interface TokenItem {
+        /**
+         * Gets token.
+         *
+         * @return the token
+         */
+        Token getToken();
+    }
+
+    /**
+     * The type Parser iter.
+     */
+    static class ParserIter {
         /**
          * The constant SPLIT.
          */
@@ -47,78 +62,227 @@ public class TokenParser {
         /**
          * The constant INDEX_ACCESS_START_SYMBOL.
          */
-// 索引访问符
         public static final char INDEX_ACCESS_START_SYMBOL = '[';
         /**
          * The constant INDEX_ACCESS_END_SYMBOL.
          */
         public static final char INDEX_ACCESS_END_SYMBOL = ']';
 
-        private String tokenStr;
-        private char[] tokenSymbols;
+        /**
+         * The constant METHOD_START_SYMBOL.
+         */
+        public static final char METHOD_START_SYMBOL = '(';
+        /**
+         * The constant METHOD_END_SYMBOL.
+         */
+        public static final char METHOD_END_SYMBOL = ')';
+
+        private final char[] tokenSymbols;
 
         private int pos;
 
         /**
-         * Instantiates a new Parser.
+         * Instantiates a new Parser iter.
          *
          * @param tokenStr the token str
          */
-        public Parser(String tokenStr) {
-            this.tokenStr = tokenStr;
+        public ParserIter(String tokenStr) {
             this.tokenSymbols = tokenStr.toCharArray();
         }
 
-        @Override
+        /**
+         * Has next boolean.
+         *
+         * @return the boolean
+         */
         public boolean hasNext() {
             return pos < tokenSymbols.length;
         }
 
-        @Override
-        public Token next() {
-            String owner = null;
-            String index = null;
-            boolean mapIndex = false;
-            for (int i = pos; i < tokenSymbols.length; i++) {
-                if ((tokenSymbols[i] >= 'a' && tokenSymbols[i] <= 'z')
-                        || (tokenSymbols[i] >= 'A' && tokenSymbols[i] <= 'Z')
-                        || (tokenSymbols[i] >= '0' && tokenSymbols[i] <= '9')
-                        || tokenSymbols[i] == '_' || tokenSymbols[i] == '$') {
-                    continue;
-                } else if (tokenSymbols[i] == INDEX_ACCESS_START_SYMBOL) {
-                    owner = tokenStr.substring(pos, i);
-                    pos = i;
-                } else if (tokenSymbols[i] == INDEX_ACCESS_END_SYMBOL) {
-                    int end = i;
-                    if (mapIndex) {
-                        pos++;
-                        end--;
-                    }
-                    index = tokenStr.substring(pos+1, end);
-                    pos = i+1;
-                } else if (tokenSymbols[i] == SPLIT) {
-                    if (owner == null) {
-                        owner = tokenStr.substring(pos, i);
-                    }
-                    pos = i+1;
-                    break;
-                } else if (tokenSymbols[i] == '\'') {
-                    mapIndex = true;
+        /**
+         * Parse next token token.
+         *
+         * @return the token
+         */
+        public Token parseNextToken() {
+            if (pos >= tokenSymbols.length) {
+                return null;
+            }
+            if (tokenSymbols[pos] == SPLIT) {
+                pos++;
+            }
+            String identifier = nextIdentifier();
+            // 如果owner的第一个字符不是a-z, A-Z, _
+            if (!Character.isJavaIdentifierStart(identifier.charAt(0))) {
+                throwParseException("Illegal identifier "+tokenSymbols[pos-identifier.length()], pos-identifier.length());
+            }
+
+            Token owner = null;
+            if (pos < tokenSymbols.length && tokenSymbols[pos] == METHOD_START_SYMBOL) {
+                owner = parseMethodToken(identifier);
+            } else {
+                owner = new FieldToken(identifier);
+            }
+            if (pos < tokenSymbols.length && tokenSymbols[pos] == INDEX_ACCESS_START_SYMBOL) {
+                owner.setIndex(parseIndexToken());
+            }
+            return owner;
+        }
+
+        private String nextIdentifier() {
+            String identifier = null;
+            skipWhitespace();
+            if (pos >= tokenSymbols.length) {
+                throwParseException("Identifier expected end", pos);
+            }
+            if (!isIdentifierCharacter(pos)) {
+                throwParseException("Identifier expected", pos);
+            }
+            int i;
+            for (i = pos; i < tokenSymbols.length && isIdentifierCharacter(i); i++) {
+            }
+            identifier = new String(Arrays.copyOfRange(tokenSymbols, pos, i));
+            pos = i;
+            skipWhitespace();
+            return identifier;
+        }
+
+        /**
+         * Skip whitespace.
+         */
+        void skipWhitespace() {
+            while (pos < tokenSymbols.length && Character.isWhitespace(tokenSymbols[pos])) {
+                pos++;
+            }
+        }
+
+        /**
+         * Is identifier character boolean.
+         *
+         * @param i the
+         * @return the boolean
+         */
+        public boolean isIdentifierCharacter(int i) {
+            return Character.isJavaIdentifierPart(tokenSymbols[i]);
+        }
+
+        /**
+         * Parse string const token.
+         *
+         * @return the const token
+         */
+        public ConstToken parseString() {
+            if (tokenSymbols[pos] != '\'') {
+                throwParseException("String expected", pos);
+            }
+            pos++; // 跳过开头的单引号
+            StringBuilder val = new StringBuilder();
+            val.append(nextIdentifier());
+            while (pos < tokenSymbols.length && tokenSymbols[pos] != '\'') {
+                val.append(tokenSymbols[pos]);
+                pos++;
+            }
+            if (tokenSymbols[pos] != '\'') {
+                throwParseException("String expected", pos);
+            }
+            pos++; // 跳过结尾的单引号
+            return ConstToken.ofStr(val.toString());
+        }
+
+        /**
+         * Parse int const token.
+         *
+         * @return the const token
+         */
+        public ConstToken parseInt() {
+            String val = nextIdentifier();
+            Integer.parseInt(val); // check
+            return ConstToken.ofInt(val);
+        }
+
+        /**
+         * Parse index token index token.
+         *
+         * @return the index token
+         */
+        public IndexToken parseIndexToken() {
+            if (tokenSymbols[pos] != INDEX_ACCESS_START_SYMBOL) {
+                return null;
+            }
+
+            List<ConstToken> index = new ArrayList<>();
+            while (pos < tokenSymbols.length && tokenSymbols[pos] == INDEX_ACCESS_START_SYMBOL) {
+                pos++; // 跳过 [
+                skipWhitespace();
+                if (tokenSymbols[pos] == '\'') {
+                    index.add(parseString());
                 } else {
-                    throw new ParseException("Unknown symbol "+tokenSymbols[i]);
+                    index.add(parseInt());
                 }
+                skipWhitespace();
+                if (pos >= tokenSymbols.length || tokenSymbols[pos] != INDEX_ACCESS_END_SYMBOL) {
+                    throwParseException("Unclosed index", pos);
+                }
+                pos++; // 跳过 ]
             }
-            if (owner == null) {
-                owner = tokenStr.substring(pos);
-                pos = tokenSymbols.length;
+            assert index.size() > 0;
+            return new IndexToken(index);
+        }
+
+        /**
+         * Parse method token method token.
+         *
+         * @param methodName the method name
+         * @return the method token
+         */
+        public MethodToken parseMethodToken(String methodName) {
+            if (tokenSymbols[pos] != METHOD_START_SYMBOL) {
+                throwParseException("Unknown symbol "+tokenSymbols[pos], pos);
             }
-            if (mapIndex && index == null) {
-                throw new ParseException("Unknown symbol '");
+            pos++; // 跳过 (
+            skipWhitespace();
+
+            ArgsToken args = new ArgsToken();
+            while (pos < tokenSymbols.length && tokenSymbols[pos] != METHOD_END_SYMBOL) {
+                if (tokenSymbols[pos] == '\'') {
+                    args.add(parseString());
+                } else if (tokenSymbols[pos] > '0' && tokenSymbols[pos] <= '9') {
+                    args.add(parseInt());
+                } else if (tokenSymbols[pos] == '$') {
+                    pos++;
+                    String identifier = nextIdentifier();
+                    args.add(new PlaceholderToken(Integer.parseInt(identifier)));
+                } else {
+                    Tokens chain = new Tokens();
+                    chain.add(parseNextToken());
+                    while (pos < tokenSymbols.length && tokenSymbols[pos] == SPLIT) {
+                        pos++;
+                        chain.add(parseNextToken());
+                    }
+                    args.add(chain);
+                }
+                if (pos >= tokenSymbols.length) {
+                    throwParseException("Unclosed method", pos);
+                }
+                if (tokenSymbols[pos] == ',') {
+                    pos++;
+                } else if (tokenSymbols[pos] != METHOD_END_SYMBOL) {
+                    throwParseException("Unknown symbol '"+tokenSymbols[pos]+"'", pos);
+                }
+                skipWhitespace();
             }
-            if (index != null) {
-                return mapIndex ? new MapKeyToken(owner, index) : new ArrayIndexFieldToken(owner, index);
-            }
-            return new FieldToken(owner);
+            pos++;
+            return new MethodToken(methodName, args);
+        }
+
+        /**
+         * Throw parse exception.
+         *
+         * @param message the message
+         * @param pos     the pos
+         */
+        public void throwParseException(String message, int pos) {
+            throw new ParseException(String.format("At position %d %s", pos+1, message));
         }
     }
 }

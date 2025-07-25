@@ -3,6 +3,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -11,8 +12,8 @@ import org.objectweb.asm.Type;
 /**
  * The type Wrap type action.
  */
-public class BoxAction implements LoadAction {
-    private final LoadAction obj;
+public class BoxAction implements LoadAction, TypedAction {
+    private final VarInst obj;
     private final Type wrapperType;
 
     /**
@@ -21,7 +22,7 @@ public class BoxAction implements LoadAction {
      * @param obj         the obj
      * @param wrapperType the wrapper type
      */
-    public BoxAction(LoadAction obj, Type wrapperType) {
+    public BoxAction(VarInst obj, Type wrapperType) {
         this.obj = obj;
         this.wrapperType = wrapperType;
     }

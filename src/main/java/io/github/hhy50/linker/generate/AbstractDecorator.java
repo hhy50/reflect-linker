@@ -2,8 +2,6 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.AbsMethodDefine;
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -155,10 +153,5 @@ public abstract class AbstractDecorator extends MethodHandle {
             varInst = methodBody.newLocalVar(new TypeCastAction(varInst, expectType));
         }
         return varInst;
-    }
-
-    @Override
-    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember classType, MethodHandleMember mhMember, VarInst objVar) {
-        throw new RuntimeException("Decorator not impl mhReassign() method");
     }
 }

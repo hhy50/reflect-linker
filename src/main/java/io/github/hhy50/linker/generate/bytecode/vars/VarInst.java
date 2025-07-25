@@ -19,7 +19,7 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
 /**
  * The type Var inst.
  */
-public abstract class VarInst implements LoadAction {
+public abstract class VarInst implements LoadAction, TypedAction {
 
     private final MethodBody body;
 

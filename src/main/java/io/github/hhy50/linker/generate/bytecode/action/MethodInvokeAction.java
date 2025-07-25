@@ -12,7 +12,7 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 /**
  * The type Method invoke action.
  */
-public class MethodInvokeAction implements LoadAction {
+public class MethodInvokeAction implements LoadAction, TypedAction {
 
     /**
      * The Method descriptor.

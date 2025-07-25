@@ -2,14 +2,15 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.Type;
 
 /**
  * The type Unwrap type action.
  */
-public class UnBoxAction implements LoadAction {
-    private final LoadAction obj;
+public class UnBoxAction implements LoadAction, TypedAction {
+    private final VarInst obj;
     private final Type primitiveType;
 
     /**
@@ -18,7 +19,7 @@ public class UnBoxAction implements LoadAction {
      * @param obj           the obj
      * @param primitiveType the primitive type
      */
-    public UnBoxAction(LoadAction obj, Type primitiveType) {
+    public UnBoxAction(VarInst obj, Type primitiveType) {
         this.obj = obj;
         this.primitiveType = primitiveType;
     }

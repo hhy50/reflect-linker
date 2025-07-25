@@ -1,8 +1,9 @@
 package io.github.hhy50.linker.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import io.github.hhy50.linker.exceptions.VerifyException;
+import io.github.hhy50.linker.util.Verifier;
+
+import java.lang.annotation.*;
 import java.lang.annotation.Target;
 
 /**
@@ -27,12 +28,6 @@ public interface Method {
         String value();
     }
 
-//    @Retention(RetentionPolicy.RUNTIME)
-//    @java.lang.annotation.Target({ElementType.METHOD})
-//    @interface DynamicSign {
-//        String value();
-//    }
-
     /**
      * 调用super
      */
@@ -51,8 +46,27 @@ public interface Method {
     /**
      * The interface Constructor.
      */
+    @Verify.Unique
+    @Verify.Custom(ConstructorVerifier.class)
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
     public @interface Constructor {
+    }
+
+    /**
+     * The type Constructor verifier.
+     */
+    class ConstructorVerifier implements Verifier {
+        @Override
+        public boolean test(java.lang.reflect.Method method, Annotation annotation) {
+            assert annotation.annotationType() == Constructor.class;
+            boolean runtime = method.getDeclaringClass().getDeclaredAnnotation(Runtime.class) != null;
+            if (runtime)
+                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "], @Constructor cannot be used with @Runtime");
+            if (method.getReturnType() != method.getDeclaringClass()) {
+                throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "], return type must be this class");
+            }
+            return true;
+        }
     }
 }

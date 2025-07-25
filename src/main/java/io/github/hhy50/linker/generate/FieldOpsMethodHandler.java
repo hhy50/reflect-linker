@@ -83,8 +83,8 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      * @param field            the field
      */
     protected void defineMethod(InvokeClassImplBuilder classImplBuilder, EarlyFieldRef field) {
-        FieldRef prevField = field.getPrev();
-        Getter getter = classImplBuilder.getGetter(prevField.getUniqueName());
+        FieldRef prev = field.getPrev();
+        Getter getter = classImplBuilder.getGetter(prev.getUniqueName());
         getter.define(classImplBuilder);
 
         MethodBody clinit = classImplBuilder.getClinit();

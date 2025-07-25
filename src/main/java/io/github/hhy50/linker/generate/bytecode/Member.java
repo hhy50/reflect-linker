@@ -1,8 +1,10 @@
 package io.github.hhy50.linker.generate.bytecode;
 
+import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
+import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -13,7 +15,7 @@ import java.util.Objects;
 /**
  * The type Member.
  */
-public class Member implements LoadAction {
+public class Member implements LoadAction, TypedAction {
 
     /**
      * The Access.
@@ -57,19 +59,11 @@ public class Member implements LoadAction {
 
     /**
      * Instantiates a new Member.
-     *
-     * @param access       the access
-     * @param owner        the owner
-     * @param memberName   the member name
-     * @param type         the type
-     * @param fieldVisitor the field visitor
+     * @param field
      */
-    public Member(int access, String owner, String memberName, Type type, FieldVisitor fieldVisitor) {
-        this.access = access;
-        this.owner = owner;
-        this.memberName = memberName;
-        this.type = type;
-        this.fieldVisitor = fieldVisitor;
+    public Member(AsmField field) {
+        this(field.access, field.owner, field.name, field.type);
+        this.fieldVisitor = field;
     }
 
     /**

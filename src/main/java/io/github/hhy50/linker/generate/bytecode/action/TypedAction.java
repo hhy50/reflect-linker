@@ -2,6 +2,8 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import org.objectweb.asm.Type;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * The interface Action.
  */
@@ -20,10 +22,12 @@ public interface TypedAction extends Action {
      * @return action action
      */
     default Action thenReturn() {
-        return body ->  {
+        return body -> {
+            Type type = getType();
+            requireNonNull(type);
+
             apply(body);
-            // 有些类型执行apply（也就是有了body之后）后才能确定
-            Actions.areturn(getType()).apply(body);
+            Actions.areturn(type).apply(body);
         };
     }
 }

@@ -2,9 +2,11 @@ package io.github.hhy50.linker.define.field;
 
 
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.util.ReflectUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
@@ -25,7 +27,7 @@ public class EarlyFieldRef extends FieldRef {
      * @param assignedType the assigned type
      */
     public EarlyFieldRef(FieldRef prev, Field field, Class<?> assignedType) {
-        super(prev, prev.getUniqueName(), field.getName());
+        super(prev, field.getName());
         this.lookup = field.getDeclaringClass();
         this.declaredType = field.getType();
         this.assignedType = assignedType;
@@ -36,12 +38,11 @@ public class EarlyFieldRef extends FieldRef {
      * Instantiates a new Early field ref.
      *
      * @param prev           the prev
-     * @param objName        the obj name
      * @param fieldName      the field name
      * @param fieldTypeClass the field type class
      */
-    public EarlyFieldRef(FieldRef prev, String objName, String fieldName, Class<?> fieldTypeClass) {
-        super(prev, objName, fieldName);
+    public EarlyFieldRef(FieldRef prev, String fieldName, Class<?> fieldTypeClass) {
+        super(prev, fieldName);
         this.declaredType = fieldTypeClass;
     }
 
@@ -90,5 +91,10 @@ public class EarlyFieldRef extends FieldRef {
             return this.assignedType;
         }
         return this.declaredType;
+    }
+
+    @Override
+    public Method findMethod(String methodName, String[] argsType, String superClass) {
+        return ReflectUtil.matchMethod(getClassType(), methodName, superClass, argsType);
     }
 }

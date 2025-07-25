@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode;
 
 
+import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
@@ -22,11 +23,11 @@ public class MethodHandleMember extends Member {
     /**
      * Instantiates a new Method handle member.
      *
-     * @param member     the member
+     * @param field     the field
      * @param methodType the method type
      */
-    public MethodHandleMember(Member member, Type methodType) {
-        super(member.access, member.owner, member.memberName, member.type);
+    public MethodHandleMember(AsmField field, Type methodType) {
+        super(field);
         this.invokerType = null;
         this.methodType = methodType;
     }
@@ -34,12 +35,12 @@ public class MethodHandleMember extends Member {
     /**
      * Instantiates a new Method handle member.
      *
-     * @param member      the member
+     * @param field      the field
      * @param invokerType the invoker type
      * @param methodType  the method type
      */
-    public MethodHandleMember(Member member, Type invokerType, Type methodType) {
-        super(member.access, member.owner, member.memberName, member.type);
+    public MethodHandleMember(AsmField field, Type invokerType, Type methodType) {
+        super(field);
         this.invokerType = invokerType;
         this.methodType = methodType;
     }

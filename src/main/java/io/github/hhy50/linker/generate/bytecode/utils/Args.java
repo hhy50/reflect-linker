@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.bytecode.utils;
 
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.LazyTypedAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
@@ -37,9 +38,10 @@ public class Args {
      * @param index the index
      * @return the action
      */
-    public static LoadAction of(int index) {
-        return new LoadAction() {
+    public static LoadArgsAction of(int index) {
+        return new LoadArgsAction() {
             private Type type;
+
             @Override
             public void load(MethodBody body) {
                 VarInst arg = body.getArgs()[index];
@@ -52,5 +54,9 @@ public class Args {
                 return type;
             }
         };
+    }
+
+    public interface LoadArgsAction extends LoadAction, LazyTypedAction {
+
     }
 }

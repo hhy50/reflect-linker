@@ -1,9 +1,12 @@
 package io.github.hhy50.linker.generate.bytecode.utils;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
+import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.exceptions.MemberNotFoundException;
+import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.LazyTypedAction;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -31,7 +34,7 @@ public class Members {
      * @return the member
      */
     public static Member ofStatic(String memberName, Type type) {
-        return new Member(Opcodes.ACC_PUBLIC|Opcodes.ACC_STATIC, null, memberName, type);
+        return new Member(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, null, memberName, type);
     }
 
     /**
@@ -44,10 +47,11 @@ public class Members {
     public static Action ofStore(String memberName, Action action) {
         return body -> {
             AsmClassBuilder classBuilder = body.getClassBuilder();
-            Member member = classBuilder.getMembers().get(memberName);
-            if (member == null) {
+            AsmField field = classBuilder.getField(memberName);
+            if (field == null) {
                 throw new MemberNotFoundException(classBuilder.getClassName(), memberName);
             }
+            Member member = new Member(field);
             member.store(body, action);
         };
     }
@@ -58,14 +62,25 @@ public class Members {
      * @param memberName the member name
      * @return the member
      */
-    public static Action ofLoad(String memberName) {
-        return body -> {
-            AsmClassBuilder classBuilder = body.getClassBuilder();
-            Member member = classBuilder.getMembers().get(memberName);
-            if (member == null) {
-                throw new MemberNotFoundException(classBuilder.getClassName(), memberName);
+    public static LazyTypedAction load(String memberName) {
+        return new LazyTypedAction() {
+            Type type;
+            @Override
+            public Type getType() {
+                return type;
             }
-            member.load(body);
+
+            @Override
+            public void apply(MethodBody body) {
+                AsmClassBuilder classBuilder = body.getClassBuilder();
+                AsmField field = classBuilder.getField(memberName);
+                if (field == null) {
+                    throw new MemberNotFoundException(classBuilder.getClassName(), memberName);
+                }
+                this.type = field.type;
+                Member member = new Member(field);
+                member.load(body);
+            }
         };
     }
 }

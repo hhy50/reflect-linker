@@ -3,7 +3,6 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.InterfaceImplClass;
-import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.StringUtil;
@@ -55,8 +54,6 @@ public class ClassImplGenerator {
             mh = BytecodeFactory.generateGetter(classBuilder, absMethodDefine, absMethodDefine.fieldRef);
         } else if (absMethodDefine.hasSetter()) {
             mh = BytecodeFactory.generateSetter(classBuilder, absMethodDefine, absMethodDefine.fieldRef);
-        } else if (absMethodDefine.hasConstructor()) {
-            mh = BytecodeFactory.generateConstructor(classBuilder, absMethodDefine, (ConstructorRef) absMethodDefine.methodRef);
         } else if (absMethodDefine.methodRef != null) {
             mh = BytecodeFactory.generateInvoker(classBuilder, absMethodDefine, absMethodDefine.methodRef);
         } else {
