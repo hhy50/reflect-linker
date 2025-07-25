@@ -11,7 +11,7 @@ import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.invoker.Invoker;
-import io.github.hhy50.linker.util.TypeUtils;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -50,7 +50,7 @@ public class Constructor extends Invoker<ConstructorRef> {
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),
-                                Actions.asArray(TypeUtils.CLASS_TYPE,
+                                Actions.asArray(TypeUtil.CLASS_TYPE,
                                         Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
 
                         ));

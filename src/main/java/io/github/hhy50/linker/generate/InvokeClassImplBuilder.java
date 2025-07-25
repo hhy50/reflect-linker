@@ -12,14 +12,14 @@ import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.setter.Setter;
-import io.github.hhy50.linker.util.TypeUtils;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.github.hhy50.linker.util.TypeUtils.METHOD_HANDLER_TYPE;
+import static io.github.hhy50.linker.util.TypeUtil.METHOD_HANDLER_TYPE;
 
 /**
  * The type Invoke class impl builder.
@@ -183,7 +183,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         mName = mName+"_lookup_$_class_type";
         AsmField field = getField(mName);
         if (field == null) {
-            field = super.defineField(Opcodes.ACC_PUBLIC, mName, TypeUtils.CLASS_TYPE, null, null);
+            field = super.defineField(Opcodes.ACC_PUBLIC, mName, TypeUtil.CLASS_TYPE, null, null);
         }
         return new ClassTypeMember(field);
     }

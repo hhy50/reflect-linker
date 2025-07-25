@@ -8,7 +8,7 @@ import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.util.ClassUtil;
-import io.github.hhy50.linker.util.TypeUtils;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.*;
 
 import java.util.*;
@@ -147,7 +147,7 @@ public class AsmClassBuilder {
      * @return the method builder
      */
     public MethodBuilder defineConstruct(int access, Class<?>... argsType) {
-        return defineMethod(access, "<init>", TypeUtils.getMethodType(void.class, argsType), null);
+        return defineMethod(access, "<init>", TypeUtil.getMethodType(void.class, argsType), null);
     }
 
     /**

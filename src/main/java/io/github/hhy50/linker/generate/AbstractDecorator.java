@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -11,7 +10,7 @@ import io.github.hhy50.linker.generate.type.TypeCast;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.AnnotationUtils;
 import io.github.hhy50.linker.util.StringUtil;
-import io.github.hhy50.linker.util.TypeUtils;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -89,14 +88,14 @@ public abstract class AbstractDecorator extends MethodHandle {
     protected VarInst typecastResult(MethodBody methodBody, VarInst varInst) {
         Method method = absMethodDefine.method;
         Class<?> returnClassType = method.getReturnType();
-        if (returnClassType == Object.class && !AsmUtil.isPrimitiveType(varInst.getType())) {
+        if (returnClassType == Object.class && !TypeUtil.isPrimitiveType(varInst.getType())) {
             return varInst;
         }
         String bindClass = AnnotationUtils.getBind(returnClassType);
         {
             Type expectType = Type.getType(returnClassType);
             if (StringUtil.isNotEmpty(bindClass)) {
-                checkType(methodBody, varInst, AsmUtil.getType(bindClass));
+                checkType(methodBody, varInst, TypeUtil.getType(bindClass));
                 expectType = ObjectVar.TYPE;
             } else if (!returnClassType.isPrimitive() && this.autolink) {
                 expectType = ObjectVar.TYPE;
@@ -145,7 +144,7 @@ public abstract class AbstractDecorator extends MethodHandle {
         if (varInst.getType().equals(expectType)) {
             return varInst;
         }
-        if (expectType.equals(ObjectVar.TYPE) && !AsmUtil.isPrimitiveType(varInst.getType())) {
+        if (expectType.equals(ObjectVar.TYPE) && !TypeUtil.isPrimitiveType(varInst.getType())) {
             return varInst;
         }
         List<TypeCast> types = Arrays.asList(new AutoBox(), new ContainerCast());

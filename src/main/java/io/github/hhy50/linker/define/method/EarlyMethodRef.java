@@ -1,11 +1,11 @@
 package io.github.hhy50.linker.define.method;
 
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
 import io.github.hhy50.linker.generate.invoker.Invoker;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -105,11 +105,11 @@ public class EarlyMethodRef extends MethodRef {
     static Type genericType(Type methodType) {
         Type rType = methodType.getReturnType();
         Type[] argsType = methodType.getArgumentTypes();
-        if (!rType.equals(Type.VOID_TYPE) && AsmUtil.isObjectType(rType)) {
+        if (!rType.equals(Type.VOID_TYPE) && TypeUtil.isObjectType(rType)) {
             rType = ObjectVar.TYPE;
         }
         for (int i = 0; i < argsType.length; i++) {
-            if (!argsType[i].equals(Type.VOID_TYPE) && AsmUtil.isObjectType(argsType[i])) {
+            if (!argsType[i].equals(Type.VOID_TYPE) && TypeUtil.isObjectType(argsType[i])) {
                 argsType[i] = ObjectVar.TYPE;
             }
         }
