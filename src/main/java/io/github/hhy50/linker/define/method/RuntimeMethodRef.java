@@ -1,10 +1,10 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public class RuntimeMethodRef extends MethodRef {
         Arrays.fill(newArgsType, ObjectVar.TYPE);
         this.methodType = Type.getMethodType(ObjectVar.TYPE, newArgsType);
         this.argsType = Arrays.stream(argsType)
-                .map(AsmUtil::getType).toArray(Type[]::new);
+                .map(TypeUtil::getType).toArray(Type[]::new);
     }
 
     @Override

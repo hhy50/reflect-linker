@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.method.MethodRef;
@@ -12,7 +11,7 @@ import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
-import io.github.hhy50.linker.util.TypeUtils;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
@@ -72,7 +71,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                 .setArgs(lookupClass.getLookup(methodBody), lookupClass,
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
-                        Actions.asArray(TypeUtils.STRING_TYPE, Arrays.stream(runtime.getArgsType())
+                        Actions.asArray(TypeUtil.STRING_TYPE, Arrays.stream(runtime.getArgsType())
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
                 );
         mhMember.store(methodBody, fineMethod);
@@ -83,19 +82,19 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
         MethodInvokeAction findXXX;
-        Action argsType = Actions.asArray(TypeUtils.CLASS_TYPE, Arrays.stream(methodType.getArgumentTypes()).map(this::loadClass).toArray(Action[]::new));
-        Action returnType = methodType.getReturnType() == Type.VOID_TYPE || AsmUtil.isPrimitiveType(methodType.getReturnType())
+        Action argsType = Actions.asArray(TypeUtil.CLASS_TYPE, Arrays.stream(methodType.getArgumentTypes()).map(this::loadClass).toArray(Action[]::new));
+        Action returnType = methodType.getReturnType() == Type.VOID_TYPE || TypeUtil.isPrimitiveType(methodType.getReturnType())
                 ? LdcLoadAction.of(methodType.getReturnType()) : this.loadClass(methodType.getReturnType());
         if (invokeSpecial) {
             findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDSPECIAL).setArgs(
-                    LdcLoadAction.of(AsmUtil.getType(superClass)),
+                    LdcLoadAction.of(TypeUtil.getType(superClass)),
                     LdcLoadAction.of(methodName),
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType),
                     lookupClass
             );
         } else {
             findXXX = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATIC : MethodDescriptor.LOOKUP_FINDVIRTUAL).setArgs(
-                    superClass != null ? LdcLoadAction.of(AsmUtil.getType(superClass)) : lookupClass,
+                    superClass != null ? LdcLoadAction.of(TypeUtil.getType(superClass)) : lookupClass,
                     LdcLoadAction.of(methodName),
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType)
             );

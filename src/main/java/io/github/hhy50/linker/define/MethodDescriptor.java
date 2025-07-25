@@ -1,10 +1,9 @@
 package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.LinkerFactory;
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.provider.TargetProvider;
 import io.github.hhy50.linker.util.StringUtil;
-import io.github.hhy50.linker.util.TypeUtils;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.invoke.MethodHandle;
@@ -126,7 +125,7 @@ public class MethodDescriptor {
      * @return method descriptor
      */
     public static MethodDescriptor ofConstructor(Class<?>... argsType) {
-        return new SmartMethodDescriptor("<init>", TypeUtils.getMethodType(void.class, argsType));
+        return new SmartMethodDescriptor("<init>", TypeUtil.getMethodType(void.class, argsType));
     }
 
     /**
@@ -139,7 +138,7 @@ public class MethodDescriptor {
      * @return method descriptor
      */
     public static MethodDescriptor of(Class<?> clazzName, String name, Class<?> rType, Class<?>... argsType) {
-        return new MethodDescriptor(AsmUtil.toOwner(clazzName.getName()), name, TypeUtils.getMethodType(rType, argsType));
+        return new MethodDescriptor(TypeUtil.toOwner(clazzName.getName()), name, TypeUtil.getMethodType(rType, argsType));
     }
 
     /**

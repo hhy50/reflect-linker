@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
@@ -11,6 +10,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import io.github.hhy50.linker.runtime.Runtime;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.util.Objects;
@@ -209,14 +209,14 @@ public abstract class MethodHandle {
 
         @Override
         public void apply(MethodBody body) {
-            if (AsmUtil.isPrimitiveType(type)) {
+            if (TypeUtil.isPrimitiveType(type)) {
                 LdcLoadAction.of(type).load(body);
                 return;
             }
 
             if (this.clazzVar == null) {
                 AsmClassBuilder classBuilder = body.getClassBuilder();
-                Action cl = LdcLoadAction.of(AsmUtil.getType(classBuilder.getClassName()))
+                Action cl = LdcLoadAction.of(TypeUtil.getType(classBuilder.getClassName()))
                         .invokeMethod(MethodDescriptor.GET_CLASS_LOADER);
                 this.clazzVar = body.newLocalVar(new MethodInvokeAction(Runtime.GET_CLASS)
                         .setArgs(cl, LdcLoadAction.of(type.getClassName())));
