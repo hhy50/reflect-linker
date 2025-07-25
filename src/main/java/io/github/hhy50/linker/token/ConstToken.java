@@ -1,6 +1,12 @@
 package io.github.hhy50.linker.token;
 
 
+import io.github.hhy50.linker.define.ParseContext;
+import io.github.hhy50.linker.util.TypeUtils;
+import org.objectweb.asm.Type;
+
+import java.lang.reflect.Method;
+
 /**
  * The interface Const token.
  */
@@ -9,7 +15,7 @@ public interface ConstToken extends Token {
     /**
      * The type Int.
      */
-    class Int implements ConstToken {
+    class Int implements ConstToken, ArgType {
         private final String val;
 
         /**
@@ -25,12 +31,17 @@ public interface ConstToken extends Token {
         public String toString() {
             return this.val;
         }
+
+        @Override
+        public Type getType(ParseContext context, Method methodDefine) {
+            return Type.INT_TYPE;
+        }
     }
 
     /**
      * The type Str.
      */
-    class Str implements ConstToken {
+    class Str implements ConstToken, ArgType {
         private final String val;
 
         /**
@@ -45,6 +56,11 @@ public interface ConstToken extends Token {
         @Override
         public String toString() {
             return "'"+val+"'";
+        }
+
+        @Override
+        public Type getType(ParseContext context, Method methodDefine) {
+            return TypeUtils.STRING_TYPE;
         }
     }
 

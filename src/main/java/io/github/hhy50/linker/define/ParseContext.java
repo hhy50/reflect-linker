@@ -1,25 +1,20 @@
 package io.github.hhy50.linker.define;
 
-import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.define.field.MethodTmpFieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
-import io.github.hhy50.linker.define.method.ConstructorRef;
-import io.github.hhy50.linker.define.method.EarlyMethodRef;
-import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.define.method.RuntimeMethodRef;
+import io.github.hhy50.linker.define.method.*;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
 import io.github.hhy50.linker.token.*;
 import io.github.hhy50.linker.util.*;
+import org.objectweb.asm.Type;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -47,7 +42,7 @@ public class ParseContext {
     /**
      * The Target root.
      */
-    FieldRef targetRoot;
+    EarlyFieldRef targetRoot;
 
     /**
      * The Parsed fields.
@@ -76,8 +71,7 @@ public class ParseContext {
     ParseContext(Class<?> defineClass, Class<?> targetClass) {
         this.defineClass = defineClass;
         this.targetClass = targetClass;
-        this.targetRoot = AnnotationUtils.isRuntime(defineClass)
-                ? new RuntimeFieldRef(null, null, FIRST_OBJ_NAME) : new EarlyFieldRef(null, null, FIRST_OBJ_NAME, targetClass);
+        this.targetRoot = new EarlyFieldRef(null, FIRST_OBJ_NAME, targetClass);
     }
 
     /**
@@ -92,14 +86,14 @@ public class ParseContext {
         for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
             String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
             if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
+                throw new VerifyException("@Typed of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
             }
         }
         for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticTokens(method, CURRENT_TOKEN).entrySet()) {
             String name = fieldEntry.getKey();
             Boolean isStatic = this.staticTokens.put(name, fieldEntry.getValue());
             if (isStatic != null && !isStatic.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Static of field '" + name + "' defined twice is inconsistent");
+                throw new VerifyException("@Static of field '"+name+"' defined twice is inconsistent");
             }
         }
     }
@@ -168,12 +162,12 @@ public class ParseContext {
             Tokens tokens = tokenParser.parse(exprStr);
             absMethodDefine.fieldRef = parseFieldExpr(targetClass, tokens);
         } else if (absMethodDefine.hasConstructor()) {
-            String[] argsType = parseArgsType(method, null);
+            String[] argsType = parseArgsType(method, null, true);
             Constructor<?> constructor = ReflectUtil.matchConstructor(targetClass, argsType);
             if (constructor == null) {
                 throw new ParseException("Constructor not found in class '"+targetClass+"' with args "+Arrays.toString(argsType));
             }
-            absMethodDefine.methodRef = new ConstructorRef(targetClass, method.getName(), constructor);
+            absMethodDefine.methodRef = new ConstructorRef(targetRoot, method.getName(), constructor);
         } else {
             String methodExpr = Optional.ofNullable(expr).map(io.github.hhy50.linker.annotations.Method.Expr::value).orElseGet(() ->
                     method.getName()+"("+IntStream.range(0, method.getParameterCount()).mapToObj(i -> "$"+i).collect(Collectors.joining(","))+")"
@@ -186,13 +180,17 @@ public class ParseContext {
     private MethodRef parseMethodExpr(Method methodDefine, final Tokens tokens) throws ClassNotFoundException {
         io.github.hhy50.linker.annotations.Method.InvokeSuper invokeSuper = methodDefine
                 .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class);
-
         Iterator<SplitToken> tokensIterator = tokens.splitWithMethod();
+
+        // 提前全部解析
+        ArrayList<SplitToken> tokenList = new ArrayList<>();
+        while (tokensIterator.hasNext()) {
+            tokenList.add(tokensIterator.next());
+        }
 
         Class<?> curType = targetClass;
         ArrayList<MethodRef> methods = new ArrayList<>();
-        while (tokensIterator.hasNext()) {
-            SplitToken splitToken = tokensIterator.next();
+        for (SplitToken splitToken : tokenList) {
             Tokens fieldToken = (Tokens) splitToken.prefix;
             MethodToken methodToken = (MethodToken) splitToken.suffix;
 
@@ -206,7 +204,7 @@ public class ParseContext {
                 owner = new EarlyFieldRef(null, "target", targetClass);
             }
             if (methodToken != null) {
-                String[] argsType = parseArgsType(methodDefine, methodToken);
+                String[] argsType = parseArgsType(methodDefine, methodToken, false);
                 Method method = owner.findMethod(methodToken.methodName, argsType, null);
                 if (method != null) {
                     methods.add(new EarlyMethodRef(owner, method));
@@ -254,20 +252,18 @@ public class ParseContext {
         return lastField;
     }
 
-    private static String[] parseArgsType(Method methodDefine, MethodToken methodToken) {
-        return Arrays.stream(methodDefine.getParameters())
+    private String[] parseArgsType(Method methodDefine, MethodToken methodToken, boolean isConstructor) {
+        if (isConstructor) {
+            return Arrays.stream(methodDefine.getParameters())
+                    .map(ParseUtil::getRawType).toArray(String[]::new);
+        }
+        List<ArgType> args = methodToken.getArgsType();
+        return args.stream()
                 .map(item -> {
-                    String typed = AnnotationUtils.getTyped(item);
-                    if (StringUtil.isNotEmpty(typed)) {
-                        return typed;
-                    }
-                    Class<?> type = item.getType();
-                    String bind = AnnotationUtils.getBind(type);
-                    if (StringUtil.isNotEmpty(bind)) {
-                        return bind;
-                    }
-                    return type.getCanonicalName();
-                }).toArray(String[]::new);
+                    Type type = item.getType(this, methodDefine);
+                    return type;
+                })
+                .map(Type::getClassName).toArray(String[]::new);
     }
 
     private Class<?> getFieldTyped(String fullField, String tokenValue) throws ClassNotFoundException {

@@ -1,9 +1,15 @@
 package io.github.hhy50.linker.token;
 
+import io.github.hhy50.linker.define.ParseContext;
+import org.objectweb.asm.Type;
+
+import java.lang.reflect.Method;
+import java.util.List;
+
 /**
  * The type Method token.
  */
-public class MethodToken implements Token {
+public class MethodToken implements Token, ArgType {
 
     /**
      * The Method name.
@@ -23,6 +29,11 @@ public class MethodToken implements Token {
         this.args = args;
     }
 
+    @SuppressWarnings("unchecked")
+    public List<ArgType> getArgsType() {
+        return (List) args.args;
+    }
+
     @Override
     public String toString() {
         return methodName+args+(index == null ? "" : index);
@@ -30,5 +41,10 @@ public class MethodToken implements Token {
 
     public void setIndex(IndexToken index) {
         this.index = index;
+    }
+
+    @Override
+    public Type getType(ParseContext context, Method methodDefine) {
+        return Type.getType(Object.class);
     }
 }

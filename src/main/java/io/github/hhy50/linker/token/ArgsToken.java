@@ -1,5 +1,7 @@
 package io.github.hhy50.linker.token;
 
+import io.github.hhy50.linker.exceptions.ParseException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +28,9 @@ public class ArgsToken implements Token {
      * @param token the token
      */
     public void add(Token token) {
+        if (!ArgType.class.isAssignableFrom(token.getClass())) {
+            throw new ParseException("Invalid argument type");
+        }
         this.args.add(token);
     }
 

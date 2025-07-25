@@ -1,14 +1,17 @@
 package io.github.hhy50.linker.token;
 
 
+import io.github.hhy50.linker.define.ParseContext;
 import io.github.hhy50.linker.util.ReflectUtil;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * The type Field token.
  */
-public class FieldToken implements Token {
+public class FieldToken implements Token, ArgType {
 
     /**
      * The Field name.
@@ -44,5 +47,10 @@ public class FieldToken implements Token {
 
     public void setIndex(IndexToken index) {
         this.index = index;
+    }
+
+    @Override
+    public Type getType(ParseContext context, Method methodDefine) {
+        return null;
     }
 }

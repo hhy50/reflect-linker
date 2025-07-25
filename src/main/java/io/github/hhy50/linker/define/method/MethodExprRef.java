@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.define.method;
 
+import io.github.hhy50.linker.generate.invoker.Invoker;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -32,5 +33,10 @@ public class MethodExprRef extends MethodRef {
 //            return genericType(type);
 //        }
 //        return type;
+    }
+
+    @Override
+    public Invoker<?> defineInvoker() {
+        return null;
     }
 }

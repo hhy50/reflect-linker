@@ -26,7 +26,6 @@ public class Tokens implements Iterable<Token>, Token {
             tail = head;
         } else {
             tail.next = new Node(token, null);
-            ;
             tail = tail.next;
         }
         size++;
