@@ -104,19 +104,18 @@ public abstract class AbstractDecorator extends MethodHandle {
         }
 
         Type retType = Type.getType(returnClassType);
-        if ((StringUtil.isNotEmpty(bindClass) || (autolink && returnClassType.isInterface()))) {
+        if (Collection.class.isAssignableFrom(returnClassType) && method.getGenericReturnType() instanceof ParameterizedType) {
+            java.lang.reflect.Type actualType = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
+            Class genericType = actualType instanceof Class ? (Class) actualType : null;
+            if (genericType != null && genericType.isInterface() && (AnnotationUtils.getBind(genericType) != null || autolink))
+                return methodBody.newLocalVar(retType, varInst.getName(), new CreateLinkerCollectAction(Type.getType(genericType), varInst));
+        } else if (returnClassType.isInterface() && (StringUtil.isNotEmpty(bindClass) || autolink)) {
             methodBody.append(new ConditionJumpAction(
                     any(isNull(varInst), instanceOf(varInst, retType)),
                     varInst.thenReturn(), null));
-
             return methodBody.newLocalVar(varInst.getName(), new TypeCastAction(new CreateLinkerAction(retType, varInst), retType));
         } else if (!varInst.getType().equals(retType)) {
             return methodBody.newLocalVar(varInst.getName(), new TypeCastAction(varInst, retType));
-        } else if (Collection.class.isAssignableFrom(returnClassType) && method.getGenericReturnType() instanceof ParameterizedType) {
-            java.lang.reflect.Type actualType = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
-            Class genericType = actualType instanceof Class ? (Class) actualType : null;
-            if (genericType != null && AnnotationUtils.getBind(genericType) != null)
-                return methodBody.newLocalVar(retType, varInst.getName(), new CreateLinkerCollectAction(Type.getType(genericType), varInst));
         }
         return varInst;
     }

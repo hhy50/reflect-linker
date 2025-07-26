@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.LinkerFactory;
-import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.exceptions.LinkerException;
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.test.LInteger;
 import org.junit.Assert;
 import org.junit.Test;

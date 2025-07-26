@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.asm.tree;
 
+import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import org.objectweb.asm.AnnotationVisitor;
@@ -99,6 +100,7 @@ public interface LClassNode extends TargetProvider<ClassVisitor> {
      *
      * @return the fields
      */
+    @Autolink
     @Field.Getter("fields")
     List<LFieldNode> getFields();
 
