@@ -15,7 +15,7 @@ public class FieldToken implements Token {
      */
     public String fieldName;
 
-    private IndexToken index;
+    public IndexToken index;
 
     /**
      * Instantiates a new Field token.

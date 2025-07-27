@@ -5,6 +5,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * The type Field ref.
@@ -17,6 +18,8 @@ public abstract class FieldRef {
     public String fieldName;
 
     private String fullName;
+
+    private List<Object> index;
 
     private FieldRef prev;
 
@@ -100,5 +103,9 @@ public abstract class FieldRef {
 
     public Method findMethod(String methodName, String[] argsType, String superClass) {
         return null;
+    }
+
+    public void setIndex(List<Object> index) {
+        this.index = index;
     }
 }

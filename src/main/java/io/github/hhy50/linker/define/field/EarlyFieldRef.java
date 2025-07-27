@@ -8,6 +8,9 @@ import org.objectweb.asm.Type;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The type Early field ref.
@@ -91,6 +94,15 @@ public class EarlyFieldRef extends FieldRef {
             return this.assignedType;
         }
         return this.declaredType;
+    }
+
+    @Override
+    public void setIndex(List<Object> index) {
+        Class<?> type = getClassType();
+        if (type.isArray() || Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
+            super.setIndex( index);
+        }
+        throw new RuntimeException();
     }
 
     @Override

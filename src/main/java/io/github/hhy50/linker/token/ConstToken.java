@@ -25,6 +25,11 @@ public interface ConstToken extends Token {
         public String toString() {
             return this.val;
         }
+
+        @Override
+        public Object getValue() {
+            return Integer.valueOf(val);
+        }
     }
 
     /**
@@ -46,7 +51,14 @@ public interface ConstToken extends Token {
         public String toString() {
             return "'"+val+"'";
         }
+
+        @Override
+        public Object getValue() {
+            return val;
+        }
     }
+
+    public Object getValue();
 
     /**
      * Of int const token.

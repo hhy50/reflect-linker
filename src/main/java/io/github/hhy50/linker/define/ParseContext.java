@@ -12,10 +12,7 @@ import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
-import io.github.hhy50.linker.token.FieldToken;
-import io.github.hhy50.linker.token.Token;
-import io.github.hhy50.linker.token.TokenParser;
-import io.github.hhy50.linker.token.Tokens;
+import io.github.hhy50.linker.token.*;
 import io.github.hhy50.linker.util.*;
 
 import java.lang.annotation.Annotation;
@@ -176,7 +173,7 @@ public class ParseContext {
             String[] argsType = parseArgsType(method);
             Constructor<?> constructor = ReflectUtil.matchConstructor(targetClass, argsType);
             if (constructor == null) {
-                throw new ParseException("Constructor not found in class '" + targetClass + "' with args " + Arrays.toString(argsType));
+                throw new ParseException("Constructor not found in class '"+targetClass+"' with args "+Arrays.toString(argsType));
             }
             absMethodDefine.methodRef = new ConstructorRef(targetRoot, method.getName(), constructor);
         } else {
@@ -186,7 +183,7 @@ public class ParseContext {
             int i;
             if ((i = methodName.lastIndexOf('.')) != -1) {
                 fieldExpr = methodName.substring(0, i);
-                methodName = methodName.substring(i + 1);
+                methodName = methodName.substring(i+1);
             }
             absMethodDefine.methodRef = parseMethodExpr(methodName, method, tokenParser.parse(fieldExpr));
         }
@@ -204,7 +201,7 @@ public class ParseContext {
             Class<?> ownerClass = ((EarlyFieldRef) owner).getClassType();
             Method method = ReflectUtil.matchMethod(ownerClass, methodName, superClass, argsType);
             if (method == null && this.typedFields.containsKey(owner.getFullName())) {
-                throw new ParseException("can not find method " + methodName + " in class " + ownerClass.getName());
+                throw new ParseException("can not find method "+methodName+" in class "+ownerClass.getName());
             }
             methodRef = method == null ? null : new EarlyMethodRef(owner, method);
         }
@@ -228,25 +225,21 @@ public class ParseContext {
             }
             FieldToken token = (FieldToken) item;
             String fieldName = token.fieldName;
+            IndexToken index = token.index;
             Field earlyField = currentType == null ? null : token.getField(currentType);
             currentType = earlyField == null ? null : earlyField.getType();
             fullField = Optional.ofNullable(fullField).map(i -> i+"."+fieldName).orElse(fieldName);
-            if (!this.parsedFields.containsKey(fullField)) {
-                // 使用@Typed指定的类型
-                Class<?> assignedType = getFieldTyped(fullField, fieldName);
-                if (assignedType != null) {
-                    if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
-                        throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
-                    }
-                    currentType = assignedType;
+            // 使用@Typed指定的类型
+            Class<?> assignedType = getFieldTyped(fullField, fieldName);
+            if (assignedType != null) {
+                if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
+                    throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
                 }
-                lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType)
-                        : new RuntimeFieldRef(lastField, fieldName);
-                lastField.setFullName(fullField);
-                this.parsedFields.put(fullField, lastField);
-            } else {
-                lastField = this.parsedFields.get(fullField);
+                currentType = assignedType;
             }
+            lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType) : new RuntimeFieldRef(lastField, fieldName);
+            lastField.setFullName(fullField);
+            lastField.setIndex(index.toList());
             designateStatic(lastField);
         }
         return lastField;
