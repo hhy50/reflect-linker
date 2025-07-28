@@ -126,7 +126,6 @@ public class MethodBody {
      * @return local var inst
      */
     public LocalVarInst newLocalVar(String name, TypedAction action) {
-        // 部分TypedAction可能拿不到早期的类型定义, 只有执行后才确定类型
         Type type = action.getType();
         return newLocalVar(type, name, action);
     }

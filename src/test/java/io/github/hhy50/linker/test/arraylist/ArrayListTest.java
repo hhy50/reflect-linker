@@ -36,6 +36,7 @@ public class ArrayListTest {
 
         Assert.assertTrue(list instanceof TargetProvider);
         Assert.assertTrue(objects == list.getElementData());
+        Object list0 = list.get0();
 
         list.add(1);
         list.add(2);

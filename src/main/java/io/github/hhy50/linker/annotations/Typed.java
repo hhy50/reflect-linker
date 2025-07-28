@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.annotations;
 
 
-import java.lang.annotation.*;
 import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * <p>Typed class.</p>

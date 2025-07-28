@@ -27,8 +27,8 @@ public interface ConstToken extends Token {
         }
 
         @Override
-        public Object getValue() {
-            return Integer.valueOf(val);
+        public String getValue() {
+            return val;
         }
     }
 
@@ -53,12 +53,12 @@ public interface ConstToken extends Token {
         }
 
         @Override
-        public Object getValue() {
+        public String getValue() {
             return val;
         }
     }
 
-    public Object getValue();
+    public String getValue();
 
     /**
      * Of int const token.

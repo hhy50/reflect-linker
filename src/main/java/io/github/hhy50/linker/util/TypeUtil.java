@@ -1,9 +1,11 @@
 package io.github.hhy50.linker.util;
 
+import io.github.hhy50.linker.token.ConstToken;
 import org.objectweb.asm.Type;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * The type Type utils.
@@ -178,5 +180,9 @@ public class TypeUtil {
      */
     public static String toTypeDesc(String className) {
         return "L"+ClassUtil.className2path(className)+";";
+    }
+
+    public static Class<?> getTypeFromIndex(Class<?> type, List<ConstToken> index) {
+        return type;
     }
 }

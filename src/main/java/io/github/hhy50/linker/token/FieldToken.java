@@ -4,6 +4,7 @@ package io.github.hhy50.linker.token;
 import io.github.hhy50.linker.util.ReflectUtil;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * The type Field token.
@@ -28,7 +29,7 @@ public class FieldToken implements Token {
 
     @Override
     public String toString() {
-        return fieldName+(index == null ? "" : index.toString());
+        return fieldName + (index == null ? "" : index.toString());
     }
 
     /**
@@ -38,11 +39,14 @@ public class FieldToken implements Token {
      * @return the field
      */
     public Field getField(Class<?> owner) {
-        String fieldName = toString();
         return ReflectUtil.getField(owner, fieldName);
     }
 
     public void setIndex(IndexToken index) {
         this.index = index;
+    }
+
+    public List<ConstToken> getIndexVal() {
+        return index != null ? index.values : null;
     }
 }

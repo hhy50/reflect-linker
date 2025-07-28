@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.getter;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.define.field.FieldIndexRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.FieldOpsMethodHandler;
@@ -51,6 +52,8 @@ public class Getter extends FieldOpsMethodHandler {
             super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
         } else if (field instanceof EarlyFieldRef) {
             super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
+        } else if (field instanceof FieldIndexRef) {
+
         }
     }
 
