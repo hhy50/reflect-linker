@@ -12,8 +12,11 @@ import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The type Runtime util.
@@ -65,6 +68,9 @@ public class RuntimeUtil {
      */
     public static final MethodDescriptor TYPE_MATCH = MethodDescriptor.of(RuntimeUtil.class, "typeMatch",
             boolean.class, Class.class, String.class);
+
+    public static final MethodDescriptor INDEX_VALUE = MethodDescriptor.of(RuntimeUtil.class, "indexValue",
+            Object.class, Object.class, List.class);
 
     /**
      * Check null.
@@ -284,6 +290,26 @@ public class RuntimeUtil {
             return (boolean) obj;
         }
         throw new ClassCastException(String.format("class '%s' not cast to boolean", obj.getClass()));
+    }
+
+
+    public static Object indexValue(Object obj, List<Object> index) {
+        for (Object o : index) {
+           try {
+               if (o instanceof Integer && obj.getClass().isArray()) {
+                   obj = Array.get(obj, ((Integer) o).intValue());
+               } else if (o instanceof Integer && List.class.isAssignableFrom(obj.getClass())) {
+                   obj = ((List) obj).get(((Integer) o).intValue());
+               } else if (Map.class.isAssignableFrom(obj.getClass())) {
+                   obj = ((Map) obj).get(o);
+               } else {
+                   throw new RuntimeException(obj.getClass()+" not support index access");
+               }
+           } catch (ArrayIndexOutOfBoundsException e) {
+               throw new ArrayIndexOutOfBoundsException("index ["+o+"]");
+           }
+        }
+        return obj;
     }
 
     /**

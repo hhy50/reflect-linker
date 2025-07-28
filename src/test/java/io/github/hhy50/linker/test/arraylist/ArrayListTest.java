@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.LinkerFactory;
+import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.test.LInteger;
@@ -8,10 +9,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 
 /**
  * <p>LArrayListTest class.</p>
@@ -28,7 +29,7 @@ public class ArrayListTest {
      * @throws LinkerException if any.
      */
     @Test
-    public void test() throws LinkerException {
+    public void test1() throws LinkerException {
         Object[] objects = new Object[10];
         LArrayList staticLinker = LinkerFactory.createStaticLinker(LArrayList.class, ArrayList.class);
         LArrayList list = staticLinker.newList();
@@ -36,7 +37,6 @@ public class ArrayListTest {
 
         Assert.assertTrue(list instanceof TargetProvider);
         Assert.assertTrue(objects == list.getElementData());
-        Object list0 = list.get0();
 
         list.add(1);
         list.add(2);
@@ -48,6 +48,13 @@ public class ArrayListTest {
         Assert.assertEquals(objects[2], list.get(2));
         Assert.assertEquals(objects[3], list.get(3));
         Assert.assertEquals(objects[4], list.get(4));
+
+        Assert.assertEquals(objects[0], list.get0());
+        Assert.assertEquals(objects[1], list.get1());
+        Assert.assertEquals(objects[2], list.get2());
+        Assert.assertEquals(objects[3], list.get3());
+        Assert.assertEquals(objects[4], list.get4());
+
         Assert.assertEquals(list.size(), list.size());
 
         LInteger modCount = list.modCount();
@@ -73,6 +80,97 @@ public class ArrayListTest {
         LinkerFactory.createLinker(LArrayList.class, new Vector<>());
         LinkerFactory.createLinker(LArrayList.class, new CopyOnWriteArrayList<>());
     }
+
+    interface LArrayList2 {
+        @Field.Getter("elementData[0]['a']['b']['c']['d']")
+        Object get0();
+
+        @Field.Getter("elementData[1][0][1][2][3][4][0].value")
+        Integer get1();
+
+        @Field.Getter("elementData[2]['0'][1]['2'][3]['4'][5]")
+        Object get2();
+
+        void add(Object o);
+
+        @Field.Setter("elementData")
+        void setElementData(Object elementData);
+    }
+
+    @Test
+    public void test2() throws LinkerException {
+        Object[] objects = new Object[10];
+        LArrayList2 list = LinkerFactory.createLinker(LArrayList2.class, new ArrayList<>());
+        list.setElementData(objects);
+
+        list.add(new HashMap() {{
+            put("a", new HashMap() {{
+                put("b", new HashMap() {{
+                    put("c", new HashMap() {{
+                        put("d", 10);
+                    }});
+                }});
+            }});
+        }});
+        list.add(new Object[]{
+                new Object[]{  // 0
+                        new Object[]{},
+                        new Object[]{ // 1
+                                new Object[]{},
+                                new Object[]{},
+                                new Object[]{ // 2
+                                        new Object[]{},
+                                        new Object[]{},
+                                        new Object[]{},
+                                        new Object[]{  // 3
+                                                new Object[]{},
+                                                new Object[]{},
+                                                new Object[]{},
+                                                new Object[]{},
+                                                new Object[]{ // 4
+                                                        Integer.valueOf(20)
+                                                },
+                                        },
+                                }
+                        },
+                },
+                new Object[]{},
+        });
+        list.add(new HashMap() {{
+            put("0", new Object[]{
+                    new Object[]{},
+                    new HashMap() {
+                        {
+                            put("2", new Object[]{
+                                    new Object[]{},
+                                    new Object[]{},
+                                    new Object[]{},
+                                    new HashMap() {{
+                                        put("4", new Object[]{
+                                                new Object[]{},
+                                                new Object[]{},
+                                                new Object[]{},
+                                                new Object[]{},
+                                                new Object[]{},
+                                                Integer.valueOf(30)});
+
+                                    }}
+                            });
+                        }
+                    },
+            });
+        }});
+        list.add(4);
+        list.add("5");
+        Assert.assertEquals(list.get0(), 10);
+        Assert.assertEquals(list.get1(), Integer.valueOf(20));
+        Assert.assertEquals(list.get2(), Integer.valueOf(30));
+//        Assert.assertEquals(objects[1], list.get(1));
+//        Assert.assertEquals(objects[2], list.get(2));
+//        Assert.assertEquals(objects[3], list.get(3));
+//        Assert.assertEquals(objects[4], list.get(4));
+    }
+
 
     public static void check() {
 

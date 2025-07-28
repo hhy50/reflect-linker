@@ -13,7 +13,10 @@ import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
-import io.github.hhy50.linker.token.*;
+import io.github.hhy50.linker.token.FieldToken;
+import io.github.hhy50.linker.token.Token;
+import io.github.hhy50.linker.token.TokenParser;
+import io.github.hhy50.linker.token.Tokens;
 import io.github.hhy50.linker.util.*;
 
 import java.lang.annotation.Annotation;
@@ -226,7 +229,7 @@ public class ParseContext {
             }
             FieldToken token = (FieldToken) item;
             String fieldName = token.fieldName;
-            List<ConstToken> index = token.getIndexVal();
+            List<Object> index = token.getIndexVal();
             Field earlyField = currentType == null ? null : token.getField(currentType);
             currentType = earlyField == null ? null : earlyField.getType();
             fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);

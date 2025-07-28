@@ -106,6 +106,34 @@ public class TypeUtil {
         }
         return null;
     }
+    public static Type getBoxType(Type type) {
+        // 判断是否是基本数据类
+        if (type.equals(Type.BOOLEAN_TYPE)) {
+            return getType("java.lang.Boolean");
+        }
+        if (type.equals(Type.BYTE_TYPE)) {
+            return getType("java.lang.Byte");
+        }
+        if (type.equals(Type.SHORT_TYPE)) {
+            return getType("java.lang.Short");
+        }
+        if (type.equals(Type.INT_TYPE)) {
+            return getType("java.lang.Integer");
+        }
+        if (type.equals(Type.LONG_TYPE)) {
+            return getType("java.lang.Long");
+        }
+        if (type.equals(Type.FLOAT_TYPE)) {
+            return getType("java.lang.Float");
+        }
+        if (type.equals(Type.DOUBLE_TYPE)) {
+            return getType("java.lang.Double");
+        }
+        if (type.equals(Type.CHAR_TYPE)) {
+            return getType("java.lang.Character");
+        }
+        return null;
+    }
 
     /**
      * Gets type.

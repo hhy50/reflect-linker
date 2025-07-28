@@ -1,22 +1,23 @@
 package io.github.hhy50.linker.define.field;
 
-import io.github.hhy50.linker.token.ConstToken;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class FieldIndexRef extends FieldRef {
-    FieldRef owner;
-    private final List<ConstToken> index;
+    private final List<Object> index;
 
     /**
      * Instantiates a new Field ref.
      *
      */
-    public FieldIndexRef(FieldRef owner, List<ConstToken> index) {
-        super(null, owner.fieldName+"_$index$_"+index.stream().map(ConstToken::getValue)
+    public FieldIndexRef(FieldRef owner, List<Object> index) {
+        super(owner, "index$_"+index.stream()
+                .map(Object::toString)
                 .collect(Collectors.joining("_")));
-        this.owner = owner;
         this.index = index;
+    }
+
+    public List<Object> getIndex() {
+        return index;
     }
 }

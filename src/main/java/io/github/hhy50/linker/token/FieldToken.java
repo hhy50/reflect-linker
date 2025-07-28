@@ -46,7 +46,7 @@ public class FieldToken implements Token {
         this.index = index;
     }
 
-    public List<ConstToken> getIndexVal() {
-        return index != null ? index.values : null;
+    public List<Object> getIndexVal() {
+        return index != null ? index.toValues() : null;
     }
 }

@@ -10,14 +10,16 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
+import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.ClassUtil;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.util.List;
 
 
 /**
@@ -41,7 +43,7 @@ public class Getter extends FieldOpsMethodHandler {
      * @param field     the field
      */
     public Getter(String implClass, FieldRef field) {
-        super(field.getGetterName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(),
+        super(field.getGetterName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "get_" + field.getUniqueName(),
                 Type.getMethodType(field.getType())));
         this.implClass = implClass;
         this.field = field;
@@ -53,7 +55,7 @@ public class Getter extends FieldOpsMethodHandler {
         } else if (field instanceof EarlyFieldRef) {
             super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
         } else if (field instanceof FieldIndexRef) {
-
+            this.defineIndexMethod(classImplBuilder, (FieldIndexRef) field);
         }
     }
 
@@ -77,5 +79,22 @@ public class Getter extends FieldOpsMethodHandler {
         findGetter.setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
         mhMember.store(clinit, findGetter);
+    }
+
+    private void defineIndexMethod(InvokeClassImplBuilder classImplBuilder, FieldIndexRef field) {
+        FieldRef prev = field.getPrev();
+        Getter getter = classImplBuilder.getGetter(prev.getUniqueName());
+        getter.define(classImplBuilder);
+
+        Class<?> actualType = prev.getActualType();
+        List<Object> index = field.getIndex();
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
+                .intercept(ChainAction.of(getter::invoke)
+                        .map(varInst -> Methods.invoke(RuntimeUtil.INDEX_VALUE).setArgs(varInst,
+                                Actions.asList(index.stream().map(LdcLoadAction::of)
+                                        .map(BoxAction::new)
+                                        .toArray(Action[]::new))))
+                        .andThen(Actions.areturn(descriptor.getReturnType()))
+                );
     }
 }
