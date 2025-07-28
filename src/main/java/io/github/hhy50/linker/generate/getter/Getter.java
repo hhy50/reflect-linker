@@ -21,7 +21,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -45,7 +44,7 @@ public class Getter extends FieldOpsMethodHandler {
      * @param field     the field
      */
     public Getter(String implClass, FieldRef field) {
-        super(field.getGetterName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "get_" + field.getUniqueName(),
+        super(field.getGetterName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "get_"+field.getUniqueName(),
                 Type.getMethodType(field.getType())));
         this.implClass = implClass;
         this.field = field;
@@ -90,26 +89,13 @@ public class Getter extends FieldOpsMethodHandler {
 
         Class<?> actualType = prev.getActualType();
         List<Object> index = field.getIndex();
-        if (actualType != Object.class && index.size() == 1) {
-            if (actualType.isArray() && index.get(0) instanceof Integer) {
-                classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
-                        .intercept(ChainAction.of(getter::invoke)
-                                .then(varInst -> new ArrayIndex(varInst, (Integer) index.get(0)))
-                                .andThen(Actions.areturn(descriptor.getReturnType()))
-                        );
-                return;
-            }
-            if (Map.class.isAssignableFrom(actualType)) {
-                classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
-                        .intercept(
-                                ChainAction.of(getter::invoke)
-                                        .then(varInst -> Methods.invoke(MethodDescriptor.MAP_GET)
-                                                .setInstance(varInst)
-                                                .setArgs(new BoxAction(LdcLoadAction.of(index.get(0)))))
-                                        .andThen(Actions.areturn(descriptor.getReturnType()))
-                        );
-                return;
-            }
+        if (actualType.isArray() && index.size() == 1 && index.get(0) instanceof Integer) {
+            classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
+                    .intercept(ChainAction.of(getter::invoke)
+                            .then(varInst -> new ArrayIndex(varInst, (Integer) index.get(0)))
+                            .andThen(Actions.areturn(descriptor.getReturnType()))
+                    );
+            return;
         }
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(ChainAction.of(getter::invoke)

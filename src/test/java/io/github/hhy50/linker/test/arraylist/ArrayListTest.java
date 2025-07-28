@@ -83,6 +83,7 @@ public class ArrayListTest {
         int[] ints = new int[10];
         double[] doubles = new double[10];
         int[][] ints2 = new int[10][10];
+        Map<String, Object> map = new HashMap<>();
     }
 
     interface LArrayList2 {
@@ -102,6 +103,12 @@ public class ArrayListTest {
 
         @Field.Getter("ints[0]")
         int getInt0();
+
+        @Field.Getter("doubles[0]")
+        double getDouble0();
+
+        @Field.Getter("map['0']")
+        Object getMap();
     }
 
     @Test
@@ -173,6 +180,7 @@ public class ArrayListTest {
         Assert.assertEquals(list.get1(), Integer.valueOf(20));
         Assert.assertEquals(list.get2(), Integer.valueOf(30));
         Assert.assertEquals(list.getInt0(), 0);
+        Assert.assertTrue(list.getDouble0()==0.0);
 //        Assert.assertEquals(objects[1], list.get(1));
 //        Assert.assertEquals(objects[2], list.get(2));
 //        Assert.assertEquals(objects[3], list.get(3));
