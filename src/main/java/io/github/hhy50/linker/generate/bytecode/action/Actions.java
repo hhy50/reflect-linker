@@ -8,6 +8,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 
@@ -81,7 +82,7 @@ public interface Actions {
             MethodVisitor mv = body.getWriter();
             mv.visitTypeInsn(Opcodes.NEW, "java/lang/ClassCastException");
             mv.visitInsn(Opcodes.DUP);
-            mv.visitLdcInsn("'"+objName+"' not cast to type '"+expectType.getClassName()+"'");
+            mv.visitLdcInsn("'" + objName + "' not cast to type '" + expectType.getClassName() + "'");
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ClassCastException", "<init>", "(Ljava/lang/String;)V", false);
             mv.visitInsn(Opcodes.ATHROW);
         };
@@ -137,7 +138,8 @@ public interface Actions {
     /**
      * As array action.
      *
-     * @param arrType the arr type
+     * @param arrType         the arr type
+     * @param actionsProvider the actions provider
      * @return the action
      */
     static Action asArray(Type arrType, Function<MethodBody, Action[]> actionsProvider) {
@@ -163,10 +165,93 @@ public interface Actions {
      * @return the action
      */
     static Action multi(Action... actions) {
+        if (actions == null) {
+            return EMPTY;
+        }
         return body -> {
             for (Action action : actions) {
                 action.apply(body);
             }
+        };
+    }
+
+    /**
+     *
+     * @param action
+     * @return
+     */
+    static Action nullable(Action action) {
+        if (action == null) {
+            return EMPTY;
+        }
+        return action;
+    }
+
+    /**
+     * Of action.
+     *
+     * @param action1  the action 1
+     * @param consumer the consumer
+     * @return the action
+     */
+    static Action of(Action action1, Consumer<MethodVisitor> consumer) {
+        return body -> {
+            body.append(action1);
+            consumer.accept(body.getWriter());
+        };
+    }
+
+    /**
+     * Of action.
+     *
+     * @param action1  the action 1
+     * @param action2  the action 2
+     * @param consumer the consumer
+     * @return the action
+     */
+    static Action of(Action action1, Action action2, Consumer<MethodVisitor> consumer) {
+        return body -> {
+            body.append(action1);
+            body.append(action2);
+            consumer.accept(body.getWriter());
+        };
+    }
+
+    /**
+     * Of action.
+     *
+     * @param action1  the action 1
+     * @param action2  the action 2
+     * @param action3  the action 3
+     * @param consumer the consumer
+     * @return the action
+     */
+    static Action of(Action action1, Action action2, Action action3, Consumer<MethodVisitor> consumer) {
+        return body -> {
+            body.append(action1);
+            body.append(action2);
+            body.append(action3);
+            consumer.accept(body.getWriter());
+        };
+    }
+
+    /**
+     * Of action.
+     *
+     * @param action1  the action 1
+     * @param action2  the action 2
+     * @param action3  the action 3
+     * @param action4  the action 4
+     * @param consumer the consumer
+     * @return the action
+     */
+    static Action of(Action action1, Action action2, Action action3, Action action4, Consumer<MethodVisitor> consumer) {
+        return body -> {
+            body.append(action1);
+            body.append(action2);
+            body.append(action3);
+            body.append(action4);
+            consumer.accept(body.getWriter());
         };
     }
 
@@ -177,7 +262,7 @@ public interface Actions {
      * @return the action
      */
     static Action areturn(Type rType) {
-        return body ->  {
+        return body -> {
             AsmUtil.areturn(body.getWriter(), rType);
         };
     }
@@ -188,7 +273,7 @@ public interface Actions {
      * @return the action
      */
     static Action vreturn() {
-        return body ->  {
+        return body -> {
             AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
         };
     }

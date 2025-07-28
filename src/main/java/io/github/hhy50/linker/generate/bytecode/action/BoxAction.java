@@ -4,7 +4,6 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.TypeUtil;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -29,7 +28,7 @@ public class BoxAction implements LoadAction, TypedAction {
     /**
      * Instantiates a new Wrap type action.
      *
-     * @param obj         the obj
+     * @param obj the obj
      */
     public BoxAction(TypedAction obj) {
         this.obj = obj;
@@ -38,13 +37,10 @@ public class BoxAction implements LoadAction, TypedAction {
 
     @Override
     public void load(MethodBody body) {
-        obj.apply(body);
-
-        Type type = obj.getType();
-        if (TypeUtil.isPrimitiveType(type)) {
-            MethodVisitor mv = body.getWriter();
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap", "("+obj.getType().getDescriptor()+")Ljava/lang/Object;", false);
-        }
+        body.append(Actions.of(
+                obj,
+                c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap", "(" + obj.getType().getDescriptor() + ")Ljava/lang/Object;", false)
+        ));
     }
 
     @Override

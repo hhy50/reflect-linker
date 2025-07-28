@@ -16,10 +16,12 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.ClassUtil;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -88,11 +90,37 @@ public class Getter extends FieldOpsMethodHandler {
 
         Class<?> actualType = prev.getActualType();
         List<Object> index = field.getIndex();
+        if (actualType != Object.class && index.size() == 1) {
+            if (actualType.isArray() && index.get(0) instanceof Integer) {
+                classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
+                        .intercept(ChainAction.of(getter::invoke)
+                                .then(varInst -> new ArrayIndex(varInst, (Integer) index.get(0)))
+                                .andThen(Actions.areturn(descriptor.getReturnType()))
+                        );
+                return;
+            }
+            if (Map.class.isAssignableFrom(actualType)) {
+                classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
+                        .intercept(
+                                ChainAction.of(getter::invoke)
+                                        .then(varInst -> Methods.invoke(MethodDescriptor.MAP_GET)
+                                                .setInstance(varInst)
+                                                .setArgs(new BoxAction(LdcLoadAction.of(index.get(0)))))
+                                        .andThen(Actions.areturn(descriptor.getReturnType()))
+                        );
+                return;
+            }
+        }
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(ChainAction.of(getter::invoke)
                         .map(varInst -> Methods.invoke(RuntimeUtil.INDEX_VALUE).setArgs(varInst,
                                 Actions.asList(index.stream().map(LdcLoadAction::of)
-                                        .map(BoxAction::new)
+                                        .map(inst -> {
+                                            if (TypeUtil.isPrimitiveType(inst.getType())) {
+                                                return new BoxAction(inst);
+                                            }
+                                            return inst;
+                                        })
                                         .toArray(Action[]::new))))
                         .andThen(Actions.areturn(descriptor.getReturnType()))
                 );

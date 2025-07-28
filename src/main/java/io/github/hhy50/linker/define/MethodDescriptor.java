@@ -10,10 +10,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * The type Method holder.
@@ -103,6 +100,7 @@ public class MethodDescriptor {
      */
     public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of(Class.class, "getClassLoader",
             ClassLoader.class);
+    public static final MethodDescriptor MAP_GET = MethodDescriptor.of(Map.class, "get", Object.class, Object.class);
 
     private final String owner;
     private final String name;

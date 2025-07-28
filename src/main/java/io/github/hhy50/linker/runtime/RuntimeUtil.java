@@ -292,7 +292,12 @@ public class RuntimeUtil {
         throw new ClassCastException(String.format("class '%s' not cast to boolean", obj.getClass()));
     }
 
-
+    /**
+     *
+     * @param obj
+     * @param index
+     * @return
+     */
     public static Object indexValue(Object obj, List<Object> index) {
         for (Object o : index) {
            try {
@@ -329,5 +334,11 @@ public class RuntimeUtil {
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void test() {
+        int[] arr2 = {99};
+        int b = arr2[0];
+
     }
 }
