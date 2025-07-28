@@ -8,10 +8,7 @@ import io.github.hhy50.linker.test.LInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -81,6 +78,13 @@ public class ArrayListTest {
         LinkerFactory.createLinker(LArrayList.class, new CopyOnWriteArrayList<>());
     }
 
+
+    static class ArrayList2 extends ArrayList {
+        int[] ints = new int[10];
+        double[] doubles = new double[10];
+        int[][] ints2 = new int[10][10];
+    }
+
     interface LArrayList2 {
         @Field.Getter("elementData[0]['a']['b']['c']['d']")
         Object get0();
@@ -95,12 +99,15 @@ public class ArrayListTest {
 
         @Field.Setter("elementData")
         void setElementData(Object elementData);
+
+        @Field.Getter("ints[0]")
+        int getInt0();
     }
 
     @Test
     public void test2() throws LinkerException {
         Object[] objects = new Object[10];
-        LArrayList2 list = LinkerFactory.createLinker(LArrayList2.class, new ArrayList<>());
+        LArrayList2 list = LinkerFactory.createLinker(LArrayList2.class, new ArrayList2());
         list.setElementData(objects);
 
         list.add(new HashMap() {{
@@ -165,6 +172,7 @@ public class ArrayListTest {
         Assert.assertEquals(list.get0(), 10);
         Assert.assertEquals(list.get1(), Integer.valueOf(20));
         Assert.assertEquals(list.get2(), Integer.valueOf(30));
+        Assert.assertEquals(list.getInt0(), 0);
 //        Assert.assertEquals(objects[1], list.get(1));
 //        Assert.assertEquals(objects[2], list.get(2));
 //        Assert.assertEquals(objects[3], list.get(3));

@@ -16,9 +16,9 @@ public abstract class FieldRef {
      */
     public String fieldName;
 
-    private String fullName;
+    protected String fullName;
 
-    private FieldRef prev;
+    protected FieldRef prev;
 
     /**
      * Instantiates a new Field ref.

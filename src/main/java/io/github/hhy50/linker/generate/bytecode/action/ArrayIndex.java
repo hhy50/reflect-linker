@@ -30,7 +30,7 @@ public class ArrayIndex implements Action, TypedAction {
         Type type = varInst.getType();
         body.append(of(varInst,
                 LdcLoadAction.of(i),
-                (c) -> c.visitInsn(type.getOpcode(Opcodes.IALOAD))
+                (c) -> c.visitInsn(type.getElementType().getOpcode(Opcodes.IALOAD))
         ));
     }
 

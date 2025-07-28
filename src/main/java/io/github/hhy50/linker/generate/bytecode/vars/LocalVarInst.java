@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate.bytecode.vars;
 
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -46,7 +47,9 @@ public class LocalVarInst extends VarInst {
      * @param action the action
      */
     public void store(Action action) {
-        action.apply(body);
-        body.getWriter().visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
+        body.append(Actions.of(
+                action,
+                mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex)
+        ));
     }
 }

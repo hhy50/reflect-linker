@@ -3,8 +3,8 @@ package io.github.hhy50.linker.annotations;
 import io.github.hhy50.linker.exceptions.VerifyException;
 import io.github.hhy50.linker.util.Verifier;
 
-import java.lang.annotation.Target;
 import java.lang.annotation.*;
+import java.lang.annotation.Target;
 
 /**
  * <p>Method interface.</p>
