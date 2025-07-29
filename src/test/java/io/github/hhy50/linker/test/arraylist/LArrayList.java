@@ -63,6 +63,19 @@ public interface LArrayList extends TargetProvider<List> {
     @Field.Setter("elementData")
     void setElementData(Object elementData);
 
+    @Field.Getter("elementData[0]")
+    Object get0();
+    @Field.Getter("elementData[1]")
+    Object get1();
+    @Field.Getter("elementData[2]")
+    Object get2();
+    @Field.Getter("elementData[3]")
+    Object get3();
+    @Field.Getter("elementData[4]")
+    Object get4();
+    @Field.Getter("elementData[5]")
+    Object get5();
+
     /**
      * <p>modCount.</p>
      *

@@ -5,14 +5,13 @@ import io.github.hhy50.linker.define.ClassDefineParse;
 import io.github.hhy50.linker.define.InterfaceImplClass;
 import io.github.hhy50.linker.define.cl.SysLinkerClassLoader;
 import io.github.hhy50.linker.exceptions.LinkerException;
+import io.github.hhy50.linker.util.Util;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * The type Linker factory.
@@ -34,11 +33,15 @@ public class LinkerFactory {
             return (Collection<T>) target;
         }
 
-        List<T> linkers = new ArrayList<>();
-        for (Object o : target) {
-            linkers.add(createLinker(define, o));
+        try {
+            Collection<T> linkers = Util.newCollection(target.getClass());
+            for (Object o : target) {
+                linkers.add(createLinker(define, o));
+            }
+            return (Collection<T>) linkers;
+        } catch (Exception e) {
+            throw new LinkerException("create linker exception", e);
         }
-        return (Collection<T>) linkers;
     }
 
     /**

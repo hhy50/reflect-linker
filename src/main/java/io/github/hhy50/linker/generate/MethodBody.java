@@ -1,13 +1,11 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.asm.MethodBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -38,7 +36,7 @@ public class MethodBody {
 
         Type[] argumentTypes = methodBuilder.getDescriptor().getType().getArgumentTypes();
         this.writer = mv;
-        this.lvbIndex = AsmUtil.calculateLvbOffset(methodBuilder.isStatic(), argumentTypes);
+//        this.lvbIndex = AsmUtil.calculateLvbOffset(methodBuilder.isStatic(), argumentTypes);
         this.args = new VarInst[argumentTypes.length];
         this.classLoadCache = new HashMap<>();
         initArgsTable(argumentTypes);
@@ -47,11 +45,12 @@ public class MethodBody {
     private void initArgsTable(Type[] argumentTypes) {
         int index = this.methodBuilder.isStatic() ? 0 : 1;
         for (int i = 0; i < argumentTypes.length; i++) {
-            args[i] = new ObjectVar(this, index++, argumentTypes[i]);
+            args[i] = new LocalVarInst(this, index++, argumentTypes[i], "arg" + i);
             if (argumentTypes[i].getSort() == Type.DOUBLE || argumentTypes[i].getSort() == Type.LONG) {
                 index++;
             }
         }
+        this.lvbIndex = index;
     }
 
     /**
@@ -126,7 +125,6 @@ public class MethodBody {
      * @return local var inst
      */
     public LocalVarInst newLocalVar(String name, TypedAction action) {
-        // 部分TypedAction可能拿不到早期的类型定义, 只有执行后才确定类型
         Type type = action.getType();
         return newLocalVar(type, name, action);
     }

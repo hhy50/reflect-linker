@@ -11,7 +11,7 @@ public class IndexToken implements Token {
     /**
      * The Index.
      */
-    public List<ConstToken> index;
+    public List<ConstToken> values;
 
     /**
      * Instantiates a new Index token.
@@ -19,12 +19,16 @@ public class IndexToken implements Token {
      * @param index the index
      */
     public IndexToken(List<ConstToken> index) {
-        this.index = index;
+        this.values = index;
     }
 
     @Override
     public String toString() {
-        String collect = index.stream().map(Object::toString).collect(Collectors.joining("]["));
+        String collect = values.stream().map(Object::toString).collect(Collectors.joining("]["));
         return "["+collect+"]";
+    }
+
+    public List<Object> toValues() {
+        return values.stream().map(ConstToken::getValue).collect(Collectors.toList());
     }
 }

@@ -15,7 +15,13 @@ import java.lang.reflect.Modifier;
 public class EarlyFieldRef extends FieldRef {
 
     private Class<?> lookup;
+    /**
+     * 声明的类型
+     */
     private final Class<?> declaredType;
+    /**
+     * 实际的类型.使用@Typed指定的类型
+     */
     private Class<?> assignedType;
     private boolean isStatic;
 
@@ -82,11 +88,9 @@ public class EarlyFieldRef extends FieldRef {
     }
 
     /**
-     * Gets class type.
-     *
-     * @return the class type
+     * @return
      */
-    public Class<?> getClassType() {
+    public Class<?> getActualType() {
         if (this.assignedType != null) {
             return this.assignedType;
         }
@@ -95,6 +99,6 @@ public class EarlyFieldRef extends FieldRef {
 
     @Override
     public Method findMethod(String methodName, String[] argsType, String superClass) {
-        return ReflectUtil.matchMethod(getClassType(), methodName, superClass, argsType);
+        return ReflectUtil.matchMethod(getActualType(), methodName, superClass, argsType);
     }
 }

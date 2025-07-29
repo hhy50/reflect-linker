@@ -62,7 +62,7 @@ public class Members {
      * @param memberName the member name
      * @return the member
      */
-    public static LazyTypedAction load(String memberName) {
+    public static LazyTypedAction ofLoad(String memberName) {
         return new LazyTypedAction() {
             Type type;
             @Override

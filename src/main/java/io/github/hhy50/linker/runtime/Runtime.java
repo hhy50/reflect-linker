@@ -88,14 +88,18 @@ public class Runtime {
         Class<?> clazz = ClassUtil.getPrimitiveClass(className);
         if (clazz != null) return clazz;
         int dep = 0;
-        if (className.endsWith("[]")) {
+        while (className.endsWith("[]")) {
             dep++;
             className = className.substring(0, className.length()-2);
         }
-        if (dep > 0) {
-            return Array.newInstance(cl.loadClass(className), new int[dep]).getClass();
+        clazz = ClassUtil.getPrimitiveClass(className);
+        if (clazz == null) {
+            clazz = cl.loadClass(className);
         }
-        return cl.loadClass(className);
+        if (dep > 0) {
+            return Array.newInstance(clazz, new int[dep]).getClass();
+        }
+        return clazz;
     }
 
     /**

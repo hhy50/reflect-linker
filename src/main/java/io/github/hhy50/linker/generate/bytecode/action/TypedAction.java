@@ -6,6 +6,8 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * The interface Action.
+ * 部分TypedAction在执行前可能拿不到具体的类型, 只有执行后才确定类型
+ * 这部分被 {@link LazyTypedAction}  标记
  */
 public interface TypedAction extends Action {
 

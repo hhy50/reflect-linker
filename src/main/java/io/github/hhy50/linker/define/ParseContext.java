@@ -3,6 +3,7 @@ package io.github.hhy50.linker.define;
 import io.github.hhy50.linker.annotations.Generate;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.define.field.FieldIndexRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.MethodTmpFieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
@@ -233,26 +234,24 @@ public class ParseContext {
             }
             FieldToken token = (FieldToken) item;
             String fieldName = token.fieldName;
+            List<Object> index = token.getIndexVal();
             Field earlyField = currentType == null ? null : token.getField(currentType);
             currentType = earlyField == null ? null : earlyField.getType();
-            fullField = Optional.ofNullable(fullField).map(i -> i+"."+fieldName).orElse(fieldName);
-            if (!this.parsedFields.containsKey(fullField)) {
-                // 使用@Typed指定的类型
-                Class<?> assignedType = getFieldTyped(fullField, fieldName);
-                if (assignedType != null) {
-                    if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
-                        throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
-                    }
-                    currentType = assignedType;
+            fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);
+            // 使用@Typed指定的类型
+            Class<?> assignedType = getFieldTyped(fullField, fieldName);
+            if (assignedType != null) {
+                if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
+                    throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
                 }
-                lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType)
-                        : new RuntimeFieldRef(lastField, fieldName);
-                lastField.setFullName(fullField);
-                this.parsedFields.put(fullField, lastField);
-            } else {
-                lastField = this.parsedFields.get(fullField);
+                currentType = assignedType;
             }
+            lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType) : new RuntimeFieldRef(lastField, fieldName);
+            lastField.setFullName(fullField);
             designateStatic(lastField);
+            if (index != null && index.size() > 0) {
+                lastField = new FieldIndexRef(lastField, index);
+            }
         }
         return lastField;
     }

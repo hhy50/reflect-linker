@@ -1,12 +1,12 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -59,7 +59,7 @@ public class InvokerDecorator extends AbstractDecorator {
             typecastResult(methodBody, result)
                     .returnThis();
         } else {
-            AsmUtil.areturn(methodBody.getWriter(), Type.VOID_TYPE);
+            methodBody.append(Actions.vreturn());
         }
         return null;
     }

@@ -19,8 +19,6 @@ import java.util.List;
  * The type Class impl generator.
  */
 public class ClassImplGenerator {
-
-
     /**
      * Generate bytecode.
      *

@@ -6,11 +6,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import java.util.function.Consumer;
 
 import static io.github.hhy50.linker.generate.bytecode.action.Actions.loadNull;
 import static io.github.hhy50.linker.generate.bytecode.action.Condition.instanceOf;
@@ -21,9 +17,10 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
  */
 public abstract class VarInst implements LoadAction, TypedAction {
 
-    private final MethodBody body;
-
-    private final int lvbIndex;
+    /**
+     * The Body.
+     */
+    protected final MethodBody body;
 
     /**
      * The Type.
@@ -33,19 +30,11 @@ public abstract class VarInst implements LoadAction, TypedAction {
     /**
      * Instantiates a new Var inst.
      *
-     * @param body     the body
-     * @param lvbIndex the lvb index
-     * @param type     the type
+     * @param type the type
      */
-    public VarInst(MethodBody body, int lvbIndex, Type type) {
+    public VarInst(MethodBody body, Type type) {
         this.body = body;
-        this.lvbIndex = lvbIndex;
         this.type = type;
-    }
-
-    @Override
-    public void load(MethodBody methodBody) {
-        methodBody.append((Consumer<MethodVisitor>) mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
     }
 
     /**
@@ -64,7 +53,7 @@ public abstract class VarInst implements LoadAction, TypedAction {
      * @return the name
      */
     public String getName() {
-        return "slot["+lvbIndex+",type="+type.getClassName()+"]";
+        return "var[type=" + type.getClassName() + "]";
     }
 
     /**
@@ -91,16 +80,6 @@ public abstract class VarInst implements LoadAction, TypedAction {
     public MethodInvokeAction getThisClass() {
         return new MethodInvokeAction(MethodDescriptor.GET_CLASS)
                 .setInstance(this);
-    }
-
-    /**
-     * Store.
-     *
-     * @param action the action
-     */
-    public void store(Action action) {
-        action.apply(body);
-        body.getWriter().visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex);
     }
 
     /**

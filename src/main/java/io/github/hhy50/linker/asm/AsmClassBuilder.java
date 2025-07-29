@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.asm;
 
-import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.asm.tree.LClassNode;
 import io.github.hhy50.linker.asm.tree.LFieldNode;
 import io.github.hhy50.linker.define.MethodDescriptor;
@@ -108,7 +107,7 @@ public class AsmClassBuilder {
      * @param type   the type
      * @return the member
      */
-    public AsmField defineField(int access, String name, Class<?> type) {
+    public AsmClassBuilder defineField(int access, String name, Class<?> type) {
         return defineField(access, name, Type.getType(type), null, null);
     }
 
@@ -122,7 +121,22 @@ public class AsmClassBuilder {
      * @param value     the value
      * @return the member
      */
-    public AsmField defineField(int access, String name, Type type, String signature, Object value) {
+    public AsmClassBuilder defineField(int access, String name, Type type, String signature, Object value) {
+        visitField(access, name, type, signature, value);
+        return this;
+    }
+
+    /**
+     * Visit field asm field.
+     *
+     * @param access    the access
+     * @param name      the name
+     * @param type      the type
+     * @param signature the signature
+     * @param value     the value
+     * @return the asm field
+     */
+    public AsmField visitField(int access, String name, Type type, String signature, Object value) {
         FieldVisitor visitor = this.classWriter.visitField(access, name, type.getDescriptor(), signature, value);
         AsmField field = new AsmField(access, classOwner, name, type, visitor);
         this.fields.add(field);
@@ -208,16 +222,18 @@ public class AsmClassBuilder {
 
     /**
      * Get field member.
-     * @param name
-     * @return
+     *
+     * @param name the name
+     * @return the field
      */
     public AsmField getField(String name) {
         return fields.stream().filter(f -> f.name.equals(name)).findFirst().orElse(null);
     }
 
     /**
+     * Gets fields.
      *
-     * @return
+     * @return the fields
      */
     public List<AsmField> getFields() {
         return fields;
@@ -323,8 +339,7 @@ public class AsmClassBuilder {
         classBuilder.superOwner = classVisitor.getSuperName();
         classBuilder.fields = new ArrayList<>();
 
-        for (Object fieldO : classVisitor.getFields()) {
-            LFieldNode field = LinkerFactory.createLinker(LFieldNode.class, fieldO);
+        for (LFieldNode field : classVisitor.getFields()) {
             classBuilder.fields.add(new AsmField(field.getAccess(), classVisitor.getName(),
                     field.getName(), Type.getType(field.getDesc())));
         }

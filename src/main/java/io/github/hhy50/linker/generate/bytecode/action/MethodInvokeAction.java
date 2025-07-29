@@ -2,10 +2,10 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.*;
 import static java.util.Objects.requireNonNull;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 
@@ -38,17 +38,13 @@ public class MethodInvokeAction implements LoadAction, TypedAction {
 
     @Override
     public void apply(MethodBody body) {
-        MethodVisitor mv = body.getWriter();
-        if (instance != null) {
-            instance.apply(body);
-        }
-        for (int i = 0; i < (args == null ? 0 : args.length); i++) {
-            args[i].apply(body);
-        }
-
         int opCode = getOpCode();
-        mv.visitMethodInsn(opCode,
-                descriptor.getOwner(), descriptor.getMethodName(), descriptor.getDesc(), opCode == INVOKEINTERFACE);
+        body.append(of(
+                nullable(instance), multi(args),
+                mv -> mv.visitMethodInsn(opCode,
+                        descriptor.getOwner(), descriptor.getMethodName(),
+                        descriptor.getDesc(), opCode == INVOKEINTERFACE)
+        ));
     }
 
     @Override

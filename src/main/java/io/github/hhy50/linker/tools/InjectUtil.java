@@ -41,7 +41,7 @@ public class InjectUtil {
             }
         }
         classBuilder.defineMethod(Opcodes.ACC_PUBLIC, getterName, Type.getMethodType(field.type), null)
-                .intercept(Members.load(fieldName).thenReturn());
+                .intercept(Members.ofLoad(fieldName).thenReturn());
     }
 
     /**

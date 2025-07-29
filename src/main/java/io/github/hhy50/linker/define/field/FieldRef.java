@@ -16,9 +16,9 @@ public abstract class FieldRef {
      */
     public String fieldName;
 
-    private String fullName;
+    protected String fullName;
 
-    private FieldRef prev;
+    protected FieldRef prev;
 
     /**
      * Instantiates a new Field ref.
@@ -100,5 +100,9 @@ public abstract class FieldRef {
 
     public Method findMethod(String methodName, String[] argsType, String superClass) {
         return null;
+    }
+
+    public Class<?> getActualType() {
+        return Object.class;
     }
 }

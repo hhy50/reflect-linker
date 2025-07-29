@@ -144,16 +144,16 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define static method handle method handle member.
      *
-     * @param fieldName the mh member name
-     * @param lookupType   the method invokedType
-     * @param methodType   the method type
+     * @param fieldName  the mh member name
+     * @param lookupType the method invokedType
+     * @param methodType the method type
      * @return the method handle member
      */
     public MethodHandleMember defineStaticMethodHandle(String fieldName, Type lookupType, Type methodType) {
         AsmField field = getField(fieldName);
         if (field == null) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            field = super.defineField(access, fieldName, METHOD_HANDLER_TYPE, null, null);
+            field = super.visitField(access, fieldName, METHOD_HANDLER_TYPE, null, null);
         }
         return new MethodHandleMember(field, lookupType, methodType);
     }
@@ -161,14 +161,14 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define method handle method handle member.
      *
-     * @param fieldName the mh member name
-     * @param methodType   the method type
+     * @param fieldName  the mh member name
+     * @param methodType the method type
      * @return the method handle member
      */
     public MethodHandleMember defineMethodHandle(String fieldName, Type methodType) {
         AsmField field = getField(fieldName);
         if (field == null) {
-            field = super.defineField(Opcodes.ACC_PUBLIC, fieldName, METHOD_HANDLER_TYPE, null, null);
+            field = super.visitField(Opcodes.ACC_PUBLIC, fieldName, METHOD_HANDLER_TYPE, null, null);
         }
         return new MethodHandleMember(field, methodType);
     }
@@ -183,7 +183,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         mName = mName+"_lookup_$_class_type";
         AsmField field = getField(mName);
         if (field == null) {
-            field = super.defineField(Opcodes.ACC_PUBLIC, mName, TypeUtil.CLASS_TYPE, null, null);
+            field = super.visitField(Opcodes.ACC_PUBLIC, mName, TypeUtil.CLASS_TYPE, null, null);
         }
         return new ClassTypeMember(field);
     }
