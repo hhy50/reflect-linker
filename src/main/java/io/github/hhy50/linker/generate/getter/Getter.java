@@ -82,6 +82,7 @@ public class Getter extends FieldOpsMethodHandler {
         mhMember.store(clinit, findGetter);
     }
 
+    @SuppressWarnings("unchecked")
     private void defineIndexMethod(InvokeClassImplBuilder classImplBuilder, FieldIndexRef field) {
         FieldRef prev = field.getPrev();
         Getter getter = classImplBuilder.getGetter(prev.getUniqueName());
@@ -89,10 +90,10 @@ public class Getter extends FieldOpsMethodHandler {
 
         Class<?> actualType = prev.getActualType();
         List<Object> index = field.getIndex();
-        if (actualType.isArray() && index.size() == 1 && index.get(0) instanceof Integer) {
+        if (TypeUtil.getArrayDimension(actualType) >= index.size()) {
             classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                     .intercept(ChainAction.of(getter::invoke)
-                            .then(varInst -> new ArrayIndex(varInst, (Integer) index.get(0)))
+                            .then(varInst -> new ArrayIndex(varInst, (List) index))
                             .andThen(Actions.areturn(descriptor.getReturnType()))
                     );
             return;

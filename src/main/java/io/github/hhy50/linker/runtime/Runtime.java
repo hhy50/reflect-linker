@@ -7,7 +7,6 @@ import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.syslinker.LookupLinker;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.ReflectUtil;
-import io.github.hhy50.linker.util.TypeUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -89,7 +88,7 @@ public class Runtime {
         Class<?> clazz = ClassUtil.getPrimitiveClass(className);
         if (clazz != null) return clazz;
         int dep = 0;
-        if (className.endsWith("[]")) {
+        while (className.endsWith("[]")) {
             dep++;
             className = className.substring(0, className.length()-2);
         }

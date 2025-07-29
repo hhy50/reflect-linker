@@ -80,9 +80,9 @@ public class ArrayListTest {
 
 
     static class ArrayList2 extends ArrayList {
-        int[] ints = new int[10];
-        double[] doubles = new double[10];
-        int[][] ints2 = new int[10][10];
+        int[] ints = new int[] {11};
+        double[] doubles = new double[] {1.1};
+        int[][] ints2 = new int[][] {{11}};
         Map<String, Object> map = new HashMap<>();
     }
 
@@ -103,6 +103,9 @@ public class ArrayListTest {
 
         @Field.Getter("ints[0]")
         int getInt0();
+
+        @Field.Getter("ints2[0][0]")
+        int getInt1();
 
         @Field.Getter("doubles[0]")
         double getDouble0();
@@ -179,8 +182,9 @@ public class ArrayListTest {
         Assert.assertEquals(list.get0(), 10);
         Assert.assertEquals(list.get1(), Integer.valueOf(20));
         Assert.assertEquals(list.get2(), Integer.valueOf(30));
-        Assert.assertEquals(list.getInt0(), 0);
-        Assert.assertTrue(list.getDouble0()==0.0);
+        Assert.assertEquals(list.getInt0(), 11);
+        Assert.assertEquals(list.getInt1(), 11);
+        Assert.assertTrue(list.getDouble0()==1.1);
 //        Assert.assertEquals(objects[1], list.get(1));
 //        Assert.assertEquals(objects[2], list.get(2));
 //        Assert.assertEquals(objects[3], list.get(3));

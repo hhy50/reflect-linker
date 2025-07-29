@@ -335,10 +335,4 @@ public class RuntimeUtil {
             throw new RuntimeException(e);
         }
     }
-
-    public void test() {
-        int[] arr2 = {99};
-        int b = arr2[0];
-
-    }
 }

@@ -1,11 +1,9 @@
 package io.github.hhy50.linker.util;
 
-import io.github.hhy50.linker.token.ConstToken;
 import org.objectweb.asm.Type;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * The type Type utils.
@@ -106,6 +104,13 @@ public class TypeUtil {
         }
         return null;
     }
+
+    /**
+     * Gets box type.
+     *
+     * @param type the type
+     * @return the box type
+     */
     public static Type getBoxType(Type type) {
         // 判断是否是基本数据类
         if (type.equals(Type.BOOLEAN_TYPE)) {
@@ -210,7 +215,18 @@ public class TypeUtil {
         return "L"+ClassUtil.className2path(className)+";";
     }
 
-    public static Class<?> getTypeFromIndex(Class<?> type, List<ConstToken> index) {
-        return type;
+    /**
+     * Gets array dimension.
+     *
+     * @param actualType the actual type
+     * @return the array dimension
+     */
+    public static int getArrayDimension(Class<?> actualType) {
+        int dim = 0;
+        while (actualType.isArray()) {
+            dim++;
+            actualType = actualType.getComponentType();
+        }
+        return dim;
     }
 }
