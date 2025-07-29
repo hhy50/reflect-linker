@@ -76,14 +76,6 @@ public class EarlyMethodRef extends MethodRef {
     }
 
     /**
-     *
-     * @return
-     */
-    public Class<?> getReturnType() {
-        return method.getReturnType();
-    }
-
-    /**
      * Is invisible boolean.
      *
      * @return the boolean

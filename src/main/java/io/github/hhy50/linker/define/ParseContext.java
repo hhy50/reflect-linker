@@ -2,11 +2,7 @@ package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.annotations.Generate;
 import io.github.hhy50.linker.annotations.Verify;
-import io.github.hhy50.linker.define.field.EarlyFieldRef;
-import io.github.hhy50.linker.define.field.FieldIndexRef;
-import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.define.field.MethodTmpFieldRef;
-import io.github.hhy50.linker.define.field.RuntimeFieldRef;
+import io.github.hhy50.linker.define.field.*;
 import io.github.hhy50.linker.define.method.*;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
@@ -16,7 +12,10 @@ import io.github.hhy50.linker.util.*;
 import org.objectweb.asm.Type;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -205,13 +204,15 @@ public class ParseContext {
                 owner = parseFieldExpr(curType, fieldToken);
             } else if (methods.size() > 0) {
                 MethodRef methodRef = methods.get(methods.size()-1);
-                owner = new MethodTmpFieldRef(methodRef, "invoke_"+methodRef.getName());
+                MethodTmpFieldRef fieldRef = new MethodTmpFieldRef(methodRef, "invoke_"+methodRef.getName());
+                fieldRef.setActualType(curType);
+                owner = fieldRef;
             } else {
                 owner = new EarlyFieldRef(null, "target", targetClass);
             }
             if (methodToken != null) {
                 String[] argsType = parseArgsType(methodDefine, methodToken, false);
-                Method method = owner.findMethod(methodToken.methodName, argsType, null);
+                Method method = ReflectUtil.matchMethod(owner.getActualType(), methodToken.methodName, null, argsType);
                 if (method != null) {
                     methods.add(new EarlyMethodRef(owner, method));
                     curType = method.getReturnType();

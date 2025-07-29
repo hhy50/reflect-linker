@@ -11,7 +11,7 @@ import org.objectweb.asm.Type;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import static io.github.hhy50.linker.ext.InjectUtil.*;
+import static io.github.hhy50.linker.tools.InjectUtil.*;
 
 public class ByteCodeUtilTest {
 

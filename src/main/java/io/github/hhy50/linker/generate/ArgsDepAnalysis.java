@@ -14,12 +14,11 @@ public class ArgsDepAnalysis {
     int[][] argsStack;
 
     public ArgsDepAnalysis() {
-//        this.argsStack = ;
+
     }
 
     public void analyse(Tokens exprTokens) {
         int size = exprTokens.size();
         this.argsStack = new int[size][];
-
     }
 }

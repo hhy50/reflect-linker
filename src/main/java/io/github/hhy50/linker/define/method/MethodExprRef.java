@@ -1,10 +1,13 @@
 package io.github.hhy50.linker.define.method;
 
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.Invoker;
+import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class MethodExprRef extends MethodRef {
 
@@ -27,7 +30,8 @@ public class MethodExprRef extends MethodRef {
 
     @Override
     public Type getMethodType() {
-        return Type.getType(method);
+        int c = method.getParameterCount();
+        return Type.getMethodType(ObjectVar.TYPE, IntStream.range(0, c).mapToObj(i ->  ObjectVar.TYPE).toArray(Type[]::new));
 //        Type type = Type.getType(this.method);
 //        if (isInvisible()) {
 //            return genericType(type);
@@ -37,6 +41,6 @@ public class MethodExprRef extends MethodRef {
 
     @Override
     public Invoker<?> defineInvoker() {
-        return null;
+        return new MethodExprInvoker(this);
     }
 }

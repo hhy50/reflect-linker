@@ -4,8 +4,6 @@ package io.github.hhy50.linker.define.field;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Method;
-
 /**
  * The type Field ref.
  */
@@ -96,10 +94,6 @@ public abstract class FieldRef {
      */
     public String getFullName() {
         return fullName;
-    }
-
-    public Method findMethod(String methodName, String[] argsType, String superClass) {
-        return null;
     }
 
     public Class<?> getActualType() {

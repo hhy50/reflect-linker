@@ -101,14 +101,15 @@ interface Case2_Linker {
      *
      * @return a {@link java.lang.String} object.
      */
-    @Method.InvokeSuper
-    @Method.Expr("boot().findModule('jdk.compiler').get()")
+//    @Method.Expr("boot().findModule('jdk.compiler').get()")
 //    @Method.Expr("user.getName(a.b.c.d, a.b.c.d, a.b.c, a.b.c.d.getAA('a'), 1).a.b.c.d.get()")
+    @Method.InvokeSuper
+    @Method.Expr("user.getName().toString()")
     String getSuperName();
 
-    @Method.InvokeSuper
-    @Method.Expr("user.a.b.c.d.e.f.e.a.a.a.a")
-    String getA();
+//    @Method.InvokeSuper
+//    @Method.Expr("user.a.b.c.d.e.f.e.a.a.a.a")
+//    String getA();
 
     // runtime
     /**
