@@ -124,11 +124,4 @@ public abstract class MethodRef {
      * @return
      */
     public abstract Invoker<?> defineInvoker();
-
-//    /**
-//     * Get args type type [ ].
-//     *
-//     * @return the type [ ]
-//     */
-//    public abstract Type[] getArgsType();
 }

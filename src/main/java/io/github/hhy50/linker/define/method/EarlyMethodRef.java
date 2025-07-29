@@ -75,6 +75,10 @@ public class EarlyMethodRef extends MethodRef {
         this.superClass = method.getDeclaringClass().getName();
     }
 
+    /**
+     *
+     * @return
+     */
     public Class<?> getReturnType() {
         return method.getReturnType();
     }
