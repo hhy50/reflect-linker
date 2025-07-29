@@ -104,7 +104,7 @@ interface Case2_Linker {
 //    @Method.Expr("boot().findModule('jdk.compiler').get()")
 //    @Method.Expr("user.getName(a.b.c.d, a.b.c.d, a.b.c, a.b.c.d.getAA('a'), 1).a.b.c.d.get()")
     @Method.InvokeSuper
-    @Method.Expr("user.getName().toString()")
+    @Method.Expr("user.getName()")
     String getSuperName();
 
 //    @Method.InvokeSuper

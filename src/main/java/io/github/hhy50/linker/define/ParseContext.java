@@ -183,11 +183,13 @@ public class ParseContext {
     }
 
     private MethodRef parseMethodExpr(Method methodDefine, final Tokens tokens) throws ClassNotFoundException {
-        io.github.hhy50.linker.annotations.Method.InvokeSuper invokeSuper = methodDefine
-                .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class);
-        Iterator<SplitToken> tokensIterator = tokens.splitWithMethod();
+        String invokeSuper = Optional.ofNullable(methodDefine
+                .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class))
+                .map(io.github.hhy50.linker.annotations.Method.InvokeSuper::value)
+                .orElse(null);
 
         // 提前全部解析
+        Iterator<SplitToken> tokensIterator = tokens.splitWithMethod();
         ArrayList<SplitToken> tokenList = new ArrayList<>();
         while (tokensIterator.hasNext()) {
             tokenList.add(tokensIterator.next());
@@ -212,12 +214,16 @@ public class ParseContext {
             }
             if (methodToken != null) {
                 String[] argsType = parseArgsType(methodDefine, methodToken, false);
-                Method method = ReflectUtil.matchMethod(owner.getActualType(), methodToken.methodName, null, argsType);
+                Method method = ReflectUtil.matchMethod(owner.getActualType(), methodToken.methodName, invokeSuper, argsType);
                 if (method != null) {
-                    methods.add(new EarlyMethodRef(owner, method));
+                    EarlyMethodRef m = new EarlyMethodRef(owner, method);
+                    m.setSuperClass(invokeSuper);
+                    methods.add(m);
                     curType = method.getReturnType();
                 } else {
-                    methods.add(new RuntimeMethodRef(owner, methodToken.methodName, argsType));
+                    RuntimeMethodRef m = new RuntimeMethodRef(owner, methodToken.methodName, argsType);
+                    m.setSuperClass(invokeSuper);
+                    methods.add(m);
                     curType = Object.class;
                 }
             }

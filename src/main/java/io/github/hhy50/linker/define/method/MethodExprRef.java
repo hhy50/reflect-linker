@@ -31,7 +31,7 @@ public class MethodExprRef extends MethodRef {
     @Override
     public Type getMethodType() {
         int c = method.getParameterCount();
-        return Type.getMethodType(ObjectVar.TYPE, IntStream.range(0, c).mapToObj(i ->  ObjectVar.TYPE).toArray(Type[]::new));
+        return Type.getMethodType(method.getReturnType() == void.class ? Type.VOID_TYPE : ObjectVar.TYPE, IntStream.range(0, c).mapToObj(i ->  ObjectVar.TYPE).toArray(Type[]::new));
 //        Type type = Type.getType(this.method);
 //        if (isInvisible()) {
 //            return genericType(type);

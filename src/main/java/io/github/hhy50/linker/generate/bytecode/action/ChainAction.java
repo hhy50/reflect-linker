@@ -78,15 +78,19 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         return new Next<>(this, func);
     }
 
+
+
     /**
      * Then chain action.
      *
-     * @param <Out> the type parameter
      * @param func  the func
      * @return the chain action
      */
-    public <Out> ChainAction<Out> then(BiFunction<T, MethodBody, Out> func) {
-        return new Next<>(this, func);
+    public ChainAction<T> then(BiConsumer<T, MethodBody> func) {
+        return new Next<>(this, (p, b) -> {
+            func.accept(p, b);
+            return p;
+        });
     }
 
     /**
