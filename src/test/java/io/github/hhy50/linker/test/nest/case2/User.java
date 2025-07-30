@@ -29,9 +29,15 @@ public class User {
         return age;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "name="+name+", age="+age;
+    }
+
+    public String getName(String name) {
+        return name+":getName()";
     }
 }

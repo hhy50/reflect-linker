@@ -7,6 +7,7 @@ import io.github.hhy50.linker.define.method.*;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
+import io.github.hhy50.linker.generate.ArgsDepAnalysis;
 import io.github.hhy50.linker.token.*;
 import io.github.hhy50.linker.util.*;
 import org.objectweb.asm.Type;
@@ -184,7 +185,7 @@ public class ParseContext {
 
     private MethodRef parseMethodExpr(Method methodDefine, final Tokens tokens) throws ClassNotFoundException {
         String invokeSuper = Optional.ofNullable(methodDefine
-                .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class))
+                        .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class))
                 .map(io.github.hhy50.linker.annotations.Method.InvokeSuper::value)
                 .orElse(null);
 
@@ -195,6 +196,7 @@ public class ParseContext {
             tokenList.add(tokensIterator.next());
         }
 
+        ArgsDepAnalysis argsDepAnalysis = new ArgsDepAnalysis(methodDefine.getParameterTypes());
         Class<?> curType = targetClass;
         ArrayList<MethodRef> methods = new ArrayList<>();
         for (SplitToken splitToken : tokenList) {
@@ -206,7 +208,7 @@ public class ParseContext {
                 owner = parseFieldExpr(curType, fieldToken);
             } else if (methods.size() > 0) {
                 MethodRef methodRef = methods.get(methods.size()-1);
-                MethodTmpFieldRef fieldRef = new MethodTmpFieldRef(methodRef, "invoke_"+methodRef.getName());
+                MethodTmpFieldRef fieldRef = new MethodTmpFieldRef(methodRef, methodRef.getName());
                 fieldRef.setActualType(curType);
                 owner = fieldRef;
             } else {
@@ -215,20 +217,23 @@ public class ParseContext {
             if (methodToken != null) {
                 String[] argsType = parseArgsType(methodDefine, methodToken, false);
                 Method method = ReflectUtil.matchMethod(owner.getActualType(), methodToken.methodName, invokeSuper, argsType);
+
+                MethodRef m;
                 if (method != null) {
-                    EarlyMethodRef m = new EarlyMethodRef(owner, method);
-                    m.setSuperClass(invokeSuper);
-                    methods.add(m);
+                    m = new EarlyMethodRef(owner, method);
                     curType = method.getReturnType();
                 } else {
-                    RuntimeMethodRef m = new RuntimeMethodRef(owner, methodToken.methodName, argsType);
-                    m.setSuperClass(invokeSuper);
-                    methods.add(m);
+                    RuntimeMethodRef rm = new RuntimeMethodRef(owner, methodToken.methodName, argsType);
+                    rm.setAutolink(AnnotationUtils.isAutolink(methodDefine));
                     curType = Object.class;
+                    m = rm;
                 }
+                m.setSuperClass(invokeSuper);
+                methods.add(m);
+                argsDepAnalysis.analyse(m.getMethodType(), methodToken.getArgsToken());
             }
         }
-        return new MethodExprRef(methodDefine, methods);
+        return new MethodExprRef(methodDefine, methods, argsDepAnalysis);
     }
 
     private FieldRef parseFieldExpr(Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
@@ -244,7 +249,7 @@ public class ParseContext {
             List<Object> index = token.getIndexVal();
             Field earlyField = currentType == null ? null : token.getField(currentType);
             currentType = earlyField == null ? null : earlyField.getType();
-            fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);
+            fullField = Optional.ofNullable(fullField).map(i -> i+"."+fieldName).orElse(fieldName);
             // 使用@Typed指定的类型
             Class<?> assignedType = getFieldTyped(fullField, fieldName);
             if (assignedType != null) {

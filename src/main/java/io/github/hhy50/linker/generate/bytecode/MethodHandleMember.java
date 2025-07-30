@@ -7,6 +7,7 @@ import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 /**
@@ -92,7 +93,6 @@ public class MethodHandleMember extends Member {
     /**
      * Invoke instance action.
      *
-     * @param that the that
      * @param args the args
      * @return the action
      */
@@ -105,7 +105,7 @@ public class MethodHandleMember extends Member {
 
         // 动态签名
         return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke",
-                AsmUtil.addArgsDesc(methodType, invokerType, true)))
+                TypeUtil.appendArgs(methodType, invokerType, true)))
                 .setInstance(this)
                 .setArgs(newArgs);
     }

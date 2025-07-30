@@ -14,7 +14,7 @@ public class TypedTest {
 
         @Typed(name = "user3", value = "io.github.hhy50.linker.test.typed.User3")
         @Typed(name = "user2", value = "io.github.hhy50.linker.test.typed.User2")
-        @Method.Expr("user2.user3.getString($1)")
+        @Method.Expr("user2.user3.getString($0).toString()")
         public Object getUser3String(@Typed(value = "java.lang.String") Object obj);
     }
 

@@ -67,21 +67,6 @@ public class AsmUtil {
     }
 
     /**
-     * Add args desc type.
-     *
-     * @param methodType the method type
-     * @param newArg     the new arg
-     * @param header     the header
-     * @return the type
-     */
-    public static Type addArgsDesc(Type methodType, Type newArg, boolean header) {
-        String delimiter = header ? "\\(" : "\\)";
-        String[] split = methodType.getDescriptor().split(delimiter);
-        split[0] += newArg.getDescriptor();
-        return Type.getMethodType(header ? ("("+split[0]+split[1]) : (split[0]+")"+split[1]));
-    }
-
-    /**
      * Areturn null.
      *
      * @param mv    the mv

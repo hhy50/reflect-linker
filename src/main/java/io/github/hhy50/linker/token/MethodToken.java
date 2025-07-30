@@ -47,4 +47,8 @@ public class MethodToken implements Token, ArgType {
     public Type getType(ParseContext context, Method methodDefine) {
         return Type.getType(Object.class);
     }
+
+    public ArgsToken getArgsToken() {
+        return args;
+    }
 }

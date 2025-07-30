@@ -94,6 +94,9 @@ interface Case2_Linker {
     @Field.Setter("user.address")
     void setAddress(String address);
 
+    @Method.Expr("user.getName($0)")
+    String getNameWithArgs(String name);
+
 //    @Typed(name = "user", type = "io.github.hhy50.linker.test.nest.case2.UserVo")
 //    @Runtime
     /**

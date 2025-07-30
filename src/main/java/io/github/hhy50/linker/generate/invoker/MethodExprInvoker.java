@@ -3,7 +3,6 @@ package io.github.hhy50.linker.generate.invoker;
 import io.github.hhy50.linker.asm.MethodBuilder;
 import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.generate.ArgsDepAnalysis;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
@@ -16,8 +15,6 @@ import java.util.List;
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
 
     List<Invoker<?>> invokers = new ArrayList<>();
-
-    ArgsDepAnalysis argsDepAnalysis = new ArgsDepAnalysis();
 
     public MethodExprInvoker(MethodExprRef methodExprRef) {
         super(methodExprRef, methodExprRef.getMethodType());

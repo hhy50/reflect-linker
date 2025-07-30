@@ -27,12 +27,7 @@ public class BytecodeFactory {
      * @return the method handle
      */
     public static MethodHandle generateGetter(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, FieldRef fieldRef) {
-        FieldRef prev = fieldRef.getPrev();
-        while (prev != null) {
-            classBuilder.defineGetter(prev.getUniqueName(), prev);
-            prev = prev.getPrev();
-        }
-        Getter getter = classBuilder.defineGetter(fieldRef.getUniqueName(), fieldRef);
+        Getter getter = generateGetter(fieldRef, classBuilder);
         return new GetterDecorator(getter, fieldRef, absMethodDefine);
     }
 
@@ -46,10 +41,7 @@ public class BytecodeFactory {
      */
     public static MethodHandle generateSetter(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, FieldRef fieldRef) {
         FieldRef prev = fieldRef.getPrev();
-        while (prev != null) {
-            classBuilder.defineGetter(prev.getUniqueName(), prev);
-            prev = prev.getPrev();
-        }
+        generateGetter(prev, classBuilder);
 
         Setter setter = classBuilder.defineSetter(fieldRef.getUniqueName(), fieldRef);
         return new SetterDecorator(setter, fieldRef, absMethodDefine);
@@ -66,7 +58,7 @@ public class BytecodeFactory {
     public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodExprRef methodRef) {
         for (MethodRef method : methodRef.getMethods()) {
             FieldRef owner = method.getOwner();
-            classBuilder.defineGetter(owner.getUniqueName(), owner);
+            generateGetter(owner, classBuilder);
         }
         return new InvokerDecorator(classBuilder.defineInvoker(methodRef), absMethodDefine);
     }
@@ -82,5 +74,14 @@ public class BytecodeFactory {
     public static MethodHandle generateConstructor(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, ConstructorRef constructorRef) {
         return new InvokerDecorator(
                 new Constructor(constructorRef), absMethodDefine);
+    }
+
+    static Getter generateGetter(FieldRef fieldRef, InvokeClassImplBuilder classBuilder) {
+        FieldRef prev = fieldRef.getPrev();
+        while (prev != null) {
+            classBuilder.defineGetter(prev.getUniqueName(), prev);
+            prev = prev.getPrev();
+        }
+        return classBuilder.defineGetter(fieldRef.getUniqueName(), fieldRef);
     }
 }

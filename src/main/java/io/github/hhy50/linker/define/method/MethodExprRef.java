@@ -1,27 +1,28 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.ArgsDepAnalysis;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class MethodExprRef extends MethodRef {
 
     private final Method method;
     private final List<MethodRef> methods;
+    private final ArgsDepAnalysis argsDepAnalysis;
 
     /**
      * Instantiates a new Method ref.
      *
      */
-    public MethodExprRef(Method method, List<MethodRef> methods) {
+    public MethodExprRef(Method method, List<MethodRef> methods, ArgsDepAnalysis argsDepAnalysis) {
         super(null, null, "expr_"+COUNTER.incrementAndGet());
         this.method = method;
         this.methods = methods;
+        this.argsDepAnalysis = argsDepAnalysis;
     }
 
     public List<MethodRef> getMethods() {
@@ -30,13 +31,7 @@ public class MethodExprRef extends MethodRef {
 
     @Override
     public Type getMethodType() {
-        int c = method.getParameterCount();
-        return Type.getMethodType(method.getReturnType() == void.class ? Type.VOID_TYPE : ObjectVar.TYPE, IntStream.range(0, c).mapToObj(i ->  ObjectVar.TYPE).toArray(Type[]::new));
-//        Type type = Type.getType(this.method);
-//        if (isInvisible()) {
-//            return genericType(type);
-//        }
-//        return type;
+        return Type.getMethodType(argsDepAnalysis.getReturnType(), argsDepAnalysis.getArgsType());
     }
 
     @Override
