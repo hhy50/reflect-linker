@@ -2,10 +2,8 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.generate.constructor.Constructor;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.GetterDecorator;
 import io.github.hhy50.linker.generate.invoker.InvokerDecorator;
