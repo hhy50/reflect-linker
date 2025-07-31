@@ -13,6 +13,8 @@ import org.junit.Test;
 public class PrivateClassTest {
 
     interface LInnerHolder {
+        @Method.Constructor
+        LInnerHolder newInstance();
         @Field.Getter("inner")
         LInner getInner();
         @Field.Setter("inner")
@@ -43,6 +45,9 @@ public class PrivateClassTest {
 
     @Autolink
     interface LInnerHolder_AutoLink {
+        @Method.Constructor
+        LInnerHolder_AutoLink newInstance();
+
         @Field.Getter("inner")
         LInner_Autolink getInner();
 

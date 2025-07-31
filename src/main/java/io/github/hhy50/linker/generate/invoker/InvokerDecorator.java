@@ -6,6 +6,9 @@ import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
+import io.github.hhy50.linker.generate.bytecode.action.CreateLinkerAction;
+import io.github.hhy50.linker.generate.bytecode.action.TypeCastAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -21,6 +24,7 @@ public class InvokerDecorator extends AbstractDecorator {
      */
     protected Invoker<?> realInvoker;
     private final AbsMethodDefine absMethodDefine;
+    private final boolean isConstructor;
 
     /**
      * Instantiates a new Invoker decorator.
@@ -34,7 +38,7 @@ public class InvokerDecorator extends AbstractDecorator {
 
         this.realInvoker = realInvoker;
         this.absMethodDefine = absMethodDefine;
-        this.autolink = this.autolink || absMethodDefine.hasConstructor();
+        this.isConstructor = absMethodDefine.hasConstructor();
     }
 
     @Override
@@ -46,17 +50,27 @@ public class InvokerDecorator extends AbstractDecorator {
     public VarInst invoke(MethodBody methodBody) {
         MethodRef methodRef = absMethodDefine.methodRef;
         Type[] argsType = methodRef.getMethodType().getArgumentTypes();
+        Class<?> rClassType = absMethodDefine.method.getReturnType();
 
         typecastArgs(methodBody, methodBody.getArgs(), argsType);
-        VarInst result = realInvoker.invoke(methodBody);
 
-        Class<?> rClassType = absMethodDefine.method.getReturnType();
-        if (result != null && rClassType != Void.TYPE) {
-            typecastResult(methodBody, result)
-                    .returnThis();
-        } else {
-            methodBody.append(Actions.vreturn());
-        }
+        methodBody.append(ChainAction.of(realInvoker::invoke)
+                .map(varInst -> {
+                    Type retType = Type.getType(rClassType);
+                    if (isConstructor) {
+                        return new TypeCastAction(new CreateLinkerAction(retType, varInst), retType);
+                    } else if (varInst != null && retType != Type.VOID_TYPE) {
+                        return typecastResult(methodBody, varInst);
+                    }
+                    return (VarInst) null;
+                })
+                .map(varInst -> {
+                    if (varInst != null) {
+                        return varInst.thenReturn();
+                    } else {
+                        return Actions.vreturn();
+                    }
+                }));
         return null;
     }
 }

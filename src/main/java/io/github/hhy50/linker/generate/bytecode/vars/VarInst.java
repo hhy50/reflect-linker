@@ -2,7 +2,6 @@ package io.github.hhy50.linker.generate.bytecode.vars;
 
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
@@ -18,11 +17,6 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
 public abstract class VarInst implements LoadAction, TypedAction {
 
     /**
-     * The Body.
-     */
-    protected final MethodBody body;
-
-    /**
      * The Type.
      */
     protected final Type type;
@@ -32,8 +26,7 @@ public abstract class VarInst implements LoadAction, TypedAction {
      *
      * @param type the type
      */
-    public VarInst(MethodBody body, Type type) {
-        this.body = body;
+    public VarInst(Type type) {
         this.type = type;
     }
 
@@ -57,19 +50,10 @@ public abstract class VarInst implements LoadAction, TypedAction {
     }
 
     /**
-     * Load to stack.
-     */
-    public void loadToStack() {
-        load(body);
-    }
-
-    /**
      * Check null pointer.
      */
-    public void checkNullPointer() {
-        if (type.getSort() > Type.DOUBLE) {
-            body.append(this.ifNull(Actions.throwNullException(this.getName())));
-        }
+    public Action checkNullPointer() {
+        return this.ifNull(Actions.throwNullException(this.getName()));
     }
 
     /**
@@ -80,13 +64,6 @@ public abstract class VarInst implements LoadAction, TypedAction {
     public MethodInvokeAction getThisClass() {
         return new MethodInvokeAction(MethodDescriptor.GET_CLASS)
                 .setInstance(this);
-    }
-
-    /**
-     * Return this.
-     */
-    public void returnThis() {
-        thenReturn().apply(body);
     }
 
     /**
