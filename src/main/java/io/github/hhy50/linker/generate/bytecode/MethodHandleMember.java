@@ -2,7 +2,6 @@ package io.github.hhy50.linker.generate.bytecode;
 
 
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;

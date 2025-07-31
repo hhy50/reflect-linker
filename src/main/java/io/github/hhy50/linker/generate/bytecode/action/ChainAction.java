@@ -33,30 +33,6 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
     }
 
     /**
-     * Peek chain action.
-     *
-     * @param consumer the consumer
-     * @return the chain action
-     */
-    public final ChainAction<T> peek(Consumer<T> consumer) {
-        addConsumer((body, val) -> {
-            consumer.accept(val);
-        });
-        return this;
-    }
-
-    /**
-     * Peek chain action.
-     *
-     * @param consumer the consumer
-     * @return the chain action
-     */
-    public final ChainAction<T> peek(BiConsumer<MethodBody, T> consumer) {
-        addConsumer(consumer);
-        return this;
-    }
-
-    /**
      * Of chain action.
      *
      * @param <T>    the type parameter
@@ -65,6 +41,29 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
      */
     public static <T> ChainAction<T> of(Function<MethodBody, T> bifunc) {
         return new ChainAction<>(bifunc);
+    }
+
+    /**
+     * Peek chain action.
+     *
+     * @param consumer the consumer
+     * @return the chain action
+     */
+    public final ChainAction<T> then(Consumer<T> consumer) {
+        addConsumer((body, val) -> {
+            consumer.accept(val);
+        });
+        return this;
+    }
+
+    /**
+     * Then chain action.
+     *
+     * @param func the func
+     * @return the chain action
+     */
+    public ChainAction<T> then(BiConsumer<MethodBody, T> func) {
+        return new Next<>(this, func);
     }
 
     /**
@@ -78,21 +77,6 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         return new Next<>(this, func);
     }
 
-
-
-    /**
-     * Then chain action.
-     *
-     * @param func  the func
-     * @return the chain action
-     */
-    public ChainAction<T> then(BiConsumer<T, MethodBody> func) {
-        return new Next<>(this, (p, b) -> {
-            func.accept(p, b);
-            return p;
-        });
-    }
-
     /**
      * Then chain action.
      *
@@ -100,7 +84,7 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
      * @param func  the func
      * @return the chain action
      */
-    public <Out> ChainAction<Out> then(Function<T, Out> func) {
+    public <Out> ChainAction<Out> map(BiFunction<MethodBody, T, Out> func) {
         return new Next<>(this, func);
     }
 
@@ -117,10 +101,10 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
          * @param prevAction the prev action
          * @param func       the func
          */
-        public Next(ChainAction<In> prevAction, BiFunction<In, MethodBody, Out> func) {
+        public Next(ChainAction<In> prevAction, BiFunction<MethodBody, In, Out> func) {
             super((body) -> {
                 In in = prevAction.doChain(body, body);
-                return func.apply(in, body);
+                return func.apply(body, in);
             });
         }
 
@@ -134,6 +118,20 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
             super((body) -> {
                 In in = prevAction.doChain(body, body);
                 return func.apply(in);
+            });
+        }
+
+        /**
+         * Instantiates a new Next.
+         *
+         * @param prevAction the prev action
+         * @param func       the func
+         */
+        public Next(ChainAction<In> prevAction, BiConsumer<MethodBody, In> func) {
+            super((body) -> {
+                In in = prevAction.doChain(body, body);
+                func.accept(body, in);
+                return (Out) in;
             });
         }
     }

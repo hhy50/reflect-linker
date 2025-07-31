@@ -49,7 +49,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept((method.isStatic()
                         ? mhMember.invokeStatic(Args.loadArgs())
-                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
+                        : ChainAction.of(getter::invoke).then(VarInst::checkNullPointer).map(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
                         .andThen(Actions.areturn(descriptor.getReturnType()))
                 );
     }

@@ -7,38 +7,43 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
 
-    List<Invoker<?>> invokers = new ArrayList<>();
-
     public MethodExprInvoker(MethodExprRef methodExprRef) {
         super(methodExprRef, methodExprRef.getMethodType());
-        for (MethodRef ref : this.method.getMethods()) {
-            invokers.add(ref.defineInvoker());
-        }
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         MethodBuilder methodBuilder = classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.descriptor.getMethodName(), descriptor.getType(), null);
         MethodBody methodBody = methodBuilder.getMethodBody();
-        for (Invoker<?> invoker : invokers) {
-            invoker.define(classImplBuilder);
-            methodBody.append(ChainAction.of(invoker::invoke)
-                    .then((varInst, out) -> {
-                        if (varInst != null) {
-                            varInst.returnThis();
-                        } else {
-                            out.append(Actions.vreturn());
-                        }
-                    })
-            );
+
+        List<MethodRef> methods = method.getStatement();
+
+        Invoker<?> first = methods.get(0).defineInvoker();
+        Type curType = first.descriptor.getReturnType();
+        first.define(classImplBuilder);
+
+        ChainAction<VarInst> chain = ChainAction.of(first::invoke);
+        for (int i = 1; i < methods.size(); i++) {
+            ChainInvoker chainInvoker = new ChainInvoker(curType, methods.get(i));
+            chainInvoker.define(classImplBuilder);
+            chain = chain
+                    .map(chainInvoker::invokeNext);
         }
+        methodBody.append(chain.then((body, varInst) -> {
+            if (varInst != null) {
+                varInst.returnThis();
+            } else {
+                body.append(Actions.vreturn());
+            }
+        }));
         methodBody.end();
     }
 }

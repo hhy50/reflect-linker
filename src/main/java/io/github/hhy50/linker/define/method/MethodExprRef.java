@@ -11,22 +11,22 @@ import java.util.List;
 public class MethodExprRef extends MethodRef {
 
     private final Method method;
-    private final List<MethodRef> methods;
+    private final List<MethodRef> statement;
     private final ArgsDepAnalysis argsDepAnalysis;
 
     /**
      * Instantiates a new Method ref.
      *
      */
-    public MethodExprRef(Method method, List<MethodRef> methods, ArgsDepAnalysis argsDepAnalysis) {
+    public MethodExprRef(Method method, List<MethodRef> statement, ArgsDepAnalysis argsDepAnalysis) {
         super(null, null, "expr_"+COUNTER.incrementAndGet());
         this.method = method;
-        this.methods = methods;
+        this.statement = statement;
         this.argsDepAnalysis = argsDepAnalysis;
     }
 
-    public List<MethodRef> getMethods() {
-        return methods;
+    public List<MethodRef> getStatement() {
+        return statement;
     }
 
     @Override

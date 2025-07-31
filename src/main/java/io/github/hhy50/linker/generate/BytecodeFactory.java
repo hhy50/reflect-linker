@@ -56,11 +56,11 @@ public class BytecodeFactory {
      * @return the method handle
      */
     public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodExprRef methodRef) {
-        for (MethodRef method : methodRef.getMethods()) {
+        for (MethodRef method : methodRef.getStatement()) {
             FieldRef owner = method.getOwner();
             generateGetter(owner, classBuilder);
         }
-        return new InvokerDecorator(classBuilder.defineInvoker(methodRef), absMethodDefine);
+        return new InvokerDecorator(methodRef.defineInvoker(), absMethodDefine);
     }
 
     /**

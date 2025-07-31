@@ -4,13 +4,11 @@ import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
-import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.setter.Setter;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
@@ -129,16 +127,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return setters.computeIfAbsent(fieldName, key -> {
             return new Setter(getClassName(), fieldRef);
         });
-    }
-
-    /**
-     * Define invoker invoker.
-     *
-     * @param methodRef the method ref
-     * @return the invoker
-     */
-    public Invoker<?> defineInvoker(MethodRef methodRef) {
-        return methodRef.defineInvoker();
     }
 
     /**
