@@ -210,7 +210,8 @@ public class ParseContext {
             methodRef = method == null ? null : new EarlyMethodRef(owner, method);
         }
         if (methodRef == null) {
-            methodRef = new RuntimeMethodRef(owner, methodName, argsType);
+            methodRef = new RuntimeMethodRef(owner, methodName, argsType)
+                    .setAutolink(AnnotationUtils.isAutolink(methodDefine));
             designateStatic(methodRef);
         }
         if (superClass != null) {

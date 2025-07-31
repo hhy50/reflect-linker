@@ -20,7 +20,6 @@ public class Util {
         return value;
     }
 
-
     @SuppressWarnings("unchecked")
     public static <T> Collection<T> newCollection(Class<? extends Collection> clazz) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         if (clazz.getName().startsWith("java.util.")) {

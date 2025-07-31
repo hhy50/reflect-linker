@@ -4,6 +4,10 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Modifier;
+
+import static org.objectweb.asm.Opcodes.*;
+
 /**
  * The type Asm util.
  */
@@ -63,21 +67,6 @@ public class AsmUtil {
     }
 
     /**
-     * Add args desc type.
-     *
-     * @param methodType the method type
-     * @param newArg     the new arg
-     * @param header     the header
-     * @return the type
-     */
-    public static Type addArgsDesc(Type methodType, Type newArg, boolean header) {
-        String delimiter = header ? "\\(" : "\\)";
-        String[] split = methodType.getDescriptor().split(delimiter);
-        split[0] += newArg.getDescriptor();
-        return Type.getMethodType(header ? ("("+split[0]+split[1]) : (split[0]+")"+split[1]));
-    }
-
-    /**
      * Areturn null.
      *
      * @param mv    the mv
@@ -120,5 +109,22 @@ public class AsmUtil {
         write.visitLdcInsn(methodName);
         write.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NoSuchMethodError", "<init>", "(Ljava/lang/String;)V", false);
         write.visitInsn(Opcodes.ATHROW);
+    }
+
+    public static int toAsmOpcode(int modifier) {
+        int asmOpcode = 0;
+        if ((modifier & Modifier.PUBLIC) != 0) asmOpcode |= ACC_PUBLIC;
+        if ((modifier & Modifier.PRIVATE) != 0) asmOpcode |= ACC_PRIVATE;
+        if ((modifier & Modifier.PROTECTED) != 0) asmOpcode |= ACC_PROTECTED;
+        if ((modifier & Modifier.STATIC) != 0) asmOpcode |= ACC_STATIC;
+        if ((modifier & Modifier.FINAL) != 0) asmOpcode |= ACC_FINAL;
+        if ((modifier & Modifier.SYNCHRONIZED) != 0) asmOpcode |= ACC_SYNCHRONIZED;
+        if ((modifier & Modifier.VOLATILE) != 0) asmOpcode |= ACC_VOLATILE;
+        if ((modifier & Modifier.TRANSIENT) != 0) asmOpcode |= ACC_TRANSIENT;
+        if ((modifier & Modifier.NATIVE) != 0) asmOpcode |= ACC_NATIVE;
+        if ((modifier & Modifier.INTERFACE) != 0) asmOpcode |= ACC_INTERFACE;
+        if ((modifier & Modifier.ABSTRACT) != 0) asmOpcode |= ACC_ABSTRACT;
+        if ((modifier & Modifier.STRICT) != 0) asmOpcode |= ACC_STRICT;
+        return asmOpcode;
     }
 }

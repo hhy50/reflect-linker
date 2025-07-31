@@ -41,8 +41,8 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         Type mhType = descriptor.getType();
         Action args = autolink ? Actions.asArray(ObjectVar.TYPE, MethodBody::getArgs) : Args.loadArgs();
         if (autolink) {
-            // 根据实参寻找方法，具体逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
-            // 因为一般是根据形参寻找, 但是链接器的类型对不上
+            // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
+            // 约定将参数0设置为Autolink，以保证使用实参来查找方法
             mhType = Type.getMethodType(descriptor.getReturnType(), Type.getType(Object[].class));
             method.setArgsType(new Type[]{Type.getType(Autolink.class)});
         }
@@ -51,15 +51,15 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(ChainAction.of(ownerGetter::invoke)
-                                .peek((body, ownerVar) -> checkLookClass(body, lookupClass, ownerVar, ownerGetter))
-                                .peek((body, ownerVar) -> {
+                                .then((body, ownerVar) -> checkLookClass(body, lookupClass, ownerVar, ownerGetter))
+                                .then((body, ownerVar) -> {
                                     ClassTypeMember prevLookupClass = ownerGetter.lookupClass;
                                     if (prevLookupClass != null) {
                                         staticCheckClass(body, lookupClass, owner.fieldName, prevLookupClass);
                                     }
                                 })
-                                .peek((body, ownerVar) -> checkMethodHandle(body, lookupClass, mhMember, ownerVar))
-                                .then(method.isDesignateStatic() ?
+                                .then((body, ownerVar) -> checkMethodHandle(body, lookupClass, mhMember, ownerVar))
+                                .map(method.isDesignateStatic() ?
                                         (method.isStatic() ? ownerVar -> mhMember.invokeStatic(args)
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, args))
                                         : ownerVar -> mhMember.invokeOfNull(ownerVar, args)

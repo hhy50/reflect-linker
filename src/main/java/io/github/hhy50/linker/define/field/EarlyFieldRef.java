@@ -2,11 +2,9 @@ package io.github.hhy50.linker.define.field;
 
 
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
-import io.github.hhy50.linker.util.ReflectUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
@@ -95,10 +93,5 @@ public class EarlyFieldRef extends FieldRef {
             return this.assignedType;
         }
         return this.declaredType;
-    }
-
-    @Override
-    public Method findMethod(String methodName, String[] argsType, String superClass) {
-        return ReflectUtil.matchMethod(getActualType(), methodName, superClass, argsType);
     }
 }

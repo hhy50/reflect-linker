@@ -229,4 +229,19 @@ public class TypeUtil {
         }
         return dim;
     }
+
+    /**
+     * Add args desc type.
+     *
+     * @param methodType the method type
+     * @param argType     the new arg
+     * @param header     the header
+     * @return the type
+     */
+    public static Type appendArgs(Type methodType, Type argType, boolean header) {
+        String delimiter = header ? "\\(" : "\\)";
+        String[] split = methodType.getDescriptor().split(delimiter);
+        split[0] += argType.getDescriptor();
+        return Type.getMethodType(header ? ("("+split[0]+split[1]) : (split[0]+")"+split[1]));
+    }
 }

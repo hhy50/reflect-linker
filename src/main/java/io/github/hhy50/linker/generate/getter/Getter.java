@@ -93,7 +93,7 @@ public class Getter extends FieldOpsMethodHandler {
         if (TypeUtil.getArrayDimension(actualType) >= index.size()) {
             classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                     .intercept(ChainAction.of(getter::invoke)
-                            .then(varInst -> new ArrayIndex(varInst, (List) index))
+                            .map(varInst -> new ArrayIndex(varInst, (List) index))
                             .andThen(Actions.areturn(descriptor.getReturnType()))
                     );
             return;

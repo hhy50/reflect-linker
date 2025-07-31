@@ -56,6 +56,19 @@ public class Args {
         };
     }
 
+    /**
+     *
+     * @return
+     */
+    public static Action loadArgsIgnoreThis() {
+        return body -> {
+            VarInst[] args = body.getArgs();
+            for (int i = 1; i < args.length; i++) {
+                args[i].loadToStack();
+            }
+        };
+    }
+
     public interface LoadArgsAction extends LoadAction, LazyTypedAction {
 
     }

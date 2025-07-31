@@ -104,7 +104,7 @@ public class Methods {
      * @return method invoke action
      */
     public static MethodInvokeAction invoke(MethodDescriptor descriptor) {
-        return new MethodInvokeAction(descriptor);
+        return new SmartMethodInvokeAction(descriptor);
     }
 
     /**

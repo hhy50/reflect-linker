@@ -60,15 +60,15 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(mhName, descriptor.getType());
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(ChainAction.of(preFieldGetter::invoke)
-                                .peek((body, ownerVar) -> checkLookClass(body, this.lookupClass, ownerVar, preFieldGetter))
-                                .peek((body, ownerVar) -> {
+                                .then((body, ownerVar) -> checkLookClass(body, this.lookupClass, ownerVar, preFieldGetter))
+                                .then((body, ownerVar) -> {
                                     ClassTypeMember prevLookupClass = preFieldGetter.lookupClass;
                                     if (prevLookupClass != null) {
                                         staticCheckClass(body, this.lookupClass, prevField.fieldName, prevLookupClass);
                                     }
                                 })
-                                .peek((body, ownerVar) -> checkMethodHandle(body, this.lookupClass, mhMember, ownerVar))
-                                .then(runtimeField.isDesignateStatic() ?
+                                .then((body, ownerVar) -> checkMethodHandle(body, this.lookupClass, mhMember, ownerVar))
+                                .map(runtimeField.isDesignateStatic() ?
                                         (runtimeField.isStatic() ? ownerVar -> mhMember.invokeStatic(Args.loadArgs())
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, Args.loadArgs()))
                                         : ownerVar -> mhMember.invokeOfNull(ownerVar, Args.loadArgs())
@@ -96,7 +96,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept((field.isStatic()
                         ? mhMember.invokeStatic(Args.loadArgs())
-                        : ChainAction.of(getter::invoke).peek(VarInst::checkNullPointer).then(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
+                        : ChainAction.of(getter::invoke).then(VarInst::checkNullPointer).map(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs())))
                         .andThen(Actions.areturn(descriptor.getReturnType()))
                 );
     }
