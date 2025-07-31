@@ -53,10 +53,12 @@ public class BytecodeFactory {
      * @param methodRef       the method ref
      * @return the method handle
      */
-    public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodExprRef methodRef) {
-        for (MethodRef method : methodRef.getStatement()) {
-            FieldRef owner = method.getOwner();
-            generateGetter(owner, classBuilder);
+    public static MethodHandle generateInvoker(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, MethodRef methodRef) {
+        if (methodRef instanceof MethodExprRef) {
+            for (MethodRef method : ((MethodExprRef) methodRef).getStatement()) {
+                FieldRef owner = method.getOwner();
+                generateGetter(owner, classBuilder);
+            }
         }
         return new InvokerDecorator(methodRef.defineInvoker(), absMethodDefine);
     }

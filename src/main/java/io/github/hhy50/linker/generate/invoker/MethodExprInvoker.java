@@ -37,11 +37,11 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
             chain = chain
                     .map(chainInvoker::invokeNext);
         }
-        methodBody.append(chain.then((body, varInst) -> {
+        methodBody.append(chain.then((varInst) -> {
             if (varInst != null) {
-                varInst.returnThis();
+                return varInst.thenReturn();
             } else {
-                body.append(Actions.vreturn());
+                return Actions.vreturn();
             }
         }));
         methodBody.end();
