@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.define;
 
-import io.github.hhy50.linker.annotations.Generate;
+import io.github.hhy50.linker.annotations.Builtin;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldIndexRef;
@@ -142,7 +142,7 @@ public class ParseContext {
         List<AbsMethodDefine> absMethodDefines = new ArrayList<>();
         for (Method method : this.defineClass.getMethods()) {
             if (!Modifier.isAbstract(method.getModifiers())) continue;
-            Generate.Builtin builtin = method.getDeclaringClass().getDeclaredAnnotation(Generate.Builtin.class);
+            Builtin builtin = method.getDeclaringClass().getDeclaredAnnotation(Builtin.class);
             if (builtin != null) {
                 continue;
             }
