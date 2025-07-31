@@ -6,6 +6,7 @@ import io.github.hhy50.linker.generate.invoker.Invoker;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 
 
 /**
@@ -28,7 +29,11 @@ public class ConstructorRef extends MethodRef {
     }
 
     public Type getMethodType() {
-        return Type.getMethodType(ObjectVar.TYPE, Type.getType(constructor).getArgumentTypes());
+        Type rType = ObjectVar.TYPE;
+        if (Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
+            rType = Type.getType(constructor.getDeclaringClass());
+        }
+        return Type.getMethodType(rType, Type.getType(constructor).getArgumentTypes());
     }
 
     @Override

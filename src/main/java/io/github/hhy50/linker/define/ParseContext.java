@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.define;
 
-import io.github.hhy50.linker.annotations.Generate;
+import io.github.hhy50.linker.annotations.Builtin;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.*;
 import io.github.hhy50.linker.define.method.*;
@@ -136,7 +136,7 @@ public class ParseContext {
         List<AbsMethodDefine> absMethodDefines = new ArrayList<>();
         for (Method method : this.defineClass.getMethods()) {
             if (!Modifier.isAbstract(method.getModifiers())) continue;
-            Generate.Builtin builtin = method.getDeclaringClass().getDeclaredAnnotation(Generate.Builtin.class);
+            Builtin builtin = method.getDeclaringClass().getDeclaredAnnotation(Builtin.class);
             if (builtin != null) {
                 continue;
             }
@@ -223,10 +223,9 @@ public class ParseContext {
                     m = new EarlyMethodRef(owner, method);
                     curType = method.getReturnType();
                 } else {
-                    RuntimeMethodRef rm = new RuntimeMethodRef(owner, methodToken.methodName, argsType);
-                    rm.setAutolink(AnnotationUtils.isAutolink(methodDefine));
+                    m = new RuntimeMethodRef(owner, methodToken.methodName, argsType)
+                            .setAutolink(AnnotationUtils.isAutolink(methodDefine));
                     curType = Object.class;
-                    m = rm;
                 }
                 m.setSuperClass(invokeSuper);
                 methods.add(m);

@@ -63,19 +63,6 @@ public class BytecodeFactory {
         return new InvokerDecorator(methodRef.defineInvoker(), absMethodDefine);
     }
 
-    /**
-     * Generate constructor method handle.
-     *
-     * @param classBuilder    the class builder
-     * @param absMethodDefine the method define
-     * @param constructorRef  the class ConstructorRef
-     * @return method handle
-     */
-    public static MethodHandle generateConstructor(InvokeClassImplBuilder classBuilder, AbsMethodDefine absMethodDefine, ConstructorRef constructorRef) {
-        return new InvokerDecorator(
-                new Constructor(constructorRef), absMethodDefine);
-    }
-
     static Getter generateGetter(FieldRef fieldRef, InvokeClassImplBuilder classBuilder) {
         FieldRef prev = fieldRef.getPrev();
         while (prev != null) {

@@ -97,8 +97,9 @@ public class RuntimeMethodRef extends MethodRef {
      *
      * @param autolink the autolink
      */
-    public void setAutolink(boolean autolink) {
+    public RuntimeMethodRef setAutolink(boolean autolink) {
         this.isAutolink = autolink;
+        return this;
     }
 
     @Override

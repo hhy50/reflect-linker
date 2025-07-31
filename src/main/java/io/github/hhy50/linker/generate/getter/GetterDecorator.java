@@ -5,6 +5,8 @@ import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
+import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
 /**
@@ -38,9 +40,9 @@ public class GetterDecorator extends AbstractDecorator {
         /**
          * get只需要对返回值进行转换就行
          */
-        VarInst result = getter.invoke(methodBody);
-        typecastResult(methodBody, result)
-                .returnThis();
+        methodBody.append(ChainAction.of(getter::invoke)
+                .map(varInst -> typecastResult(methodBody, varInst))
+                .then(TypedAction::thenReturn));
         return null;
     }
 }

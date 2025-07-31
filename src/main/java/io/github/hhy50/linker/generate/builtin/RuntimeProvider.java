@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.generate.builtin;
 
 
-import io.github.hhy50.linker.annotations.Generate;
+import io.github.hhy50.linker.annotations.Builtin;
 
-@Generate.Builtin
+@Builtin
 public interface RuntimeProvider {
 }

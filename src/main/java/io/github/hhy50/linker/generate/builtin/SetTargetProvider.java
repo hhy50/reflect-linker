@@ -1,14 +1,15 @@
 package io.github.hhy50.linker.generate.builtin;
 
 
-import io.github.hhy50.linker.annotations.Generate;
-
 /**
  * The interface Reset target provider.
  *
  * @param <T> the type parameter
  */
-@Generate.Builtin
+
+import io.github.hhy50.linker.annotations.Builtin;
+
+@Builtin
 public interface SetTargetProvider<T> {
 
 

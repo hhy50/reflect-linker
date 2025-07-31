@@ -5,6 +5,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -15,7 +16,7 @@ import java.util.Objects;
 /**
  * The type Member.
  */
-public class Member implements LoadAction, TypedAction {
+public class Member extends VarInst implements LoadAction, TypedAction {
 
     /**
      * The Access.
@@ -51,6 +52,7 @@ public class Member implements LoadAction, TypedAction {
      * @param type       the type
      */
     public Member(int access, String owner, String memberName, Type type) {
+        super(type);
         this.access = access;
         this.owner = owner;
         this.memberName = memberName;
@@ -59,6 +61,7 @@ public class Member implements LoadAction, TypedAction {
 
     /**
      * Instantiates a new Member.
+     *
      * @param field
      */
     public Member(AsmField field) {

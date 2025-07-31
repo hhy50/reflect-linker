@@ -56,6 +56,14 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         return this;
     }
 
+    public final ChainAction<T> then(Function<T, Action> function) {
+        addConsumer((body, val) -> {
+            Action then = function.apply(val);
+            if (then != null) then.apply(body);
+        });
+        return this;
+    }
+
     /**
      * Then chain action.
      *
@@ -63,7 +71,8 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
      * @return the chain action
      */
     public ChainAction<T> then(BiConsumer<MethodBody, T> func) {
-        return new Next<>(this, func);
+        addConsumer(func);
+        return this;
     }
 
     /**
@@ -118,20 +127,6 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
             super((body) -> {
                 In in = prevAction.doChain(body, body);
                 return func.apply(in);
-            });
-        }
-
-        /**
-         * Instantiates a new Next.
-         *
-         * @param prevAction the prev action
-         * @param func       the func
-         */
-        public Next(ChainAction<In> prevAction, BiConsumer<MethodBody, In> func) {
-            super((body) -> {
-                In in = prevAction.doChain(body, body);
-                func.accept(body, in);
-                return (Out) in;
             });
         }
     }

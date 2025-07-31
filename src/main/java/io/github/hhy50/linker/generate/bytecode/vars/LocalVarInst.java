@@ -13,6 +13,11 @@ import java.util.function.Consumer;
  * The type Local var inst.
  */
 public class LocalVarInst extends VarInst {
+    /**
+     * The Body.
+     */
+    protected final MethodBody body;
+
     private final int lvbIndex;
 
     private final String varName;
@@ -26,7 +31,8 @@ public class LocalVarInst extends VarInst {
      * @param varName  the var name
      */
     public LocalVarInst(MethodBody body, int lvbIndex, Type type, String varName) {
-        super(body, type);
+        super(type);
+        this.body = body;
         this.lvbIndex = lvbIndex;
         this.varName = varName == null ? "var" + lvbIndex : varName;
     }
@@ -39,6 +45,13 @@ public class LocalVarInst extends VarInst {
     @Override
     public void load(MethodBody methodBody) {
         methodBody.append((Consumer<MethodVisitor>) mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ILOAD), lvbIndex));
+    }
+
+    /**
+     * Load to stack.
+     */
+    public void loadToStack() {
+        load(body);
     }
 
     /**

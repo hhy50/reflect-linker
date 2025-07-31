@@ -4,7 +4,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LazyTypedAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import org.objectweb.asm.Type;
 
 import java.util.stream.IntStream;
@@ -21,7 +21,7 @@ public class Args {
      */
     public static Action loadArgs(int... argIndices) {
         return body -> {
-            VarInst[] args = body.getArgs();
+            LocalVarInst[] args = body.getArgs();
             int[] indices = argIndices;
             if (argIndices.length == 0) {
                 indices = IntStream.range(0, args.length).toArray();
@@ -44,7 +44,7 @@ public class Args {
 
             @Override
             public void load(MethodBody body) {
-                VarInst arg = body.getArgs()[index];
+                LocalVarInst arg = body.getArgs()[index];
                 arg.loadToStack();
                 this.type = arg.getType();
             }
@@ -62,7 +62,7 @@ public class Args {
      */
     public static Action loadArgsIgnoreThis() {
         return body -> {
-            VarInst[] args = body.getArgs();
+            LocalVarInst[] args = body.getArgs();
             for (int i = 1; i < args.length; i++) {
                 args[i].loadToStack();
             }
