@@ -1,6 +1,6 @@
-package io.github.hhy50.linker.test.byte64;
+package io.github.hhy50.linker.test.primitive;
 
-public interface Byte64 {
+public interface PrimitiveClass {
     public double doubleValue();
     public float floatValue();
     public long longValue();

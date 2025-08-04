@@ -10,6 +10,7 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 import static io.github.hhy50.linker.util.ClassUtil.isPublic;
 
@@ -72,7 +73,10 @@ public class EarlyMethodRef extends MethodRef {
 
     @Override
     public void setSuperClass(String superClass) {
-        this.superClass = method.getDeclaringClass().getName();
+        if (Objects.equals("", superClass))
+            this.superClass = method.getDeclaringClass().getName();
+        else
+            this.superClass = superClass;
     }
 
     /**

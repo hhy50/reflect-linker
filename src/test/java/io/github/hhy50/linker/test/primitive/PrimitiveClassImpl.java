@@ -1,6 +1,6 @@
-package io.github.hhy50.linker.test.byte64;
+package io.github.hhy50.linker.test.primitive;
 
-public class Byte64Impl implements Byte64 {
+public class PrimitiveClassImpl implements PrimitiveClass {
     @Override
     public double doubleValue() {
         return 1.1;
