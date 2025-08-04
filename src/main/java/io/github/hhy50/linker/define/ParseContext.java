@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * The type Parse context.
@@ -246,8 +247,8 @@ public class ParseContext {
             FieldToken token = (FieldToken) item;
             String fieldName = token.fieldName;
             List<Object> index = token.getIndexVal();
-            Field earlyField = currentType == null ? null : token.getField(currentType);
-            currentType = earlyField == null ? null : earlyField.getType();
+            Field earlyField = token.getField(currentType);
+            currentType = earlyField == null ? Object.class : Util.expandIndexType(index, earlyField.getType());
             fullField = Optional.ofNullable(fullField).map(i -> i+"."+fieldName).orElse(fieldName);
             // 使用@Typed指定的类型
             Class<?> assignedType = getFieldTyped(fullField, fieldName);
@@ -255,7 +256,7 @@ public class ParseContext {
                 if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
                     throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
                 }
-                currentType = assignedType;
+                currentType = index == null ? assignedType : Util.expandIndexType(index, assignedType);;
             }
             lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType) : new RuntimeFieldRef(lastField, fieldName);
             lastField.setFullName(fullField);
@@ -282,13 +283,12 @@ public class ParseContext {
     }
 
     private Class<?> getFieldTyped(String fullField, String tokenValue) throws ClassNotFoundException {
-        if (this.typedFields.containsKey(fullField)) {
-            return this.classLoader.loadClass(this.typedFields.get(fullField));
-        }
-        if (this.typedFields.containsKey(tokenValue)) {
-            return this.classLoader.loadClass(this.typedFields.get(tokenValue));
-        }
-        return null;
+        return Stream.of(fullField, tokenValue)
+                .filter(StringUtil::isNotEmpty)
+                .map(this.typedFields::get)
+                .filter(Objects::nonNull)
+                .map(item -> Util.getClass(this.classLoader, item))
+                .findFirst().orElse(null);
     }
 
     private void designateStatic(Object refObj) {

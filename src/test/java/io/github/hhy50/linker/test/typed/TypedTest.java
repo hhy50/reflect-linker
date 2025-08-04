@@ -16,9 +16,13 @@ public class TypedTest {
         @Typed(name = "user2", value = "io.github.hhy50.linker.test.typed.User2")
         @Method.Expr("user2.user3.getString($0).toString()")
         public Object getUser3String(@Typed(value = "java.lang.String") Object obj);
+
+
+//        @Typed(name = "users[1]", value = "io.github.hhy50.linker.test.typed.User2")
+        @Typed(name = "users", value = "io.github.hhy50.linker.test.typed.User2[]")
+        @Method.Name("users[1].user3.getString")
+        public String getUsers1String(String a);
     }
-
-
 
     @Test
     public void test1() throws LinkerException {
@@ -26,5 +30,6 @@ public class TypedTest {
 //        MethodParamsTyped linker = new MethodParamsTyped$impl(new User());
         Assert.assertEquals(linker.getString(""), "string");
         Assert.assertEquals(linker.getUser3String(""), "string");
+        Assert.assertEquals("string", linker.getUsers1String(""));
     }
 }
