@@ -234,7 +234,7 @@ public class TypeUtil {
      * Add args desc type.
      *
      * @param methodType the method type
-     * @param argType     the new arg
+     * @param argType    the new arg
      * @param header     the header
      * @return the type
      */

@@ -28,6 +28,11 @@ public class IndexToken implements Token {
         return "["+collect+"]";
     }
 
+    /**
+     * To values list.
+     *
+     * @return the list
+     */
     public List<Object> toValues() {
         return values.stream().map(ConstToken::getValue).collect(Collectors.toList());
     }

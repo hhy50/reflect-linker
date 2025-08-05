@@ -63,6 +63,13 @@ public class BytecodeFactory {
         return new InvokerDecorator(methodRef.defineInvoker(), absMethodDefine);
     }
 
+    /**
+     * Generate getter getter.
+     *
+     * @param fieldRef     the field ref
+     * @param classBuilder the class builder
+     * @return the getter
+     */
     static Getter generateGetter(FieldRef fieldRef, InvokeClassImplBuilder classBuilder) {
         FieldRef prev = fieldRef.getPrev();
         while (prev != null) {

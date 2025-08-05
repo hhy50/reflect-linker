@@ -23,9 +23,9 @@ public class RuntimeMethodRef extends MethodRef {
     /**
      * Instantiates a new Runtime method ref.
      *
-     * @param owner      the owner
-     * @param name       the name
-     * @param argsType   the args type
+     * @param owner    the owner
+     * @param name     the name
+     * @param argsType the args type
      */
     public RuntimeMethodRef(FieldRef owner, String name, String[] argsType) {
         super(owner, name);
@@ -51,6 +51,11 @@ public class RuntimeMethodRef extends MethodRef {
         return this.argsType;
     }
 
+    /**
+     * Sets args type.
+     *
+     * @param argsType the args type
+     */
     public void setArgsType(Type[] argsType) {
         this.argsType = argsType;
     }
@@ -96,6 +101,7 @@ public class RuntimeMethodRef extends MethodRef {
      * Sets autolink.
      *
      * @param autolink the autolink
+     * @return the autolink
      */
     public RuntimeMethodRef setAutolink(boolean autolink) {
         this.isAutolink = autolink;

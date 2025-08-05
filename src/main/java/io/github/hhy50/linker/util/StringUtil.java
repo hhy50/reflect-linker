@@ -29,7 +29,7 @@ public class StringUtil {
      * To upper camel case string.
      *
      * @param name the name
-     * @return  the string
+     * @return the string
      */
     public static String toUpperCamelCase(String name) {
         char[] charArray = name.toCharArray();

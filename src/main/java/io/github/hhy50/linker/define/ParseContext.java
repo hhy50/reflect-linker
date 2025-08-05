@@ -156,6 +156,7 @@ public class ParseContext {
      * @return the abs method define
      * @throws VerifyException        the verify exception
      * @throws ClassNotFoundException the class not found exception
+     * @throws ParseException         the parse exception
      */
     public AbsMethodDefine parseMethod(Method method) throws VerifyException, ClassNotFoundException, ParseException {
         io.github.hhy50.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);

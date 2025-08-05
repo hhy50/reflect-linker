@@ -36,8 +36,8 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
      * Instantiates a new Invoker.
      *
-     * @param method    the method
-     * @param mType     the m type
+     * @param method the method
+     * @param mType  the m type
      */
     public Invoker(T method, Type mType) {
         this.method = method;

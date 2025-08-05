@@ -74,6 +74,11 @@ public interface ConstToken extends Token {
         }
     }
 
+    /**
+     * Gets value.
+     *
+     * @return the value
+     */
     public Object getValue();
 
     /**

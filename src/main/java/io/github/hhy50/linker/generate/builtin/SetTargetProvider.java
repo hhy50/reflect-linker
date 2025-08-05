@@ -9,6 +9,11 @@ package io.github.hhy50.linker.generate.builtin;
 
 import io.github.hhy50.linker.annotations.Builtin;
 
+/**
+ * The interface Set target provider.
+ *
+ * @param <T> the type parameter
+ */
 @Builtin
 public interface SetTargetProvider<T> {
 

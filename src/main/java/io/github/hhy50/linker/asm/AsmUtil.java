@@ -111,6 +111,12 @@ public class AsmUtil {
         write.visitInsn(Opcodes.ATHROW);
     }
 
+    /**
+     * To asm opcode int.
+     *
+     * @param modifier the modifier
+     * @return the int
+     */
     public static int toAsmOpcode(int modifier) {
         int asmOpcode = 0;
         if ((modifier & Modifier.PUBLIC) != 0) asmOpcode |= ACC_PUBLIC;

@@ -21,10 +21,11 @@ import java.util.Objects;
 public class Methods {
 
     /**
+     * Invoke method invoke action.
      *
-     * @param method
-     * @return
-     * @throws NoSuchMethodException
+     * @param method the method
+     * @return the method invoke action
+     * @throws NoSuchMethodException the no such method exception
      */
     public static MethodInvokeAction invoke(Method method) throws NoSuchMethodException {
         return new MethodInvokeAction(MethodDescriptor.of(method));

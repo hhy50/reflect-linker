@@ -5,6 +5,9 @@ import org.objectweb.asm.Type;
 
 import static org.objectweb.asm.Opcodes.ASM9;
 
+/**
+ * The type Asm field.
+ */
 public class AsmField extends FieldVisitor {
     /**
      * The Access.
@@ -29,10 +32,10 @@ public class AsmField extends FieldVisitor {
     /**
      * Instantiates a new AsmField.
      *
-     * @param access     the access
-     * @param owner      the owner
-     * @param name the name
-     * @param type       the type
+     * @param access the access
+     * @param owner  the owner
+     * @param name   the name
+     * @param type   the type
      */
     public AsmField(int access, String owner, String name, Type type) {
         super(ASM9, null);
@@ -47,7 +50,7 @@ public class AsmField extends FieldVisitor {
      *
      * @param access       the access
      * @param owner        the owner
-     * @param name   the name
+     * @param name         the name
      * @param type         the type
      * @param fieldVisitor the field visitor
      */

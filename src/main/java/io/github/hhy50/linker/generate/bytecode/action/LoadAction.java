@@ -80,7 +80,13 @@ public interface LoadAction extends Action {
      */
     void load(MethodBody body);
 
+    /**
+     * The type Load 0 action.
+     */
     class LOAD0Action implements LoadAction, LazyTypedAction {
+        /**
+         * The This type.
+         */
         Type thisType;
         @Override
         public void load(MethodBody body) {

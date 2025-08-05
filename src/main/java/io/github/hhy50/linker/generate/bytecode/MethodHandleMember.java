@@ -23,7 +23,7 @@ public class MethodHandleMember extends Member {
     /**
      * Instantiates a new Method handle member.
      *
-     * @param field     the field
+     * @param field      the field
      * @param methodType the method type
      */
     public MethodHandleMember(AsmField field, Type methodType) {
@@ -35,7 +35,7 @@ public class MethodHandleMember extends Member {
     /**
      * Instantiates a new Method handle member.
      *
-     * @param field      the field
+     * @param field       the field
      * @param invokerType the invoker type
      * @param methodType  the method type
      */
@@ -92,6 +92,7 @@ public class MethodHandleMember extends Member {
     /**
      * Invoke instance action.
      *
+     * @param that the that
      * @param args the args
      * @return the action
      */

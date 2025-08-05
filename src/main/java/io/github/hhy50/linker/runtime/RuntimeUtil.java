@@ -69,6 +69,9 @@ public class RuntimeUtil {
     public static final MethodDescriptor TYPE_MATCH = MethodDescriptor.of(RuntimeUtil.class, "typeMatch",
             boolean.class, Class.class, String.class);
 
+    /**
+     * The constant INDEX_VALUE.
+     */
     public static final MethodDescriptor INDEX_VALUE = MethodDescriptor.of(RuntimeUtil.class, "indexValue",
             Object.class, Object.class, List.class);
 
@@ -293,10 +296,11 @@ public class RuntimeUtil {
     }
 
     /**
+     * Index value object.
      *
-     * @param obj
-     * @param index
-     * @return
+     * @param obj   the obj
+     * @param index the index
+     * @return the object
      */
     public static Object indexValue(Object obj, List<Object> index) {
         for (Object o : index) {

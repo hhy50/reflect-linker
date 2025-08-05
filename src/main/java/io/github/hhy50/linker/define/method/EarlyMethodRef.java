@@ -18,6 +18,9 @@ import static io.github.hhy50.linker.util.ClassUtil.isPublic;
  * The type Early method ref.
  */
 public class EarlyMethodRef extends MethodRef {
+    /**
+     * The Method.
+     */
     public Method method;
 
     /**

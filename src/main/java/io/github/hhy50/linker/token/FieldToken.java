@@ -16,6 +16,9 @@ public class FieldToken implements Token {
      */
     public String fieldName;
 
+    /**
+     * The Index.
+     */
     public IndexToken index;
 
     /**
@@ -46,6 +49,11 @@ public class FieldToken implements Token {
         this.index = index;
     }
 
+    /**
+     * Gets index val.
+     *
+     * @return the index val
+     */
     public List<Object> getIndexVal() {
         return index != null ? index.toValues() : null;
     }

@@ -56,6 +56,12 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         return this;
     }
 
+    /**
+     * Then chain action.
+     *
+     * @param function the function
+     * @return the chain action
+     */
     public final ChainAction<T> then(Function<T, Action> function) {
         addConsumer((body, val) -> {
             Action then = function.apply(val);
