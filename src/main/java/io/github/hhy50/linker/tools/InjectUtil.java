@@ -24,9 +24,10 @@ public class InjectUtil {
 
     /**
      * 注入字段的getter方法
+     *
      * @param classBuilder the class builder
-     * @param fieldName the field name
-     * @param getterName the getter name
+     * @param fieldName    the field name
+     * @param getterName   the getter name
      */
     public static void injectGetter(AsmClassBuilder classBuilder, String fieldName, String getterName) {
         AsmField field = classBuilder.getField(fieldName);
@@ -46,9 +47,10 @@ public class InjectUtil {
 
     /**
      * 注入字段的setter方法
+     *
      * @param classBuilder the class builder
-     * @param fieldName the field name
-     * @param setterName the setter name
+     * @param fieldName    the field name
+     * @param setterName   the setter name
      */
     public static void injectSetter(AsmClassBuilder classBuilder, String fieldName, String setterName) {
         AsmField field = classBuilder.getField(fieldName);
@@ -66,7 +68,7 @@ public class InjectUtil {
      * Inject getter and setter.
      *
      * @param classBuilder the class builder
-     * @param fieldName the field name
+     * @param fieldName    the field name
      */
     public static void injectGetterAndSetter(AsmClassBuilder classBuilder, String fieldName) {
         injectGetter(classBuilder, fieldName, null);

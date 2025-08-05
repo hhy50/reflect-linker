@@ -8,12 +8,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The type Field index ref.
+ */
 public class FieldIndexRef extends FieldRef {
     private final List<Object> index;
 
     /**
      * Instantiates a new Field ref.
      *
+     * @param owner the owner
+     * @param index the index
      */
     public FieldIndexRef(FieldRef owner, List<Object> index) {
         super(owner, "index$_"+index.stream()
@@ -22,6 +27,11 @@ public class FieldIndexRef extends FieldRef {
         this.index = index;
     }
 
+    /**
+     * Gets index.
+     *
+     * @return the index
+     */
     public List<Object> getIndex() {
         return index;
     }

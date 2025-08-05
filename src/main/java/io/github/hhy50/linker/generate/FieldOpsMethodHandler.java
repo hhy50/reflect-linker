@@ -29,7 +29,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     protected MethodDescriptor descriptor;
 
     /**
-     *
+     * The Lookup class.
      */
     public ClassTypeMember lookupClass;
 

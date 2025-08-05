@@ -14,6 +14,11 @@ public class VerifyException extends RuntimeException {
         super(message);
     }
 
+    /**
+     * Instantiates a new Verify exception.
+     *
+     * @param e the e
+     */
     public VerifyException(Exception e) {
         super(e);
     }

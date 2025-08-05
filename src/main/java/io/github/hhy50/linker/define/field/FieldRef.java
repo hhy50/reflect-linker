@@ -14,8 +14,14 @@ public abstract class FieldRef {
      */
     public String fieldName;
 
+    /**
+     * The Full name.
+     */
     protected String fullName;
 
+    /**
+     * The Prev.
+     */
     protected FieldRef prev;
 
     /**
@@ -96,6 +102,11 @@ public abstract class FieldRef {
         return fullName;
     }
 
+    /**
+     * Gets actual type.
+     *
+     * @return the actual type
+     */
     public Class<?> getActualType() {
         return Object.class;
     }

@@ -100,6 +100,9 @@ public class MethodDescriptor {
      */
     public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of(Class.class, "getClassLoader",
             ClassLoader.class);
+    /**
+     * The constant MAP_GET.
+     */
     public static final MethodDescriptor MAP_GET = MethodDescriptor.of(Map.class, "get", Object.class, Object.class);
 
     private final String owner;
@@ -151,6 +154,11 @@ public class MethodDescriptor {
         return new MethodDescriptor(owner, name, mType);
     }
 
+    /**
+     * Instantiates a new Method descriptor.
+     *
+     * @param base the base
+     */
     public MethodDescriptor(MethodDescriptor base) {
         this(base.owner, base.name, base.type);
     }

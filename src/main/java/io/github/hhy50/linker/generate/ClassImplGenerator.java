@@ -25,6 +25,7 @@ public class ClassImplGenerator {
      * @param define      the define
      * @param targetClass the target class
      * @param defineClass the define class
+     * @param interfaces  the interfaces
      * @throws IOException the io exception
      */
     public static void generateBytecode(Class<?> define, Class<?> targetClass, InterfaceImplClass defineClass, List<Class<?>> interfaces) throws IOException {

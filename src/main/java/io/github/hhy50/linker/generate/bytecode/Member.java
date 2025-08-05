@@ -62,7 +62,7 @@ public class Member extends VarInst implements LoadAction, TypedAction {
     /**
      * Instantiates a new Member.
      *
-     * @param field
+     * @param field the field
      */
     public Member(AsmField field) {
         this(field.access, field.owner, field.name, field.type);

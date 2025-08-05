@@ -51,6 +51,8 @@ public abstract class VarInst implements LoadAction, TypedAction {
 
     /**
      * Check null pointer.
+     *
+     * @return the action
      */
     public Action checkNullPointer() {
         return this.ifNull(Actions.throwNullException(this.getName()));

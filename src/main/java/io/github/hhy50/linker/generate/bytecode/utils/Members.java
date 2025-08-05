@@ -59,6 +59,7 @@ public class Members {
      * @param owner      the owner
      * @param memberName the member name
      * @return the member
+     * @throws NoSuchFieldException the no such field exception
      */
     public static Member of(Class owner, String memberName) throws NoSuchFieldException {
         Field field = owner.getDeclaredField(memberName);

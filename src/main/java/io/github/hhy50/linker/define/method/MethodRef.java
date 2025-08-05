@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * The type Method ref.
  */
 public abstract class MethodRef {
+    /**
+     * The constant COUNTER.
+     */
     protected static final AtomicInteger COUNTER = new AtomicInteger(0);
 
     /**
@@ -48,9 +51,9 @@ public abstract class MethodRef {
     /**
      * Instantiates a new Method ref.
      *
-     * @param owner the owner
-     * @param name  the name
-     * @param uniqueName  the uniqueName
+     * @param owner      the owner
+     * @param name       the name
+     * @param uniqueName the uniqueName
      */
     public MethodRef(FieldRef owner, String name, String uniqueName) {
         this.owner = owner;
@@ -120,8 +123,9 @@ public abstract class MethodRef {
     public abstract Type getMethodType();
 
     /**
+     * Define invoker invoker.
      *
-     * @return
+     * @return the invoker
      */
     public abstract Invoker<?> defineInvoker();
 }

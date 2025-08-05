@@ -57,8 +57,9 @@ public class Args {
     }
 
     /**
+     * Load args ignore this action.
      *
-     * @return
+     * @return the action
      */
     public static Action loadArgsIgnoreThis() {
         return body -> {
@@ -69,6 +70,9 @@ public class Args {
         };
     }
 
+    /**
+     * The interface Load args action.
+     */
     public interface LoadArgsAction extends LoadAction, LazyTypedAction {
 
     }

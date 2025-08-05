@@ -176,9 +176,10 @@ public interface Actions {
     }
 
     /**
+     * Nullable action.
      *
-     * @param action
-     * @return
+     * @param action the action
+     * @return the action
      */
     static Action nullable(Action action) {
         if (action == null) {
