@@ -9,10 +9,8 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.ClassUtil;
@@ -50,9 +48,13 @@ public class Setter extends FieldOpsMethodHandler {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
+        if (super.inlineMhInvoker != null) {
+            methodBody.append(super.inlineMhInvoker.invoke(Args.loadArgs()).andThen(Actions.vreturn()));
+            return null;
+        }
         methodBody.append(new MethodInvokeAction(descriptor)
                 .setInstance(LoadAction.LOAD0)
-                .setArgs(methodBody.getArgs()));
+                .setArgs(methodBody.getArgs()).andThen(Actions.vreturn()));
         return null;
     }
 

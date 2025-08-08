@@ -21,6 +21,8 @@ public class FieldToken implements Token {
      */
     public IndexToken index;
 
+    public boolean nullable = false;
+
     /**
      * Instantiates a new Field token.
      *
@@ -28,11 +30,6 @@ public class FieldToken implements Token {
      */
     public FieldToken(String fieldName) {
         this.fieldName = fieldName;
-    }
-
-    @Override
-    public String toString() {
-        return fieldName + (index == null ? "" : index.toString());
     }
 
     /**
@@ -56,5 +53,18 @@ public class FieldToken implements Token {
      */
     public List<Object> getIndexVal() {
         return index != null ? index.toValues() : null;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    @Override
+    public String toString() {
+        return fieldName+(index == null ? "" : index.toString())+(nullable ? "?" : "");
     }
 }

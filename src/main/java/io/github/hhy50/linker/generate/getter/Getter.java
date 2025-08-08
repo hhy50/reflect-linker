@@ -62,8 +62,13 @@ public class Getter extends FieldOpsMethodHandler {
 
     @Override
     public VarInst invoke(MethodBody methodBody) {
-        MethodInvokeAction invoker = new MethodInvokeAction(descriptor)
-                .setInstance(LoadAction.LOAD0);
+        Action invoker;
+        if (super.inlineMhInvoker != null) {
+            invoker = super.inlineMhInvoker.invoke();
+        } else {
+            invoker = new MethodInvokeAction(descriptor)
+                    .setInstance(LoadAction.LOAD0);
+        }
         return methodBody.newLocalVar(descriptor.getReturnType(), field.fieldName, invoker);
     }
 

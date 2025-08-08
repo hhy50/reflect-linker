@@ -20,7 +20,7 @@ public class TypedTest {
 
 //        @Typed(name = "users[1]", value = "io.github.hhy50.linker.test.typed.User2")
         @Typed(name = "users", value = "io.github.hhy50.linker.test.typed.User2[]")
-        @Method.Name("users[1].user3.getString")
+        @Method.Expr("users[1].user3.getString($0)")
         public String getUsers1String(String a);
     }
 

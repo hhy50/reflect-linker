@@ -13,7 +13,7 @@ public class TokenParserTest {
 
     @Test
     public void testParseToken1() {
-        String tokenExpr = "a.b.c.d.e[12345][23456][ 321 ][1111].f[ 'a' ].get(a.b, a.c, 1, '12', $1)";
+        String tokenExpr = "a.b?.c.d.e[12345][23456][ 321 ][1111].f[ 'a' ].get(a.b, a.c, 1, '12', $1)";
         TokenParser parser = new TokenParser();
         Tokens tokens = parser.parse(tokenExpr);
         Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));

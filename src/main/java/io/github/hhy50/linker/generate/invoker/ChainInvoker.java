@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import com.sun.org.apache.bcel.internal.generic.ALOAD;
 import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.define.method.MethodRef;

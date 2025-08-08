@@ -13,4 +13,8 @@ public interface Token {
     default void setIndex(IndexToken index) {
 
     }
+
+    default void setNullable(boolean nullable) {
+
+    }
 }

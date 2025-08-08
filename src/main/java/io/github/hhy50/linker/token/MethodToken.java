@@ -18,6 +18,8 @@ public class MethodToken implements Token, ArgType {
     private ArgsToken args;
     private IndexToken index;
 
+    private boolean nullable = true;
+
     /**
      * Instantiates a new Method token.
      *
@@ -39,6 +41,7 @@ public class MethodToken implements Token, ArgType {
         return methodName+args+(index == null ? "" : index);
     }
 
+    @Override
     public void setIndex(IndexToken index) {
         this.index = index;
     }
@@ -50,5 +53,14 @@ public class MethodToken implements Token, ArgType {
 
     public ArgsToken getArgsToken() {
         return args;
+    }
+
+    @Override
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    public boolean isNullable() {
+        return nullable;
     }
 }
