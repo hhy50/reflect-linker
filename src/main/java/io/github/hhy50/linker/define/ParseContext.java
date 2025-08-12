@@ -222,7 +222,7 @@ public class ParseContext {
                 fieldRef.setActualType(curType);
                 owner = fieldRef;
             } else {
-                owner = new EarlyFieldRef(null, "target", targetClass);
+                owner = targetRoot;
             }
             if (methodToken != null) {
                 String[] argsType = parseArgsType(methodDefine, methodToken, false);
@@ -269,6 +269,8 @@ public class ParseContext {
             }
             lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType) : new RuntimeFieldRef(lastField, fieldName);
             lastField.setFullName(fullField);
+            lastField.setNullable(token.isNullable());
+//            lastField.setDefaultValue();
             designateStatic(lastField);
             if (index != null && index.size() > 0) {
                 lastField = new FieldIndexRef(lastField, index);

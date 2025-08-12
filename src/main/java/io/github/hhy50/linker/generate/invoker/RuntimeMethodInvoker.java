@@ -35,7 +35,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         boolean autolink = method.isAutolink();
         FieldRef owner = method.getOwner();
-        Getter ownerGetter = classImplBuilder.getGetter(owner.getUniqueName());
+        Getter ownerGetter = classImplBuilder.getGetter(owner);
         ownerGetter.define(classImplBuilder);
 
         Type mhType = descriptor.getType();

@@ -87,7 +87,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
         EarlyFieldRef targetField = new EarlyFieldRef(null, "target", bindTarget);
-        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(getClassName(), targetField);
+        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(targetField);
 
         this.getters.put(targetField.getUniqueName(), targetFieldGetter);
         return this;
@@ -96,24 +96,24 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define getter getter.
      *
-     * @param fieldName the field name
-     * @param fieldRef  the field ref
+     * @param fieldRef the field ref
      * @return the getter
      */
-    public Getter defineGetter(String fieldName, FieldRef fieldRef) {
-        return getters.computeIfAbsent(fieldName, key -> {
-            return new Getter(getClassName(), fieldRef);
+    public Getter defineGetter(FieldRef fieldRef) {
+        return getters.computeIfAbsent(fieldRef.getUniqueName(), key -> {
+            return new Getter(fieldRef);
         });
     }
 
     /**
      * Gets getter.
      *
-     * @param fieldName the field name
+     * @param fieldRef the field ref
      * @return the getter
      */
-    public Getter getGetter(String fieldName) {
-        return getters.get(fieldName);
+    public Getter getGetter(FieldRef fieldRef) {
+        String uniqueName = fieldRef.getUniqueName();
+        return getters.get(uniqueName);
     }
 
     /**

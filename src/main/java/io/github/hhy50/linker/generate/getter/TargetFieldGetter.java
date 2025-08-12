@@ -10,6 +10,7 @@ import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.utils.Members;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.util.AnnotationUtils;
 import org.objectweb.asm.Opcodes;
@@ -27,12 +28,11 @@ public class TargetFieldGetter extends Getter {
     /**
      * Instantiates a new Target field getter.
      *
-     * @param implClass      the impl class
      * @param targetFieldRef the target field ref
      */
-    public TargetFieldGetter(String implClass, EarlyFieldRef targetFieldRef) {
-        super(implClass, targetFieldRef);
-        this.targetObj = Members.ofTarget();
+    public TargetFieldGetter(EarlyFieldRef targetFieldRef) {
+        super(targetFieldRef);
+        this.targetObj = Members.of(targetFieldRef.fieldName, ObjectVar.TYPE);
     }
 
     @Override
@@ -46,7 +46,6 @@ public class TargetFieldGetter extends Getter {
         } else {
 
         }
-//        super.define0(classImplBuilder);
     }
 
     @Override

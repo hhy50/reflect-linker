@@ -7,9 +7,7 @@ import io.github.hhy50.linker.exceptions.MemberNotFoundException;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.Member;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.LazyTypedAction;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -20,15 +18,6 @@ import java.lang.reflect.Field;
  * The type Members.
  */
 public class Members {
-
-    public static Member ofTarget() {
-        return new Member(Opcodes.ACC_PUBLIC, null, "target", ObjectVar.TYPE) {
-            @Override
-            public Action checkNullPointer() {
-                return Actions.empty();
-            }
-        };
-    }
 
     /**
      * Of member.

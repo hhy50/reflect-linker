@@ -44,9 +44,7 @@ public abstract class MethodHandle {
      *
      * @param classImplBuilder the class impl builder
      */
-    protected void define0(InvokeClassImplBuilder classImplBuilder) {
-
-    }
+    protected abstract void define0(InvokeClassImplBuilder classImplBuilder);
 
     /**
      * Invoke var inst.

@@ -73,9 +73,9 @@ public class BytecodeFactory {
     static Getter generateGetter(FieldRef fieldRef, InvokeClassImplBuilder classBuilder) {
         FieldRef prev = fieldRef.getPrev();
         while (prev != null) {
-            classBuilder.defineGetter(prev.getUniqueName(), prev);
+            classBuilder.defineGetter(prev);
             prev = prev.getPrev();
         }
-        return classBuilder.defineGetter(fieldRef.getUniqueName(), fieldRef);
+        return classBuilder.defineGetter(fieldRef);
     }
 }

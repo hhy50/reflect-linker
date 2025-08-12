@@ -57,7 +57,7 @@ interface Case1_LA_Typed {
      *
      * @param c a {@link java.lang.Object} object.
      */
-    @Field.Setter("a.b.c")
+    @Field.Setter("a?.b.c")
     void set_a_b_c(Object c);
 
     /**

@@ -40,6 +40,7 @@ public class Setter extends FieldOpsMethodHandler {
 
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         if (field instanceof RuntimeFieldRef) {
+            this.lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
             super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
         } else {
             super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
