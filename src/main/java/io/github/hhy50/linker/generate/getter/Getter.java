@@ -16,36 +16,40 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
+import java.util.function.Consumer;
+
 
 /**
  * The type Getter.
  */
 public class Getter extends FieldOpsMethodHandler {
 
-    /**
-     * The Field.
-     */
-    protected final FieldRef field;
+    protected String fieldName;
+    protected Consumer<InvokeClassImplBuilder> define0;
+
     /**
      * Instantiates a new Getter.
      *
-     * @param field     the field
+     * @param field the field
      */
     public Getter(FieldRef field) {
         super(field.getGetterName(), new SmartMethodDescriptor("get_"+field.getUniqueName(),
                 Type.getMethodType(field.getType())));
-        this.field = field;
+        if (field instanceof RuntimeFieldRef) {
+            define0 = (builder) -> {
+                this.lookupClass = builder.defineLookupClass(field.getUniqueName());
+                super.defineRuntimeMethod(builder, (RuntimeFieldRef) field);
+            };
+        } else if (field instanceof EarlyFieldRef) {
+            define0 = (builder) -> super.defineMethod(builder, (EarlyFieldRef) field);
+        } else if (field instanceof FieldIndexRef) {
+            define0 = (builder) -> super.defineIndexMethod(builder, (FieldIndexRef) field);
+        }
+        this.fieldName = field.fieldName;
     }
 
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        if (field instanceof RuntimeFieldRef) {
-            this.lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
-            super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
-        } else if (field instanceof EarlyFieldRef) {
-            super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
-        } else if (field instanceof FieldIndexRef) {
-            super.defineIndexMethod(classImplBuilder, (FieldIndexRef) field);
-        }
+        this.define0.accept(classImplBuilder);
     }
 
     @Override
@@ -57,13 +61,13 @@ public class Getter extends FieldOpsMethodHandler {
             invoker = new SmartMethodInvokeAction(descriptor)
                     .setInstance(LoadAction.LOAD0);
         }
-        return methodBody.newLocalVar(descriptor.getReturnType(), field.fieldName, invoker);
+        return methodBody.newLocalVar(descriptor.getReturnType(), fieldName, invoker);
     }
 
     @Override
     protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
-                .setArgs(lookupClass.getLookup(methodBody), lookupClass, LdcLoadAction.of(field.fieldName));
+                .setArgs(lookupClass.getLookup(methodBody), lookupClass, LdcLoadAction.of(fieldName));
         mhMember.store(methodBody, findGetter);
     }
 
@@ -75,7 +79,7 @@ public class Getter extends FieldOpsMethodHandler {
         mhMember.store(clinit, findGetter);
     }
 
-    public Action checkNull(VarInst varInst) {
+    public static Action checkNull(FieldRef field, VarInst varInst) {
         if (field.isNullable()) {
             return Actions.empty();
         }

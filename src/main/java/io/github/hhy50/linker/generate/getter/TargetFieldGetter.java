@@ -26,6 +26,11 @@ public class TargetFieldGetter extends Getter {
     private ClassTypeMember targetClass;
 
     /**
+     *
+     */
+    private final Type targetType;
+
+    /**
      * Instantiates a new Target field getter.
      *
      * @param targetFieldRef the target field ref
@@ -33,6 +38,7 @@ public class TargetFieldGetter extends Getter {
     public TargetFieldGetter(EarlyFieldRef targetFieldRef) {
         super(targetFieldRef);
         this.targetObj = Members.of(targetFieldRef.fieldName, ObjectVar.TYPE);
+        this.targetType = targetFieldRef.getType();
     }
 
     @Override
@@ -68,6 +74,6 @@ public class TargetFieldGetter extends Getter {
      * @return the target type
      */
     public Type getTargetType() {
-        return this.field.getType();
+        return this.targetType;
     }
 }

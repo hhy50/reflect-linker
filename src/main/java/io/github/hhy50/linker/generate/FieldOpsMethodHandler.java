@@ -11,17 +11,19 @@ import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * The type Field ops method handler.
  */
-public abstract class  FieldOpsMethodHandler extends MethodHandle {
+public abstract class FieldOpsMethodHandler extends MethodHandle {
     /**
      * The Mh name.
      */
@@ -103,7 +105,8 @@ public abstract class  FieldOpsMethodHandler extends MethodHandle {
 
         this.inlineMhInvoker = (args) -> field.isStatic()
                 ? mhMember.invokeStatic(args)
-                : ChainAction.of(getter::invoke).then(getter::checkNull).map(varInst -> mhMember.invokeInstance(varInst, args)
+                : ChainAction.of(getter::invoke).then((Function<VarInst, Action>) varInst -> Getter.checkNull(prev, varInst))
+                .map(varInst -> mhMember.invokeInstance(varInst, args)
         );
     }
 
