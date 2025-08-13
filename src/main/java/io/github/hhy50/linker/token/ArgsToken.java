@@ -33,4 +33,13 @@ public class ArgsToken implements Token {
     public String toString() {
         return "(" + args.stream().map(Object::toString).collect(Collectors.joining(",")) + ")";
     }
+
+    /**
+     *
+     * @param i
+     * @return
+     */
+    public Token get(int i) {
+        return this.args.get(i);
+    }
 }

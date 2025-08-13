@@ -25,6 +25,16 @@ public abstract class FieldRef {
     protected FieldRef prev;
 
     /**
+     * The Nullable.
+     */
+    protected boolean nullable;
+
+    /**
+     * The Default value.
+     */
+    protected String defaultValue;
+
+    /**
      * Instantiates a new Field ref.
      *
      * @param prev the prev
@@ -109,5 +119,49 @@ public abstract class FieldRef {
      */
     public Class<?> getActualType() {
         return Object.class;
+    }
+
+    /**
+     * Is nullable boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    /**
+     * Sets nullable.
+     *
+     * @param nullable the nullable
+     */
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    /**
+     * Sets default value.
+     *
+     * @param defaultValue the default value
+     */
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    /**
+     * Gets default value.
+     *
+     * @return the default value
+     */
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        return super.equals(obj);
     }
 }

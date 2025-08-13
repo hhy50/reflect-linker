@@ -26,14 +26,19 @@ public class TargetFieldGetter extends Getter {
     private ClassTypeMember targetClass;
 
     /**
+     *
+     */
+    private final Type targetType;
+
+    /**
      * Instantiates a new Target field getter.
      *
-     * @param implClass      the impl class
      * @param targetFieldRef the target field ref
      */
-    public TargetFieldGetter(String implClass, EarlyFieldRef targetFieldRef) {
-        super(implClass, targetFieldRef);
+    public TargetFieldGetter(EarlyFieldRef targetFieldRef) {
+        super(targetFieldRef);
         this.targetObj = Members.of(targetFieldRef.fieldName, ObjectVar.TYPE);
+        this.targetType = targetFieldRef.getType();
     }
 
     @Override
@@ -47,7 +52,6 @@ public class TargetFieldGetter extends Getter {
         } else {
 
         }
-//        super.define0(classImplBuilder);
     }
 
     @Override
@@ -70,6 +74,6 @@ public class TargetFieldGetter extends Getter {
      * @return the target type
      */
     public Type getTargetType() {
-        return this.field.getType();
+        return this.targetType;
     }
 }

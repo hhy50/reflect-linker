@@ -176,19 +176,6 @@ public interface Actions {
     }
 
     /**
-     * Nullable action.
-     *
-     * @param action the action
-     * @return the action
-     */
-    static Action nullable(Action action) {
-        if (action == null) {
-            return EMPTY;
-        }
-        return action;
-    }
-
-    /**
      * Of action.
      *
      * @param action1  the action 1
@@ -197,7 +184,7 @@ public interface Actions {
      */
     static Action of(Action action1, Consumer<MethodVisitor> consumer) {
         return body -> {
-            body.append(action1);
+            body.append(action1 == null ? EMPTY : action1);
             consumer.accept(body.getWriter());
         };
     }
@@ -212,8 +199,8 @@ public interface Actions {
      */
     static Action of(Action action1, Action action2, Consumer<MethodVisitor> consumer) {
         return body -> {
-            body.append(action1);
-            body.append(action2);
+            body.append(action1 == null ? EMPTY : action1);
+            body.append(action2 == null ? EMPTY : action2);
             consumer.accept(body.getWriter());
         };
     }
@@ -229,9 +216,9 @@ public interface Actions {
      */
     static Action of(Action action1, Action action2, Action action3, Consumer<MethodVisitor> consumer) {
         return body -> {
-            body.append(action1);
-            body.append(action2);
-            body.append(action3);
+            body.append(action1 == null ? EMPTY : action1);
+            body.append(action2 == null ? EMPTY : action2);
+            body.append(action3 == null ? EMPTY : action3);
             consumer.accept(body.getWriter());
         };
     }
@@ -248,10 +235,10 @@ public interface Actions {
      */
     static Action of(Action action1, Action action2, Action action3, Action action4, Consumer<MethodVisitor> consumer) {
         return body -> {
-            body.append(action1);
-            body.append(action2);
-            body.append(action3);
-            body.append(action4);
+            body.append(action1 == null ? EMPTY : action1);
+            body.append(action2 == null ? EMPTY : action2);
+            body.append(action3 == null ? EMPTY : action3);
+            body.append(action4 == null ? EMPTY : action4);
             consumer.accept(body.getWriter());
         };
     }

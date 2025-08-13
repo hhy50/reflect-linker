@@ -141,6 +141,14 @@ public class ParseContext {
 
     private List<AbsMethodDefine> doParseClass() throws ClassNotFoundException, ParseException {
         List<AbsMethodDefine> absMethodDefines = new ArrayList<>();
+        Map<String, String> typeDefines = ClassUtil.getTypeDefines(this.defineClass);
+        for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
+            String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
+            if (type != null && !type.equals(fieldEntry.getValue())) {
+                throw new VerifyException("@Typed of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
+            }
+        }
+
         for (Method method : this.defineClass.getMethods()) {
             if (!Modifier.isAbstract(method.getModifiers())) continue;
             Builtin builtin = method.getDeclaringClass().getDeclaredAnnotation(Builtin.class);
@@ -246,6 +254,8 @@ public class ParseContext {
             }
             lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType) : new RuntimeFieldRef(lastField, fieldName);
             lastField.setFullName(fullField);
+            lastField.setNullable(token.isNullable());
+//            lastField.setDefaultValue();
             designateStatic(lastField);
             if (index != null && index.size() > 0) {
                 lastField = new FieldIndexRef(lastField, index);

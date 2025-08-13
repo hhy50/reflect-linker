@@ -77,6 +77,8 @@ public class TokenParser {
          */
         public static final char METHOD_END_SYMBOL = ')';
 
+        public static final char ARGS_SPLIT = ',';
+
         private final char[] tokenSymbols;
 
         private int pos;
@@ -108,15 +110,13 @@ public class TokenParser {
             if (pos >= tokenSymbols.length) {
                 return null;
             }
-            if (tokenSymbols[pos] == SPLIT) {
-                pos++;
-            }
             String identifier = nextIdentifier();
             // 如果owner的第一个字符不是a-z, A-Z, _
             if (!Character.isJavaIdentifierStart(identifier.charAt(0))) {
                 throwParseException("Illegal identifier "+tokenSymbols[pos-identifier.length()], pos-identifier.length());
             }
 
+            skipWhitespace();
             Token owner = null;
             if (pos < tokenSymbols.length && tokenSymbols[pos] == METHOD_START_SYMBOL) {
                 owner = parseMethodToken(identifier);
@@ -126,7 +126,22 @@ public class TokenParser {
             if (pos < tokenSymbols.length && tokenSymbols[pos] == INDEX_ACCESS_START_SYMBOL) {
                 owner.setIndex(parseIndexToken());
             }
+            if (parseNullable()) {
+                owner.setNullable(true);
+            }
+            if (pos < tokenSymbols.length && tokenSymbols[pos] == SPLIT) {
+                pos++;
+            }
             return owner;
+        }
+
+        private boolean parseNullable() {
+            skipWhitespace();
+            if (pos < tokenSymbols.length && tokenSymbols[pos] == '?') {
+                pos++;
+                return true;
+            }
+            return false;
         }
 
         private String nextIdentifier() {
@@ -143,7 +158,6 @@ public class TokenParser {
             }
             identifier = new String(Arrays.copyOfRange(tokenSymbols, pos, i));
             pos = i;
-            skipWhitespace();
             return identifier;
         }
 
@@ -254,17 +268,15 @@ public class TokenParser {
                     args.add(new PlaceholderToken(Integer.parseInt(identifier)));
                 } else {
                     Tokens chain = new Tokens();
-                    chain.add(parseNextToken());
-                    while (pos < tokenSymbols.length && tokenSymbols[pos] == SPLIT) {
-                        pos++;
+                    do {
                         chain.add(parseNextToken());
-                    }
+                    } while (pos < tokenSymbols.length && (tokenSymbols[pos] != METHOD_END_SYMBOL && tokenSymbols[pos] != ARGS_SPLIT));
                     args.add(chain);
                 }
                 if (pos >= tokenSymbols.length) {
                     throwParseException("Unclosed method", pos);
                 }
-                if (tokenSymbols[pos] == ',') {
+                if (tokenSymbols[pos] == ARGS_SPLIT) {
                     pos++;
                 } else if (tokenSymbols[pos] != METHOD_END_SYMBOL) {
                     throwParseException("Unknown symbol '"+tokenSymbols[pos]+"'", pos);

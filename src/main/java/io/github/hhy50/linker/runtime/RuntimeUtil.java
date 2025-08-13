@@ -76,15 +76,6 @@ public class RuntimeUtil {
             Object.class, Object.class, List.class);
 
     /**
-     * Check null.
-     *
-     * @param obj the obj
-     */
-    public static void checkNull(Object obj) {
-
-    }
-
-    /**
      * Is static boolean.
      *
      * @param methodHandle the method handle
@@ -304,19 +295,22 @@ public class RuntimeUtil {
      */
     public static Object indexValue(Object obj, List<Object> index) {
         for (Object o : index) {
-           try {
-               if (o instanceof Integer && obj.getClass().isArray()) {
-                   obj = Array.get(obj, ((Integer) o).intValue());
-               } else if (o instanceof Integer && List.class.isAssignableFrom(obj.getClass())) {
-                   obj = ((List) obj).get(((Integer) o).intValue());
-               } else if (Map.class.isAssignableFrom(obj.getClass())) {
-                   obj = ((Map) obj).get(o);
-               } else {
-                   throw new RuntimeException(obj.getClass()+" not support index access");
-               }
-           } catch (ArrayIndexOutOfBoundsException e) {
-               throw new ArrayIndexOutOfBoundsException("index ["+o+"]");
-           }
+            if (obj == null) {
+                return null;
+            }
+            try {
+                if (o instanceof Integer && obj.getClass().isArray()) {
+                    obj = Array.get(obj, ((Integer) o).intValue());
+                } else if (o instanceof Integer && List.class.isAssignableFrom(obj.getClass())) {
+                    obj = ((List) obj).get(((Integer) o).intValue());
+                } else if (Map.class.isAssignableFrom(obj.getClass())) {
+                    obj = ((Map) obj).get(o);
+                } else {
+                    throw new RuntimeException(obj.getClass()+" not support index access");
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new ArrayIndexOutOfBoundsException("index ["+o+"]");
+            }
         }
         return obj;
     }

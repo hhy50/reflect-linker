@@ -5,7 +5,8 @@ import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.*;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.multi;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 import static java.util.Objects.requireNonNull;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 
@@ -39,8 +40,7 @@ public class MethodInvokeAction implements LoadAction, TypedAction {
     @Override
     public void apply(MethodBody body) {
         int opCode = getOpCode();
-        body.append(of(
-                nullable(instance), multi(args),
+        body.append(of(instance, multi(args),
                 mv -> mv.visitMethodInsn(opCode,
                         descriptor.getOwner(), descriptor.getMethodName(),
                         descriptor.getDesc(), opCode == INVOKEINTERFACE)

@@ -3,7 +3,7 @@ package io.github.hhy50.linker.token;
 /**
  * The type Placeholder token.
  */
-public class PlaceholderToken implements Token{
+public class PlaceholderToken implements Token {
 
     /**
      * The Index.
