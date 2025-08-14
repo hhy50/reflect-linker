@@ -5,14 +5,14 @@ import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
 import io.github.hhy50.linker.generate.ClassImplGenerator;
 import io.github.hhy50.linker.generate.builtin.RuntimeProvider;
+import io.github.hhy50.linker.generate.builtin.SetTargetProvider;
+import io.github.hhy50.linker.util.AnnotationUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static io.github.hhy50.linker.util.AnnotationUtils.isRuntime;
 
 /**
  * The type Class define parse.
@@ -52,7 +52,8 @@ public class ClassDefineParse {
      * @throws ClassNotFoundException the class not found exception
      */
     public static InterfaceImplClass parseClass(Class<?> define, Class<?> targetClass) throws ParseException, IOException, ClassNotFoundException {
-        boolean runtime = isRuntime(define);
+        boolean runtime = AnnotationUtils.isRuntime(define)
+                || SetTargetProvider.class.isAssignableFrom(define);
         if (runtime) {
             targetClass = Object.class;
         }

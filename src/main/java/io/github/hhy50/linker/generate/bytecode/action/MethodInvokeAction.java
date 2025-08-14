@@ -39,8 +39,7 @@ public class MethodInvokeAction implements LoadAction, TypedAction {
     @Override
     public void apply(MethodBody body) {
         int opCode = getOpCode();
-        body.append(of(
-                nullable(instance), multi(args),
+        body.append(of(instance, multi(args),
                 mv -> mv.visitMethodInsn(opCode,
                         descriptor.getOwner(), descriptor.getMethodName(),
                         descriptor.getDesc(), opCode == INVOKEINTERFACE)
