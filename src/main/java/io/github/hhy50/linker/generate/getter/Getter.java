@@ -8,7 +8,6 @@ import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.FieldOpsMethodHandler;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
@@ -53,7 +52,7 @@ public class Getter extends FieldOpsMethodHandler {
     }
 
     @Override
-    public VarInst invoke(MethodBody methodBody) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args) {
         Action invoker;
         if (super.inlineMhInvoker != null) {
             invoker = super.inlineMhInvoker.invoke();
@@ -65,18 +64,18 @@ public class Getter extends FieldOpsMethodHandler {
     }
 
     @Override
-    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected Action initRuntimeMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
-                .setArgs(lookupClass.getLookup(methodBody), lookupClass, LdcLoadAction.of(fieldName));
-        mhMember.store(methodBody, findGetter);
+                .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(fieldName));
+        return findGetter;
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICGETTER : MethodDescriptor.LOOKUP_FINDGETTER);
         findGetter.setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
-        mhMember.store(clinit, findGetter);
+        return findGetter;
     }
 
     public static Action checkNull(FieldRef field, VarInst varInst) {

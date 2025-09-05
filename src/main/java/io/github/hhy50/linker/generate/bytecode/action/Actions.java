@@ -4,6 +4,7 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -159,30 +160,38 @@ public interface Actions {
     }
 
     /**
-     * Multi action.
+     * Of action.
      *
-     * @param actions the actions
+     * @param actions  the action 1
      * @return the action
      */
-    static Action multi(Action... actions) {
-        if (actions == null) {
-            return EMPTY;
-        }
+    static Action of(Action... actions) {
         return body -> {
             for (Action action : actions) {
-                action.apply(body);
+                if (action != null) {
+                    body.append(action);
+                }
             }
         };
     }
 
     /**
-     * Of action.
+     * withVisitor action.
+     * @param mvApply
+     * @return
+     */
+    static Action withVisitor(Consumer<MethodVisitor> mvApply) {
+        return body -> mvApply.accept(body.getWriter());
+    }
+
+    /**
+     * withWrite action.
      *
      * @param action1  the action 1
      * @param consumer the consumer
      * @return the action
      */
-    static Action of(Action action1, Consumer<MethodVisitor> consumer) {
+    static Action withVisitor(Action action1, Consumer<MethodVisitor> consumer) {
         return body -> {
             body.append(action1 == null ? EMPTY : action1);
             consumer.accept(body.getWriter());
@@ -190,14 +199,14 @@ public interface Actions {
     }
 
     /**
-     * Of action.
+     * withWrite action.
      *
      * @param action1  the action 1
      * @param action2  the action 2
      * @param consumer the consumer
      * @return the action
      */
-    static Action of(Action action1, Action action2, Consumer<MethodVisitor> consumer) {
+    static Action withVisitor(Action action1, Action action2, Consumer<MethodVisitor> consumer) {
         return body -> {
             body.append(action1 == null ? EMPTY : action1);
             body.append(action2 == null ? EMPTY : action2);
@@ -206,7 +215,7 @@ public interface Actions {
     }
 
     /**
-     * Of action.
+     * withWrite action.
      *
      * @param action1  the action 1
      * @param action2  the action 2
@@ -214,31 +223,11 @@ public interface Actions {
      * @param consumer the consumer
      * @return the action
      */
-    static Action of(Action action1, Action action2, Action action3, Consumer<MethodVisitor> consumer) {
+    static Action withVisitor(Action action1, Action action2, Action action3, Consumer<MethodVisitor> consumer) {
         return body -> {
             body.append(action1 == null ? EMPTY : action1);
             body.append(action2 == null ? EMPTY : action2);
             body.append(action3 == null ? EMPTY : action3);
-            consumer.accept(body.getWriter());
-        };
-    }
-
-    /**
-     * Of action.
-     *
-     * @param action1  the action 1
-     * @param action2  the action 2
-     * @param action3  the action 3
-     * @param action4  the action 4
-     * @param consumer the consumer
-     * @return the action
-     */
-    static Action of(Action action1, Action action2, Action action3, Action action4, Consumer<MethodVisitor> consumer) {
-        return body -> {
-            body.append(action1);
-            body.append(action2);
-            body.append(action3);
-            body.append(action4);
             consumer.accept(body.getWriter());
         };
     }
@@ -263,6 +252,31 @@ public interface Actions {
     static Action vreturn() {
         return body -> {
             AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
+        };
+    }
+
+    static VarInst newLocalVar(TypedAction action) {
+        return newLocalVar(action.getType(), action);
+    }
+
+    static VarInst newLocalVar(Type type, Action action) {
+        return new VarInst() {
+            VarInst localVar;
+
+            @Override
+            public Type getType() {
+                return type;
+            }
+
+            @Override
+            public Action load() {
+                return body -> {
+                    if (localVar == null) {
+                        localVar = body.newLocalVar(type, null, action);
+                    }
+                    body.append(localVar);
+                };
+            }
         };
     }
 }

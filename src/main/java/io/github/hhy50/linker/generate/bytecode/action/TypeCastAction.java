@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -9,7 +8,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * The type Type cast action.
  */
-public class TypeCastAction implements TypedAction {
+public class TypeCastAction implements TypedAction, LoadAction {
     private final Action obj;
     private final Type type;
 
@@ -28,11 +27,11 @@ public class TypeCastAction implements TypedAction {
     }
 
     @Override
-    public void apply(MethodBody body) {
-        body.append(Actions.of(
+    public Action load() {
+        return Actions.withVisitor(
                 obj,
                 mv -> mv.visitTypeInsn(Opcodes.CHECKCAST, type.getInternalName())
-        ));
+        );
     }
 
     @Override

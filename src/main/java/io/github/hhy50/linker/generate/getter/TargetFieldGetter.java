@@ -3,10 +3,11 @@ package io.github.hhy50.linker.generate.getter;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.Member;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.utils.Members;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
@@ -55,8 +56,8 @@ public class TargetFieldGetter extends Getter {
     }
 
     @Override
-    public VarInst invoke(MethodBody methodBody) {
-        return this.targetObj;
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args) {
+        return ChainAction.of(() -> this.targetObj);
     }
 
     /**

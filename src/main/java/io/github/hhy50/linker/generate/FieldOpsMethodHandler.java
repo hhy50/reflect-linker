@@ -69,7 +69,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(mhName, descriptor.getType());
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
-                .intercept(ChainAction.of(preFieldGetter::invoke)
+                .intercept(ChainAction.of(methodBody -> preFieldGetter.invoke(methodBody))
                                 .then((body, ownerVar) -> checkLookClass(body, this.lookupClass, ownerVar, preFieldGetter))
                                 .then((body, ownerVar) -> {
                                     ClassTypeMember prevLookupClass = preFieldGetter.lookupClass;
@@ -101,11 +101,11 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(mhName, null, descriptor.getType());
-        initStaticMethodHandle(clinit, mhMember, loadClass(field.getLookupClass()), field.fieldName, field.getDecalaredType(), field.isStatic());
+        initStaticMethodHandle(loadClass(field.getLookupClass()), field.fieldName, field.getDecalaredType(), field.isStatic());
 
         this.inlineMhInvoker = (args) -> field.isStatic()
                 ? mhMember.invokeStatic(args)
-                : ChainAction.of(getter::invoke).then((Function<VarInst, Action>) varInst -> Getter.checkNull(prev, varInst))
+                : ChainAction.of(methodBody -> getter.invoke(methodBody)).then((Function<VarInst, Action>) varInst -> Getter.checkNull(prev, varInst))
                 .map(varInst -> mhMember.invokeInstance(varInst, args)
         );
     }
@@ -120,14 +120,14 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         List<Object> index = field.getIndex();
         if (TypeUtil.getArrayDimension(actualType) >= index.size()) {
             classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
-                    .intercept(ChainAction.of(getter::invoke)
+                    .intercept(ChainAction.of(methodBody -> getter.invoke(methodBody))
                             .map(varInst -> new ArrayIndex(varInst, (List) index))
                             .andThen(Actions.areturn(descriptor.getReturnType()))
                     );
             return;
         }
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
-                .intercept(ChainAction.of(getter::invoke)
+                .intercept(ChainAction.of(methodBody -> getter.invoke(methodBody))
                         .map(varInst -> Methods.invoke(RuntimeUtil.INDEX_VALUE).setArgs(varInst,
                                 Actions.asList(index.stream().map(LdcLoadAction::of)
                                         .map(inst -> {

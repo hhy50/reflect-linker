@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import org.objectweb.asm.Type;
@@ -25,9 +24,7 @@ public class UnBoxAction implements LoadAction, TypedAction {
     }
 
     @Override
-    public void load(MethodBody body) {
-        obj.apply(body);
-
+    public Action load() {
         Type lprimitiveType = primitiveType;
         if (lprimitiveType == null) {
             lprimitiveType = obj.getType();
@@ -61,9 +58,7 @@ public class UnBoxAction implements LoadAction, TypedAction {
             default:
                 break;
         }
-        if (md != null) {
-            body.append(new MethodInvokeAction(md));
-        }
+        return Actions.of(obj, md != null ? new MethodInvokeAction(md) : null);
     }
 
     @Override

@@ -5,6 +5,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.*;
 
 /**
  * The interface Load action.
@@ -22,7 +23,7 @@ public interface LoadAction extends Action {
 
     @Override
     default void apply(MethodBody body) {
-        load(body);
+        body.append(this.load());
     }
 
     /**
@@ -75,10 +76,8 @@ public interface LoadAction extends Action {
 
     /**
      * Load.
-     *
-     * @param body the body
      */
-    void load(MethodBody body);
+    Action load();
 
     /**
      * The type Load 0 action.
@@ -88,11 +87,13 @@ public interface LoadAction extends Action {
          * The This type.
          */
         Type thisType;
+
         @Override
-        public void load(MethodBody body) {
-            thisType = Type.getObjectType(body.getClassBuilder().getClassOwner());
-            body.getWriter().visitVarInsn(Opcodes.ALOAD, 0);
+        public Action load() {
+            return of(body -> this.thisType = Type.getObjectType(body.getClassBuilder().getClassOwner()),
+                    withVisitor(mv -> mv.visitVarInsn(Opcodes.ALOAD, 0)));
         }
+
         @Override
         public Type getType() {
             return thisType;

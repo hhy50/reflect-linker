@@ -1,48 +1,49 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
 
 /**
  * The type Array index.
  */
-public class ArrayIndex implements Action, TypedAction {
+public class ArrayIndex implements LoadAction, TypedAction {
     private VarInst varInst;
-    private final List<Integer> index;
+    private final List<Integer> indexs;
 
     /**
      * Instantiates a new Array index.
      *
      * @param varInst the var inst
-     * @param index   the
+     * @param indexs   the
      */
-    public ArrayIndex(VarInst varInst, List<Integer> index) {
+    public ArrayIndex(VarInst varInst, List<Integer> indexs) {
         this.varInst = varInst;
-        this.index = index;
+        this.indexs = indexs;
     }
 
     @Override
-    public void apply(MethodBody body) {
-        Type type = varInst.getType();
-        body.append(varInst);
+    public Action load() {
+        ArrayList<Action> actions = new ArrayList<>();
+        actions.add(varInst);
 
-        for (Integer i : index) {
+        Type type = varInst.getType();
+        for (Integer i : indexs) {
             if (type.getDimensions() == 1) {
                 type = type.getElementType();
             } else {
                 type = Type.getType(type.getDescriptor().substring(1));
             }
             final Type fType = type;
-            body.append(of(LdcLoadAction.of(i),
-                    mv -> mv.visitInsn(fType.getOpcode(Opcodes.IALOAD))
-            ));
+            actions.add(withVisitor(LdcLoadAction.of(i), mv -> mv.visitInsn(fType.getOpcode(Opcodes.IALOAD))));
         }
+        return of(actions.toArray(new Action[0]));
     }
 
     @Override

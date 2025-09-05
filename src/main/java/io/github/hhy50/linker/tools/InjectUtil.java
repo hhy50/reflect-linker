@@ -14,7 +14,7 @@ import org.objectweb.asm.Type;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.multi;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 import static io.github.hhy50.linker.util.StringUtil.toUpperCamelCase;
 
 /**
@@ -93,7 +93,7 @@ public class InjectUtil {
 
             classBuilder.defineConstruct(Opcodes.ACC_PUBLIC, fields.stream().map(f -> f.type).toArray(Type[]::new))
                     .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor()),
-                            multi(stores),
+                            of(stores),
                             Actions.vreturn());
         }
     }

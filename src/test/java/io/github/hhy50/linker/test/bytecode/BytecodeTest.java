@@ -11,7 +11,7 @@ import org.objectweb.asm.Type;
 
 import java.io.IOException;
 
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.multi;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 
 public class BytecodeTest {
 
@@ -30,7 +30,7 @@ public class BytecodeTest {
                 .intercept(Actions.of(Members.ofStore("name", LdcLoadAction.of("12345")),
                         Methods.invoke("println", Type.getMethodType(Type.VOID_TYPE, Type.getType(String.class)))
                                 .setInstance(Members.of(System.class, "out"))
-                                .setArgs(multi(Members.ofLoad("name"), Members.ofStore("name", Actions.loadNull()))),
+                                .setArgs(of(Members.ofLoad("name"), Members.ofStore("name", Actions.loadNull()))),
                         mv -> {
                         }).andThen(Actions.vreturn()));
         builder.toBytecode();

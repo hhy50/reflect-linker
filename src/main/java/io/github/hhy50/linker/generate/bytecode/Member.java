@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode;
 
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
@@ -11,12 +10,15 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
+
 import java.util.Objects;
 
 /**
  * The type Member.
  */
-public class Member extends VarInst implements LoadAction, TypedAction {
+public class Member extends VarInst {
 
     /**
      * The Access.
@@ -52,7 +54,6 @@ public class Member extends VarInst implements LoadAction, TypedAction {
      * @param type       the type
      */
     public Member(int access, String owner, String memberName, Type type) {
-        super(type);
         this.access = access;
         this.owner = owner;
         this.memberName = memberName;
@@ -115,16 +116,18 @@ public class Member extends VarInst implements LoadAction, TypedAction {
     }
 
     @Override
-    public void load(MethodBody body) {
-        MethodVisitor mv = body.getWriter();
-        String owner = this.owner == null ? body.getClassBuilder().getClassOwner() : this.owner;
-        Type type = getType();
-        if ((access & Opcodes.ACC_STATIC) > 0) {
-            mv.visitFieldInsn(Opcodes.GETSTATIC, owner, this.memberName, type.getDescriptor());
-        } else {
-            mv.visitVarInsn(Opcodes.ALOAD, 0); // this
-            mv.visitFieldInsn(Opcodes.GETFIELD, owner, this.memberName, type.getDescriptor());
-        }
+    public Action load() {
+        return (body) -> {
+            String owner = this.owner == null ? body.getClassBuilder().getClassOwner() : this.owner;
+            Type type = getType();
+            MethodVisitor mv = body.getWriter();
+            if ((access & Opcodes.ACC_STATIC) > 0) {
+                mv.visitFieldInsn(Opcodes.GETSTATIC, owner, this.memberName, type.getDescriptor());
+            } else {
+                mv.visitVarInsn(Opcodes.ALOAD, 0); // this
+                mv.visitFieldInsn(Opcodes.GETFIELD, owner, this.memberName, type.getDescriptor());
+            }
+        };
     }
 
     /**
@@ -133,26 +136,17 @@ public class Member extends VarInst implements LoadAction, TypedAction {
      * @param body   the method body
      * @param action the action
      */
-    public void store(MethodBody body, Action action) {
-        MethodVisitor mv = body.getWriter();
-        String owner = this.owner == null ? body.getClassBuilder().getClassOwner() : this.owner;
-        if ((access & Opcodes.ACC_STATIC) > 0) {
-            action.apply(body);
-            mv.visitFieldInsn(Opcodes.PUTSTATIC, owner, this.memberName, this.type.getDescriptor());
-        } else {
-            mv.visitVarInsn(Opcodes.ALOAD, 0);
-            action.apply(body);
-            mv.visitFieldInsn(Opcodes.PUTFIELD, owner, this.memberName, this.type.getDescriptor());
-        }
-    }
-
-    /**
-     * Store action.
-     *
-     * @param action the action
-     * @return the action
-     */
     public Action store(Action action) {
-        return (body) -> this.store(body, action);
+        return of(withVisitor(mv -> {
+            if ((access & Opcodes.ACC_STATIC) > 0) {
+                mv.visitVarInsn(Opcodes.ALOAD, 0);
+            }
+        }),
+                action,
+                body -> {
+                    this.owner = this.owner == null ? body.getClassBuilder().getClassOwner() : this.owner;
+                },
+                withVisitor(
+                        mv -> mv.visitFieldInsn(Opcodes.PUTFIELD, owner, this.memberName, this.type.getDescriptor())));
     }
 }

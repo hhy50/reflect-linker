@@ -5,10 +5,7 @@ import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
-import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.util.TypeUtil;
@@ -16,6 +13,8 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
+
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 
 
 /**
@@ -38,15 +37,18 @@ public class Constructor extends Invoker<ConstructorRef> {
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), null, descriptor.getType());
-        initStaticMethodHandle(clinit, mhMember, loadClass(method.getDeclareType()), null, descriptor.getType(), false);
+        clinit.append(mhMember.store(
+                initStaticMethodHandle(loadClass(method.getDeclareType()), null, descriptor.getType(), false))
+        );
+
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(mhMember.invokeStatic(Args.loadArgs()).thenReturn());
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String args0, Type methodType, boolean args1) {
-        MethodInvokeAction findConstructor = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
+    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String arg0, Type methodType, boolean isStatic) {
+        return new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),
@@ -54,6 +56,5 @@ public class Constructor extends Invoker<ConstructorRef> {
                                         Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
 
                         ));
-        mhMember.store(clinit, findConstructor);
     }
 }

@@ -4,8 +4,9 @@ import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -37,7 +38,7 @@ public class SetterDecorator extends AbstractDecorator {
     }
 
     @Override
-    public VarInst invoke(MethodBody methodBody) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args) {
         // 方法定义的类型
         typecastArgs(methodBody, methodBody.getArgs(), new Type[]{fieldRef.getType()});
         setter.invoke(methodBody);

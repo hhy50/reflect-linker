@@ -1,11 +1,12 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 
 /**
@@ -44,16 +45,14 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
     }
 
     /**
-     * Peek chain action.
+     * Of chain action.
      *
-     * @param consumer the consumer
+     * @param <T>    the type parameter
+     * @param provider the provider
      * @return the chain action
      */
-    public final ChainAction<T> then(Consumer<T> consumer) {
-        addConsumer((body, val) -> {
-            consumer.accept(val);
-        });
-        return this;
+    public static <T> ChainAction<T> of(Supplier<T> provider) {
+        return new ChainAction<>((__) -> provider.get());
     }
 
     /**
@@ -102,6 +101,20 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
     public <Out> ChainAction<Out> map(BiFunction<MethodBody, T, Out> func) {
         return new Next<>(this, func);
     }
+
+    /**
+     * Map chain action.
+     *
+     * @param func  the func
+     * @return the chain action
+     */
+    public ChainAction<VarInst> mapVar(Function<T, TypedAction> func) {
+        return new Next<>(this, varinst -> {
+            TypedAction apply = func.apply(varinst);
+            return Actions.newLocalVar(apply.getType(), apply);
+        });
+    }
+
 
     /**
      * The type Next.

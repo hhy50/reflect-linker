@@ -3,17 +3,18 @@ package io.github.hhy50.linker.generate.bytecode.action;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 import static java.util.Objects.requireNonNull;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 
 /**
  * The type Smart method invoke action.
  */
-public class SmartMethodInvokeAction extends MethodInvokeAction implements LazyTypedAction {
+public class SmartMethodInvokeAction extends MethodInvokeAction implements LazyTypedAction, LoadAction {
 
     /**
      * The Descriptor.
@@ -30,28 +31,22 @@ public class SmartMethodInvokeAction extends MethodInvokeAction implements LazyT
     }
 
     @Override
-    public void apply(MethodBody body) {
-        MethodVisitor mv = body.getWriter();
-        if (instance != null) {
-            instance.apply(body);
-        }
-        Action[] smartArgs = getArgs(body);
-        for (int i = 0; i < (smartArgs == null ? 0 : smartArgs.length); i++) {
-            smartArgs[i].apply(body);
-        }
-
-        MethodDescriptor descriptor = getMethodDescriptor(body);
-        String owner = descriptor.getOwner();
-        if (owner == null || owner.equals(SmartMethodDescriptor.EMPTY_NAME)) {
-            if (instance != null && instance instanceof TypedAction) {
-                owner = ((TypedAction) instance).getType().getInternalName();
-            } else {
-                owner = body.getClassBuilder().getClassOwner();
+    public Action load() {
+        return Actions.of(instance, this.getArgs(), body -> {
+            MethodDescriptor descriptor = getMethodDescriptor(body);
+            String owner = descriptor.getOwner();
+            if (owner == null || owner.equals(SmartMethodDescriptor.EMPTY_NAME)) {
+                if (instance != null && instance instanceof TypedAction) {
+                    owner = ((TypedAction) instance).getType().getInternalName();
+                } else {
+                    owner = body.getClassBuilder().getClassOwner();
+                }
             }
-        }
-        int opCode = getOpCode();
-        mv.visitMethodInsn(opCode,
-                owner, descriptor.getMethodName(), descriptor.getDesc(), opCode == INVOKEINTERFACE);
+            MethodVisitor mv = body.getWriter();
+            int opCode = getOpCode();
+            mv.visitMethodInsn(opCode,
+                    owner, descriptor.getMethodName(), descriptor.getDesc(), opCode == INVOKEINTERFACE);
+        });
     }
 
     /**
@@ -71,15 +66,14 @@ public class SmartMethodInvokeAction extends MethodInvokeAction implements LazyT
     /**
      * Get args action [ ].
      *
-     * @param body the body
      * @return the action [ ]
      */
-    public Action[] getArgs(MethodBody body) {
-        if (args != null) return args;
+    public Action getArgs() {
+        if (args != null) return of(args);
         if (this.descriptor == null) {
-            return body.getArgs();
+            return Args.loadArgs();
         }
-        return new VarInst[0];
+        return Actions.empty();
     }
 
     @Override

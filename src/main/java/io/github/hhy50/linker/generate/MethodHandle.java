@@ -49,57 +49,54 @@ public abstract class MethodHandle {
     /**
      * Invoke var inst.
      *
-     * @param methodBody the method body
+     * @param varInstChain
+     * @param args
      * @return the var inst
      */
-    public abstract VarInst invoke(MethodBody methodBody);
+    public abstract ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args);
 
     /**
      * Init static method handle.
      *
-     * @param clinit      the clinit
-     * @param mhMember    the mh member
      * @param lookupClass the lookup class
      * @param fieldName   the field name
      * @param methodType  the method type
      * @param isStatic    the is static
      */
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type methodType, boolean isStatic) {
-
+    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String fieldName, Type methodType, boolean isStatic) {
+        return Actions.empty();
     }
 
     /**
      * Mh reassign.
      *
-     * @param methodBody  the method body
      * @param lookupClass the lookup class
      * @param mhMember    the mh member
      * @param objVar      the obj var
      */
-    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-
+    protected Action initRuntimeMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+        return Actions.empty();
     }
 
     /**
      * Check look class.
      *
-     * @param body        the body
      * @param lookupClass the lookup class
      * @param varInst     the var inst
      * @param prevGetter  the prev getter
      */
-    protected void checkLookClass(MethodBody body, ClassTypeMember lookupClass, VarInst varInst, Getter prevGetter) {
-        body.append(new ConditionJumpAction(
+    protected Action checkLookClass(ClassTypeMember lookupClass, VarInst varInst, Getter prevGetter) {
+        Action action = new ConditionJumpAction(
                 must(notNull(varInst),
                         any(isNull(lookupClass), notEq(varInst.getThisClass(), lookupClass))),
                 lookupClass.store(varInst.getThisClass()),
                 null
-        ));
+        );
         if (prevGetter instanceof TargetFieldGetter) {
             final ClassTypeMember targetClass = ((TargetFieldGetter) prevGetter).getTargetClass();
             if (targetClass != null) {
                 // runtime
-                body.append(new ConditionJumpAction(
+                action = action.andThen(new ConditionJumpAction(
                         isNull(lookupClass),
                         lookupClass.store(targetClass),
                         null
@@ -107,42 +104,41 @@ public abstract class MethodHandle {
             } else {
                 // not runtime
                 Type defaultType = ((TargetFieldGetter) prevGetter).getTargetType();
-                body.append(new ConditionJumpAction(
+                action = action.andThen(new ConditionJumpAction(
                         isNull(lookupClass),
                         lookupClass.store(loadClass(defaultType)),
                         null
                 ));
             }
         }
+        return action;
     }
 
     /**
      * Static check class.
      *
-     * @param body          the body
      * @param lookupClass   the lookup class
      * @param prevFieldName the prev field name
      * @param prevLookup    the prev lookup
      */
-    protected void staticCheckClass(MethodBody body, ClassTypeMember lookupClass, String prevFieldName, ClassTypeMember prevLookup) {
-        body.append(new ConditionJumpAction(
+    protected Action staticCheckClass(ClassTypeMember lookupClass, String prevFieldName, ClassTypeMember prevLookup) {
+        return new ConditionJumpAction(
                 isNull(lookupClass),
                 lookupClass.store(new MethodInvokeAction(Runtime.FIND_FIELD).setArgs(prevLookup, LdcLoadAction.of(prevFieldName))),
                 null
-        ));
+        );
     }
 
 
     /**
      * Check method handle.
      *
-     * @param methodBody  the method body
      * @param lookupClass the lookup class
      * @param mhMember    the mh member
      * @param objVar      the obj var
      */
-    protected void checkMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        methodBody.append(mhMember.ifNull(body -> initRuntimeMethodHandle(body, lookupClass, mhMember, objVar)));
+    protected Action checkMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+        return mhMember.ifNull(initRuntimeMethodHandle(lookupClass, mhMember, objVar));
     }
 
     /**
@@ -208,7 +204,7 @@ public abstract class MethodHandle {
         @Override
         public void apply(MethodBody body) {
             if (TypeUtil.isPrimitiveType(type)) {
-                LdcLoadAction.of(type).load(body);
+                body.append(LdcLoadAction.of(type));
                 return;
             }
 

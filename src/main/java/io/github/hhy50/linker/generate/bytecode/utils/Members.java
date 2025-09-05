@@ -109,7 +109,7 @@ public class Members {
                 }
                 this.type = field.type;
                 Member member = new Member(field);
-                member.load(body);
+                body.append(member);
             }
         };
     }

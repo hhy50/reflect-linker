@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.TypeUtil;
@@ -36,11 +35,9 @@ public class BoxAction implements LoadAction, TypedAction {
     }
 
     @Override
-    public void load(MethodBody body) {
-        body.append(Actions.of(
-                obj,
-                c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap", "(" + obj.getType().getDescriptor() + ")Ljava/lang/Object;", false)
-        ));
+    public Action load() {
+        return Actions.withVisitor(obj, c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap",
+                "(" + obj.getType().getDescriptor() + ")Ljava/lang/Object;", false));
     }
 
     @Override

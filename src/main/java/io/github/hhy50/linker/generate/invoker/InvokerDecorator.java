@@ -4,11 +4,7 @@ import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
-import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
-import io.github.hhy50.linker.generate.bytecode.action.CreateLinkerAction;
-import io.github.hhy50.linker.generate.bytecode.action.TypeCastAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -47,14 +43,13 @@ public class InvokerDecorator extends AbstractDecorator {
     }
 
     @Override
-    public VarInst invoke(MethodBody methodBody) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> instChainAction, Action... args) {
         MethodRef methodRef = absMethodDefine.methodRef;
         Type[] argsType = methodRef.getMethodType().getArgumentTypes();
         Class<?> rClassType = absMethodDefine.method.getReturnType();
-
         typecastArgs(methodBody, methodBody.getArgs(), argsType);
 
-        methodBody.append(ChainAction.of(realInvoker::invoke)
+        return ChainAction.of(body -> realInvoker.invoke(null,  args))
                 .map(varInst -> {
                     Type retType = Type.getType(rClassType);
                     if (isConstructor) {
@@ -70,7 +65,6 @@ public class InvokerDecorator extends AbstractDecorator {
                     } else {
                         return Actions.vreturn();
                     }
-                }));
-        return null;
+                });
     }
 }

@@ -4,7 +4,6 @@ import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
@@ -45,22 +44,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     }
 
     @Override
-    public VarInst invoke(MethodBody methodBody) {
-        MethodInvokeAction invoker = new SmartMethodInvokeAction(descriptor)
-                .setInstance(LoadAction.LOAD0)
-                .setArgs(methodBody.getArgs());
-
-        Type rType = descriptor.getReturnType();
-        if (rType.getSort() == Type.VOID) {
-            methodBody.append(invoker);
-            return null;
-        } else {
-            return methodBody.newLocalVar(rType, null, invoker);
-        }
-    }
-
-    @Override
-    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected Action initRuntimeMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         RuntimeMethodRef runtime = (RuntimeMethodRef) method;
         Class<Action> __ = Action.class;
         Action superClassLoad = Optional.ofNullable(method.getSuperClass())
@@ -68,17 +52,17 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                 .map(__::cast)
                 .orElseGet(Actions::loadNull);
         MethodInvokeAction fineMethod = new MethodInvokeAction(Runtime.FIND_METHOD)
-                .setArgs(lookupClass.getLookup(methodBody), lookupClass,
+                .setArgs(lookupClass.getLookup(), lookupClass,
                         LdcLoadAction.of(method.getName()),
                         superClassLoad,
                         Actions.asArray(TypeUtil.STRING_TYPE, Arrays.stream(runtime.getArgsType())
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
                 );
-        mhMember.store(methodBody, fineMethod);
+        return mhMember.store(fineMethod);
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String methodName, Type methodType, boolean isStatic) {
+    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String methodName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
         MethodInvokeAction findXXX;
@@ -99,6 +83,6 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType)
             );
         }
-        mhMember.store(clinit, findXXX.setInstance(lookupClass.getLookup()));
+        return findXXX.setInstance(lookupClass.getLookup());
     }
 }

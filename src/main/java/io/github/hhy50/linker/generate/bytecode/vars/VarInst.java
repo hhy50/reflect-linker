@@ -16,29 +16,6 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
  */
 public abstract class VarInst implements LoadAction, TypedAction {
 
-    /**
-     * The Type.
-     */
-    protected final Type type;
-
-    /**
-     * Instantiates a new Var inst.
-     *
-     * @param type the type
-     */
-    public VarInst(Type type) {
-        this.type = type;
-    }
-
-    /**
-     * Gets type.
-     *
-     * @return the type
-     */
-    @Override
-    public Type getType() {
-        return type;
-    }
 
     /**
      * Gets name.
@@ -46,7 +23,7 @@ public abstract class VarInst implements LoadAction, TypedAction {
      * @return the name
      */
     public String getName() {
-        return "var[type=" + type.getClassName() + "]";
+        return "var[type=" + this.getType().getClassName() + "]";
     }
 
     /**

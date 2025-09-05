@@ -6,7 +6,6 @@ import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.FieldOpsMethodHandler;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
@@ -48,7 +47,7 @@ public class Setter extends FieldOpsMethodHandler {
     }
 
     @Override
-    public VarInst invoke(MethodBody methodBody) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args) {
         if (super.inlineMhInvoker != null) {
             methodBody.append(super.inlineMhInvoker.invoke(Args.loadArgs()).andThen(Actions.vreturn()));
             return null;
@@ -60,15 +59,15 @@ public class Setter extends FieldOpsMethodHandler {
     }
 
     @Override
-    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected Action initRuntimeMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
         mhMember.store(methodBody, new MethodInvokeAction(Runtime.FIND_SETTER)
-                .setArgs(lookupClass.getLookup(methodBody), lookupClass, LdcLoadAction.of(this.field.fieldName)));
+                .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(this.field.fieldName)));
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
-        mhMember.store(clinit, new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
+    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+        return new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
                 .setInstance(lookupClass.getLookup())
-                .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType)));
+                .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
     }
 }
