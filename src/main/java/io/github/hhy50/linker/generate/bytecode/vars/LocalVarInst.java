@@ -3,11 +3,10 @@ package io.github.hhy50.linker.generate.bytecode.vars;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
-
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
-
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
 
 /**
  * The type Local var inst.
@@ -66,10 +65,10 @@ public class LocalVarInst extends VarInst {
      *
      * @param action the action
      */
-    public void store(Action action) {
-        body.append(Actions.of(
+    public Action store(Action action) {
+        return Actions.of(
                 action,
                 withVisitor(mv -> mv.visitVarInsn(type.getOpcode(Opcodes.ISTORE), lvbIndex))
-        ));
+        );
     }
 }

@@ -58,23 +58,25 @@ public abstract class MethodHandle {
     /**
      * Init static method handle.
      *
+     * @param mhMember
      * @param lookupClass the lookup class
      * @param fieldName   the field name
      * @param methodType  the method type
      * @param isStatic    the is static
      */
-    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String fieldName, Type methodType, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String fieldName, Type methodType, boolean isStatic) {
         return Actions.empty();
     }
 
     /**
      * Mh reassign.
      *
+     * @param mhMember    the mh member
      * @param lookupClass the lookup class
      * @param mhMember    the mh member
      * @param objVar      the obj var
      */
-    protected Action initRuntimeMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, VarInst objVar) {
         return Actions.empty();
     }
 
@@ -138,7 +140,7 @@ public abstract class MethodHandle {
      * @param objVar      the obj var
      */
     protected Action checkMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        return mhMember.ifNull(initRuntimeMethodHandle(lookupClass, mhMember, objVar));
+        return mhMember.ifNull(initRuntimeMethodHandle(mhMember, lookupClass, objVar));
     }
 
     /**
@@ -147,12 +149,12 @@ public abstract class MethodHandle {
      * @param type the type
      * @return the class load action
      */
-    protected ClassLoadAction loadClass(Type type) {
-        return new ClassLoadAction() {
+    protected ClassTypeVarInst loadClass(Type type) {
+        return new ClassTypeVarInst() {
             @Override
             public Action getLookup() {
                 return body -> {
-                    ClassLoadAction classCache = body.getClassObjCache(type);
+                    ClassTypeVarInst classCache = body.getClassObjCache(type);
                     if (classCache == null) {
                         classCache = new DynamicClassLoad(type);
                         body.putClassObjCache(type, classCache);
@@ -163,7 +165,7 @@ public abstract class MethodHandle {
 
             @Override
             public void apply(MethodBody body) {
-                ClassLoadAction classCache = body.getClassObjCache(type);
+                ClassTypeVarInst classCache = body.getClassObjCache(type);
                 if (classCache == null) {
                     classCache = new DynamicClassLoad(type);
                     body.putClassObjCache(type, classCache);
@@ -176,7 +178,7 @@ public abstract class MethodHandle {
     /**
      * The type Dynamic class load.
      */
-    protected class DynamicClassLoad implements ClassLoadAction {
+    protected class DynamicClassLoad implements ClassTypeVarInst {
         private Type type;
         private LocalVarInst clazzVar;
         private LocalVarInst lookupVar;

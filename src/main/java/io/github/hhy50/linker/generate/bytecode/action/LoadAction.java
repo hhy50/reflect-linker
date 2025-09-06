@@ -5,7 +5,9 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.*;
+
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
 
 /**
  * The interface Load action.

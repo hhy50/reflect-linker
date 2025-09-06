@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.MethodBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
+import io.github.hhy50.linker.generate.bytecode.action.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import org.objectweb.asm.MethodVisitor;
@@ -22,7 +22,7 @@ public class MethodBody {
     private final MethodVisitor writer;
     private int lvbIndex;
     private final LocalVarInst[] args;
-    private final Map<String, ClassLoadAction> classLoadCache;
+    private final Map<String, ClassTypeVarInst> classLoadCache;
 
     /**
      * Instantiates a new Method body.
@@ -101,7 +101,7 @@ public class MethodBody {
         if (type.getSort() == Type.LONG || type.getSort() == Type.DOUBLE) {
             lvbIndex++;
         }
-        if (action != null) localVarInst.store(action);
+        if (action != null) append(localVarInst.store(action));
         return localVarInst;
     }
 
@@ -162,7 +162,7 @@ public class MethodBody {
      * @param type the type
      * @return the class obj cache
      */
-    public ClassLoadAction getClassObjCache(Type type) {
+    public ClassTypeVarInst getClassObjCache(Type type) {
         return this.classLoadCache.get(type.getClassName());
     }
 
@@ -172,7 +172,7 @@ public class MethodBody {
      * @param type      the type
      * @param classload the clazz var
      */
-    public void putClassObjCache(Type type, ClassLoadAction classload) {
+    public void putClassObjCache(Type type, ClassTypeVarInst classload) {
         this.classLoadCache.put(type.getClassName(), classload);
     }
 }

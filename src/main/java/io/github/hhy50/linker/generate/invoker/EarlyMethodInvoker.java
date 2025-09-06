@@ -6,10 +6,13 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.util.TypeUtil;
+
+import java.util.function.BiFunction;
 
 /**
  * The type Early method invoker.
@@ -17,9 +20,9 @@ import io.github.hhy50.linker.util.TypeUtil;
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
     /**
-     * The Mh member.
+     * 内联方法调用。父类的invoke是调用这个 mh的单独生成的方法
      */
-    protected MethodHandleMember mhMember;
+    protected BiFunction<VarInst, Action[], VarInst> inlineAction;
 
     /**
      * Instantiates a new Early method invoker.
@@ -39,12 +42,18 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        this.mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getLookupClass(), descriptor.getType());
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getLookupClass(), descriptor.getType());
+        clinit.append(initStaticMethodHandle(mhMember,
+                loadClass(method.getLookupClass()), method.getName(), method.getDeclareType(), method.isStatic()));
         mhMember.setInvokeExact(!method.isInvisible());
         clinit.append(mhMember.store(
                 initStaticMethodHandle(loadClass(method.getLookupClass()),
                         method.getName(), method.getDeclareType(), method.isStatic())
         ));
+        this.inlineAction = (varInst, args) ->
+             Actions.newLocalVar(method.isStatic()
+                    ? mhMember.invokeStatic(args)
+                    : mhMember.invokeInstance(varInst, args));
     }
 
 
@@ -52,10 +61,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args) {
         return varInstChain.mapVar(varInst -> {
             // 直接内联调用 methodHandle
-            if (method.isStatic()) {
-                return mhMember.invokeStatic(args);
-            }
-            return mhMember.invokeInstance(varInst, args);
+            return this.inlineAction.apply(varInst, args);
         });
     }
 }

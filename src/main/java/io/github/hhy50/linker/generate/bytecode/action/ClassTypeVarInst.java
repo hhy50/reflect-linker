@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 /**
  * The interface Class load action.
  */
-public interface ClassLoadAction extends Action {
+public interface ClassTypeVarInst extends Action {
 
     /**
      * Gets lookup.

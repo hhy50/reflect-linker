@@ -61,14 +61,13 @@ public interface Actions {
      * @return the action
      */
     static Action throwNullException(String nullerr) {
-        return body -> {
-            MethodVisitor mv = body.getWriter();
+        return withVisitor(mv -> {
             mv.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
             mv.visitInsn(Opcodes.DUP);
             mv.visitLdcInsn(nullerr);
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
             mv.visitInsn(Opcodes.ATHROW);
-        };
+        });
     }
 
     /**
@@ -79,14 +78,13 @@ public interface Actions {
      * @return the action
      */
     static Action throwTypeCastException(String objName, Type expectType) {
-        return body -> {
-            MethodVisitor mv = body.getWriter();
+        return withVisitor(mv -> {
             mv.visitTypeInsn(Opcodes.NEW, "java/lang/ClassCastException");
             mv.visitInsn(Opcodes.DUP);
             mv.visitLdcInsn("'" + objName + "' not cast to type '" + expectType.getClassName() + "'");
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ClassCastException", "<init>", "(Ljava/lang/String;)V", false);
             mv.visitInsn(Opcodes.ATHROW);
-        };
+        });
     }
 
     /**
@@ -95,11 +93,10 @@ public interface Actions {
      * @return the action
      */
     static Action returnNull() {
-        return body -> {
-            MethodVisitor mv = body.getWriter();
+        return withVisitor(mv -> {
             mv.visitInsn(Opcodes.ACONST_NULL);
             mv.visitInsn(Opcodes.ARETURN);
-        };
+        });
     }
 
     /**
@@ -109,9 +106,7 @@ public interface Actions {
      * @return the action
      */
     static Action asList(Action... actions) {
-        return body -> {
-            body.append(new MethodInvokeAction(MethodDescriptor.ARRAYS_ASLIST).setArgs(asArray(ObjectVar.TYPE, actions)));
-        };
+        return new MethodInvokeAction(MethodDescriptor.ARRAYS_ASLIST).setArgs(asArray(ObjectVar.TYPE, actions));
     }
 
     /**
@@ -162,10 +157,13 @@ public interface Actions {
     /**
      * Of action.
      *
-     * @param actions  the action 1
+     * @param actions the action 1
      * @return the action
      */
     static Action of(Action... actions) {
+        if (actions == null) {
+            return Actions.empty();
+        }
         return body -> {
             for (Action action : actions) {
                 if (action != null) {
@@ -177,6 +175,7 @@ public interface Actions {
 
     /**
      * withVisitor action.
+     *
      * @param mvApply
      * @return
      */
@@ -239,9 +238,7 @@ public interface Actions {
      * @return the action
      */
     static Action areturn(Type rType) {
-        return body -> {
-            AsmUtil.areturn(body.getWriter(), rType);
-        };
+        return withVisitor(mv -> AsmUtil.areturn(mv, rType));
     }
 
     /**
@@ -250,9 +247,7 @@ public interface Actions {
      * @return the action
      */
     static Action vreturn() {
-        return body -> {
-            AsmUtil.areturn(body.getWriter(), Type.VOID_TYPE);
-        };
+        return withVisitor(mv -> AsmUtil.areturn(mv, Type.VOID_TYPE));
     }
 
     static VarInst newLocalVar(TypedAction action) {
@@ -261,8 +256,6 @@ public interface Actions {
 
     static VarInst newLocalVar(Type type, Action action) {
         return new VarInst() {
-            VarInst localVar;
-
             @Override
             public Type getType() {
                 return type;
@@ -271,10 +264,7 @@ public interface Actions {
             @Override
             public Action load() {
                 return body -> {
-                    if (localVar == null) {
-                        localVar = body.newLocalVar(type, null, action);
-                    }
-                    body.append(localVar);
+                    body.append(body.newLocalVar(type, null, action));
                 };
             }
         };

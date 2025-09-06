@@ -62,7 +62,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     }
 
     @Override
-    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String methodName, Type methodType, boolean isStatic) {
+    protected Action initStaticMethodHandle(ClassTypeVarInst lookupClass, String methodName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
         MethodInvokeAction findXXX;

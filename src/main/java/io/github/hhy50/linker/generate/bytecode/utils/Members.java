@@ -81,7 +81,7 @@ public class Members {
                 throw new MemberNotFoundException(classBuilder.getClassName(), memberName);
             }
             Member member = new Member(field);
-            member.store(body, action);
+            body.append(member.store(action));
         };
     }
 

@@ -4,10 +4,8 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
 
 /**
@@ -30,8 +28,7 @@ public class ArrayIndex implements LoadAction, TypedAction {
 
     @Override
     public Action load() {
-        ArrayList<Action> actions = new ArrayList<>();
-        actions.add(varInst);
+        Action action = varInst;
 
         Type type = varInst.getType();
         for (Integer i : indexs) {
@@ -41,9 +38,9 @@ public class ArrayIndex implements LoadAction, TypedAction {
                 type = Type.getType(type.getDescriptor().substring(1));
             }
             final Type fType = type;
-            actions.add(withVisitor(LdcLoadAction.of(i), mv -> mv.visitInsn(fType.getOpcode(Opcodes.IALOAD))));
+            action = action.andThen(withVisitor(LdcLoadAction.of(i), mv -> mv.visitInsn(fType.getOpcode(Opcodes.IALOAD))));
         }
-        return of(actions.toArray(new Action[0]));
+        return action;
     }
 
     @Override

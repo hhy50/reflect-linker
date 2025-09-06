@@ -14,8 +14,6 @@ import org.objectweb.asm.Type;
 
 import java.util.Arrays;
 
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
-
 
 /**
  * The type Constructor.
@@ -37,24 +35,20 @@ public class Constructor extends Invoker<ConstructorRef> {
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), null, descriptor.getType());
-        clinit.append(mhMember.store(
-                initStaticMethodHandle(loadClass(method.getDeclareType()), null, descriptor.getType(), false))
-        );
-
-
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(method.getDeclareType()), null, descriptor.getType(), false));
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(mhMember.invokeStatic(Args.loadArgs()).thenReturn());
     }
 
     @Override
-    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String arg0, Type methodType, boolean isStatic) {
-        return new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String args0, Type methodType, boolean args1) {
+        return mhMember.store(new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),
                                 Actions.asArray(TypeUtil.CLASS_TYPE,
                                         Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
 
-                        ));
+                        )));
     }
 }

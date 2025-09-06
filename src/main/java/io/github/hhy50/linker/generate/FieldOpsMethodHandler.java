@@ -70,14 +70,15 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(ChainAction.of(methodBody -> preFieldGetter.invoke(methodBody))
-                                .then((body, ownerVar) -> checkLookClass(body, this.lookupClass, ownerVar, preFieldGetter))
-                                .then((body, ownerVar) -> {
+                                .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, preFieldGetter))
+                                .then(ownerVar -> {
                                     ClassTypeMember prevLookupClass = preFieldGetter.lookupClass;
                                     if (prevLookupClass != null) {
-                                        staticCheckClass(body, this.lookupClass, prevField.fieldName, prevLookupClass);
+                                        return staticCheckClass(this.lookupClass, prevField.fieldName, prevLookupClass);
                                     }
+                                    return null;
                                 })
-                                .then((body, ownerVar) -> checkMethodHandle(body, this.lookupClass, mhMember, ownerVar))
+                                .then(ownerVar -> checkMethodHandle(this.lookupClass, mhMember, ownerVar))
                                 .map(runtimeField.isDesignateStatic() ?
                                         (runtimeField.isStatic() ? ownerVar -> mhMember.invokeStatic(Args.loadArgs())
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, Args.loadArgs()))

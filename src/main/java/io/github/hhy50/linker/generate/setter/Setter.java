@@ -32,7 +32,7 @@ public class Setter extends FieldOpsMethodHandler {
      * @param field     the field
      */
     public Setter(String implClass, FieldRef field) {
-        super(field.getSetterName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "set_"+field.getUniqueName(),
+        super(field.getSetterName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "set_" + field.getUniqueName(),
                 Type.getMethodType(Type.VOID_TYPE, field.getType())));
         this.field = field;
     }
@@ -59,15 +59,17 @@ public class Setter extends FieldOpsMethodHandler {
     }
 
     @Override
-    protected Action initRuntimeMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        mhMember.store(methodBody, new MethodInvokeAction(Runtime.FIND_SETTER)
-                .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(this.field.fieldName)));
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, VarInst objVar) {
+        MethodInvokeAction findSetter = new MethodInvokeAction(Runtime.FIND_SETTER)
+                .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(this.field.fieldName));
+        return mhMember.store(findSetter);
     }
 
     @Override
-    protected Action initStaticMethodHandle(ClassLoadAction lookupClass, String fieldName, Type fieldType, boolean isStatic) {
-        return new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+        MethodInvokeAction findSetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
+        return mhMember.store(findSetter);
     }
 }
