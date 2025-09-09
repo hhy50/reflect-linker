@@ -48,10 +48,7 @@ public interface Actions {
      * @return the action
      */
     static Action loadNull() {
-        return (body) -> {
-            MethodVisitor mv = body.getWriter();
-            mv.visitInsn(Opcodes.ACONST_NULL);
-        };
+        return withVisitor(mv -> mv.visitInsn(Opcodes.ACONST_NULL));
     }
 
     /**
@@ -254,7 +251,15 @@ public interface Actions {
         return newLocalVar(action.getType(), action);
     }
 
+    static VarInst newLocalVar(String name, TypedAction action) {
+        return newLocalVar(action.getType(), name, action);
+    }
+
     static VarInst newLocalVar(Type type, Action action) {
+        return newLocalVar(type, null, action);
+    }
+
+    static VarInst newLocalVar(Type type, String name, Action action) {
         return new VarInst() {
             @Override
             public Type getType() {
@@ -264,7 +269,7 @@ public interface Actions {
             @Override
             public Action load() {
                 return body -> {
-                    body.append(body.newLocalVar(type, null, action));
+                    body.append(body.newLocalVar(type, name, action));
                 };
             }
         };

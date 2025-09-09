@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
@@ -10,7 +11,7 @@ import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisito
 /**
  * The type Ldc load action.
  */
-public class LdcLoadAction implements LoadAction, TypedAction {
+public class LdcLoadAction extends VarInst {
 
     private Object ldcConstVar;
 

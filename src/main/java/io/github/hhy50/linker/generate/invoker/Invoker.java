@@ -44,7 +44,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     }
 
     @Override
-    protected Action initRuntimeMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, VarInst objVar) {
         RuntimeMethodRef runtime = (RuntimeMethodRef) method;
         Class<Action> __ = Action.class;
         Action superClassLoad = Optional.ofNullable(method.getSuperClass())
@@ -62,7 +62,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     }
 
     @Override
-    protected Action initStaticMethodHandle(ClassTypeVarInst lookupClass, String methodName, Type methodType, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String methodName, Type methodType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
         MethodInvokeAction findXXX;
@@ -83,6 +83,6 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType)
             );
         }
-        return findXXX.setInstance(lookupClass.getLookup());
+        return mhMember.store(findXXX.setInstance(lookupClass.getLookup()));
     }
 }

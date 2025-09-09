@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate.type;
 
 import io.github.hhy50.linker.exceptions.TypeNotMatchException;
-import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.BoxAction;
 import io.github.hhy50.linker.generate.bytecode.action.UnBoxAction;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -18,7 +18,7 @@ import static org.objectweb.asm.Opcodes.ILOAD;
 public class AutoBox implements TypeCast {
 
     @Override
-    public VarInst cast(MethodBody methodBody, VarInst varInst, Type expectType) {
+    public VarInst cast(VarInst varInst, Type expectType) {
         boolean r1 = TypeUtil.isPrimitiveType(expectType);
         boolean r2 = TypeUtil.isPrimitiveType(varInst.getType());
         if (r1 && r2) {
@@ -27,9 +27,9 @@ public class AutoBox implements TypeCast {
             }
             throw new TypeNotMatchException(varInst.getType(), expectType);
         } else if (r1 && (TypeUtil.isWrapType(varInst.getType()) || varInst.getType().equals(ObjectVar.TYPE))) {
-            return methodBody.newLocalVar(new UnBoxAction(varInst, expectType));
+            return Actions.newLocalVar(new UnBoxAction(varInst, expectType));
         } else if (r2 && (TypeUtil.isWrapType(expectType) || expectType.equals(ObjectVar.TYPE))) {
-            return methodBody.newLocalVar(new BoxAction(varInst, expectType));
+            return Actions.newLocalVar(new BoxAction(varInst, expectType));
         } else if (r1 || r2) {
             throw new TypeNotMatchException(varInst.getType(), expectType);
         } else {

@@ -47,7 +47,7 @@ public class Setter extends FieldOpsMethodHandler {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
         if (super.inlineMhInvoker != null) {
             methodBody.append(super.inlineMhInvoker.invoke(Args.loadArgs()).andThen(Actions.vreturn()));
             return null;

@@ -58,7 +58,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
         return varInstChain.mapVar(varInst -> {
             // 直接内联调用 methodHandle
             return this.inlineAction.apply(varInst, args);

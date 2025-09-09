@@ -61,14 +61,14 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                                 .then(ownerVar -> checkMethodHandle(lookupClass, mhMember, ownerVar))
                                 .map(method.isDesignateStatic() ?
                                         (method.isStatic() ? ownerVar -> mhMember.invokeStatic(args)
-                                                : ownerVar -> mhMember.invokeStatic(args))
+                                                : ownerVar -> mhMember.invokeInstance(ownerVar, args))
                                         : ownerVar -> mhMember.invokeOfNull(ownerVar, args)
                                 ),
                         Actions.areturn(descriptor.getReturnType()));
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, Action... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
         return varInstChain.then(VarInst::checkNullPointer)
                 .mapVar(varInst -> {
                     Action[] newArgs = new Action[args.length+1];
