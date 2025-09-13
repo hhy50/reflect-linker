@@ -8,6 +8,7 @@ import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
 import io.github.hhy50.linker.generate.ArgsDepAnalysis;
+import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.token.*;
 import io.github.hhy50.linker.util.*;
 import org.objectweb.asm.Type;
@@ -210,8 +211,12 @@ public class ParseContext {
         Class<?> curType = targetClass;
         ArrayList<MethodRef> methods = new ArrayList<>();
         for (SplitToken splitToken : tokenList) {
-            Tokens fieldToken = (Tokens) splitToken.prefix;
+            Tokens fieldsToken = (Tokens) splitToken.prefix;
             MethodToken methodToken = (MethodToken) splitToken.suffix;
+            if (fieldsToken != null && fieldsToken.size() > 0) {
+                methods.add(new FieldGetterMethod());
+            }
+
 
             FieldRef owner = null;
             if (fieldToken != null && fieldToken.size() > 0) {
@@ -230,10 +235,10 @@ public class ParseContext {
 
                 MethodRef m;
                 if (method != null) {
-                    m = new EarlyMethodRef(owner, method);
+                    m = new EarlyMethodRef("", method);
                     curType = method.getReturnType();
                 } else {
-                    m = new RuntimeMethodRef(owner, methodToken.methodName, argsType)
+                    m = new RuntimeMethodRef("", methodToken.methodName, argsType)
                             .setAutolink(AnnotationUtils.isAutolink(methodDefine));
                     curType = Object.class;
                 }

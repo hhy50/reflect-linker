@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import org.objectweb.asm.Type;
 
@@ -17,9 +16,9 @@ public abstract class MethodRef {
     protected static final AtomicInteger COUNTER = new AtomicInteger(0);
 
     /**
-     * The Owner.
+     * The Full name.
      */
-    protected FieldRef owner;
+    protected String fullName;
 
     /**
      * The Name.
@@ -32,42 +31,13 @@ public abstract class MethodRef {
     protected String superClass;
 
     /**
-     * The Full name.
-     */
-    protected String uniqueName;
-
-    /**
      * Instantiates a new Method ref.
      *
-     * @param owner the owner
      * @param name  the name
      */
-    public MethodRef(FieldRef owner, String name) {
-        this.owner = owner;
+    public MethodRef(String fullName, String name) {
+        this.fullName = fullName;
         this.name = name;
-        this.uniqueName = owner.getUniqueName()+"_$$_"+name+"_"+COUNTER.getAndIncrement();
-    }
-
-    /**
-     * Instantiates a new Method ref.
-     *
-     * @param owner      the owner
-     * @param name       the name
-     * @param uniqueName the uniqueName
-     */
-    public MethodRef(FieldRef owner, String name, String uniqueName) {
-        this.owner = owner;
-        this.name = name;
-        this.uniqueName = uniqueName;
-    }
-
-    /**
-     * Gets owner.
-     *
-     * @return the owner
-     */
-    public FieldRef getOwner() {
-        return owner;
     }
 
     /**
@@ -85,16 +55,7 @@ public abstract class MethodRef {
      * @return the full name
      */
     public String getUniqueName() {
-        return uniqueName;
-    }
-
-    /**
-     * Gets invoker name.
-     *
-     * @return the invoker name
-     */
-    public String getInvokerName() {
-        return getUniqueName()+"_invoker_mh";
+        return this.fullName.replace('.', '$');
     }
 
     /**

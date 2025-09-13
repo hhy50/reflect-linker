@@ -2,6 +2,9 @@ package io.github.hhy50.linker.define.field;
 
 
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+
+import java.util.List;
+
 import org.objectweb.asm.Type;
 
 /**
@@ -20,9 +23,9 @@ public abstract class FieldRef {
     protected String fullName;
 
     /**
-     * The Prev.
+     * The field Index
      */
-    protected FieldRef prev;
+    private List<Object> index;
 
     /**
      * The Nullable.
@@ -40,8 +43,8 @@ public abstract class FieldRef {
      * @param prev the prev
      * @param name the name
      */
-    public FieldRef(FieldRef prev, String name) {
-        this.prev = prev;
+    public FieldRef(String fullName, String name) {
+        this.fullName = fullName;
         this.fieldName = name;
     }
 

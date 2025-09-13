@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
@@ -23,12 +22,11 @@ public class RuntimeMethodRef extends MethodRef {
     /**
      * Instantiates a new Runtime method ref.
      *
-     * @param owner    the owner
      * @param name     the name
      * @param argsType the args type
      */
-    public RuntimeMethodRef(FieldRef owner, String name, String[] argsType) {
-        super(owner, name);
+    public RuntimeMethodRef(String fullName, String name, String[] argsType) {
+        super(fullName, name);
 
         Type[] newArgsType = new Type[argsType.length];
         Arrays.fill(newArgsType, ObjectVar.TYPE);

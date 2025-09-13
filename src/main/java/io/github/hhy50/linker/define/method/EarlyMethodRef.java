@@ -1,7 +1,5 @@
 package io.github.hhy50.linker.define.method;
 
-
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
 import io.github.hhy50.linker.generate.invoker.Invoker;
@@ -26,11 +24,10 @@ public class EarlyMethodRef extends MethodRef {
     /**
      * Instantiates a new Early method ref.
      *
-     * @param owner  the owner
      * @param method the method
      */
-    public EarlyMethodRef(FieldRef owner, Method method) {
-        super(owner, method.getName());
+    public EarlyMethodRef(String fullName, Method method) {
+        super(fullName, method.getName());
         this.method = method;
     }
 
