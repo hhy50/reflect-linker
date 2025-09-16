@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -9,7 +8,6 @@ import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.util.TypeUtil;
 
 import java.util.function.BiFunction;
@@ -35,10 +33,6 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        FieldRef owner = method.getOwner();
-        Getter getter = classImplBuilder.getGetter(owner);
-        getter.define(classImplBuilder);
-
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
@@ -46,22 +40,28 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         clinit.append(initStaticMethodHandle(mhMember,
                 loadClass(method.getLookupClass()), method.getName(), method.getDeclareType(), method.isStatic()));
         mhMember.setInvokeExact(!method.isInvisible());
-        clinit.append(mhMember.store(
-                initStaticMethodHandle(loadClass(method.getLookupClass()),
-                        method.getName(), method.getDeclareType(), method.isStatic())
-        ));
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(method.getLookupClass()),
+                        method.getName(), method.getDeclareType(), method.isStatic()));
         this.inlineAction = (varInst, args) ->
-             Actions.newLocalVar(method.isStatic()
-                    ? mhMember.invokeStatic(args)
-                    : mhMember.invokeInstance(varInst, args));
+                Actions.newLocalVar(method.isStatic()
+                        ? mhMember.invokeStatic(args)
+                        : mhMember.invokeInstance(varInst, args));
     }
 
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
         return varInstChain.mapVar(varInst -> {
             // 直接内联调用 methodHandle
-            return this.inlineAction.apply(varInst, args);
+            return this.inlineAction.apply(varInst, argsChainAction);
         });
     }
+
+    // @Override
+    // public MethodInvokeChainAction invoke(MethodInvokeChainAction varInstChain) {
+    //     return varInstChain.invoke((varInst, args) -> {
+    //         // 直接内联调用 methodHandle
+    //         return this.inlineAction.apply(varInst, args);
+    //     });
+    // }
 }

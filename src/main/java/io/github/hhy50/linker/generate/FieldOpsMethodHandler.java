@@ -62,10 +62,6 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      * @param runtimeField     the runtime field
      */
     protected void defineRuntimeMethod(InvokeClassImplBuilder classImplBuilder, RuntimeFieldRef runtimeField) {
-        FieldRef prevField = runtimeField.getPrev();
-        Getter preFieldGetter = classImplBuilder.getGetter(prevField);
-        preFieldGetter.define(classImplBuilder);
-
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(mhName, descriptor.getType());
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)

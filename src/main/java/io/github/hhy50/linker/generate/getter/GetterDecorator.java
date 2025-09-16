@@ -35,7 +35,7 @@ public class GetterDecorator extends AbstractDecorator {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
         /**
          * get只需要对返回值进行转换就行
          */

@@ -3,7 +3,6 @@ package io.github.hhy50.linker.generate.getter;
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
-import io.github.hhy50.linker.define.field.FieldIndexRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.FieldOpsMethodHandler;
@@ -53,7 +52,7 @@ public class Getter extends FieldOpsMethodHandler {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
         Action invoker;
         if (super.inlineMhInvoker != null) {
             invoker = super.inlineMhInvoker.invoke();

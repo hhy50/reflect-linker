@@ -50,10 +50,10 @@ public abstract class MethodHandle {
      * Invoke var inst.
      *
      * @param varInstChain
-     * @param args
+     * @param argsChainAction
      * @return the var inst
      */
-    public abstract ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args);
+    public abstract ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction);
 
     /**
      * Init static method handle.

@@ -55,7 +55,7 @@ public class TargetFieldGetter extends Getter {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
         return ChainAction.of(() -> this.targetObj);
     }
 

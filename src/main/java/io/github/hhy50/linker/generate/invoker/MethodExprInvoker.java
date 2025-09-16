@@ -1,36 +1,47 @@
 package io.github.hhy50.linker.generate.invoker;
 
-//public class MethodExprInvoker extends Invoker<MethodExprRef> {
-//
-//    public MethodExprInvoker(MethodExprRef methodExprRef) {
-//        super(methodExprRef, methodExprRef.getMethodType());
-//    }
-//
-//    @Override
-//    protected void define0(InvokeClassImplBuilder classImplBuilder) {
-//        MethodBuilder methodBuilder = classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.descriptor.getMethodName(), descriptor.getType(), null);
-//        MethodBody methodBody = methodBuilder.getMethodBody();
-//
-//        List<MethodRef> methods = method.getStatement();
-//
-//        Invoker<?> first = methods.get(0).defineInvoker();
-//        Type curType = first.descriptor.getReturnType();
-//        first.define(classImplBuilder);
-//
-//        ChainAction<VarInst> chain = ChainAction.of(methodBody1 -> first.invoke(methodBody1));
-//        for (int i = 1; i < methods.size(); i++) {
-//            ChainInvoker chainInvoker = new ChainInvoker(curType, methods.get(i));
-//            chainInvoker.define(classImplBuilder);
-//            chain = chain
-//                    .map(chainInvoker::invokeNext);
-//        }
-//        methodBody.append(chain.then((varInst) -> {
-//            if (varInst != null) {
-//                return varInst.thenReturn();
-//            } else {
-//                return Actions.vreturn();
-//            }
-//        }));
-//        methodBody.end();
-//    }
-//}
+import io.github.hhy50.linker.define.method.MethodExprRef;
+import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
+import io.github.hhy50.linker.generate.MethodHandle;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
+import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import org.objectweb.asm.Type;
+
+import java.util.List;
+
+public class MethodExprInvoker extends Invoker<MethodExprRef> {
+    List<MethodHandle> invokers;
+    /**
+     * Instantiates a new Invoker.
+     *
+     * @param method the method
+     * @param mType  the m type
+     */
+    public MethodExprInvoker(MethodExprRef method, Type mType) {
+        super(method, mType);
+    }
+
+    @Override
+    protected void define0(InvokeClassImplBuilder classImplBuilder) {
+
+    }
+
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
+        for (MethodHandle invoker : invokers) {
+            varInstChain = invoker.invoke(varInstChain, argsChainAction)
+                    .then(varInst -> {
+                        // 执行扩展
+                        return null;
+                    });
+        }
+
+        return varInstChain.then(varInst -> {
+            return Actions.newLocalVar(new MethodInvokeAction(descriptor)
+                    .setInstance(varInst)
+                    .setArgs(argsChainAction));
+        });
+    }
+
+}

@@ -52,33 +52,29 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * Typecast args.
      *
-     * @param args       the args
+     * @param args           the args
      * @param expectArgsType the args type
      */
-    protected ChainAction<VarInst[]> typecastArgs(VarInst[] args, Type[] expectArgsType) {
+    protected VarInst[] typecastArgs(VarInst[] args, Type[] expectArgsType) {
         Class<?>[] parameterTypes = absMethodDefine.method.getParameterTypes();
-        return ChainAction.of((body) -> {
-            // 校验入参类型
-            VarInst[] realArgs = new VarInst[args.length];
-            for (int i = 0; i < args.length; i++) {
-                VarInst arg = args[i];
-                Type expectType = expectArgsType[i];
-                Class<?> actualType = parameterTypes[i];
+        // 校验入参类型
+        VarInst[] realArgs = new VarInst[args.length];
+        for (int i = 0; i < args.length; i++) {
+            VarInst arg = args[i];
+            Type expectType = expectArgsType[i];
+            Class<?> actualType = parameterTypes[i];
 
-                String bindClass = AnnotationUtils.getBind(actualType);
-                if (StringUtil.isNotEmpty(bindClass)) {
-                    arg = Actions.newLocalVar(ObjectVar.TYPE, arg.getTarget());
-                } else if (this.autolink && !actualType.isPrimitive()) {
-                    arg = Actions.newLocalVar(ObjectVar.TYPE, arg.tryGetTarget());
-                }
-
-                VarInst newArg = typeCast(arg, expectType);
-                realArgs[i] = newArg;
+            String bindClass = AnnotationUtils.getBind(actualType);
+            if (StringUtil.isNotEmpty(bindClass)) {
+                arg = Actions.newLocalVar(ObjectVar.TYPE, arg.getTarget());
+            } else if (this.autolink && !actualType.isPrimitive()) {
+                arg = Actions.newLocalVar(ObjectVar.TYPE, arg.tryGetTarget());
             }
-            return realArgs;
-        });
 
-
+            VarInst newArg = typeCast(arg, expectType);
+            realArgs[i] = newArg;
+        }
+        return realArgs;
     }
 
     /**

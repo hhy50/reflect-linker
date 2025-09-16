@@ -37,7 +37,7 @@ public class SetterDecorator extends AbstractDecorator {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
         // 方法定义的类型
         typecastArgs(methodBody, methodBody.getArgs(), new Type[]{fieldRef.getType()});
         setter.invoke(methodBody);

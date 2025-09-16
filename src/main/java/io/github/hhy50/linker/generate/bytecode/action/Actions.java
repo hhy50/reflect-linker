@@ -11,6 +11,7 @@ import org.objectweb.asm.Type;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 
 /**
@@ -236,6 +237,16 @@ public interface Actions {
      */
     static Action areturn(Type rType) {
         return withVisitor(mv -> AsmUtil.areturn(mv, rType));
+    }
+
+    /**
+     * Areturn action.
+     *
+     * @param rType the r type
+     * @return the action
+     */
+    static Action areturn(Supplier<Type> rType) {
+        return withVisitor(mv -> AsmUtil.areturn(mv, rType.get()));
     }
 
     /**

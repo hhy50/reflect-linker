@@ -68,12 +68,12 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, VarInst... args) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
         return varInstChain.then(VarInst::checkNullPointer)
                 .mapVar(varInst -> {
-                    Action[] newArgs = new Action[args.length+1];
+                    Action[] newArgs = new Action[argsChainAction.length+1];
                     newArgs[0] = varInst;
-                    System.arraycopy(args, 0, newArgs, 1, args.length);
+                    System.arraycopy(argsChainAction, 0, newArgs, 1, argsChainAction.length);
                     return new SmartMethodInvokeAction(descriptor)
                             .setInstance(LoadAction.LOAD0)
                             .setArgs(newArgs);

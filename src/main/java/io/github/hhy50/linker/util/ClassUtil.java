@@ -121,7 +121,7 @@ public class ClassUtil {
             Class<?> pType = parameters[i].getType();
             String pName = pType.getCanonicalName();
             if (pType == Object.class && !argTypes[i].equals("java.lang.Object[]")) continue;
-            if (argTypes[i].equals(Object.class.getName())) continue;;
+            if (argTypes[i].equals(Object.class.getName())) continue;
             if (pName.equals(argTypes[i])) continue;
             if (pType == getPrimitiveClass(argTypes[i])) continue;
             return false;

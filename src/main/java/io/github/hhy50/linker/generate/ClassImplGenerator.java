@@ -44,25 +44,21 @@ public class ClassImplGenerator {
         byte[] bytecode = classBuilder.end().toBytecode();
         String outputPath = System.getProperty("linker.output.path");
         if (!StringUtil.isEmpty(outputPath)) {
-            Files.write(new File(outputPath, ClassUtil.toSimpleName(implClassName)+".class").toPath(), bytecode);
+            Files.write(new File(outputPath, ClassUtil.toSimpleName(implClassName) + ".class").toPath(), bytecode);
         }
         defineClass.setBytecode(bytecode);
     }
 
     private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodBody body, AbsMethodDefine absMethodDefine) {
         MethodHandle mh = null;
-        if (absMethodDefine.hasGetter()) {
-            mh = BytecodeFactory.generateGetter(classBuilder, absMethodDefine, absMethodDefine.fieldRef);
-        } else if (absMethodDefine.hasSetter()) {
-            mh = BytecodeFactory.generateSetter(classBuilder, absMethodDefine, absMethodDefine.fieldRef);
-        } else if (absMethodDefine.methodRef != null) {
+        if (absMethodDefine.methodRef != null) {
             mh = BytecodeFactory.generateInvoker(classBuilder, absMethodDefine, absMethodDefine.methodRef);
         } else {
             AsmUtil.throwNoSuchMethod(body.getWriter(), absMethodDefine.method.getName());
         }
         if (mh != null) {
             mh.define(classBuilder);
-            mh.invoke(body);
+//            mh.invoke(body);
         }
     }
 }

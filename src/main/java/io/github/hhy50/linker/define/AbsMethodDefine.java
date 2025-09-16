@@ -3,7 +3,7 @@ package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.define.method.MethodRef;
+import io.github.hhy50.linker.define.method.MethodExprRef;
 
 import java.lang.reflect.Method;
 
@@ -25,7 +25,7 @@ public class AbsMethodDefine {
     /**
      * The Method ref.
      */
-    public MethodRef methodRef;
+    public MethodExprRef methodRef;
 
     /**
      * Instantiates a new Method define.

@@ -2,9 +2,6 @@ package io.github.hhy50.linker.define.field;
 
 
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
-
-import java.util.List;
-
 import org.objectweb.asm.Type;
 
 /**
@@ -23,87 +20,20 @@ public abstract class FieldRef {
     protected String fullName;
 
     /**
-     * The field Index
+     * The Type.
      */
-    private List<Object> index;
-
-    /**
-     * The Nullable.
-     */
-    protected boolean nullable;
-
-    /**
-     * The Default value.
-     */
-    protected String defaultValue;
+    protected final Class<?> type;
 
     /**
      * Instantiates a new Field ref.
      *
-     * @param prev the prev
+     * @param fullName the fullName
      * @param name the name
      */
-    public FieldRef(String fullName, String name) {
+    public FieldRef(String fullName, String name, Class<?> type) {
         this.fullName = fullName;
         this.fieldName = name;
-    }
-
-    /**
-     * Gets unique name.
-     *
-     * @return the unique name
-     */
-    public String getUniqueName() {
-        String prefix = "";
-        if (prev != null) {
-            prefix = prev.getUniqueName()+"_$_";
-        }
-        return prefix+fieldName;
-    }
-
-    /**
-     * Gets getter name.
-     *
-     * @return the getter name
-     */
-    public String getGetterName() {
-        return getUniqueName()+"_getter_mh";
-    }
-
-    /**
-     * Gets setter name.
-     *
-     * @return the setter name
-     */
-    public String getSetterName() {
-        return getUniqueName()+"_setter_mh";
-    }
-
-    /**
-     * Gets type.
-     *
-     * @return the type
-     */
-    public Type getType() {
-        return ObjectVar.TYPE;
-    }
-
-    /**
-     * Gets prev.
-     *
-     * @return the prev
-     */
-    public FieldRef getPrev() {
-        return prev;
-    }
-
-    /**
-     * Sets full name.
-     *
-     * @param fullName the full name
-     */
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+        this.type = type;
     }
 
     /**
@@ -116,55 +46,20 @@ public abstract class FieldRef {
     }
 
     /**
+     * Gets type.
+     *
+     * @return the type
+     */
+    public Type getType() {
+        return ObjectVar.TYPE;
+    }
+
+    /**
      * Gets actual type.
      *
      * @return the actual type
      */
     public Class<?> getActualType() {
         return Object.class;
-    }
-
-    /**
-     * Is nullable boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    /**
-     * Sets nullable.
-     *
-     * @param nullable the nullable
-     */
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
-    }
-
-    /**
-     * Sets default value.
-     *
-     * @param defaultValue the default value
-     */
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    /**
-     * Gets default value.
-     *
-     * @return the default value
-     */
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this.getClass() != obj.getClass()) {
-            return false;
-        }
-        return super.equals(obj);
     }
 }

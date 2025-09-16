@@ -10,17 +10,17 @@ import java.util.List;
 public class MethodExprRef extends MethodRef {
 
     private final Method method;
-    private final List<Object> statements;
+    private final List<MethodRef> methodRefs;
     private final ArgsDepAnalysis argsDepAnalysis;
 
     /**
      * Instantiates a new Method ref.
      *
      */
-    public MethodExprRef(Method method, List<Object> statements, ArgsDepAnalysis argsDepAnalysis) {
+    public MethodExprRef(Method method, List<MethodRef> methodRefs, ArgsDepAnalysis argsDepAnalysis) {
         super(method.getName(), method.getName());
         this.method = method;
-        this.statements = statements;
+        this.methodRefs = methodRefs;
         this.argsDepAnalysis = argsDepAnalysis;
     }
 
