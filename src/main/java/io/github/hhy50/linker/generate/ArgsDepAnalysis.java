@@ -1,37 +1,26 @@
 package io.github.hhy50.linker.generate;
 
 
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.token.ArgsToken;
 import io.github.hhy50.linker.token.PlaceholderToken;
 import io.github.hhy50.linker.token.Token;
 import io.github.hhy50.linker.token.Tokens;
 import org.objectweb.asm.Type;
 
-import java.util.Arrays;
-
 /**
  * 参数依赖分析
  */
 public class ArgsDepAnalysis {
 
-    private Class[] argsType;
-
     /**
      *
      */
     int[] argsStack;
-    Type[] argsType2;
-    Type rType;
+    Type[] argsType;
+    Type rType = Type.VOID_TYPE;
+
     public ArgsDepAnalysis() {
 
-    }
-
-    public ArgsDepAnalysis(Class[] argsType) {
-        this.argsType = argsType;
-        this.argsStack = new int[argsType.length];
-        this.argsType2 = new Type[argsType.length];
-        Arrays.fill(this.argsType2, ObjectVar.TYPE);
     }
 
     public void analyse(Type methodType, ArgsToken argsToken) {
@@ -42,7 +31,7 @@ public class ArgsDepAnalysis {
             if (arg instanceof PlaceholderToken) {
                 int index = ((PlaceholderToken) arg).index;
                 argsStack[index] += 1;
-                argsType2[index] = argumentTypes[i];
+                argsType[index] = argumentTypes[i];
             }
         }
     }
@@ -52,7 +41,10 @@ public class ArgsDepAnalysis {
     }
 
     public Type[] getArgsType() {
-        return argsType2;
+        if (argsType == null || argsType.length == 0) {
+            return new Type[0];
+        }
+        return argsType;
     }
 
     public void analyse(Tokens exprTokens) {

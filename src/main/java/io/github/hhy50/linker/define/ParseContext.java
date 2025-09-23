@@ -206,16 +206,15 @@ public class ParseContext {
             tokenList.add(tokensIterator.next());
         }
 
-        ArgsDepAnalysis argsDepAnalysis = new ArgsDepAnalysis(methodDefine.getParameterTypes());
+        MethodExprRef methodExprRef = new MethodExprRef(methodDefine);
         Class<?> curType = root.getActualType();
-        ArrayList<MethodRef> methods = new ArrayList<>();
         for (SplitToken splitToken : tokenList) {
             Tokens fieldsToken = (Tokens) splitToken.prefix;
             MethodToken methodToken = (MethodToken) splitToken.suffix;
 
             if (fieldsToken != null && fieldsToken.size() > 0) {
                 for (FieldRef fieldRef : parseFieldExpr(curType, fieldsToken)) {
-                    methods.add(new FieldGetterMethodRef(fieldRef));
+                    methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef), null);
                     curType = fieldRef.getActualType();
                 }
             }
@@ -233,11 +232,10 @@ public class ParseContext {
                     curType = Object.class;
                 }
                 m.setSuperClass(invokeSuper);
-                methods.add(m);
-                argsDepAnalysis.analyse(m.getMethodType(), methodToken.getArgsToken());
+                methodExprRef.addStepMethod(m, methodToken.getArgsToken());
             }
         }
-        return new MethodExprRef(methodDefine, methods, argsDepAnalysis);
+        return methodExprRef;
     }
 
     private List<FieldRef> parseFieldExpr(Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
