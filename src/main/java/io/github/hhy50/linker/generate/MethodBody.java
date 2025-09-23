@@ -91,23 +91,6 @@ public class MethodBody {
     /**
      * New local var local var inst.
      *
-     * @param type      the type
-     * @param fieldName the field name
-     * @param action    the action
-     * @return the local var inst
-     */
-    public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
-        LocalVarInst localVarInst = new LocalVarInst(this, lvbIndex++, type, fieldName);
-        if (type.getSort() == Type.LONG || type.getSort() == Type.DOUBLE) {
-            lvbIndex++;
-        }
-        if (action != null) append(localVarInst.store(action));
-        return localVarInst;
-    }
-
-    /**
-     * New local var local var inst.
-     *
      * @param action the action
      * @return local var inst
      */
@@ -125,6 +108,23 @@ public class MethodBody {
     public LocalVarInst newLocalVar(String name, TypedAction action) {
         Type type = action.getType();
         return newLocalVar(type, name, action);
+    }
+
+    /**
+     * New local var local var inst.
+     *
+     * @param type      the type
+     * @param fieldName the field name
+     * @param action    the action
+     * @return the local var inst
+     */
+    public LocalVarInst newLocalVar(Type type, String fieldName, Action action) {
+        LocalVarInst localVarInst = new LocalVarInst(this, lvbIndex++, type, fieldName);
+        if (type.getSort() == Type.LONG || type.getSort() == Type.DOUBLE) {
+            lvbIndex++;
+        }
+        if (action != null) append(localVarInst.store(action));
+        return localVarInst;
     }
 
     /**

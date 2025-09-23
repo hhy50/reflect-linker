@@ -2,7 +2,6 @@ package io.github.hhy50.linker.define;
 
 
 import io.github.hhy50.linker.annotations.Field;
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.MethodExprRef;
 
 import java.lang.reflect.Method;
@@ -16,11 +15,6 @@ public class AbsMethodDefine {
      * The Method.
      */
     public Method method;
-
-    /**
-     * The Field ref.
-     */
-    public FieldRef fieldRef;
 
     /**
      * The Method ref.
@@ -52,18 +46,6 @@ public class AbsMethodDefine {
      */
     public boolean hasGetter() {
         return method.getDeclaredAnnotation(Field.Getter.class) != null;
-    }
-
-    /**
-     * Gets name.
-     *
-     * @return the name
-     */
-    public String getName() {
-        if (fieldRef != null) {
-            return fieldRef.getUniqueName();
-        }
-        return method.getName();
     }
 
     /**

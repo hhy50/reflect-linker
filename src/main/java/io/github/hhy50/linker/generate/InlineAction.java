@@ -1,9 +1,10 @@
 package io.github.hhy50.linker.generate;
 
 
-import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
 public interface InlineAction {
 
-    Action invoke(Action... args);
+    ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction);
 }

@@ -6,19 +6,24 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
-import io.github.hhy50.linker.generate.bytecode.utils.Args;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.util.TypeUtil;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 
 /**
  * The type Constructor.
  */
 public class Constructor extends Invoker<ConstructorRef> {
+
+    /**
+     * The Inline action.
+     */
+    public Function<ChainAction<VarInst[]>, VarInst> inlineAction;
 
     /**
      * Instantiates a new Constructor.
@@ -34,10 +39,14 @@ public class Constructor extends Invoker<ConstructorRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), null, descriptor.getType());
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), null, descriptor.getType());
         clinit.append(initStaticMethodHandle(mhMember, loadClass(method.getDeclareType()), null, descriptor.getType(), false));
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
-                .intercept(mhMember.invokeStatic(Args.loadArgs()).thenReturn());
+        this.inlineAction = args -> Actions.newLocalVar(mhMember.invokeStatic(args));
+    }
+
+    @Override
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
+        return varInstChain.map(__ -> inlineAction.apply(argsChainAction));
     }
 
     @Override

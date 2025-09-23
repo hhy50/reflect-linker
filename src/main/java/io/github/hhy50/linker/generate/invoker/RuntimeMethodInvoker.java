@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.annotations.Autolink;
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
@@ -10,7 +9,6 @@ import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -33,10 +31,6 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         boolean autolink = method.isAutolink();
-        FieldRef owner = method.getOwner();
-        Getter ownerGetter = classImplBuilder.getGetter(owner);
-        ownerGetter.define(classImplBuilder);
-
         Type mhType = descriptor.getType();
         Action args = autolink ? Actions.asArray(ObjectVar.TYPE, Args.loadArgsIgnore0()) : Args.loadArgsIgnore0();
         if (autolink) {
@@ -45,17 +39,17 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
             mhType = Type.getMethodType(descriptor.getReturnType(), Type.getType(Object[].class));
             method.setArgsType(new Type[]{Type.getType(Autolink.class)});
         }
-        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(method.getUniqueName());
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), mhType);
+        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(method.getFullName());
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getFullName(), mhType);
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
                 .intercept(ChainAction.of(() -> Args.of(0))
-                                .then(ownerVar -> checkLookClass(lookupClass, ownerVar, ownerGetter))
+                                .then(ownerVar -> checkLookClass(lookupClass, ownerVar, null))
                                 .then(ownerVar -> {
-                                    ClassTypeMember prevLookupClass = ownerGetter.lookupClass;
-                                    if (prevLookupClass != null) {
-                                        return staticCheckClass(lookupClass, owner.fieldName, prevLookupClass);
-                                    }
+//                                    ClassTypeMember prevLookupClass = ownerGetter.lookupClass;
+//                                    if (prevLookupClass != null) {
+//                                        return staticCheckClass(lookupClass, owner.fieldName, prevLookupClass);
+//                                    }
                                     return null;
                                 })
                                 .then(ownerVar -> checkMethodHandle(lookupClass, mhMember, ownerVar))
@@ -71,12 +65,9 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
         return varInstChain.then(VarInst::checkNullPointer)
                 .mapVar(varInst -> {
-                    Action[] newArgs = new Action[argsChainAction.length+1];
-                    newArgs[0] = varInst;
-                    System.arraycopy(argsChainAction, 0, newArgs, 1, argsChainAction.length);
                     return new SmartMethodInvokeAction(descriptor)
                             .setInstance(LoadAction.LOAD0)
-                            .setArgs(newArgs);
+                            .setArgs(varInst, argsChainAction);
                 });
     }
 }

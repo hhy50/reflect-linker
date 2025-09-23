@@ -50,12 +50,11 @@ public abstract class MethodRef {
     }
 
     /**
-     * Gets unique name.
-     *
-     * @return the full name
+     * Gets full name.
+     * @return
      */
-    public String getUniqueName() {
-        return this.fullName.replace('.', '$');
+    public String getFullName() {
+        return fullName;
     }
 
     /**

@@ -77,4 +77,8 @@ public class EarlyFieldRef extends FieldRef {
         }
         return this.type;
     }
+
+    public Type getLookupClass() {
+        return Type.getType(lookup);
+    }
 }

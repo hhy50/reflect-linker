@@ -24,10 +24,6 @@ public class MethodExprRef extends MethodRef {
         this.argsDepAnalysis = argsDepAnalysis;
     }
 
-    // public List<Object> getStatement() {
-    //     return statements;
-    // }
-
     @Override
     public Type getMethodType() {
         return Type.getMethodType(argsDepAnalysis.getReturnType(), argsDepAnalysis.getArgsType());

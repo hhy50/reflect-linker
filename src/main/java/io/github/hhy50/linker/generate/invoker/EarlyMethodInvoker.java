@@ -4,7 +4,6 @@ import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -20,7 +19,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     /**
      * 内联方法调用。父类的invoke是调用这个 mh的单独生成的方法
      */
-    protected BiFunction<VarInst, Action[], VarInst> inlineAction;
+    protected BiFunction<VarInst, ChainAction<VarInst[]>, VarInst> inlineAction;
 
     /**
      * Instantiates a new Early method invoker.
@@ -36,7 +35,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getLookupClass(), descriptor.getType());
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), method.getLookupClass(), descriptor.getType());
         clinit.append(initStaticMethodHandle(mhMember,
                 loadClass(method.getLookupClass()), method.getName(), method.getDeclareType(), method.isStatic()));
         mhMember.setInvokeExact(!method.isInvisible());

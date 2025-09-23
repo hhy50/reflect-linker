@@ -1,14 +1,13 @@
 package io.github.hhy50.linker.define.method;
 
-import org.objectweb.asm.Type;
-
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.invoker.Invoker;
+import org.objectweb.asm.Type;
 
-public class FieldGetterMethod extends MethodRef {
+public class FieldGetterMethodRef extends MethodRef {
     private final FieldRef field;
 
-    public FieldGetterMethod(FieldRef field) {
+    public FieldGetterMethodRef(FieldRef field) {
         super("get_" + field.getFullName(), "get_" + field.getFullName());
         this.field = field;
     }

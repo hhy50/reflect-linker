@@ -40,7 +40,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      */
     public Invoker(T method, Type mType) {
         this.method = method;
-        this.descriptor = new SmartMethodDescriptor("invoke_"+method.getUniqueName(), mType);
+        this.descriptor = new SmartMethodDescriptor("invoke_"+method.getFullName().replace(".", "/"), mType);
     }
 
     @Override

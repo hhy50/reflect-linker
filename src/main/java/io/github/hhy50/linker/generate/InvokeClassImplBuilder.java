@@ -3,13 +3,12 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
-import io.github.hhy50.linker.generate.getter.Getter;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
-import io.github.hhy50.linker.generate.setter.Setter;
+import io.github.hhy50.linker.generate.invoker.Getter;
+import io.github.hhy50.linker.generate.invoker.Setter;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -24,6 +23,7 @@ import static io.github.hhy50.linker.util.TypeUtil.METHOD_HANDLER_TYPE;
  */
 public class InvokeClassImplBuilder extends AsmClassBuilder {
     private Class<?> defineClass;
+    private TargetFieldGetter targetGetter;
     private final Map<String, Getter> getters;
     private final Map<String, Setter> setters;
 
@@ -86,62 +86,25 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the target
      */
     public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
-        EarlyFieldRef targetField = new EarlyFieldRef(null, "target", bindTarget);
-        TargetFieldGetter targetFieldGetter = new TargetFieldGetter(targetField);
-
-        this.getters.put(targetField.getUniqueName(), targetFieldGetter);
+        EarlyFieldRef targetField = new EarlyFieldRef("target", bindTarget);
+        this.targetGetter = new TargetFieldGetter(targetField);
         return this;
-    }
-
-    /**
-     * Define getter getter.
-     *
-     * @param fieldRef the field ref
-     * @return the getter
-     */
-    public Getter defineGetter(FieldRef fieldRef) {
-        return getters.computeIfAbsent(fieldRef.getUniqueName(), key -> {
-            return new Getter(fieldRef);
-        });
-    }
-
-    /**
-     * Gets getter.
-     *
-     * @param fieldRef the field ref
-     * @return the getter
-     */
-    public Getter getGetter(FieldRef fieldRef) {
-        String uniqueName = fieldRef.getUniqueName();
-        return getters.get(uniqueName);
-    }
-
-    /**
-     * Define setter setter.
-     *
-     * @param fieldName the field name
-     * @param fieldRef  the field ref
-     * @return the setter
-     */
-    public Setter defineSetter(String fieldName, FieldRef fieldRef) {
-        return setters.computeIfAbsent(fieldName, key -> {
-            return new Setter(getClassName(), fieldRef);
-        });
     }
 
     /**
      * Define static method handle method handle member.
      *
-     * @param fieldName  the mh member name
+     * @param fullName   the fullName
      * @param lookupType the method invokedType
      * @param methodType the method type
      * @return the method handle member
      */
-    public MethodHandleMember defineStaticMethodHandle(String fieldName, Type lookupType, Type methodType) {
-        AsmField field = getField(fieldName);
+    public MethodHandleMember defineStaticMethodHandle(String fullName, Type lookupType, Type methodType) {
+        fullName = fullName.replace('.', '_');
+        AsmField field = getField(fullName);
         if (field == null) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            field = super.visitField(access, fieldName, METHOD_HANDLER_TYPE, null, null);
+            field = super.visitField(access, fullName, METHOD_HANDLER_TYPE, null, null);
         }
         return new MethodHandleMember(field, lookupType, methodType);
     }
@@ -149,14 +112,15 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define method handle method handle member.
      *
-     * @param fieldName  the mh member name
-     * @param methodType the method type
-     * @return the method handle member
+     * @param fullName
+     * @param methodType
+     * @return
      */
-    public MethodHandleMember defineMethodHandle(String fieldName, Type methodType) {
-        AsmField field = getField(fieldName);
+    public MethodHandleMember defineMethodHandle(String fullName, Type methodType) {
+        fullName = fullName.replace('.', '_');
+        AsmField field = getField(fullName);
         if (field == null) {
-            field = super.visitField(Opcodes.ACC_PUBLIC, fieldName, METHOD_HANDLER_TYPE, null, null);
+            field = super.visitField(Opcodes.ACC_PUBLIC, fullName, METHOD_HANDLER_TYPE, null, null);
         }
         return new MethodHandleMember(field, methodType);
     }
@@ -164,14 +128,14 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define lookup class class type member.
      *
-     * @param mName the m name
+     * @param fullName the fullName
      * @return the class type member
      */
-    public ClassTypeMember defineLookupClass(String mName) {
-        mName = mName+"_lookup_$_class_type";
-        AsmField field = getField(mName);
+    public ClassTypeMember defineLookupClass(String fullName) {
+        fullName = fullName.replace('.', '_') + "_lookup_$_class_type";
+        AsmField field = getField(fullName);
         if (field == null) {
-            field = super.visitField(Opcodes.ACC_PUBLIC, mName, TypeUtil.CLASS_TYPE, null, null);
+            field = super.visitField(Opcodes.ACC_PUBLIC, fullName, TypeUtil.CLASS_TYPE, null, null);
         }
         return new ClassTypeMember(field);
     }

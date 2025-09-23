@@ -5,6 +5,7 @@ import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.annotations.Typed;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collections;
@@ -92,5 +93,9 @@ public class AnnotationUtils {
     public static boolean isAutolink(Method method) {
         return (method.getDeclaredAnnotation(Autolink.class) != null ||
                 method.getDeclaringClass().getDeclaredAnnotation(Autolink.class) != null);
+    }
+
+    public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+        return clazz.getDeclaredAnnotation(annotationClass) != null;
     }
 }

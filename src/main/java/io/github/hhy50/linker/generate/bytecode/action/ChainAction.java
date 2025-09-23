@@ -3,7 +3,6 @@ package io.github.hhy50.linker.generate.bytecode.action;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -47,7 +46,7 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
     /**
      * Of chain action.
      *
-     * @param <T>    the type parameter
+     * @param <T>      the type parameter
      * @param provider the provider
      * @return the chain action
      */
@@ -69,16 +68,6 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         return this;
     }
 
-    /**
-     * Then chain action.
-     *
-     * @param func the func
-     * @return the chain action
-     */
-    public ChainAction<T> then(BiConsumer<MethodBody, T> func) {
-        addConsumer(func);
-        return this;
-    }
 
     /**
      * Map chain action.
@@ -98,14 +87,14 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
      * @param func  the func
      * @return the chain action
      */
-    public <Out> ChainAction<Out> map(BiFunction<MethodBody, T, Out> func) {
+    public <Out> ChainAction<Out> mapBody(BiFunction<MethodBody, T, Out> func) {
         return new Next<>(this, func);
     }
 
     /**
      * Map chain action.
      *
-     * @param func  the func
+     * @param func the func
      * @return the chain action
      */
     public ChainAction<VarInst> mapVar(Function<T, TypedAction> func) {

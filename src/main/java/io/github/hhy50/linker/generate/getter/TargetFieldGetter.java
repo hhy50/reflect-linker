@@ -12,6 +12,7 @@ import io.github.hhy50.linker.generate.bytecode.utils.Members;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.invoker.Getter;
 import io.github.hhy50.linker.util.AnnotationUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

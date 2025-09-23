@@ -1,11 +1,10 @@
-package io.github.hhy50.linker.generate.getter;
+package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
-import io.github.hhy50.linker.generate.FieldOpsMethodHandler;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
@@ -34,7 +33,7 @@ public class Getter extends FieldOpsMethodHandler {
      * @param field the field
      */
     public Getter(FieldRef field) {
-        super(field.getGetterName(), new SmartMethodDescriptor("get_" + field.getUniqueName(),
+        super(field.getFullName(), new SmartMethodDescriptor("get_" + field.getFullName().replace('.', '_'),
                 Type.getMethodType(field.getType())));
         this.field = field;
         this.fieldName = field.fieldName;
@@ -42,25 +41,21 @@ public class Getter extends FieldOpsMethodHandler {
 
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         if (field instanceof RuntimeFieldRef) {
-            this.lookupClass = classImplBuilder.defineLookupClass(field.getUniqueName());
+            this.lookupClass = classImplBuilder.defineLookupClass(fullName);
             super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
         } else if (field instanceof EarlyFieldRef) {
             super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
-        } else if (field instanceof FieldIndexRef) {
-            super.defineIndexMethod(classImplBuilder, (FieldIndexRef) field);
         }
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
-        Action invoker;
+    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> __) {
         if (super.inlineMhInvoker != null) {
-            invoker = super.inlineMhInvoker.invoke();
-        } else {
-            invoker = new SmartMethodInvokeAction(descriptor)
-                    .setInstance(LoadAction.LOAD0);
+            return super.inlineMhInvoker.invoke(varInstChain, null);
         }
-        return methodBody.newLocalVar(descriptor.getReturnType(), fieldName, invoker);
+        return varInstChain.map(varInst -> Actions.newLocalVar(new SmartMethodInvokeAction(descriptor)
+                .setInstance(LoadAction.LOAD0)
+                .setArgs(varInst)));
     }
 
     @Override
@@ -76,12 +71,5 @@ public class Getter extends FieldOpsMethodHandler {
         findGetter.setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
         return mhMember.store(findGetter);
-    }
-
-    public static Action checkNull(FieldRef field, VarInst varInst) {
-        if (field.isNullable()) {
-            return Actions.empty();
-        }
-        return varInst.checkNullPointer();
     }
 }

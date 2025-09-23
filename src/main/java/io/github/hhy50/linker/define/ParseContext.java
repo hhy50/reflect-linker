@@ -2,7 +2,9 @@ package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.annotations.Builtin;
 import io.github.hhy50.linker.annotations.Verify;
-import io.github.hhy50.linker.define.field.*;
+import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.define.method.*;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
@@ -140,8 +142,7 @@ public class ParseContext {
 
         for (Method method : this.defineClass.getMethods()) {
             if (!Modifier.isAbstract(method.getModifiers())) continue;
-            Builtin builtin = method.getDeclaringClass().getDeclaredAnnotation(Builtin.class);
-            if (builtin != null) {
+            if (AnnotationUtils.hasAnnotation(method.getDeclaringClass(), Builtin.class)) {
                 continue;
             }
             preParse(method);
@@ -168,12 +169,14 @@ public class ParseContext {
 
         AbsMethodDefine absMethodDefine = new AbsMethodDefine(method);
         Class<?> rootType = root.getActualType();
-        if (getter != null || setter != null) {
-            String exprStr = Util.getOrElseDefault(Optional.ofNullable(getter).map(io.github.hhy50.linker.annotations.Field.Getter::value)
-                    .orElseGet(setter::value), method.getName());
+        if (getter != null) {
+            String methodExpr = getter.value();
+            absMethodDefine.methodRef = parseMethodExpr(method, tokenParser.parse(methodExpr));
+        } else if (setter != null) {
+            String exprStr = setter.value();
             Tokens tokens = tokenParser.parse(exprStr);
-            parseFieldExpr(rootType, tokens);
-//            absMethodDefine.fieldRef = parseFieldExpr(targetClass, tokens);
+            List<FieldRef> fieldRefs = parseFieldExpr(rootType, tokens);
+//            absMethodDefine.methodRef = new FieldGetterMethodRef(fieldRefs);
         } else if (absMethodDefine.hasConstructor()) {
             String[] argsType = parseArgsType(method, null, true);
             Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, argsType);
@@ -212,7 +215,7 @@ public class ParseContext {
 
             if (fieldsToken != null && fieldsToken.size() > 0) {
                 for (FieldRef fieldRef : parseFieldExpr(curType, fieldsToken)) {
-                    methods.add(new FieldGetterMethod(fieldRef));
+                    methods.add(new FieldGetterMethodRef(fieldRef));
                     curType = fieldRef.getActualType();
                 }
             }

@@ -89,6 +89,18 @@ public class MethodHandleMember extends Member {
                 .setArgs(args);
     }
 
+//    /**
+//     * Invoke static action.
+//     *
+//     * @param args the args
+//     * @return the action
+//     */
+//    public MethodInvokeAction invokeStatic(ChainAction<VarInst[]> args) {
+//        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke", methodType))
+//                .setInstance(this)
+//                .setArgs(args);
+//    }
+
     /**
      * Invoke instance action.
      *
