@@ -4,7 +4,6 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.token.ArgsToken;
 import io.github.hhy50.linker.token.PlaceholderToken;
 import io.github.hhy50.linker.token.Token;
-import io.github.hhy50.linker.token.Tokens;
 import org.objectweb.asm.Type;
 
 /**
@@ -45,10 +44,5 @@ public class ArgsDepAnalysis {
             return new Type[0];
         }
         return argsType;
-    }
-
-    public void analyse(Tokens exprTokens) {
-        int size = exprTokens.size();
-//        exprTokens
     }
 }

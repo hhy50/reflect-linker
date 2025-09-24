@@ -4,6 +4,7 @@ import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
+import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
@@ -18,28 +19,27 @@ public class InvokerDecorator extends AbstractDecorator {
     /**
      * The Real invoker.
      */
-    protected Invoker<?> realInvoker;
+    protected MethodHandle realMh;
     private final AbsMethodDefine absMethodDefine;
     private final boolean isConstructor;
 
     /**
      * Instantiates a new Invoker decorator.
      *
-     * @param realInvoker     the real invoker
+     * @param realMh          the real MH
      * @param absMethodDefine the method define
      */
-    public InvokerDecorator(Invoker<?> realInvoker, AbsMethodDefine absMethodDefine) {
+    public InvokerDecorator(MethodHandle realMh, AbsMethodDefine absMethodDefine) {
         super(absMethodDefine);
-        Objects.requireNonNull(realInvoker);
-
-        this.realInvoker = realInvoker;
+        Objects.requireNonNull(realMh);
+        this.realMh = realMh;
         this.absMethodDefine = absMethodDefine;
         this.isConstructor = absMethodDefine.hasConstructor();
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        this.realInvoker.define(classImplBuilder);
+        this.realMh.define(classImplBuilder);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class InvokerDecorator extends AbstractDecorator {
         Type[] argsType = methodRef.getMethodType().getArgumentTypes();
         Class<?> rClassType = absMethodDefine.method.getReturnType();
 
-        return realInvoker.invoke(null, originArgs.map(a -> typecastArgs(a, argsType)))
+        return realMh.invoke(null, originArgs.map(a -> typecastArgs(a, argsType)))
                 .then(varInst -> {
                     return null;
                 });

@@ -40,6 +40,15 @@ public class Tokens implements Iterable<Token>, Token {
         return size;
     }
 
+    public Kind kind() {
+        return Kind.Tokens;
+    }
+
+    @Override
+    public Iterator iterator() {
+        return new Iterator();
+    }
+
     /**
      * Split with MethodToken.
      *
@@ -72,11 +81,6 @@ public class Tokens implements Iterable<Token>, Token {
             this.token = token;
             this.next = node;
         }
-    }
-
-    @Override
-    public Iterator iterator() {
-        return new Iterator();
     }
 
     @Override

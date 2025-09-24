@@ -9,10 +9,8 @@ import io.github.hhy50.linker.define.method.*;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
-import io.github.hhy50.linker.generate.ArgsDepAnalysis;
 import io.github.hhy50.linker.token.*;
 import io.github.hhy50.linker.util.*;
-import org.objectweb.asm.Type;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -147,8 +145,8 @@ public class ParseContext {
             }
             preParse(method);
             AbsMethodDefine absMethod = parseMethod(method);
-            absMethodDefines.add(absMethod);
             postParse(absMethod);
+            absMethodDefines.add(absMethod);
         }
         return absMethodDefines;
     }
@@ -243,9 +241,8 @@ public class ParseContext {
         String fullField = null;
 
         List<FieldRef> fields = new ArrayList<>();
-        fields.add(root);
         for (Token item : tokens) {
-            if (!(item instanceof FieldToken)) {
+            if (item.kind() != Token.Kind.Field) {
                 throw new ParseException("Field token expected, but " + item.getClass().getSimpleName() + " found");
             }
             FieldToken token = (FieldToken) item;
@@ -278,13 +275,14 @@ public class ParseContext {
             return Arrays.stream(methodDefine.getParameters())
                     .map(ParseUtil::getRawType).toArray(String[]::new);
         }
-        List<ArgType> args = methodToken.getArgsType();
-        return args.stream()
-                .map(item -> {
-                    Type type = item.getType(this, methodDefine);
-                    return type;
-                })
-                .map(Type::getClassName).toArray(String[]::new);
+//        Tokens args = methodToken.getArgsToken();
+//        return args.stream()
+//                .map(item -> {
+//                    Type type = item.getType(this, methodDefine);
+//                    return type;
+//                })
+//                .map(Type::getClassName).toArray(String[]::new);
+        return null;
     }
 
     private Class<?> getFieldTyped(String fullField, String tokenValue) throws ClassNotFoundException {

@@ -4,6 +4,7 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.InterfaceImplClass;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.StringUtil;
 import org.objectweb.asm.Opcodes;
@@ -58,7 +59,7 @@ public class ClassImplGenerator {
         }
         if (mh != null) {
             mh.define(classBuilder);
-//            mh.invoke(body);
+            body.append(mh.invoke(null, ChainAction.of(MethodBody::getArgs)));
         }
     }
 }

@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.generate.invoker.Invoker;
+import io.github.hhy50.linker.define.MethodHandleProvider;
 import org.objectweb.asm.Type;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * The type Method ref.
  */
-public abstract class MethodRef {
+public abstract class MethodRef implements MethodHandleProvider {
     /**
      * The constant COUNTER.
      */
@@ -81,11 +81,4 @@ public abstract class MethodRef {
      * @return the method type
      */
     public abstract Type getMethodType();
-
-    /**
-     * Define invoker invoker.
-     *
-     * @return the invoker
-     */
-    public abstract Invoker<?> defineInvoker();
 }

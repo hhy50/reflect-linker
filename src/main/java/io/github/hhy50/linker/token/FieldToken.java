@@ -42,8 +42,13 @@ public class FieldToken implements Token {
         return ReflectUtil.getField(owner, fieldName);
     }
 
-    public void setIndex(IndexToken index) {
-        this.index = index;
+    @Override
+    public Kind kind() {
+        return Kind.Field;
+    }
+
+    public void setIndex(List<ConstToken> index) {
+        this.index = new IndexToken(index);
     }
 
     /**

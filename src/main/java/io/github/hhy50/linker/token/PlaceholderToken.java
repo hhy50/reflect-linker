@@ -12,7 +12,7 @@ import java.lang.reflect.Parameter;
 /**
  * The type Placeholder token.
  */
-public class PlaceholderToken implements Token, ArgType {
+public class PlaceholderToken implements Token {
 
     /**
      * The Index.
@@ -29,11 +29,15 @@ public class PlaceholderToken implements Token, ArgType {
     }
 
     @Override
+    public Kind kind() {
+        return Kind.Placeholder;
+    }
+
+    @Override
     public String toString() {
         return "$"+index;
     }
 
-    @Override
     public Type getType(ParseContext context, Method methodDefine) {
         Parameter[] parameterTypes = methodDefine.getParameters();
         if (parameterTypes.length-1 < index) {

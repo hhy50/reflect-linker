@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
+import io.github.hhy50.linker.define.MethodHandleProvider;
 import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -13,6 +14,7 @@ import java.util.List;
 
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
     List<MethodHandle> invokers;
+
     /**
      * Instantiates a new Invoker.
      *
@@ -25,7 +27,11 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-
+        for (MethodHandleProvider provider : method.getStepMethods()) {
+            MethodHandle mh = provider.defineInvoker();
+            mh.define(classImplBuilder);
+            invokers.add(mh);
+        }
     }
 
     public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {

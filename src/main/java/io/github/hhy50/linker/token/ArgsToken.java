@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 /**
  * The type Args token.
  */
-public class ArgsToken implements Token {
+public class ArgsToken {
     /**
      * The Args.
      */

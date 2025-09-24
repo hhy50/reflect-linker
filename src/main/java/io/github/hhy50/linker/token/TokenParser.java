@@ -219,7 +219,7 @@ public class TokenParser {
          *
          * @return the index token
          */
-        public IndexToken parseIndexToken() {
+        public List<ConstToken> parseIndexToken() {
             if (tokenSymbols[pos] != INDEX_ACCESS_START_SYMBOL) {
                 return null;
             }
@@ -240,7 +240,7 @@ public class TokenParser {
                 pos++; // 跳过 ]
             }
             assert index.size() > 0;
-            return new IndexToken(index);
+            return index;
         }
 
         /**
@@ -260,7 +260,7 @@ public class TokenParser {
             while (pos < tokenSymbols.length && tokenSymbols[pos] != METHOD_END_SYMBOL) {
                 if (tokenSymbols[pos] == '\'') {
                     args.add(parseString());
-                } else if (tokenSymbols[pos] > '0' && tokenSymbols[pos] <= '9') {
+                } else if (tokenSymbols[pos] >= '0' && tokenSymbols[pos] <= '9') {
                     args.add(parseInt());
                 } else if (tokenSymbols[pos] == '$') {
                     pos++;
