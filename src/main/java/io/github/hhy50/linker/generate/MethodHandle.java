@@ -61,10 +61,10 @@ public abstract class MethodHandle {
      * @param mhMember
      * @param lookupClass the lookup class
      * @param fieldName   the field name
-     * @param methodType  the method type
+     * @param mhType      the method type
      * @param isStatic    the is static
      */
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String fieldName, Type methodType, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String fieldName, Type mhType, boolean isStatic) {
         return Actions.empty();
     }
 

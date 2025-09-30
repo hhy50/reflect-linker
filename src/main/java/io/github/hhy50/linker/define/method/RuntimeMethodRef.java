@@ -36,7 +36,12 @@ public class RuntimeMethodRef extends MethodRef {
     }
 
     @Override
-    public Type getMethodType() {
+    public MethodHandle defineInvoker() {
+        return new RuntimeMethodInvoker(this);
+    }
+
+    @Override
+    public Type getMhType() {
         return methodType;
     }
 
@@ -104,10 +109,5 @@ public class RuntimeMethodRef extends MethodRef {
     public RuntimeMethodRef setAutolink(boolean autolink) {
         this.isAutolink = autolink;
         return this;
-    }
-
-    @Override
-    public MethodHandle defineInvoker() {
-        return new RuntimeMethodInvoker((RuntimeMethodRef) this);
     }
 }

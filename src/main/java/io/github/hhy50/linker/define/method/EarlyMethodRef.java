@@ -19,16 +19,16 @@ public class EarlyMethodRef extends MethodRef {
     /**
      * The Method.
      */
-    public Method method;
+    private final Method reflectMethod;
 
     /**
      * Instantiates a new Early method ref.
      *
-     * @param method the method
+     * @param reflectMethod the method
      */
-    public EarlyMethodRef(String fullName, Method method) {
-        super(fullName, method.getName());
-        this.method = method;
+    public EarlyMethodRef(String fullName, Method reflectMethod) {
+        super(fullName, reflectMethod.getName());
+        this.reflectMethod = reflectMethod;
     }
 
     /**
@@ -37,7 +37,7 @@ public class EarlyMethodRef extends MethodRef {
      * @return the boolean
      */
     public boolean isStatic() {
-        return Modifier.isStatic(method.getModifiers());
+        return Modifier.isStatic(reflectMethod.getModifiers());
     }
 
     /**
@@ -46,11 +46,11 @@ public class EarlyMethodRef extends MethodRef {
      * @return the lookup class
      */
     public Type getLookupClass() {
-        return Type.getType(method.getDeclaringClass());
+        return Type.getType(reflectMethod.getDeclaringClass());
     }
 
-    public Type getMethodType() {
-        Type type = Type.getType(this.method);
+    public Type getMhType() {
+        Type type = Type.getType(this.reflectMethod);
         if (isInvisible()) {
             return genericType(type);
         }
@@ -68,13 +68,13 @@ public class EarlyMethodRef extends MethodRef {
      * @return the declare type
      */
     public Type getDeclareType() {
-        return Type.getType(method);
+        return Type.getType(reflectMethod);
     }
 
     @Override
     public void setSuperClass(String superClass) {
         if (Objects.equals("", superClass))
-            this.superClass = method.getDeclaringClass().getName();
+            this.superClass = reflectMethod.getDeclaringClass().getName();
         else
             this.superClass = superClass;
     }
@@ -85,10 +85,10 @@ public class EarlyMethodRef extends MethodRef {
      * @return the boolean
      */
     public boolean isInvisible() {
-        if (!isPublic(method.getReturnType())) {
+        if (!isPublic(reflectMethod.getReturnType())) {
             return true;
         }
-        for (Class<?> parameterType : method.getParameterTypes()) {
+        for (Class<?> parameterType : reflectMethod.getParameterTypes()) {
             if (!isPublic(parameterType)) {
                 return true;
             }

@@ -39,8 +39,19 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      * @param mType  the m type
      */
     public Invoker(T method, Type mType) {
+        this("invoke_"+method.getFullName().replace(".", "/"), method, mType);
+    }
+
+    /**
+     * Instantiates a new Invoker.
+     *
+     * @param mName the mName
+     * @param method the method
+     * @param mType  the m type
+     */
+    public Invoker(String mName, T method, Type mType) {
         this.method = method;
-        this.descriptor = new SmartMethodDescriptor("invoke_"+method.getFullName().replace(".", "/"), mType);
+        this.descriptor = new SmartMethodDescriptor(mName, mType);
     }
 
     @Override
@@ -62,13 +73,13 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     }
 
     @Override
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String methodName, Type methodType, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String methodName, Type mhType, boolean isStatic) {
         String superClass = this.method.getSuperClass();
         boolean invokeSpecial = superClass != null & !isStatic;
         MethodInvokeAction findXXX;
-        Action argsType = Actions.asArray(TypeUtil.CLASS_TYPE, Arrays.stream(methodType.getArgumentTypes()).map(this::loadClass).toArray(Action[]::new));
-        Action returnType = methodType.getReturnType() == Type.VOID_TYPE || TypeUtil.isPrimitiveType(methodType.getReturnType())
-                ? LdcLoadAction.of(methodType.getReturnType()) : this.loadClass(methodType.getReturnType());
+        Action argsType = Actions.asArray(TypeUtil.CLASS_TYPE, Arrays.stream(mhType.getArgumentTypes()).map(this::loadClass).toArray(Action[]::new));
+        Action returnType = mhType.getReturnType() == Type.VOID_TYPE || TypeUtil.isPrimitiveType(mhType.getReturnType())
+                ? LdcLoadAction.of(mhType.getReturnType()) : this.loadClass(mhType.getReturnType());
         if (invokeSpecial) {
             findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDSPECIAL).setArgs(
                     LdcLoadAction.of(TypeUtil.getType(superClass)),

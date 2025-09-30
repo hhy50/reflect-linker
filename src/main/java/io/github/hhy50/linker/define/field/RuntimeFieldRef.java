@@ -1,5 +1,7 @@
 package io.github.hhy50.linker.define.field;
 
+import io.github.hhy50.linker.generate.MethodHandle;
+
 /**
  * The type Runtime field ref.
  */
@@ -17,6 +19,11 @@ public class RuntimeFieldRef extends FieldRef {
      */
     public RuntimeFieldRef(String fullName, String fieldName) {
         super(fullName, fieldName, Object.class);
+    }
+
+    @Override
+    public MethodHandle defineInvoker() {
+        return null;
     }
 
     /**

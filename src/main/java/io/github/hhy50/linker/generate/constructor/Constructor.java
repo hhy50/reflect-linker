@@ -31,7 +31,7 @@ public class Constructor extends Invoker<ConstructorRef> {
      * @param constructor the constructor ref
      */
     public Constructor(ConstructorRef constructor) {
-        super(constructor, constructor.getMethodType());
+        super(constructor, constructor.getMhType());
     }
 
     @Override
@@ -50,13 +50,13 @@ public class Constructor extends Invoker<ConstructorRef> {
     }
 
     @Override
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String args0, Type methodType, boolean args1) {
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String args0, Type mhType, boolean args1) {
         return mhMember.store(new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),
                                 Actions.asArray(TypeUtil.CLASS_TYPE,
-                                        Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
+                                        Arrays.stream(mhType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
 
                         )));
     }

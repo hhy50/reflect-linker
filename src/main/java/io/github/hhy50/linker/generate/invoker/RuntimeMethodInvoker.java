@@ -25,7 +25,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
      * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
-        super(methodRef, TypeUtil.appendArgs(methodRef.getMethodType(), ObjectVar.TYPE, true));
+        super(methodRef, TypeUtil.appendArgs(methodRef.getMhType(), ObjectVar.TYPE, true));
     }
 
     @Override

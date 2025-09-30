@@ -16,5 +16,5 @@ public interface MethodHandleProvider {
      *
      * @return
      */
-    Type getMethodType();
+    Type getMhType();
 }

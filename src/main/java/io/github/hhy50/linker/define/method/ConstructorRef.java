@@ -26,7 +26,7 @@ public class ConstructorRef extends MethodRef {
         this.constructor = constructor;
     }
 
-    public Type getMethodType() {
+    public Type getMhType() {
         Type rType = ObjectVar.TYPE;
         if (Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
             rType = Type.getType(constructor.getDeclaringClass());

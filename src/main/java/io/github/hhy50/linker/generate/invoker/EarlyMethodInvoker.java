@@ -27,7 +27,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
      * @param methodRef the method ref
      */
     public EarlyMethodInvoker(EarlyMethodRef methodRef) {
-        super(methodRef, TypeUtil.appendArgs(methodRef.getMethodType(), null, true));
+        super(methodRef, TypeUtil.appendArgs(methodRef.getMhType(), null, true));
     }
 
     @Override

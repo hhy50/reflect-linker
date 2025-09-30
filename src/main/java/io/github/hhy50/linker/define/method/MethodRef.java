@@ -80,5 +80,5 @@ public abstract class MethodRef implements MethodHandleProvider {
      *
      * @return the method type
      */
-    public abstract Type getMethodType();
+    public abstract Type getMhType();
 }
