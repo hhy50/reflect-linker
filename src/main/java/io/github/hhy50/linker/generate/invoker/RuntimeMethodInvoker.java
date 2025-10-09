@@ -31,18 +31,18 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         boolean autolink = method.isAutolink();
-        Type mhType = descriptor.getType();
+        Type mhType = super.methodType;
         Action args = autolink ? Actions.asArray(ObjectVar.TYPE, Args.loadArgsIgnore0()) : Args.loadArgsIgnore0();
         if (autolink) {
             // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
             // 约定将参数0设置为Autolink，以保证使用实参来查找方法
-            mhType = Type.getMethodType(descriptor.getReturnType(), Type.getType(Object[].class));
+            mhType = Type.getMethodType(mhType.getReturnType(), Type.getType(Object[].class));
             method.setArgsType(new Type[]{Type.getType(Autolink.class)});
         }
         ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(method.getFullName());
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getFullName(), mhType);
 
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, "invoke_"+super.fullName.replace('.', '_'), super.methodType, null)
                 .intercept(ChainAction.of(() -> Args.of(0))
                                 .then(ownerVar -> checkLookClass(lookupClass, ownerVar, null))
                                 .then(ownerVar -> {
@@ -58,7 +58,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, args))
                                         : ownerVar -> mhMember.invokeOfNull(ownerVar, args)
                                 ),
-                        Actions.areturn(descriptor.getReturnType()));
+                        Actions.areturn(super.methodType.getReturnType()));
     }
 
     @Override

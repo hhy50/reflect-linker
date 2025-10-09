@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -28,9 +27,14 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     protected final T method;
 
     /**
-     * The Method holder.
+     *
      */
-    protected final MethodDescriptor descriptor;
+    protected String fullName;
+
+    /**
+     * 目前 methodType == mh的执行时签名, 即方法的定义的类型完全等于 methodhandle 的类型
+     */
+    protected final Type methodType;
 
     /**
      * Instantiates a new Invoker.
@@ -51,7 +55,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      */
     public Invoker(String mName, T method, Type mType) {
         this.method = method;
-        this.descriptor = new SmartMethodDescriptor(mName, mType);
+        this.methodType = mType;
     }
 
     @Override

@@ -8,6 +8,7 @@ import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.util.TypeUtil;
+import org.objectweb.asm.Type;
 
 import java.util.function.BiFunction;
 
@@ -34,13 +35,14 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         MethodBody clinit = classImplBuilder.getClinit();
 
+        String targetMethodName = method.getName();
+        Type lookupClass = method.getLookupClass();
+
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), method.getLookupClass(), descriptor.getType());
-        clinit.append(initStaticMethodHandle(mhMember,
-                loadClass(method.getLookupClass()), method.getName(), method.getDeclareType(), method.isStatic()));
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(super.fullName, lookupClass, super.methodType);
         mhMember.setInvokeExact(!method.isInvisible());
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(method.getLookupClass()),
-                        method.getName(), method.getDeclareType(), method.isStatic()));
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass),
+                targetMethodName, method.getDeclareType(), method.isStatic()));
         this.inlineAction = (varInst, args) ->
                 Actions.newLocalVar(method.isStatic()
                         ? mhMember.invokeStatic(args)
@@ -55,12 +57,4 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
             return this.inlineAction.apply(varInst, argsChainAction);
         });
     }
-
-    // @Override
-    // public MethodInvokeChainAction invoke(MethodInvokeChainAction varInstChain) {
-    //     return varInstChain.invoke((varInst, args) -> {
-    //         // 直接内联调用 methodHandle
-    //         return this.inlineAction.apply(varInst, args);
-    //     });
-    // }
 }
