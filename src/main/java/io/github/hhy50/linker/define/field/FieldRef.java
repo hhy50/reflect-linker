@@ -1,14 +1,13 @@
 package io.github.hhy50.linker.define.field;
 
 
-import io.github.hhy50.linker.define.MethodHandleProvider;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 /**
  * The type Field ref.
  */
-public abstract class FieldRef implements MethodHandleProvider {
+public abstract class FieldRef  {
 
     /**
      * The Field name.
@@ -53,11 +52,6 @@ public abstract class FieldRef implements MethodHandleProvider {
      */
     public Type getType() {
         return ObjectVar.TYPE;
-    }
-
-    @Override
-    public Type getMhType() {
-        return Type.getMethodType(getType(), Type.VOID_TYPE);
     }
 
     /**

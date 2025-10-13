@@ -1,8 +1,6 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.define.MethodHandleProvider;
 import io.github.hhy50.linker.generate.ArgsDepAnalysis;
-import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import io.github.hhy50.linker.token.ArgsToken;
 import org.objectweb.asm.Type;
@@ -14,7 +12,7 @@ import java.util.List;
 public class MethodExprRef extends MethodRef {
 
     private final Method method;
-    private final List<MethodHandleProvider> stepMethods;
+    private final List<MethodRef> stepMethods;
     private final ArgsDepAnalysis argsDepAnalysis;
 
     /**
@@ -28,12 +26,12 @@ public class MethodExprRef extends MethodRef {
         this.argsDepAnalysis = new ArgsDepAnalysis();
     }
 
-    public void addStepMethod(MethodHandleProvider methodRef, ArgsToken argsToken) {
+    public void addStepMethod(MethodRef methodRef, ArgsToken argsToken) {
         stepMethods.add(methodRef);
         argsDepAnalysis.analyse(methodRef.getMhType(), argsToken);
     }
 
-    public List<MethodHandleProvider> getStepMethods() {
+    public List<MethodRef> getStepMethods() {
         return stepMethods;
     }
 
@@ -45,7 +43,7 @@ public class MethodExprRef extends MethodRef {
     }
 
     @Override
-    public MethodHandle defineInvoker() {
+    public MethodExprInvoker defineInvoker() {
         return new MethodExprInvoker(this, this.getMhType());
     }
 }

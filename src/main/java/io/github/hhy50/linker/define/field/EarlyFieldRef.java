@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.define.field;
 
 
-import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
@@ -64,11 +63,6 @@ public class EarlyFieldRef extends FieldRef {
             return Type.getType(this.type);
         }
         return ObjectVar.TYPE;
-    }
-
-    @Override
-    public MethodHandle defineInvoker() {
-        return null;
     }
 
     /**

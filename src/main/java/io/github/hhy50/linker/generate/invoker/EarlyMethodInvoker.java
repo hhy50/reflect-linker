@@ -35,16 +35,16 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         MethodBody clinit = classImplBuilder.getClinit();
 
-        String targetMethodName = method.getName();
-        Type lookupClass = method.getLookupClass();
+        boolean isStatic = method.isStatic();
+        Type mhType = method.getMhType();
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(super.fullName, lookupClass, super.methodType);
         mhMember.setInvokeExact(!method.isInvisible());
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass),
-                targetMethodName, method.getDeclareType(), method.isStatic()));
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(Type.getType(descriptor.getOwner())),
+                method.getName(), mhType, isStatic));
         this.inlineAction = (varInst, args) ->
-                Actions.newLocalVar(method.isStatic()
+                Actions.newLocalVar(isStatic
                         ? mhMember.invokeStatic(args)
                         : mhMember.invokeInstance(varInst, args));
     }

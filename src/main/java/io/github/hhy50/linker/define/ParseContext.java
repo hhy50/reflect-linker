@@ -212,7 +212,7 @@ public class ParseContext {
 
             if (fieldsToken != null && fieldsToken.size() > 0) {
                 for (FieldRef fieldRef : parseFieldExpr(curType, fieldsToken)) {
-                    methodExprRef.addStepMethod(fieldRef, null);
+                    methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef), null);
                     curType = fieldRef.getActualType();
                 }
             }

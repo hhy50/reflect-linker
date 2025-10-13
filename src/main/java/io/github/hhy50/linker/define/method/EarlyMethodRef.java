@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
 import io.github.hhy50.linker.util.TypeUtil;
@@ -40,15 +39,6 @@ public class EarlyMethodRef extends MethodRef {
         return Modifier.isStatic(reflectMethod.getModifiers());
     }
 
-    /**
-     * Gets lookup class.
-     *
-     * @return the lookup class
-     */
-    public Type getLookupClass() {
-        return Type.getType(reflectMethod.getDeclaringClass());
-    }
-
     public Type getMhType() {
         Type type = Type.getType(this.reflectMethod);
         if (isInvisible()) {
@@ -57,19 +47,10 @@ public class EarlyMethodRef extends MethodRef {
         return type;
     }
 
-    @Override
-    public MethodHandle defineInvoker() {
+    public EarlyMethodInvoker defineInvoker() {
         return new EarlyMethodInvoker(this);
     }
 
-    /**
-     * Gets declare type.
-     *
-     * @return the declare type
-     */
-    public Type getDeclareType() {
-        return Type.getType(reflectMethod);
-    }
 
     @Override
     public void setSuperClass(String superClass) {

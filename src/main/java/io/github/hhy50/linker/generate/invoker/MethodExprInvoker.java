@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.define.MethodHandleProvider;
 import io.github.hhy50.linker.define.method.MethodExprRef;
+import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
@@ -27,8 +27,8 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        for (MethodHandleProvider provider : method.getStepMethods()) {
-            MethodHandle mh = provider.defineInvoker();
+        for (MethodRef methodRef : method.getStepMethods()) {
+            MethodHandle mh = methodRef.defineInvoker();
             mh.define(classImplBuilder);
             invokers.add(mh);
         }

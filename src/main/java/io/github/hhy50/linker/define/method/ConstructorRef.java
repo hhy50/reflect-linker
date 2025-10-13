@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
@@ -35,7 +34,7 @@ public class ConstructorRef extends MethodRef {
     }
 
     @Override
-    public MethodHandle defineInvoker() {
+    public io.github.hhy50.linker.generate.constructor.Constructor defineInvoker() {
         return new io.github.hhy50.linker.generate.constructor.Constructor(this);
     }
 
