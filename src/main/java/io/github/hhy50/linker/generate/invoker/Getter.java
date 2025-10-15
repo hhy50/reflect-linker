@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
@@ -17,10 +16,6 @@ import org.objectweb.asm.Type;
  * The type Getter.
  */
 public class Getter extends FieldOpsMethodHandler {
-    /**
-     *
-     */
-    protected String fieldName;
 
     /**
      * The Field.
@@ -33,18 +28,18 @@ public class Getter extends FieldOpsMethodHandler {
      * @param field the field
      */
     public Getter(FieldRef field) {
-        super(field.getFullName(), new SmartMethodDescriptor("get_" + field.getFullName().replace('.', '_'),
-                Type.getMethodType(field.getType())));
+        super(field.fieldName, field.getFullName(), field.getType());
         this.field = field;
-        this.fieldName = field.fieldName;
     }
 
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         if (field instanceof RuntimeFieldRef) {
             this.lookupClass = classImplBuilder.defineLookupClass(fullName);
-            super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
+            super.defineRuntimeMethod(classImplBuilder, ((RuntimeFieldRef) field).isDesignateStatic());
         } else if (field instanceof EarlyFieldRef) {
-            super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
+            Type lookupClass = ((EarlyFieldRef) field).getLookupClass();
+            boolean isStatic = ((EarlyFieldRef) field).isStatic();
+            super.defineMethod(classImplBuilder, lookupClass, isStatic);
         }
     }
 
@@ -59,17 +54,17 @@ public class Getter extends FieldOpsMethodHandler {
     }
 
     @Override
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, VarInst objVar) {
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, Type mhType) {
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
                 .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(fieldName));
         return mhMember.store(findGetter);
     }
 
     @Override
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICGETTER : MethodDescriptor.LOOKUP_FINDGETTER);
         findGetter.setInstance(lookupClass.getLookup())
-                .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
+                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(super.fieldType));
         return mhMember.store(findGetter);
     }
 }

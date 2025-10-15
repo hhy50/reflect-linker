@@ -40,7 +40,7 @@ public class Constructor extends Invoker<ConstructorRef> {
 
         // init methodHandle
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), null, descriptor.getType());
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(method.getDeclareType()), null, descriptor.getType(), false));
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(method.getDeclareType()), false));
         this.inlineAction = args -> Actions.newLocalVar(mhMember.invokeStatic(args));
     }
 
@@ -50,7 +50,7 @@ public class Constructor extends Invoker<ConstructorRef> {
     }
 
     @Override
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String args0, Type mhType, boolean args1) {
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean args1) {
         return mhMember.store(new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)

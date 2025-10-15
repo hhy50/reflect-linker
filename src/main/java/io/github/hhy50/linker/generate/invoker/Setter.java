@@ -10,7 +10,6 @@ import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
-import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
 
 /**
@@ -30,31 +29,20 @@ public class Setter extends FieldOpsMethodHandler {
      * @param field     the field
      */
     public Setter(String implClass, FieldRef field) {
-        super(field.getFullName(), MethodDescriptor.of(ClassUtil.className2path(implClass), "set_" + field.getFullName().replace('.', '_'),
-                Type.getMethodType(Type.VOID_TYPE, field.getType())));
+        super(field.fieldName, field.getFullName(), field.getType());
         this.field = field;
     }
 
     public void define0(InvokeClassImplBuilder classImplBuilder) {
         if (field instanceof RuntimeFieldRef) {
             this.lookupClass = classImplBuilder.defineLookupClass(fullName);
-            super.defineRuntimeMethod(classImplBuilder, (RuntimeFieldRef) field);
+            super.defineRuntimeMethod(classImplBuilder, ((RuntimeFieldRef) field).isDesignateStatic());
         } else {
-            super.defineMethod(classImplBuilder, (EarlyFieldRef) field);
+            Type lookupClass = ((EarlyFieldRef) field).getLookupClass();
+            boolean isStatic = ((EarlyFieldRef) field).isStatic();
+            super.defineMethod(classImplBuilder, lookupClass, isStatic);
         }
     }
-
-//    @Override
-//    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
-//        if (super.inlineMhInvoker != null) {
-//            methodBody.append(super.inlineMhInvoker.invoke(Args.loadArgs()).andThen(Actions.vreturn()));
-//            return null;
-//        }
-//        methodBody.append(new MethodInvokeAction(descriptor)
-//                .setInstance(LoadAction.LOAD0)
-//                .setArgs(methodBody.getArgs()).andThen(Actions.vreturn()));
-//        return null;
-//    }
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
@@ -66,19 +54,18 @@ public class Setter extends FieldOpsMethodHandler {
                 .setArgs(varInst, argsChainAction)));
     }
 
-
     @Override
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, VarInst objVar) {
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, Type mhType) {
         MethodInvokeAction findSetter = new MethodInvokeAction(Runtime.FIND_SETTER)
                 .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(this.field.fieldName));
         return mhMember.store(findSetter);
     }
 
     @Override
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, String fieldName, Type fieldType, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
         MethodInvokeAction findSetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
                 .setInstance(lookupClass.getLookup())
-                .setArgs(lookupClass, LdcLoadAction.of(fieldName), loadClass(fieldType));
+                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(super. fieldType));
         return mhMember.store(findSetter);
     }
 }

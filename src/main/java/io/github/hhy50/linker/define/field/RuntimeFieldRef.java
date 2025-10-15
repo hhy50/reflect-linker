@@ -5,9 +5,8 @@ package io.github.hhy50.linker.define.field;
  */
 public class RuntimeFieldRef extends FieldRef {
 
-    private boolean designateStatic;
+    private Boolean designateStatic;
 
-    private boolean isStatic;
 
     /**
      * Instantiates a new Runtime field ref.
@@ -24,17 +23,8 @@ public class RuntimeFieldRef extends FieldRef {
      *
      * @return the boolean
      */
-    public boolean isDesignateStatic() {
+    public Boolean isDesignateStatic() {
         return designateStatic;
-    }
-
-    /**
-     * Is static boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isStatic() {
-        return isStatic;
     }
 
     /**
@@ -43,7 +33,6 @@ public class RuntimeFieldRef extends FieldRef {
      * @param isStatic the is static
      */
     public void designateStatic(boolean isStatic) {
-        this.designateStatic = true;
-        this.isStatic = isStatic;
+        this.designateStatic = isStatic;
     }
 }
