@@ -54,7 +54,7 @@ public class Getter extends FieldOpsMethodHandler {
     }
 
     @Override
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, Type mhType) {
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
         MethodInvokeAction findGetter = new MethodInvokeAction(Runtime.FIND_GETTER)
                 .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(fieldName));
         return mhMember.store(findGetter);

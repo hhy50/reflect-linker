@@ -55,7 +55,7 @@ public class Setter extends FieldOpsMethodHandler {
     }
 
     @Override
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, Type mhType) {
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
         MethodInvokeAction findSetter = new MethodInvokeAction(Runtime.FIND_SETTER)
                 .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(this.field.fieldName));
         return mhMember.store(findSetter);

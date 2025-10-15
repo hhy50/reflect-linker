@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
@@ -36,7 +36,7 @@ public class RuntimeMethodRef extends MethodRef {
     }
 
     @Override
-    public MethodHandle defineInvoker() {
+    public Invoker<?> defineInvoker() {
         return new RuntimeMethodInvoker(this);
     }
 

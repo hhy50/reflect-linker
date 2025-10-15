@@ -9,7 +9,6 @@ import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -19,25 +18,30 @@ import org.objectweb.asm.Type;
  */
 public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
+   private boolean autolink;
+
+    private Type[] argsType;
+
     /**
      * Instantiates a new Runtime method invoker.
      *
      * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
-        super(methodRef, TypeUtil.appendArgs(methodRef.getMhType(), ObjectVar.TYPE, true));
+        super(methodRef.getName(), methodRef.getMhType());
+        this.autolink = methodRef.isAutolink();
+        this.argsType = methodRef.getArgsType();
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        boolean autolink = method.isAutolink();
         Type mhType = super.methodType;
         Action args = autolink ? Actions.asArray(ObjectVar.TYPE, Args.loadArgsIgnore0()) : Args.loadArgsIgnore0();
         if (autolink) {
             // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
             // 约定将参数0设置为Autolink，以保证使用实参来查找方法
             mhType = Type.getMethodType(mhType.getReturnType(), Type.getType(Object[].class));
-            method.setArgsType(new Type[]{Type.getType(Autolink.class)});
+            this.argsType = (new Type[]{Type.getType(Autolink.class)};
         }
         ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(method.getFullName());
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getFullName(), mhType);
@@ -59,6 +63,11 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                                         : ownerVar -> mhMember.invokeOfNull(ownerVar, args)
                                 ),
                         Actions.areturn(super.methodType.getReturnType()));
+    }
+
+    @Override
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
+        return super.initRuntimeMethodHandle(mhMember, lookupClass);
     }
 
     @Override

@@ -71,9 +71,8 @@ public abstract class MethodHandle {
      *
      * @param mhMember    the mh member
      * @param lookupClass the lookup class
-     * @param mhType
      */
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, Type mhType) {
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
         return Actions.empty();
     }
 
@@ -134,10 +133,9 @@ public abstract class MethodHandle {
      *
      * @param lookupClass the lookup class
      * @param mhMember    the mh member
-     * @param objVar      the obj var
      */
-    protected Action checkMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        return mhMember.ifNull(initRuntimeMethodHandle(mhMember, lookupClass, null));
+    protected Action checkMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember) {
+        return mhMember.ifNull(initRuntimeMethodHandle(mhMember, lookupClass));
     }
 
     /**

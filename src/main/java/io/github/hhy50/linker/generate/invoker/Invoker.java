@@ -47,7 +47,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     }
 
     @Override
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass, Type mhType) {
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
         Class<Action> __ = Action.class;
         Action superClassLoad = Optional.ofNullable(this.superClass)
                 .map(LdcLoadAction::of)
@@ -65,6 +65,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
 
     @Override
     protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
+        Type mhType = this.methodType;
         boolean invokeSpecial = this.superClass != null & !isStatic;
         MethodInvokeAction findXXX;
         Action argsType = Actions.asArray(TypeUtil.CLASS_TYPE, Arrays.stream(mhType.getArgumentTypes()).map(this::loadClass).toArray(Action[]::new));
