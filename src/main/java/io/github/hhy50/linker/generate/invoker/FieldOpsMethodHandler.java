@@ -81,7 +81,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
 //                                    }
                                     return null;
                                 })
-                                .then(ownerVar -> checkMethodHandle(this.lookupClass, mhMember, ownerVar))
+                                .then(ownerVar -> checkMethodHandle(this.lookupClass, mhMember))
                                 .map(isDesignateStatic != null ?
                                         (isDesignateStatic ? ownerVar -> mhMember.invokeStatic(Args.loadArgs())
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, Args.loadArgs()))

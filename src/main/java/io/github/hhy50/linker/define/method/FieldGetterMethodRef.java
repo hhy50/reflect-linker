@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.generate.MethodHandle;
+import io.github.hhy50.linker.generate.invoker.Invoker;
 import org.objectweb.asm.Type;
 
 public class FieldGetterMethodRef extends MethodRef {
@@ -18,7 +18,7 @@ public class FieldGetterMethodRef extends MethodRef {
     }
 
     @Override
-    public MethodHandle defineInvoker() {
+    public Invoker<?> defineInvoker() {
         throw new UnsupportedOperationException("Unimplemented method 'defineInvoker'");
     }
 }

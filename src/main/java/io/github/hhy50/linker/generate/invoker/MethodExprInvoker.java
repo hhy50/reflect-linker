@@ -8,26 +8,27 @@ import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import org.objectweb.asm.Type;
 
 import java.util.List;
 
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
     List<MethodHandle> invokers;
 
+    private final List<MethodRef> stepMethods;
+
     /**
      * Instantiates a new Invoker.
      *
-     * @param method the method
-     * @param mType  the m type
+     * @param mr the method
      */
-    public MethodExprInvoker(MethodExprRef method, Type mType) {
-        super(method, mType);
+    public MethodExprInvoker(MethodExprRef mr) {
+        super(mr.getName(), mr.getMhType());
+        this.stepMethods = mr.getStepMethods();
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        for (MethodRef methodRef : method.getStepMethods()) {
+        for (MethodRef methodRef : stepMethods) {
             MethodHandle mh = methodRef.defineInvoker();
             mh.define(classImplBuilder);
             invokers.add(mh);
@@ -44,7 +45,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         }
 
         return varInstChain.then(varInst -> {
-            return Actions.newLocalVar(new MethodInvokeAction(descriptor)
+            return Actions.newLocalVar(new MethodInvokeAction(null)
                     .setInstance(varInst)
                     .setArgs(argsChainAction));
         });

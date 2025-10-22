@@ -7,8 +7,6 @@ import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.util.TypeUtil;
-import org.objectweb.asm.Type;
 
 import java.util.function.BiFunction;
 
@@ -16,6 +14,9 @@ import java.util.function.BiFunction;
  * The type Early method invoker.
  */
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
+    private String fullName;
+    private boolean isStatic;
+    private boolean isInvisible;
 
     /**
      * 内联方法调用。父类的invoke是调用这个 mh的单独生成的方法
@@ -25,25 +26,24 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     /**
      * Instantiates a new Early method invoker.
      *
-     * @param methodRef the method ref
+     * @param mr the method ref
      */
-    public EarlyMethodInvoker(EarlyMethodRef methodRef) {
-        super(methodRef, TypeUtil.appendArgs(methodRef.getMhType(), null, true));
+    public EarlyMethodInvoker(EarlyMethodRef mr) {
+        super(mr.getName(), mr.getMhType());
+        this.fullName = mr.getFullName();
+        this.lookupClass = mr.getDeclareType();
+        this.isStatic = mr.isStatic();
+        this.isInvisible = mr.isInvisible();
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         MethodBody clinit = classImplBuilder.getClinit();
 
-        boolean isStatic = method.isStatic();
-        Type mhType = method.getMhType();
-        Type lookupClass = method.getLookupClass();
-
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(super.fullName, lookupClass, super.methodType);
-        mhMember.setInvokeExact(!method.isInvisible());
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(Type.getType(descriptor.getOwner())),
-                isStatic));
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.fullName, super.lookupClass, super.lookupMhType);
+        mhMember.setInvokeExact(!this.isInvisible);
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(this.lookupClass), isStatic));
         this.inlineAction = (varInst, args) ->
                 Actions.newLocalVar(isStatic
                         ? mhMember.invokeStatic(args)

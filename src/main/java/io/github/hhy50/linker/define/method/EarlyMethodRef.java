@@ -39,18 +39,19 @@ public class EarlyMethodRef extends MethodRef {
         return Modifier.isStatic(reflectMethod.getModifiers());
     }
 
-    public Type getMhType() {
-        Type type = Type.getType(this.reflectMethod);
-        if (isInvisible()) {
-            return genericType(type);
-        }
-        return type;
+    public Type getDeclareType() {
+        return Type.getType(this.reflectMethod.getDeclaringClass());
     }
 
+    @Override
+    public Type getMhType() {
+        return Type.getType(reflectMethod);
+    }
+
+    @Override
     public EarlyMethodInvoker defineInvoker() {
         return new EarlyMethodInvoker(this);
     }
-
 
     @Override
     public void setSuperClass(String superClass) {

@@ -33,7 +33,7 @@ public abstract class MethodRef {
     /**
      * Instantiates a new Method ref.
      *
-     * @param name  the name
+     * @param name the name
      */
     public MethodRef(String fullName, String name) {
         this.fullName = fullName;
@@ -51,6 +51,7 @@ public abstract class MethodRef {
 
     /**
      * Gets full name.
+     *
      * @return
      */
     public String getFullName() {
@@ -82,9 +83,8 @@ public abstract class MethodRef {
     public abstract Invoker<? extends MethodRef> defineInvoker();
 
     /**
-     * Gets method type.
-     *
-     * @return the method type
+     * 这个方法返回来的类型用来寻找具体的methodhandle, 所以类型是具体的类型
+     * @return
      */
     public abstract Type getMhType();
 }

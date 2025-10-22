@@ -13,10 +13,8 @@ import java.util.Arrays;
  * The type Runtime method ref.
  */
 public class RuntimeMethodRef extends MethodRef {
-    private Type methodType;
     private Type[] argsType;
-    private boolean designateStatic;
-    private boolean isStatic;
+    private Boolean designateStatic;
     private boolean isAutolink;
 
     /**
@@ -28,9 +26,6 @@ public class RuntimeMethodRef extends MethodRef {
     public RuntimeMethodRef(String fullName, String name, String[] argsType) {
         super(fullName, name);
 
-        Type[] newArgsType = new Type[argsType.length];
-        Arrays.fill(newArgsType, ObjectVar.TYPE);
-        this.methodType = Type.getMethodType(ObjectVar.TYPE, newArgsType);
         this.argsType = Arrays.stream(argsType)
                 .map(TypeUtil::getType).toArray(Type[]::new);
     }
@@ -42,7 +37,7 @@ public class RuntimeMethodRef extends MethodRef {
 
     @Override
     public Type getMhType() {
-        return methodType;
+        return Type.getMethodType(ObjectVar.TYPE, this.argsType);
     }
 
     /**
@@ -68,18 +63,10 @@ public class RuntimeMethodRef extends MethodRef {
      *
      * @return the boolean
      */
-    public boolean isDesignateStatic() {
+    public Boolean isDesignateStatic() {
         return designateStatic;
     }
 
-    /**
-     * Is static boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isStatic() {
-        return isStatic;
-    }
 
     /**
      * Designate static.
@@ -87,8 +74,7 @@ public class RuntimeMethodRef extends MethodRef {
      * @param isStatic the is static
      */
     public void designateStatic(boolean isStatic) {
-        this.designateStatic = true;
-        this.isStatic = isStatic;
+        this.designateStatic = isStatic;
     }
 
     /**

@@ -28,7 +28,7 @@ public class MethodExprRef extends MethodRef {
 
     public void addStepMethod(MethodRef methodRef, ArgsToken argsToken) {
         stepMethods.add(methodRef);
-        argsDepAnalysis.analyse(methodRef.getMhType(), argsToken);
+        argsDepAnalysis.analyse(methodRef.getMethodType(), argsToken);
     }
 
     public List<MethodRef> getStepMethods() {
@@ -36,14 +36,19 @@ public class MethodExprRef extends MethodRef {
     }
 
     @Override
-    public Type getMhType() {
+    public Type getMethodType() {
         Type rType = this.argsDepAnalysis.getReturnType();
         Type[] argsType = this.argsDepAnalysis.getArgsType();
         return Type.getMethodType(rType, argsType);
     }
 
     @Override
+    public Type getMhType() {
+        return null;
+    }
+
+    @Override
     public MethodExprInvoker defineInvoker() {
-        return new MethodExprInvoker(this, this.getMhType());
+        return new MethodExprInvoker(this);
     }
 }

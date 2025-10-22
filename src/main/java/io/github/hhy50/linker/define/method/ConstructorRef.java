@@ -1,10 +1,8 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 
 
 /**
@@ -25,17 +23,14 @@ public class ConstructorRef extends MethodRef {
         this.constructor = constructor;
     }
 
-    public Type getMhType() {
-        Type rType = ObjectVar.TYPE;
-        if (Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
-            rType = Type.getType(constructor.getDeclaringClass());
-        }
-        return Type.getMethodType(rType, Type.getType(constructor).getArgumentTypes());
-    }
-
     @Override
     public io.github.hhy50.linker.generate.constructor.Constructor defineInvoker() {
         return new io.github.hhy50.linker.generate.constructor.Constructor(this);
+    }
+
+    @Override
+    public Type getMhType() {
+        return null;
     }
 
     /**

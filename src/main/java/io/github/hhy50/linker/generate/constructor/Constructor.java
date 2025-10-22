@@ -19,6 +19,10 @@ import java.util.function.Function;
  * The type Constructor.
  */
 public class Constructor extends Invoker<ConstructorRef> {
+    /**
+     *
+     */
+    private ConstructorRef method;
 
     /**
      * The Inline action.
@@ -31,7 +35,8 @@ public class Constructor extends Invoker<ConstructorRef> {
      * @param constructor the constructor ref
      */
     public Constructor(ConstructorRef constructor) {
-        super(constructor, constructor.getMhType());
+        super(null, constructor.getMhType());
+        this.method = constructor;
     }
 
     @Override
@@ -39,7 +44,7 @@ public class Constructor extends Invoker<ConstructorRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), null, descriptor.getType());
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getFullName(), null, super.lookupMhType);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(method.getDeclareType()), false));
         this.inlineAction = args -> Actions.newLocalVar(mhMember.invokeStatic(args));
     }
@@ -56,8 +61,8 @@ public class Constructor extends Invoker<ConstructorRef> {
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),
                                 Actions.asArray(TypeUtil.CLASS_TYPE,
-                                        Arrays.stream(mhType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
-
+                                        Arrays.stream(lookupMhType.getArgumentTypes())
+                                                .map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
                         )));
     }
 }
