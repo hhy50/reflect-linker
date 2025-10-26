@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
@@ -28,7 +29,7 @@ public class Getter extends FieldOpsMethodHandler {
      * @param field the field
      */
     public Getter(FieldRef field) {
-        super(field.fieldName, field.getFullName(), field.getType());
+        super(field.getName(), field.getFullName(), Type.getMethodType(field.getType()));
         this.field = field;
     }
 
@@ -48,7 +49,7 @@ public class Getter extends FieldOpsMethodHandler {
         if (super.inlineMhInvoker != null) {
             return super.inlineMhInvoker.invoke(varInstChain, null);
         }
-        return varInstChain.map(varInst -> Actions.newLocalVar(new SmartMethodInvokeAction(descriptor)
+        return varInstChain.map(varInst -> Actions.newLocalVar(new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(varInst)));
     }
@@ -64,7 +65,7 @@ public class Getter extends FieldOpsMethodHandler {
     protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICGETTER : MethodDescriptor.LOOKUP_FINDGETTER);
         findGetter.setInstance(lookupClass.getLookup())
-                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(super.fieldType));
+                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(field.getType()));
         return mhMember.store(findGetter);
     }
 }

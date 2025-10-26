@@ -9,10 +9,11 @@ import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
-    List<MethodHandle> invokers;
+    List<MethodHandle> invokers = new ArrayList<>(   );
 
     private final List<MethodRef> stepMethods;
 
@@ -22,7 +23,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
      * @param mr the method
      */
     public MethodExprInvoker(MethodExprRef mr) {
-        super(mr.getName(), mr.getMhType());
+        super(mr.getName(), null);
         this.stepMethods = mr.getStepMethods();
     }
 

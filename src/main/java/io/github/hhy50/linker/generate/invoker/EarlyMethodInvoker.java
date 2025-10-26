@@ -30,7 +30,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
      */
     public EarlyMethodInvoker(EarlyMethodRef mr) {
         super(mr.getName(), mr.getMhType());
-        this.fullName = mr.getFullName();
+        this.fullName = mr.getFullName().replace('.', '_');
         this.lookupClass = mr.getDeclareType();
         this.isStatic = mr.isStatic();
         this.isInvisible = mr.isInvisible();

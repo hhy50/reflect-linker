@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.generate.invoker.Invoker;
+import io.github.hhy50.linker.generate.MethodHandle;
 import org.objectweb.asm.Type;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -80,7 +80,7 @@ public abstract class MethodRef {
      *
      * @return
      */
-    public abstract Invoker<? extends MethodRef> defineInvoker();
+    public abstract MethodHandle defineInvoker();
 
     /**
      * 这个方法返回来的类型用来寻找具体的methodhandle, 所以类型是具体的类型

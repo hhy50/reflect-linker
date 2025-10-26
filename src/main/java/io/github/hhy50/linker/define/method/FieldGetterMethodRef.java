@@ -1,24 +1,25 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.define.field.FieldRef;
-import io.github.hhy50.linker.generate.invoker.Invoker;
+import io.github.hhy50.linker.generate.MethodHandle;
+import io.github.hhy50.linker.generate.invoker.Getter;
 import org.objectweb.asm.Type;
 
 public class FieldGetterMethodRef extends MethodRef {
     private final FieldRef field;
 
     public FieldGetterMethodRef(FieldRef field) {
-        super("get_" + field.getFullName(), "get_" + field.getFullName());
+        super(field.getFullName(), field.getName());
         this.field = field;
     }
 
     @Override
-    public Type getMethodType() {
+    public Type getMhType() {
         return Type.getMethodType(field.getType());
     }
 
     @Override
-    public Invoker<?> defineInvoker() {
-        throw new UnsupportedOperationException("Unimplemented method 'defineInvoker'");
+    public MethodHandle defineInvoker() {
+        return new Getter(field);
     }
 }

@@ -12,7 +12,7 @@ public abstract class FieldRef  {
     /**
      * The Field name.
      */
-    public String fieldName;
+    protected String name;
 
     /**
      * The Full name.
@@ -32,8 +32,12 @@ public abstract class FieldRef  {
      */
     public FieldRef(String fullName, String name, Class<?> type) {
         this.fullName = fullName;
-        this.fieldName = name;
+        this.name = name;
         this.type = type;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     /**

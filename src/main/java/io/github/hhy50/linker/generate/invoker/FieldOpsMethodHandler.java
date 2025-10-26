@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
 
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.InlineAction;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
@@ -31,13 +30,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     /**
      *
      */
-    protected final Type fieldType;
-
-
-    /**
-     * The Method holder.
-     */
-    protected MethodDescriptor descriptor;
+    protected final Type mhType;
 
     /**
      *
@@ -49,29 +42,36 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      */
     public ClassTypeMember lookupClass;
 
+    protected String runtimeMethodName;
 
     /**
      * Instantiates a new Field ops method handler.
      *
      * @param fieldName the field name
      * @param fullName  the full name
-     * @param fieldType the field type
+     * @param mhType    the mhType
      */
-    public FieldOpsMethodHandler(String fieldName, String fullName, Type fieldType) {
+    public FieldOpsMethodHandler(String fieldName, String fullName, Type mhType) {
         this.fieldName = fieldName;
         this.fullName = fullName;
-        this.fieldType = fieldType;
+        this.mhType = mhType;
     }
 
     /**
      * defineRuntimeMethod
+     *
      * @param classImplBuilder
      * @param isDesignateStatic
      */
     protected void defineRuntimeMethod(InvokeClassImplBuilder classImplBuilder, Boolean isDesignateStatic) {
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(fullName, descriptor.getType());
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(fullName, mhType);
 
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
+        String prefix = "getter_";
+        if (this.mhType.getReturnType() == Type.VOID_TYPE) {
+            prefix = "setter_";
+        }
+        this.runtimeMethodName = prefix + fullName;
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, prefix + fullName, mhType, null)
                 .intercept(ChainAction.of(() -> Args.of(0))
                                 .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, null)) // TODO
                                 .then(ownerVar -> {
@@ -87,11 +87,12 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, Args.loadArgs()))
                                         : ownerVar -> mhMember.invokeOfNull(ownerVar, Args.loadArgs())
                                 ),
-                        Actions.areturn(descriptor.getReturnType()));
+                        Actions.areturn(mhType.getReturnType()));
     }
 
     /**
-     *defineMethod
+     * defineMethod
+     *
      * @param classImplBuilder the class impl builder
      * @param lookupClass      the lookup class
      * @param isStatic         the is static
@@ -100,7 +101,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(fullName, null, descriptor.getType());
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(fullName, null, mhType);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
         if (isStatic) {
             this.inlineMhInvoker = (__, argsChain) -> {

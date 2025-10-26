@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.ArgsDepAnalysis;
+import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import io.github.hhy50.linker.token.ArgsToken;
 import org.objectweb.asm.Type;
@@ -28,27 +29,27 @@ public class MethodExprRef extends MethodRef {
 
     public void addStepMethod(MethodRef methodRef, ArgsToken argsToken) {
         stepMethods.add(methodRef);
-        argsDepAnalysis.analyse(methodRef.getMethodType(), argsToken);
+        argsDepAnalysis.analyse(methodRef.getMhType(), argsToken);
     }
 
     public List<MethodRef> getStepMethods() {
         return stepMethods;
     }
 
-    @Override
-    public Type getMethodType() {
-        Type rType = this.argsDepAnalysis.getReturnType();
-        Type[] argsType = this.argsDepAnalysis.getArgsType();
-        return Type.getMethodType(rType, argsType);
-    }
+//    @Override
+//    public Type getMethodType() {
+//        Type rType = this.argsDepAnalysis.getReturnType();
+//        Type[] argsType = this.argsDepAnalysis.getArgsType();
+//        return Type.getMethodType(rType, argsType);
+//    }
 
     @Override
     public Type getMhType() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public MethodExprInvoker defineInvoker() {
+    public MethodHandle defineInvoker() {
         return new MethodExprInvoker(this);
     }
 }

@@ -38,7 +38,7 @@ public class TargetFieldGetter extends Getter {
      */
     public TargetFieldGetter(EarlyFieldRef targetFieldRef) {
         super(targetFieldRef);
-        this.targetObj = Members.of(targetFieldRef.fieldName, ObjectVar.TYPE);
+        this.targetObj = Members.of(targetFieldRef.getName(), ObjectVar.TYPE);
         this.targetType = targetFieldRef.getType();
     }
 

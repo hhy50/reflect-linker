@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
@@ -29,7 +30,7 @@ public class Setter extends FieldOpsMethodHandler {
      * @param field     the field
      */
     public Setter(String implClass, FieldRef field) {
-        super(field.fieldName, field.getFullName(), field.getType());
+        super(field.getName(), field.getFullName(), Type.getMethodType(Type.VOID_TYPE, field.getType()));
         this.field = field;
     }
 
@@ -49,7 +50,7 @@ public class Setter extends FieldOpsMethodHandler {
         if (super.inlineMhInvoker != null) {
             return super.inlineMhInvoker.invoke(varInstChain, argsChainAction);
         }
-        return varInstChain.map(varInst -> Actions.newLocalVar(new SmartMethodInvokeAction(descriptor)
+        return varInstChain.map(varInst -> Actions.newLocalVar(new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(varInst, argsChainAction)));
     }
@@ -57,7 +58,7 @@ public class Setter extends FieldOpsMethodHandler {
     @Override
     protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
         MethodInvokeAction findSetter = new MethodInvokeAction(Runtime.FIND_SETTER)
-                .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(this.field.fieldName));
+                .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(field.getName()));
         return mhMember.store(findSetter);
     }
 
@@ -65,7 +66,7 @@ public class Setter extends FieldOpsMethodHandler {
     protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
         MethodInvokeAction findSetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
                 .setInstance(lookupClass.getLookup())
-                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(super. fieldType));
+                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(field.getType()));
         return mhMember.store(findSetter);
     }
 }

@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.define.method;
 
+import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
 import io.github.hhy50.linker.util.TypeUtil;
@@ -49,7 +50,7 @@ public class EarlyMethodRef extends MethodRef {
     }
 
     @Override
-    public EarlyMethodInvoker defineInvoker() {
+    public MethodHandle defineInvoker() {
         return new EarlyMethodInvoker(this);
     }
 

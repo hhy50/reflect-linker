@@ -45,7 +45,7 @@ public class InvokerDecorator extends AbstractDecorator {
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst> instChainAction, ChainAction<VarInst[]> originArgs) {
         MethodRef methodRef = absMethodDefine.methodRef;
-        Type[] argsType = methodRef.getMethodType().getArgumentTypes();
+        Type[] argsType = methodRef.getMhType().getArgumentTypes();
         Class<?> rClassType = absMethodDefine.method.getReturnType();
 
         return realMh.invoke(null, originArgs.map(a -> typecastArgs(a, argsType)))
