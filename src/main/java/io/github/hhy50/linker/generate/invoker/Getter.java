@@ -47,7 +47,7 @@ public class Getter extends FieldOpsMethodHandler {
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> __) {
         if (super.inlineMhInvoker != null) {
-            return super.inlineMhInvoker.invoke(varInstChain, null);
+            return super.inlineMhInvoker.invoke(varInstChain, ChainAction.empty());
         }
         return varInstChain.map(varInst -> Actions.newLocalVar(new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
                 .setInstance(LoadAction.LOAD0)

@@ -10,6 +10,8 @@ import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.util.RandomUtil;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -36,7 +38,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         super(methodRef.getName(), methodRef.getMhType());
         this.autolink = methodRef.isAutolink();
         this.argsType = methodRef.getArgsType();
-        this.fullName = methodRef.getFullName().replace('.', '_');
+        this.fullName = RandomUtil.getRandomString(10);
         this.isDesignateStatic = methodRef.isDesignateStatic();
     }
 
@@ -53,7 +55,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(this.fullName);
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(this.fullName, mhType);
 
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, "invoke_"+this.fullName, super.lookupMhType, null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, "invoke_"+this.fullName, TypeUtil.appendArgs(super.lookupMhType, ObjectVar.TYPE, true), null)
                 .intercept(ChainAction.of(() -> Args.of(0))
                                 .then(ownerVar -> checkLookClass(lookupClass, ownerVar, null))
                                 .then(ownerVar -> {
@@ -68,20 +70,16 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                                         (isDesignateStatic ? ownerVar -> mhMember.invokeStatic(args)
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, args))
                                         : ownerVar -> mhMember.invokeOfNull(ownerVar, args)
-                                ),
+                                )
+                                ,
                         Actions.areturn(super.lookupMhType.getReturnType()));
-    }
-
-    @Override
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
-        return super.initRuntimeMethodHandle(mhMember, lookupClass);
     }
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
         return varInstChain.then(VarInst::checkNullPointer)
                 .mapVar(varInst -> {
-                    return new SmartMethodInvokeAction(new SmartMethodDescriptor("invoke_"+this.fullName, super.lookupMhType))
+                    return new SmartMethodInvokeAction(new SmartMethodDescriptor("invoke_"+this.fullName, TypeUtil.appendArgs(super.lookupMhType, ObjectVar.TYPE, true)))
                             .setInstance(LoadAction.LOAD0)
                             .setArgs(varInst, argsChainAction);
                 });

@@ -151,7 +151,11 @@ public class MethodBody {
     public void end() {
         AsmClassBuilder classBuilder = methodBuilder.getClassBuilder();
         if (classBuilder.isAutoCompute()) {
-            this.writer.visitMaxs(0, 0);
+            try {
+                this.writer.visitMaxs(0, 0);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         this.writer.visitEnd();
     }

@@ -139,4 +139,8 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         }
         return new ClassTypeMember(field);
     }
+
+    public TargetFieldGetter getTargetGetter() {
+        return targetGetter;
+    }
 }

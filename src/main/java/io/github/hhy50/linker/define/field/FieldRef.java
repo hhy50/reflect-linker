@@ -20,20 +20,14 @@ public abstract class FieldRef  {
     protected String fullName;
 
     /**
-     * The Type.
-     */
-    protected final Class<?> type;
-
-    /**
      * Instantiates a new Field ref.
      *
      * @param fullName the fullName
      * @param name the name
      */
-    public FieldRef(String fullName, String name, Class<?> type) {
+    public FieldRef(String fullName, String name) {
         this.fullName = fullName;
         this.name = name;
-        this.type = type;
     }
 
     public String getName() {

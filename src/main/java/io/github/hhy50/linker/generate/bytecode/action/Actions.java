@@ -272,6 +272,7 @@ public interface Actions {
 
     static VarInst newLocalVar(Type type, String name, Action action) {
         return new VarInst() {
+            VarInst varInst;
             @Override
             public Type getType() {
                 return type;
@@ -280,7 +281,10 @@ public interface Actions {
             @Override
             public Action load() {
                 return body -> {
-                    body.append(body.newLocalVar(type, name, action));
+                    if (varInst == null) {
+                        varInst = body.newLocalVar(type, name, action);
+                    }
+                    body.append(varInst);
                 };
             }
         };

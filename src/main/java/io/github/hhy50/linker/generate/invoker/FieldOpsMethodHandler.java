@@ -10,6 +10,8 @@ import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -70,8 +72,8 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         if (this.mhType.getReturnType() == Type.VOID_TYPE) {
             prefix = "setter_";
         }
-        this.runtimeMethodName = prefix + fullName;
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, prefix + fullName, mhType, null)
+        this.runtimeMethodName = prefix + fullName.replace('.', '_');
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.runtimeMethodName  , TypeUtil.appendArgs(mhType, ObjectVar.TYPE, true), null)
                 .intercept(ChainAction.of(() -> Args.of(0))
                                 .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, null)) // TODO
                                 .then(ownerVar -> {

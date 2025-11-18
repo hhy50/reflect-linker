@@ -12,7 +12,9 @@ import java.lang.reflect.Modifier;
  */
 public class EarlyFieldRef extends FieldRef {
 
-    private Class<?> lookup;
+    private Class<?> lookupClass;
+
+    private Class<?> fieldType;
 
     /**
      * 是否静态字段
@@ -31,8 +33,9 @@ public class EarlyFieldRef extends FieldRef {
      * @param field    the field
      */
     public EarlyFieldRef(String fullName, Field field) {
-        super(fullName, field.getName(), field.getType());
-        this.lookup = field.getDeclaringClass();
+        super(fullName, field.getName());
+        this.lookupClass = field.getDeclaringClass();
+        this.fieldType = field.getType();
         this.isStatic = Modifier.isStatic(field.getModifiers());
     }
 
@@ -40,13 +43,12 @@ public class EarlyFieldRef extends FieldRef {
      * Instantiates a new Early field ref.
      *
      * @param fullName the fullName
-     * @param type     the type
+     * @param fieldType     the fieldType
      */
-    public EarlyFieldRef(String fullName, Class<?> type) {
-        super(fullName, fullName, type);
-        this.lookup = type;
+    public EarlyFieldRef(String fullName, Class<?> fieldType) {
+        super(fullName, fullName);
+        this.fieldType = fieldType;
     }
-
 
     /**
      * Is static boolean.
@@ -59,8 +61,8 @@ public class EarlyFieldRef extends FieldRef {
 
     @Override
     public Type getType() {
-        if (this.type.isPrimitive() || Modifier.isPublic(this.type.getModifiers())) {
-            return Type.getType(this.type);
+        if (this.fieldType.isPrimitive() || Modifier.isPublic(this.fieldType.getModifiers())) {
+            return Type.getType(this.fieldType);
         }
         return ObjectVar.TYPE;
     }
@@ -79,10 +81,10 @@ public class EarlyFieldRef extends FieldRef {
         if (this.assignedType != null) {
             return this.assignedType;
         }
-        return this.type;
+        return this.fieldType;
     }
 
     public Type getLookupClass() {
-        return Type.getType(lookup);
+        return Type.getType(this.lookupClass);
     }
 }

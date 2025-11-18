@@ -14,8 +14,8 @@ public class ArgsDepAnalysis {
     /**
      *
      */
-    int[] argsStack;
-    Type[] argsType;
+    int[] argsStack = new int[0];
+    Type[] argsType = new Type[0];
     Type rType = Type.VOID_TYPE;
 
     public ArgsDepAnalysis() {
@@ -29,6 +29,14 @@ public class ArgsDepAnalysis {
             Token arg = argsToken.get(i);
             if (arg instanceof PlaceholderToken) {
                 int index = ((PlaceholderToken) arg).index;
+                if (argsStack.length < index+1) {
+                    int[] newStackArr = new int[index + 1];
+                    Type[] newTypesArr = new Type[index + 1];
+                    System.arraycopy(argsStack, 0, newStackArr, 0, argsStack.length);
+                    System.arraycopy(argsType, 0, newTypesArr, 0, argsType.length);
+                    argsStack = newStackArr;
+                    argsType = newTypesArr;
+                }
                 argsStack[index] += 1;
                 argsType[index] = argumentTypes[i];
             }

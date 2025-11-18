@@ -1,45 +1,17 @@
 package io.github.hhy50.linker.token;
 
+
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * The type Args token.
  */
-public class ArgsToken {
-    /**
-     * The Args.
-     */
-    public List<Token> args = new ArrayList<>();
+public class ArgsToken extends ArrayList<Token> {
 
-    /**
-     * Instantiates a new Args token.
-     */
-    public ArgsToken() {
-
-    }
-
-    /**
-     * Add.
-     *
-     * @param token the token
-     */
-    public void add(Token token) {
-        this.args.add(token);
-    }
 
     @Override
     public String toString() {
-        return "(" + args.stream().map(Object::toString).collect(Collectors.joining(",")) + ")";
-    }
-
-    /**
-     *
-     * @param i
-     * @return
-     */
-    public Token get(int i) {
-        return this.args.get(i);
+        return "(" + this.stream().map(Object::toString).collect(Collectors.joining(",")) + ")";
     }
 }

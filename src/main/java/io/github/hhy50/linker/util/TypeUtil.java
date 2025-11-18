@@ -143,6 +143,19 @@ public class TypeUtil {
     /**
      * Gets type.
      *
+     * @param clazz the actual type
+     * @return the type
+     */
+    public static String getClassName(Class<?> clazz) {
+        if (clazz.isArray()) {
+            return getClassName(clazz.getComponentType()) + "[]";
+        }
+        return clazz.getName();
+    }
+
+    /**
+     * Gets type.
+     *
      * @param clazz the clazz
      * @return the type
      */

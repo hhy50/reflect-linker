@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.define;
 
+import com.sun.xml.internal.ws.spi.db.MethodGetter;
 import io.github.hhy50.linker.annotations.Builtin;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
@@ -48,6 +49,9 @@ public class ParseContext {
      * The Parsed fields.
      */
     final Map<String, FieldRef> parsedFields = new HashMap<>();
+
+    final Map<String, MethodGetter> filedGetters = new HashMap<>();
+
     /**
      * The Typed fields.
      */
@@ -275,14 +279,21 @@ public class ParseContext {
             return Arrays.stream(methodDefine.getParameters())
                     .map(ParseUtil::getRawType).toArray(String[]::new);
         }
-//        Tokens args = methodToken.getArgsToken();
-//        return args.stream()
-//                .map(item -> {
-//                    Type type = item.getType(this, methodDefine);
-//                    return type;
-//                })
-//                .map(Type::getClassName).toArray(String[]::new);
-        return null;
+        ArgsToken args = methodToken.getArgsToken();
+        return args.stream().map(item -> {
+            if (item.kind() == Token.Kind.Placeholder) {
+                int i = ((PlaceholderToken) item).index;
+                Class argType = methodDefine.getParameterTypes()[i];
+                return TypeUtil.getClassName(argType);
+            } else if (item.kind() == Token.Kind.IntConst) {
+                return "int";
+            } else if (item.kind() == Token.Kind.StrConst) {
+                return "java.lang.String";
+            } else if (item.kind() == Token.Kind.Method) {
+                return "java.lang.Object";
+            }
+            throw new ParseException("Invalid argument type");
+        }).toArray(String[]::new);
     }
 
     private Class<?> getFieldTyped(String fullField, String tokenValue) throws ClassNotFoundException {

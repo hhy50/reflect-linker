@@ -8,7 +8,7 @@ import io.github.hhy50.linker.annotations.Runtime;
 /**
  * The interface Direct method handle linker.
  */
-@Runtime
+//@Runtime
 public interface DirectMethodHandleLinker {
 
     /**

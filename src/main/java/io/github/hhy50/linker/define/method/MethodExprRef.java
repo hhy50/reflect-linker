@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.ArgsDepAnalysis;
-import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import io.github.hhy50.linker.token.ArgsToken;
 import org.objectweb.asm.Type;
@@ -36,12 +35,11 @@ public class MethodExprRef extends MethodRef {
         return stepMethods;
     }
 
-//    @Override
-//    public Type getMethodType() {
-//        Type rType = this.argsDepAnalysis.getReturnType();
-//        Type[] argsType = this.argsDepAnalysis.getArgsType();
-//        return Type.getMethodType(rType, argsType);
-//    }
+    public Type getMethodType() {
+        Type rType = this.argsDepAnalysis.getReturnType();
+        Type[] argsType = this.argsDepAnalysis.getArgsType();
+        return Type.getMethodType(rType, argsType);
+    }
 
     @Override
     public Type getMhType() {
@@ -49,7 +47,7 @@ public class MethodExprRef extends MethodRef {
     }
 
     @Override
-    public MethodHandle defineInvoker() {
+    public MethodExprInvoker defineInvoker() {
         return new MethodExprInvoker(this);
     }
 }

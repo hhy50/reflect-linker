@@ -3,6 +3,7 @@ package io.github.hhy50.linker.generate.bytecode.action;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
+import java.lang.reflect.Array;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -15,6 +16,8 @@ import java.util.function.Supplier;
  */
 public class ChainAction<T> extends AbstractChain<MethodBody, T> {
 
+    static final ChainAction<?> EMPTY = new ChainAction<>(__ -> null);
+
     /**
      * Instantiates a new Chain action.
      *
@@ -24,11 +27,28 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         super(func);
     }
 
+
+    @SuppressWarnings("unchecked")
+    public static <T> ChainAction<T> empty() {
+        return (ChainAction) EMPTY;
+    }
+
     @Override
     public void apply(MethodBody body) {
         T t = doChain(body, body);
-        if (t instanceof Action) {
-            ((Action) t).apply(body);
+
+        if (t != null) {
+            if (t instanceof Action) {
+                ((Action) t).apply(body);
+            }
+            if (t.getClass().isArray()) {
+                for (int i = 0; i < Array.getLength(t); i++) {
+                    Object o = Array.get(t, i);
+                    if (o instanceof Action) {
+                        ((Action) o).apply(body);
+                    }
+                }
+            }
         }
     }
 
