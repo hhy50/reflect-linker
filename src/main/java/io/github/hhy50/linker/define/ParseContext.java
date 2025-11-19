@@ -82,15 +82,14 @@ public class ParseContext {
      * @param method the method
      */
     AbsMethodMetadata preParse(Method method) {
-                Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
-        List<Class<? extends Annotation>> uniques = Arrays.stream(declaredAnnotations)
-                .map(Annotation::annotationType)
-                .filter(item -> item.getDeclaredAnnotation(Verify.Unique.class) != null).collect(Collectors.toList());
-        if (uniques.size() > 1) {
-            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations [" +
-                    uniques.stream().map(Class::getSimpleName).collect(Collectors.joining(", @", "@", "")) + "]");
-        }
+        AbsMethodMetadata metadata = new AbsMethodMetadata();
+        metadata.setReflectMethod(method);
+
+        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
         for (Annotation annotation : declaredAnnotations) {
+            if (annotation.annotationType().getDeclaredAnnotation(Verify.Unique.class) != null) {
+                metadata.setUniqueAnnotation(annotation);
+            }
             Verify.Custom custom = annotation.annotationType().getDeclaredAnnotation(Verify.Custom.class);
             if (custom != null) {
                 Verifier verifier = null;
@@ -100,19 +99,24 @@ public class ParseContext {
                     throw new VerifyException(e);
                 }
                 if (!verifier.test(method, annotation)) {
-                    throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] verify failed");
+                    throw new VerifyException(
+                            "method [" + method.getDeclaringClass() + "@" + method.getName() + "] verify failed");
                 }
             }
+            metadata.addAnnotation(annotation);
         }
+
 
         Map<String, String> typeDefines = ClassUtil.getTypeDefines(method);
         for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
             String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
             if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
+                throw new VerifyException(
+                        "@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
             }
         }
-        for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticTokens(method, CURRENT_TOKEN).entrySet()) {
+        for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticTokens(method, CURRENT_TOKEN)
+                .entrySet()) {
             String name = fieldEntry.getKey();
             Boolean isStatic = this.staticTokens.put(name, fieldEntry.getValue());
             if (isStatic != null && !isStatic.equals(fieldEntry.getValue())) {
@@ -160,12 +164,14 @@ public class ParseContext {
         for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
             String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
             if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
+                throw new VerifyException(
+                        "@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
             }
         }
 
         for (Method method : this.defineClass.getMethods()) {
-            if (!Modifier.isAbstract(method.getModifiers())) continue;
+            if (!Modifier.isAbstract(method.getModifiers()))
+                continue;
             if (AnnotationUtils.hasAnnotation(method.getDeclaringClass(), Builtin.class)) {
                 continue;
             }
@@ -189,9 +195,12 @@ public class ParseContext {
      * @throws ParseException         the parse exception
      */
     public AbsMethodDefine parseMethod(Method method) throws VerifyException, ClassNotFoundException, ParseException {
-        io.github.hhy50.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);
-        io.github.hhy50.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Setter.class);
-        io.github.hhy50.linker.annotations.Method.Expr expr = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Expr.class);
+        io.github.hhy50.linker.annotations.Field.Getter getter = method
+                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);
+        io.github.hhy50.linker.annotations.Field.Setter setter = method
+                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Setter.class);
+        io.github.hhy50.linker.annotations.Method.Expr expr = method
+                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Expr.class);
 
         AbsMethodDefine absMethodDefine = new AbsMethodDefine(method);
         Class<?> rootType = root.getActualType();
@@ -202,18 +211,20 @@ public class ParseContext {
             String exprStr = setter.value();
             Tokens tokens = tokenParser.parse(exprStr);
             List<FieldRef> fieldRefs = parseFieldExpr(rootType, tokens);
-//            absMethodDefine.methodRef = new FieldGetterMethodRef(fieldRefs);
+            // absMethodDefine.methodRef = new FieldGetterMethodRef(fieldRefs);
         } else if (absMethodDefine.hasConstructor()) {
             String[] argsType = parseArgsType(method, null, true);
             Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, argsType);
             if (constructor == null) {
-                throw new ParseException("Constructor not found in class '" + rootType + "' with args " + Arrays.toString(argsType));
+                throw new ParseException(
+                        "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(argsType));
             }
-//             absMethodDefine.methodRef = new ConstructorRef(method.getName(), constructor);
+            // absMethodDefine.methodRef = new ConstructorRef(method.getName(),
+            // constructor);
         } else {
-            String methodExpr = Optional.ofNullable(expr).map(io.github.hhy50.linker.annotations.Method.Expr::value).orElseGet(() ->
-                    method.getName() + "(" + IntStream.range(0, method.getParameterCount()).mapToObj(i -> "$" + i).collect(Collectors.joining(",")) + ")"
-            );
+            String methodExpr = Optional.ofNullable(expr).map(io.github.hhy50.linker.annotations.Method.Expr::value)
+                    .orElseGet(() -> method.getName() + "(" + IntStream.range(0, method.getParameterCount())
+                            .mapToObj(i -> "$" + i).collect(Collectors.joining(",")) + ")");
             absMethodDefine.methodRef = parseMethodExpr(method, tokenParser.parse(methodExpr));
         }
         return absMethodDefine;
@@ -221,7 +232,7 @@ public class ParseContext {
 
     private MethodExprRef parseMethodExpr(Method methodDefine, final Tokens tokens) throws ClassNotFoundException {
         String invokeSuper = Optional.ofNullable(methodDefine
-                        .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class))
+                .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class))
                 .map(io.github.hhy50.linker.annotations.Method.InvokeSuper::value)
                 .orElse(null);
 
@@ -288,10 +299,11 @@ public class ParseContext {
                 }
                 currentType = index == null ? assignedType : Util.expandIndexType(index, assignedType);
             }
-            FieldRef fieldRef = earlyField != null ? new EarlyFieldRef(fullField, earlyField) : new RuntimeFieldRef(fullField, fieldName);
-//            lastField.setNullable(token.isNullable());
-//            lastField.setDefaultValue();
-//            lastField.setIndex();
+            FieldRef fieldRef = earlyField != null ? new EarlyFieldRef(fullField, earlyField)
+                    : new RuntimeFieldRef(fullField, fieldName);
+            // lastField.setNullable(token.isNullable());
+            // lastField.setDefaultValue();
+            // lastField.setIndex();
             designateStatic(fieldRef);
             fields.add(fieldRef);
         }
@@ -350,7 +362,8 @@ public class ParseContext {
                 .map(Annotation::annotationType)
                 .filter(item -> item.getDeclaredAnnotation(Verify.Unique.class) != null).collect(Collectors.toList());
         if (uniques.size() > 1) {
-            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations [" +
+            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName()
+                    + "] cannot have two annotations [" +
                     uniques.stream().map(Class::getSimpleName).collect(Collectors.joining(", @", "@", "")) + "]");
         }
         for (Annotation annotation : declaredAnnotations) {
@@ -363,7 +376,8 @@ public class ParseContext {
                     throw new VerifyException(e);
                 }
                 if (!verifier.test(method, annotation)) {
-                    throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] verify failed");
+                    throw new VerifyException(
+                            "method [" + method.getDeclaringClass() + "@" + method.getName() + "] verify failed");
                 }
             }
         }
