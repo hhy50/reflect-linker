@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.define;
 
-import com.sun.xml.internal.ws.spi.db.MethodGetter;
 import io.github.hhy50.linker.annotations.Builtin;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
@@ -45,12 +44,13 @@ public class ParseContext {
      */
     EarlyFieldRef root;
 
+    List<AbsMethodMetadata> methods = new ArrayList<>();
+
     /**
      * The Parsed fields.
      */
-    final Map<String, FieldRef> parsedFields = new HashMap<>();
-
-    final Map<String, MethodGetter> filedGetters = new HashMap<>();
+    final Map<String, FieldRef> filedGetterUnits = new HashMap<>();
+    final Map<String, FieldRef> methodUnits = new HashMap<>();
 
     /**
      * The Typed fields.
@@ -81,8 +81,29 @@ public class ParseContext {
      *
      * @param method the method
      */
-    void preParse(Method method) {
-        verify(method);
+    AbsMethodMetadata preParse(Method method) {
+                Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
+        List<Class<? extends Annotation>> uniques = Arrays.stream(declaredAnnotations)
+                .map(Annotation::annotationType)
+                .filter(item -> item.getDeclaredAnnotation(Verify.Unique.class) != null).collect(Collectors.toList());
+        if (uniques.size() > 1) {
+            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] cannot have two annotations [" +
+                    uniques.stream().map(Class::getSimpleName).collect(Collectors.joining(", @", "@", "")) + "]");
+        }
+        for (Annotation annotation : declaredAnnotations) {
+            Verify.Custom custom = annotation.annotationType().getDeclaredAnnotation(Verify.Custom.class);
+            if (custom != null) {
+                Verifier verifier = null;
+                try {
+                    verifier = custom.value().newInstance();
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new VerifyException(e);
+                }
+                if (!verifier.test(method, annotation)) {
+                    throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName() + "] verify failed");
+                }
+            }
+        }
 
         Map<String, String> typeDefines = ClassUtil.getTypeDefines(method);
         for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
@@ -98,6 +119,7 @@ public class ParseContext {
                 throw new VerifyException("@Static of field '" + name + "' defined twice is inconsistent");
             }
         }
+        return null;
     }
 
     /**
@@ -147,10 +169,12 @@ public class ParseContext {
             if (AnnotationUtils.hasAnnotation(method.getDeclaringClass(), Builtin.class)) {
                 continue;
             }
-            preParse(method);
-            AbsMethodDefine absMethod = parseMethod(method);
+            AbsMethodMetadata metadata = preParse(method);
+            AbsMethodDefine absMethod = parseMethod(metadata);
             postParse(absMethod);
             absMethodDefines.add(absMethod);
+
+            this.methods.add(metadata);
         }
         return absMethodDefines;
     }
