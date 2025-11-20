@@ -1,5 +1,11 @@
 package io.github.hhy50.linker.define;
 
+import io.github.hhy50.linker.annotations.Typed;
+import io.github.hhy50.linker.exceptions.VerifyException;
+import io.github.hhy50.linker.generate.builtin.SetTargetProvider;
+import io.github.hhy50.linker.util.AnnotationUtils;
+import io.github.hhy50.linker.util.ClassUtil;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,18 +17,29 @@ public class AbsInterfaceMetadata {
     /**
      *
      */
-    private java.lang.Class<?> clazz;
+    private final java.lang.Class<?> interfaceClass;
 
+    private final List<Annotation> annotations = new ArrayList<>();
 
-    private List<Annotation> annotations = new ArrayList<>();
+    private final Map<String, String> types = new HashMap<>();
 
-    private Map<String, String> types = new HashMap<>();
+    private final boolean runtime;
 
-    private boolean isRuntime;
+    public AbsInterfaceMetadata(Class<?> define) {
+        this.interfaceClass = define;
+        this.runtime = AnnotationUtils.isRuntime(define)
+                || SetTargetProvider.class.isAssignableFrom(define);
+    }
 
-    private boolean isAutolink;
-
-    public AbsInterfaceMetadata(Class<?> clazz) {
-        this.clazz = clazz;
+    public void addAnnotation(Annotation annotation) {
+        if (annotation instanceof Typed) {
+            Typed typed = (Typed) annotation;
+            String type = this.types.put(typed.name(), typed.value());
+            if (type != null && !type.equals(typed.value())) {
+                throw new VerifyException(
+                        "@Typed of field '" + typed.name() + "' defined twice is inconsistent");
+            }
+            this.annotations.add(annotation);
+        }
     }
 }

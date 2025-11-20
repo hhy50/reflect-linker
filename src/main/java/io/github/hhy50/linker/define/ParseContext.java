@@ -49,7 +49,7 @@ public class ParseContext {
     /**
      * The Parsed fields.
      */
-    final Map<String, FieldRef> filedGetterUnits = new HashMap<>();
+    final Map<String, FieldRef> fieldUnits = new HashMap<>();
     final Map<String, FieldRef> methodUnits = new HashMap<>();
 
     /**
@@ -79,11 +79,11 @@ public class ParseContext {
     /**
      * Pre parse.
      *
-     * @param method the method
+     * @param classMetadata
+     * @param method        the method
      */
-    AbsMethodMetadata preParse(Method method) {
-        AbsMethodMetadata metadata = new AbsMethodMetadata();
-        metadata.setReflectMethod(method);
+    AbsMethodMetadata preParse(AbsInterfaceMetadata classMetadata, Method method) {
+        AbsMethodMetadata metadata = new AbsMethodMetadata(classMetadata, method);
 
         Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
         for (Annotation annotation : declaredAnnotations) {
@@ -105,25 +105,7 @@ public class ParseContext {
             }
             metadata.addAnnotation(annotation);
         }
-
-
-        Map<String, String> typeDefines = ClassUtil.getTypeDefines(method);
-        for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
-            String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
-            if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException(
-                        "@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
-            }
-        }
-        for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticTokens(method, CURRENT_TOKEN)
-                .entrySet()) {
-            String name = fieldEntry.getKey();
-            Boolean isStatic = this.staticTokens.put(name, fieldEntry.getValue());
-            if (isStatic != null && !isStatic.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Static of field '" + name + "' defined twice is inconsistent");
-            }
-        }
-        return null;
+        return metadata;
     }
 
     /**
@@ -160,13 +142,11 @@ public class ParseContext {
 
     private List<AbsMethodDefine> doParseClass() throws ClassNotFoundException, ParseException {
         List<AbsMethodDefine> absMethodDefines = new ArrayList<>();
-        Map<String, String> typeDefines = ClassUtil.getTypeDefines(this.defineClass);
-        for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
-            String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
-            if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException(
-                        "@Typed of field '" + fieldEntry.getKey() + "' defined twice is inconsistent");
-            }
+
+        AbsInterfaceMetadata classMetadata = new AbsInterfaceMetadata(this.defineClass);
+        Annotation[] declaredAnnotations = this.defineClass.getDeclaredAnnotations();
+        for (Annotation annotation : declaredAnnotations) {
+            classMetadata.addAnnotation(annotation);
         }
 
         for (Method method : this.defineClass.getMethods()) {
@@ -175,7 +155,7 @@ public class ParseContext {
             if (AnnotationUtils.hasAnnotation(method.getDeclaringClass(), Builtin.class)) {
                 continue;
             }
-            AbsMethodMetadata metadata = preParse(method);
+            AbsMethodMetadata metadata = preParse(classMetadata, method);
             AbsMethodDefine absMethod = parseMethod(metadata);
             postParse(absMethod);
             absMethodDefines.add(absMethod);
@@ -232,7 +212,7 @@ public class ParseContext {
 
     private MethodExprRef parseMethodExpr(Method methodDefine, final Tokens tokens) throws ClassNotFoundException {
         String invokeSuper = Optional.ofNullable(methodDefine
-                .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class))
+                        .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class))
                 .map(io.github.hhy50.linker.annotations.Method.InvokeSuper::value)
                 .orElse(null);
 
