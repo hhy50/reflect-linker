@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate;
 
-import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.generate.invoker.InvokerDecorator;
 

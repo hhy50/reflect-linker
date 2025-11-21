@@ -1,10 +1,9 @@
-package io.github.hhy50.linker.define;
+package io.github.hhy50.linker.define.md;
 
 import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.VerifyException;
 import io.github.hhy50.linker.generate.builtin.SetTargetProvider;
 import io.github.hhy50.linker.util.AnnotationUtils;
-import io.github.hhy50.linker.util.ClassUtil;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -41,5 +40,9 @@ public class AbsInterfaceMetadata {
             }
             this.annotations.add(annotation);
         }
+    }
+
+    public boolean isRuntime() {
+        return this.runtime;
     }
 }

@@ -1,13 +1,10 @@
-package io.github.hhy50.linker.define;
+package io.github.hhy50.linker.define.md;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
+import io.github.hhy50.linker.annotations.Field;
+import io.github.hhy50.linker.annotations.Method;
 import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.VerifyException;
@@ -32,7 +29,9 @@ public class AbsMethodMetadata {
 
     private Map<String, Boolean> staticToken = new HashMap<>();
 
-    public AbsMethodMetadata(AbsInterfaceMetadata parent, Method reflect) {
+    private boolean constructor;
+
+    public AbsMethodMetadata(AbsInterfaceMetadata parent, java.lang.reflect.Method reflect) {
         this.parent = parent;
         this.reflect = reflect;
     }
@@ -67,11 +66,29 @@ public class AbsMethodMetadata {
         }
     }
 
-    public boolean isRuntime() {
+    public boolean isAutolink() {
         return false;
     }
 
-    public boolean isAutolink() {
-        return false;
+    public boolean isConstructor() {
+        return uniqueAnno instanceof io.github.hhy50.linker.annotations.Method.Constructor;
+    }
+
+    public java.lang.reflect.Method getMethod() {
+        return reflect;
+    }
+
+    public String getExpr() {
+        if (uniqueAnno instanceof Method.Expr) {
+            return ((Method.Expr) uniqueAnno).value();
+        } else if (uniqueAnno instanceof Field.Getter) {
+            return ((Field.Getter) uniqueAnno).value();
+        } else if (uniqueAnno instanceof Field.Setter) {
+            return ((Field.Setter) uniqueAnno).value();
+        }
+//        String methodExpr = Optional.ofNullable(expr).map(io.github.hhy50.linker.annotations.Method.Expr::value)
+//                .orElseGet(() -> method.getName() + "(" + IntStream.range(0, method.getParameterCount())
+//                        .mapToObj(i -> "$" + i).collect(Collectors.joining(",")) + ")");
+        return null;
     }
 }

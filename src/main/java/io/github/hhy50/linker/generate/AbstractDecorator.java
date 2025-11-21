@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate;
 
-import io.github.hhy50.linker.define.AbsMethodDefine;
+import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -30,7 +30,7 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * The Method define.
      */
-    protected final AbsMethodDefine absMethodDefine;
+    protected final AbsMethodMetadata metadata;
 
     /**
      * The Auto link result.
@@ -40,13 +40,13 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * Instantiates a new Abstract decorator.
      *
-     * @param absMethodDefine the method define
+     * @param metadata the method
      */
-    protected AbstractDecorator(AbsMethodDefine absMethodDefine) {
-        Objects.requireNonNull(absMethodDefine);
+    protected AbstractDecorator(AbsMethodMetadata metadata) {
+        Objects.requireNonNull(metadata);
 
-        this.absMethodDefine = absMethodDefine;
-        this.autolink = AnnotationUtils.isAutolink(absMethodDefine.method);
+        this.metadata = metadata;
+        this.autolink = metadata.isAutolink();
     }
 
     /**
@@ -56,7 +56,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      * @param expectArgsType the args type
      */
     protected VarInst[] typecastArgs(VarInst[] args, Type[] expectArgsType) {
-        Class<?>[] parameterTypes = absMethodDefine.method.getParameterTypes();
+        Class<?>[] parameterTypes = metadata.getMethod().getParameterTypes();
         // 校验入参类型
         VarInst[] realArgs = new VarInst[args.length];
         for (int i = 0; i < args.length; i++) {
@@ -85,7 +85,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      * @return the var inst
      */
     protected VarInst typecastResult(MethodBody methodBody, VarInst varInst) {
-        Method method = absMethodDefine.method;
+        Method method = metadata.getMethod();
         Class<?> returnClassType = method.getReturnType();
         if (returnClassType == Object.class && !TypeUtil.isPrimitiveType(varInst.getType())) {
             return varInst;

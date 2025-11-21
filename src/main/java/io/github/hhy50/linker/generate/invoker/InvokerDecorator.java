@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.define.AbsMethodDefine;
-import io.github.hhy50.linker.define.method.MethodExprRef;
+import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.generate.AbstractDecorator;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.*;
@@ -19,24 +18,20 @@ public class InvokerDecorator extends AbstractDecorator {
      * The Real invoker.
      */
     protected MethodExprInvoker invoker;
-    private final MethodExprRef methodRef;
-
-    private final AbsMethodDefine absMethodDefine;
+    private final AbsMethodMetadata metadata;
     private final boolean isConstructor;
 
     /**
      * Instantiates a new Invoker decorator.
      *
      * @param invoker         the invoker
-     * @param absMethodDefine the method define
      */
-    public InvokerDecorator(MethodExprInvoker invoker, AbsMethodDefine absMethodDefine) {
-        super(absMethodDefine);
+    public InvokerDecorator(MethodExprInvoker invoker, AbsMethodMetadata metadata) {
+        super(metadata);
         Objects.requireNonNull(invoker);
         this.invoker = invoker;
-        this.methodRef = absMethodDefine.methodRef;
-        this.absMethodDefine = absMethodDefine;
-        this.isConstructor = absMethodDefine.hasConstructor();
+        this.metadata = metadata;
+        this.isConstructor = metadata.isConstructor();
     }
 
     @Override
@@ -46,10 +41,9 @@ public class InvokerDecorator extends AbstractDecorator {
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst> instChainAction, ChainAction<VarInst[]> originArgs) {
-//        MethodRef methodRef = absMethodDefine.methodRef;
-        Type mType = methodRef.getMethodType();
+        Type mType = metadata.getMethodType();
         Type[] argsType = mType.getArgumentTypes();
-        Class<?> rClassType = absMethodDefine.method.getReturnType();
+        Class<?> rClassType = metadata.getMethod().getReturnType();
 
         return (ChainAction) invoker.invoke(null, originArgs.map(a -> typecastArgs(a, argsType)))
                 .mapBody((body, varInst) -> {

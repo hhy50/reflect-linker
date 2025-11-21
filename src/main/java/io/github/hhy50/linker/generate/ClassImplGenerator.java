@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.AbsMethodDefine;
 import io.github.hhy50.linker.define.InterfaceImplClass;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
@@ -37,11 +36,11 @@ public class ClassImplGenerator {
                 .setTarget(targetClass)
                 .setDefineClass(define);
 
-        for (AbsMethodDefine absMethodDefine : defineClass.getAbsMethods()) {
-            Method method = absMethodDefine.method;
-            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getType(method), null)
-                    .intercept(body -> generateMethodImpl(classBuilder, body, absMethodDefine));
-        }
+//        for (AbsMethodDefine absMethodDefine : defineClass.getAbsMethods()) {
+//            Method method = absMethodDefine.method;
+//            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getType(method), null)
+//                    .intercept(body -> generateMethodImpl(classBuilder, body, absMethodDefine));
+//        }
         byte[] bytecode = classBuilder.end().toBytecode();
         String outputPath = System.getProperty("linker.output.path");
         if (!StringUtil.isEmpty(outputPath)) {

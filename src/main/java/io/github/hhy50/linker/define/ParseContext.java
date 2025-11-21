@@ -5,6 +5,8 @@ import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
+import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
+import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.define.method.*;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
@@ -19,7 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -42,12 +43,12 @@ public class ParseContext {
     /**
      * The Target root.
      */
-    EarlyFieldRef root;
+    Class<?> rootType;
 
     List<AbsMethodMetadata> methods = new ArrayList<>();
 
     /**
-     * The Parsed fields.
+     * 解析过程中解析到的字段和method
      */
     final Map<String, FieldRef> fieldUnits = new HashMap<>();
     final Map<String, FieldRef> methodUnits = new HashMap<>();
@@ -73,7 +74,8 @@ public class ParseContext {
      */
     ParseContext(Class<?> defineClass, Class<?> targetClass) {
         this.defineClass = defineClass;
-        this.root = new EarlyFieldRef(FIRST_OBJ_NAME, targetClass);
+        this.rootType = targetClass;
+//        this.root = new EarlyFieldRef(FIRST_OBJ_NAME, targetClass);
     }
 
     /**
@@ -111,9 +113,8 @@ public class ParseContext {
     /**
      * Post parse.
      *
-     * @param absMethod the abs method
      */
-    void postParse(AbsMethodDefine absMethod) {
+    void postParse(MethodExpr methodExpr) {
         this.staticTokens.remove(CURRENT_TOKEN);
     }
 
@@ -136,12 +137,11 @@ public class ParseContext {
      * @throws ClassNotFoundException the class not found exception
      * @throws ParseException         the parse exception
      */
-    public List<AbsMethodDefine> parse() throws ClassNotFoundException, ParseException {
+    public List<MethodExpr> parse() throws ClassNotFoundException, ParseException {
         return doParseClass();
     }
 
-    private List<AbsMethodDefine> doParseClass() throws ClassNotFoundException, ParseException {
-        List<AbsMethodDefine> absMethodDefines = new ArrayList<>();
+    private List<MethodExpr> doParseClass() throws ClassNotFoundException, ParseException {
 
         AbsInterfaceMetadata classMetadata = new AbsInterfaceMetadata(this.defineClass);
         Annotation[] declaredAnnotations = this.defineClass.getDeclaredAnnotations();
@@ -156,58 +156,45 @@ public class ParseContext {
                 continue;
             }
             AbsMethodMetadata metadata = preParse(classMetadata, method);
-            AbsMethodDefine absMethod = parseMethod(metadata);
+            MethodExpr absMethod = parseMethod(metadata);
             postParse(absMethod);
-            absMethodDefines.add(absMethod);
 
             this.methods.add(metadata);
         }
-        return absMethodDefines;
+        return null;
     }
 
     /**
      * Parse method abs method define.
      *
-     * @param method the method
+     * @param metadata the method metadata
      * @return the abs method define
      * @throws VerifyException        the verify exception
      * @throws ClassNotFoundException the class not found exception
      * @throws ParseException         the parse exception
      */
-    public AbsMethodDefine parseMethod(Method method) throws VerifyException, ClassNotFoundException, ParseException {
-        io.github.hhy50.linker.annotations.Field.Getter getter = method
-                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);
-        io.github.hhy50.linker.annotations.Field.Setter setter = method
-                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Setter.class);
-        io.github.hhy50.linker.annotations.Method.Expr expr = method
-                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Expr.class);
+    public MethodExpr parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
+//        io.github.hhy50.linker.annotations.Field.Getter getter = method
+//                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);
+//        io.github.hhy50.linker.annotations.Field.Setter setter = method
+//                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Setter.class);
+//        io.github.hhy50.linker.annotations.Method.Expr expr = method
+//                .getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Expr.class);
 
-        AbsMethodDefine absMethodDefine = new AbsMethodDefine(method);
-        Class<?> rootType = root.getActualType();
-        if (getter != null) {
-            String methodExpr = getter.value();
-            absMethodDefine.methodRef = parseMethodExpr(method, tokenParser.parse(methodExpr));
-        } else if (setter != null) {
-            String exprStr = setter.value();
-            Tokens tokens = tokenParser.parse(exprStr);
-            List<FieldRef> fieldRefs = parseFieldExpr(rootType, tokens);
-            // absMethodDefine.methodRef = new FieldGetterMethodRef(fieldRefs);
-        } else if (absMethodDefine.hasConstructor()) {
+        Method method = metadata.getMethod();
+        if (metadata.isConstructor()) {
             String[] argsType = parseArgsType(method, null, true);
             Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, argsType);
             if (constructor == null) {
                 throw new ParseException(
                         "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(argsType));
             }
-            // absMethodDefine.methodRef = new ConstructorRef(method.getName(),
-            // constructor);
+            return null;
         } else {
-            String methodExpr = Optional.ofNullable(expr).map(io.github.hhy50.linker.annotations.Method.Expr::value)
-                    .orElseGet(() -> method.getName() + "(" + IntStream.range(0, method.getParameterCount())
-                            .mapToObj(i -> "$" + i).collect(Collectors.joining(",")) + ")");
-            absMethodDefine.methodRef = parseMethodExpr(method, tokenParser.parse(methodExpr));
+            String expr = metadata.getExpr();
+            MethodExprRef methodExprRef = parseMethodExpr(method, tokenParser.parse(expr));
         }
-        return absMethodDefine;
+        return null;
     }
 
     private MethodExprRef parseMethodExpr(Method methodDefine, final Tokens tokens) throws ClassNotFoundException {
@@ -224,7 +211,7 @@ public class ParseContext {
         }
 
         MethodExprRef methodExprRef = new MethodExprRef(methodDefine);
-        Class<?> curType = root.getActualType();
+        Class<?> curType = this.rootType;
         for (SplitToken splitToken : tokenList) {
             Tokens fieldsToken = (Tokens) splitToken.prefix;
             MethodToken methodToken = (MethodToken) splitToken.suffix;

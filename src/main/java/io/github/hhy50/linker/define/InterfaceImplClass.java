@@ -16,7 +16,7 @@ public class InterfaceImplClass {
     /**
      * 需要实现的抽象方法
      */
-    private final List<AbsMethodDefine> absMethods;
+    private final List<MethodExpr> absMethods;
 
     /**
      * 字节码
@@ -29,18 +29,13 @@ public class InterfaceImplClass {
      * @param className  the class name
      * @param absMethods the method defines
      */
-    public InterfaceImplClass(String className, List<AbsMethodDefine> absMethods) {
+    public InterfaceImplClass(String className, List<MethodExpr> absMethods) {
         this.className = className;
         this.absMethods = absMethods;
     }
 
-    /**
-     * Gets method defines.
-     *
-     * @return the method defines
-     */
-    public List<AbsMethodDefine> getAbsMethods() {
-        return absMethods;
+    public List<MethodExpr> getAbsMethods() {
+        return this.absMethods;
     }
 
     /**

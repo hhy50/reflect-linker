@@ -66,7 +66,7 @@ public class ClassDefineParse {
 
         ParseContext parseContext = new ParseContext(define, targetClass);
         parseContext.setClassLoader(targetClass.getClassLoader());
-        List<AbsMethodDefine> absMethods = parseContext.parse();
+        List<MethodExpr> absMethods = parseContext.parse();
 
         List<Class<?>> interfaces = new ArrayList<>();
         interfaces.add(define);
