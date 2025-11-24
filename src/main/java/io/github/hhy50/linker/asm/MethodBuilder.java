@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.asm;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;

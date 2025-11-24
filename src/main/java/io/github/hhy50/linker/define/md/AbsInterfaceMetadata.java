@@ -6,10 +6,8 @@ import io.github.hhy50.linker.generate.builtin.SetTargetProvider;
 import io.github.hhy50.linker.util.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class AbsInterfaceMetadata {
 
@@ -28,6 +26,9 @@ public class AbsInterfaceMetadata {
         this.interfaceClass = define;
         this.runtime = AnnotationUtils.isRuntime(define)
                 || SetTargetProvider.class.isAssignableFrom(define);
+        for (Annotation anno : define.getDeclaredAnnotations()) {
+            addAnnotation(anno);
+        }
     }
 
     public void addAnnotation(Annotation annotation) {
@@ -44,5 +45,9 @@ public class AbsInterfaceMetadata {
 
     public boolean isRuntime() {
         return this.runtime;
+    }
+
+    public List<Method> getMethods() {
+        return Arrays.asList(interfaceClass.getDeclaredMethods());
     }
 }

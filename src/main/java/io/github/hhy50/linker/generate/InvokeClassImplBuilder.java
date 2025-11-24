@@ -22,7 +22,6 @@ import static io.github.hhy50.linker.util.TypeUtil.METHOD_HANDLER_TYPE;
  * The type Invoke class impl builder.
  */
 public class InvokeClassImplBuilder extends AsmClassBuilder {
-    private Class<?> defineClass;
     private TargetFieldGetter targetGetter;
     private final Map<String, Getter> getters;
     private final Map<String, Setter> setters;
@@ -57,26 +56,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public static InvokeClassImplBuilder builder(int access, String className, String superName, String[] interfaces, String sign) {
         return new InvokeClassImplBuilder(access, className, superName, interfaces, sign);
-    }
-
-    /**
-     * Sets define class.
-     *
-     * @param defineClass the define class
-     * @return define class
-     */
-    public InvokeClassImplBuilder setDefineClass(Class<?> defineClass) {
-        this.defineClass = defineClass;
-        return this;
-    }
-
-    /**
-     * Gets define class.
-     *
-     * @return the define class
-     */
-    public Class<?> getDefineClass() {
-        return defineClass;
     }
 
     /**

@@ -1,13 +1,16 @@
 package io.github.hhy50.linker.define.md;
 
-import java.lang.annotation.Annotation;
-import java.util.*;
-
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
 import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.VerifyException;
+
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AbsMethodMetadata {
 

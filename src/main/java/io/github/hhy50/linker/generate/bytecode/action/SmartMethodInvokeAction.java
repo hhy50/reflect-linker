@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
+import io.github.hhy50.linker.generate.bytecode.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;

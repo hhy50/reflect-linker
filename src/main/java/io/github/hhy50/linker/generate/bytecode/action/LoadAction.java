@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

@@ -1,4 +1,4 @@
-package io.github.hhy50.linker.define;
+package io.github.hhy50.linker.generate.bytecode;
 
 import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;

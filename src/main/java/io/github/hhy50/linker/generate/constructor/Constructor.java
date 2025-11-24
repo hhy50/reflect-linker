@@ -1,9 +1,9 @@
 package io.github.hhy50.linker.generate.constructor;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;

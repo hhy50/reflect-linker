@@ -1,9 +1,8 @@
 package io.github.hhy50.linker.generate;
 
-import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.InterfaceImplClass;
+import io.github.hhy50.linker.define.AbsMethod;
+import io.github.hhy50.linker.define.GeneratedClass;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
-import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.StringUtil;
 import org.objectweb.asm.Opcodes;
@@ -22,43 +21,38 @@ public class ClassImplGenerator {
     /**
      * Generate bytecode.
      *
-     * @param define      the define
-     * @param targetClass the target class
-     * @param defineClass the define class
      * @param interfaces  the interfaces
      * @throws IOException the io exception
      */
-    public static void generateBytecode(Class<?> define, Class<?> targetClass, InterfaceImplClass defineClass, List<Class<?>> interfaces) throws IOException {
-        String implClassName = defineClass.getClassName();
+    public static GeneratedClass generateBytecode(String implClassName, List<AbsMethod> absMethods, List<Class<?>> interfaces) throws IOException {
         InvokeClassImplBuilder classBuilder = InvokeClassImplBuilder
                 .builder(Opcodes.ACC_PUBLIC | Opcodes.ACC_OPEN, implClassName, DefaultTargetProviderImpl.class.getName(), interfaces.stream()
-                        .map(Class::getName).toArray(String[]::new), "")
-                .setTarget(targetClass)
-                .setDefineClass(define);
+                        .map(Class::getName).toArray(String[]::new), "");
 
-//        for (AbsMethodDefine absMethodDefine : defineClass.getAbsMethods()) {
-//            Method method = absMethodDefine.method;
-//            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, method.getName(), Type.getType(method), null)
-//                    .intercept(body -> generateMethodImpl(classBuilder, body, absMethodDefine));
-//        }
+        for (AbsMethod absMethod : absMethods) {
+            Method reflect = absMethod.getReflect();
+            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, reflect.getName(), Type.getType(reflect), null)
+                    .intercept(body -> generateMethodImpl(classBuilder, body, absMethod));
+        }
+
         byte[] bytecode = classBuilder.end().toBytecode();
         String outputPath = System.getProperty("linker.output.path");
         if (!StringUtil.isEmpty(outputPath)) {
             Files.write(new File(outputPath, ClassUtil.toSimpleName(implClassName) + ".class").toPath(), bytecode);
         }
-        defineClass.setBytecode(bytecode);
+        return new GeneratedClass(implClassName, bytecode);
     }
 
-    private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodBody body, AbsMethodDefine absMethodDefine) {
-        MethodHandle mh = null;
-        if (absMethodDefine.methodRef != null) {
-            mh = BytecodeFactory.generateInvoker(classBuilder, absMethodDefine, absMethodDefine.methodRef);
-        } else {
-            AsmUtil.throwNoSuchMethod(body.getWriter(), absMethodDefine.method.getName());
-        }
-        if (mh != null) {
-            mh.define(classBuilder);
-            body.append(mh.invoke(null, ChainAction.of(MethodBody::getArgs)));
-        }
+    private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodBody body, AbsMethod absMethod) {
+//        MethodHandle mh = absMethod.methodHandle();
+//        if (absMethodDefine.methodRef != null) {
+//            mh = BytecodeFactory.generateInvoker(classBuilder, absMethodDefine, absMethodDefine.methodRef);
+//        } else {
+//            AsmUtil.throwNoSuchMethod(body.getWriter(), absMethodDefine.method.getName());
+//        }
+//        if (mh != null) {
+//            mh.define(classBuilder);
+//            body.append(mh.invoke(null, ChainAction.of(MethodBody::getArgs)));
+//        }
     }
 }

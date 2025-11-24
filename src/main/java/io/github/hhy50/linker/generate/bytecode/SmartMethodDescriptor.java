@@ -1,4 +1,4 @@
-package io.github.hhy50.linker.define;
+package io.github.hhy50.linker.generate.bytecode;
 
 import org.objectweb.asm.Type;
 

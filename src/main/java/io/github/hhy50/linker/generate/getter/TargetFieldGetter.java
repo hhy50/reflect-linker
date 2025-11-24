@@ -1,10 +1,10 @@
 package io.github.hhy50.linker.generate.getter;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.Member;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;

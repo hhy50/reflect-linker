@@ -2,7 +2,7 @@ package io.github.hhy50.linker.tools;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;

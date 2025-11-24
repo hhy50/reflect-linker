@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.generate.bytecode.utils;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
+import io.github.hhy50.linker.generate.bytecode.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;

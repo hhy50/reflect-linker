@@ -2,8 +2,8 @@ package io.github.hhy50.linker.runtime;
 
 
 import io.github.hhy50.linker.AccessTool;
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.LinkerException;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.syslinker.DirectMethodHandleLinker;
 import io.github.hhy50.linker.util.ClassUtil;

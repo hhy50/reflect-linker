@@ -1,11 +1,11 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.annotations.Autolink;
-import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;

@@ -1,9 +1,9 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.runtime.Runtime;

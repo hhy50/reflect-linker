@@ -1,12 +1,11 @@
 package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.annotations.Target;
+import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
 import io.github.hhy50.linker.generate.ClassImplGenerator;
 import io.github.hhy50.linker.generate.builtin.RuntimeProvider;
-import io.github.hhy50.linker.generate.builtin.SetTargetProvider;
-import io.github.hhy50.linker.util.AnnotationUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.Map;
  */
 public class ClassDefineParse {
 
-    private static final Map<String, Map<String, InterfaceImplClass>> PARSED = new HashMap<>();
+    private static final Map<String, Map<String, GeneratedClass>> PARSED = new HashMap<>();
 
     /**
      * Parse class interface impl class define.
@@ -31,7 +30,7 @@ public class ClassDefineParse {
      * @throws ClassNotFoundException the class not found exception
      * @throws IOException            the io exception
      */
-    public static InterfaceImplClass parseClass(Class<?> define, ClassLoader cl) throws ParseException, ClassNotFoundException, IOException {
+    public static GeneratedClass parseClass(Class<?> define, ClassLoader cl) throws ParseException, ClassNotFoundException, IOException {
         Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
         if (bindAnno == null) {
             throw new VerifyException("use @Target.Bind specified a class  \n"+
@@ -51,22 +50,15 @@ public class ClassDefineParse {
      * @throws IOException            the io exception
      * @throws ClassNotFoundException the class not found exception
      */
-    public static InterfaceImplClass parseClass(Class<?> define, Class<?> targetClass) throws ParseException, IOException, ClassNotFoundException {
-        boolean runtime = AnnotationUtils.isRuntime(define)
-                || SetTargetProvider.class.isAssignableFrom(define);
-        if (runtime) {
-            targetClass = Object.class;
-        }
+    public static GeneratedClass parseClass(Class<?> define, Class<?> targetClass) throws ParseException, IOException, ClassNotFoundException {
+        AbsInterfaceMetadata classMetadata = new AbsInterfaceMetadata(define);
+        boolean runtime = classMetadata.isRuntime();
 
         String dynKey = targetClass == Object.class ? "runtime" : targetClass.getName().replace('.', '_');
-        InterfaceImplClass defineClass = getCache(define, dynKey);
-        if (defineClass != null) {
-            return defineClass;
-        }
 
-        ParseContext parseContext = new ParseContext(define, targetClass);
+        ParseContext parseContext = new ParseContext(classMetadata, targetClass);
         parseContext.setClassLoader(targetClass.getClassLoader());
-        List<MethodExpr> absMethods = parseContext.parse();
+        List<AbsMethod> absMethods = parseContext.parse();
 
         List<Class<?>> interfaces = new ArrayList<>();
         interfaces.add(define);
@@ -74,19 +66,18 @@ public class ClassDefineParse {
             interfaces.add(RuntimeProvider.class);
         }
 
-        defineClass = new InterfaceImplClass(define.getName()+"$"+dynKey, absMethods);
-        ClassImplGenerator.generateBytecode(define, targetClass, defineClass, interfaces);
-        putCache(define, dynKey, defineClass);
-        return defineClass;
+        String implClassName = define.getName()+"$"+dynKey;
+        ClassImplGenerator.generateBytecode(implClassName, absMethods, interfaces);
+        return null;
     }
 
-    private static InterfaceImplClass getCache(Class<?> define, String dynKey) {
-        Map<String, InterfaceImplClass> parsed = PARSED.computeIfAbsent(define.getName(), k -> new HashMap<>());
-        return parsed.get(dynKey);
-    }
-
-    private static void putCache(Class<?> define, String dynKey, InterfaceImplClass classDefine) {
-        Map<String, InterfaceImplClass> parsed = PARSED.computeIfAbsent(define.getName(), k -> new HashMap<>());
-        parsed.put(dynKey, classDefine);
-    }
+//    private static InterfaceImplClass getCache(Class<?> define, String dynKey) {
+//        Map<String, InterfaceImplClass> parsed = PARSED.computeIfAbsent(define.getName(), k -> new HashMap<>());
+//        return parsed.get(dynKey);
+//    }
+//
+//    private static void putCache(Class<?> define, String dynKey, InterfaceImplClass classDefine) {
+//        Map<String, InterfaceImplClass> parsed = PARSED.computeIfAbsent(define.getName(), k -> new HashMap<>());
+//        parsed.put(dynKey, classDefine);
+//    }
 }
