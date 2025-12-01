@@ -1,8 +1,10 @@
 package io.github.hhy50.linker.generate;
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.define.AbsMethod;
 import io.github.hhy50.linker.define.GeneratedClass;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.StringUtil;
 import org.objectweb.asm.Opcodes;
@@ -21,7 +23,7 @@ public class ClassImplGenerator {
     /**
      * Generate bytecode.
      *
-     * @param interfaces  the interfaces
+     * @param interfaces the interfaces
      * @throws IOException the io exception
      */
     public static GeneratedClass generateBytecode(String implClassName, List<AbsMethod> absMethods, List<Class<?>> interfaces) throws IOException {
@@ -44,15 +46,12 @@ public class ClassImplGenerator {
     }
 
     private static void generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodBody body, AbsMethod absMethod) {
-//        MethodHandle mh = absMethod.methodHandle();
-//        if (absMethodDefine.methodRef != null) {
-//            mh = BytecodeFactory.generateInvoker(classBuilder, absMethodDefine, absMethodDefine.methodRef);
-//        } else {
-//            AsmUtil.throwNoSuchMethod(body.getWriter(), absMethodDefine.method.getName());
-//        }
-//        if (mh != null) {
-//            mh.define(classBuilder);
-//            body.append(mh.invoke(null, ChainAction.of(MethodBody::getArgs)));
-//        }
+        MethodHandle mh = BytecodeFactory.generateInvoker(classBuilder, absMethod);
+        if (mh == null) {
+            AsmUtil.throwNoSuchMethod(body.getWriter(), absMethod.getReflect().getName());
+        } else {
+            mh.define(classBuilder);
+            body.append(mh.invoke(null, ChainAction.of(MethodBody::getArgs)));
+        }
     }
 }
