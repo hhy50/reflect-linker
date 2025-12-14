@@ -22,10 +22,14 @@ public class AbsInterfaceMetadata {
 
     private final boolean runtime;
 
-    public AbsInterfaceMetadata(Class<?> define) {
+    private final Class<?> targetClass;
+
+    public AbsInterfaceMetadata(Class<?> define, Class<?> targetClass) {
         this.interfaceClass = define;
         this.runtime = AnnotationUtils.isRuntime(define)
-                || SetTargetProvider.class.isAssignableFrom(define);
+                || SetTargetProvider.class.isAssignableFrom(define)
+                || define == Object.class;
+        this.targetClass = targetClass;
         for (Annotation anno : define.getDeclaredAnnotations()) {
             addAnnotation(anno);
         }
@@ -49,5 +53,9 @@ public class AbsInterfaceMetadata {
 
     public List<Method> getMethods() {
         return Arrays.asList(interfaceClass.getDeclaredMethods());
+    }
+
+    public Class<?> getTargetClass() {
+        return targetClass;
     }
 }

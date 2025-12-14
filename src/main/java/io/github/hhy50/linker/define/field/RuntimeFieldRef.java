@@ -15,7 +15,7 @@ public class RuntimeFieldRef extends FieldRef {
      * @param fieldName the field name
      */
     public RuntimeFieldRef(String fullName, String fieldName) {
-        super(fullName, fieldName, Object.class);
+        super(fullName, fieldName);
     }
 
     /**

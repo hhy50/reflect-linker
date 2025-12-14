@@ -41,16 +41,6 @@ public class AnnotationUtils {
     /**
      * Is runtime boolean.
      *
-     * @param method the method
-     * @return the boolean
-     */
-    public static boolean isRuntime(Method method) {
-        return method.getDeclaredAnnotation(Runtime.class) != null;
-    }
-
-    /**
-     * Is runtime boolean.
-     *
      * @param clazz the clazz
      * @return the boolean
      */

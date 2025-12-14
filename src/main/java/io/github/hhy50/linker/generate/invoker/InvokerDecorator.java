@@ -44,7 +44,7 @@ public class InvokerDecorator extends AbstractDecorator {
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst> instChainAction, ChainAction<VarInst[]> originArgs) {
-        Type mType = metadata.getMethodType();
+        Type mType = Type.getType(metadata.getMethod());
         Type[] argsType = mType.getArgumentTypes();
         Class<?> rClassType = metadata.getMethod().getReturnType();
 

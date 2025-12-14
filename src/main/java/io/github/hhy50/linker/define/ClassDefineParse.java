@@ -51,11 +51,13 @@ public class ClassDefineParse {
      * @throws ClassNotFoundException the class not found exception
      */
     public static GeneratedClass parseClass(Class<?> define, Class<?> targetClass) throws ParseException, IOException, ClassNotFoundException {
-        AbsInterfaceMetadata classMetadata = new AbsInterfaceMetadata(define);
+        AbsInterfaceMetadata classMetadata = new AbsInterfaceMetadata(define, targetClass);
         boolean runtime = classMetadata.isRuntime();
+        if (runtime) {
+            targetClass = Object.class;
+        }
 
         String dynKey = targetClass == Object.class ? "runtime" : targetClass.getName().replace('.', '_');
-
         ParseContext parseContext = new ParseContext(classMetadata, targetClass);
         parseContext.setClassLoader(targetClass.getClassLoader());
         List<AbsMethod> absMethods = parseContext.parse();
@@ -67,7 +69,7 @@ public class ClassDefineParse {
         }
 
         String implClassName = define.getName()+"$"+dynKey;
-        ClassImplGenerator.generateBytecode(implClassName, absMethods, interfaces);
+        ClassImplGenerator.generateBytecode(classMetadata, implClassName, absMethods, interfaces);
         return null;
     }
 

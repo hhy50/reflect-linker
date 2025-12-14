@@ -2,7 +2,6 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
@@ -61,12 +60,11 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Sets target.
      *
-     * @param bindTarget the bind target
+     * @param targetGetter the target
      * @return the target
      */
-    public InvokeClassImplBuilder setTarget(Class<?> bindTarget) {
-        EarlyFieldRef targetField = new EarlyFieldRef("target", bindTarget);
-        this.targetGetter = new TargetFieldGetter(targetField);
+    public InvokeClassImplBuilder setTarget(TargetFieldGetter targetGetter) {
+        this.targetGetter = targetGetter;
         return this;
     }
 
