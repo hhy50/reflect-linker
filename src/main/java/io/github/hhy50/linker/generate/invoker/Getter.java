@@ -13,6 +13,8 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
+import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
+
 /**
  * The type Getter.
  */
@@ -45,13 +47,14 @@ public class Getter extends FieldOpsMethodHandler {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> __) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
         if (super.inlineMhInvoker != null) {
-            return super.inlineMhInvoker.invoke(varInstChain, ChainAction.empty());
+            return mapOwnerAndArgs(argsAction, super.inlineMhInvoker);
         }
-        return varInstChain.map(varInst -> Actions.newLocalVar(new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
-                .setInstance(LoadAction.LOAD0)
-                .setArgs(varInst)));
+        return argsAction.map(args -> new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
+                        .setInstance(LoadAction.LOAD0)
+                        .setArgs(args))
+                .map(Actions::newLocalVar);
     }
 
     @Override

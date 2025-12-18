@@ -74,6 +74,10 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         return new ChainAction<>((__) -> provider.get());
     }
 
+    public static ChainAction<VarInst> mapOwnerAndArgs(ChainAction<VarInst[]> chainAction, BiFunction<VarInst, VarInst[], VarInst> func) {
+        return null;
+    }
+
     /**
      * Then chain action.
      *

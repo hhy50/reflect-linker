@@ -46,13 +46,15 @@ public class Setter extends FieldOpsMethodHandler {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
         if (super.inlineMhInvoker != null) {
-            return super.inlineMhInvoker.invoke(varInstChain, argsChainAction);
+            return ChainAction.mapOwnerAndArgs(argsAction, super.inlineMhInvoker);
         }
-        return varInstChain.map(varInst -> Actions.newLocalVar(new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
-                .setInstance(LoadAction.LOAD0)
-                .setArgs(varInst, argsChainAction)));
+
+        return argsAction.map(args -> new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
+                        .setInstance(LoadAction.LOAD0)
+                        .setArgs(args))
+                .map(Actions::newLocalVar);
     }
 
     @Override

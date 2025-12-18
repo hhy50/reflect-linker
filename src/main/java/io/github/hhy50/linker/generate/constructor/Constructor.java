@@ -27,7 +27,7 @@ public class Constructor extends Invoker<ConstructorRef> {
     /**
      * The Inline action.
      */
-    public Function<ChainAction<VarInst[]>, VarInst> inlineAction;
+    public Function<VarInst[], VarInst> inlineAction;
 
     /**
      * Instantiates a new Constructor.
@@ -50,8 +50,8 @@ public class Constructor extends Invoker<ConstructorRef> {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
-        return varInstChain.map(__ -> inlineAction.apply(argsChainAction));
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
+        return argsAction.map(inlineAction);
     }
 
     @Override

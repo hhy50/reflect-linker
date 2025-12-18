@@ -10,6 +10,8 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
 import java.util.function.BiFunction;
 
+import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
+
 /**
  * The type Early method invoker.
  */
@@ -21,7 +23,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     /**
      * 内联方法调用。父类的invoke是调用这个 mh的单独生成的方法
      */
-    protected BiFunction<VarInst, ChainAction<VarInst[]>, VarInst> inlineAction;
+    protected BiFunction<VarInst, VarInst[], VarInst> inlineAction;
 
     /**
      * Instantiates a new Early method invoker.
@@ -52,10 +54,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
 
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
-        return varInstChain.mapVar(varInst -> {
-            // 直接内联调用 methodHandle
-            return this.inlineAction.apply(varInst, argsChainAction);
-        });
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
+        return mapOwnerAndArgs(argsAction, this.inlineAction);
     }
 }

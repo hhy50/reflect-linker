@@ -59,7 +59,7 @@ public class ClassImplGenerator {
             return Actions.withVisitor(mv -> AsmUtil.throwNoSuchMethod(mv, absMethod.getReflect().getName()));
         } else {
             mh.define(classBuilder);
-            return mh.invoke(null, ChainAction.of(MethodBody::getArgs));
+            return mh.invoke(ChainAction.of(MethodBody::getArgs));
         }
     }
 }

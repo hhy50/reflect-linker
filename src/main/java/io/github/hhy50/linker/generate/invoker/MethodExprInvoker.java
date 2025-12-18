@@ -45,11 +45,11 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
             for (MethodRef methodRef : stepMethods) {
                 MethodHandle mh = methodRef.defineInvoker();
                 mh.define(classImplBuilder);
-                varInstChain = mh.invoke(varInstChain, argsChainAction);
+                varInstChain = mh.invoke(argsChainAction);
             }
             return varInstChain.andThen(Actions.areturn(methodType.getReturnType()));
         };
-        builder.intercept(invoker.apply(target.invoke(null, null), new ChainAction2<>(MethodBody::getArgs)));
+        builder.intercept(invoker.apply(target.invoke(null), new ChainAction2<>(MethodBody::getArgs)));
     }
 
     static class ChainAction2<T> extends ChainAction<T> {
@@ -63,16 +63,10 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         }
     }
 
-    public ChainAction<VarInst> invoke(ChainAction<VarInst> varInstChain, ChainAction<VarInst[]> argsChainAction) {
-//        for (MethodHandle invoker : invokers) {
-//            varInstChain = invoker.invoke(varInstChain, argsChainAction);
-//        }
-//        return varInstChain;
-        return argsChainAction.map(args ->
-                new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
+        return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))
                         .setInstance(LoadAction.LOAD0)
-                        .setArgs(args)
-        ).map(Actions::newLocalVar);
+                        .setArgs(argsAction))
+                .map(Actions::newLocalVar);
     }
-
 }

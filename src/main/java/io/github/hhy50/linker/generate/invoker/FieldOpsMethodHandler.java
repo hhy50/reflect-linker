@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
 
-import io.github.hhy50.linker.generate.InlineAction;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -11,9 +10,12 @@ import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.util.function.BiFunction;
 
 /**
  * The type Field ops method handler.
@@ -37,7 +39,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     /**
      *
      */
-    protected InlineAction inlineMhInvoker;
+    protected BiFunction<VarInst, VarInst[], VarInst> inlineMhInvoker;
 
     /**
      * The Lookup class.
@@ -106,14 +108,12 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(fullName, null, mhType);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
         if (isStatic) {
-            this.inlineMhInvoker = (__, argsChain) -> {
-                return argsChain.map(mhMember::invokeStatic)
-                        .map(Actions::newLocalVar);
+            this.inlineMhInvoker = (__, args) -> {
+                return Actions.newLocalVar(mhMember.invokeStatic(args));
             };
         } else {
-            this.inlineMhInvoker = (varInstChain, argsChain) -> {
-                return varInstChain.map(varInst -> mhMember.invokeInstance(varInst, argsChain))
-                        .map(Actions::newLocalVar);
+            this.inlineMhInvoker = (varInst, args) -> {
+                return Actions.newLocalVar(mhMember.invokeInstance(varInst, args));
             };
         }
     }
