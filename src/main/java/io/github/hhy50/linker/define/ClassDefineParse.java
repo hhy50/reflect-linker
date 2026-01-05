@@ -2,6 +2,7 @@ package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.annotations.Target;
 import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
+import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
 import io.github.hhy50.linker.generate.ClassImplGenerator;
@@ -60,7 +61,7 @@ public class ClassDefineParse {
         String dynKey = targetClass == Object.class ? "runtime" : targetClass.getName().replace('.', '_');
         ParseContext parseContext = new ParseContext(classMetadata, targetClass);
         parseContext.setClassLoader(targetClass.getClassLoader());
-        List<AbsMethod> absMethods = parseContext.parse();
+        List<MethodExprRef> absMethods = parseContext.parse();
 
         List<Class<?>> interfaces = new ArrayList<>();
         interfaces.add(define);

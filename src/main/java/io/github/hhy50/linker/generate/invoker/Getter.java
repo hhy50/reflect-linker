@@ -51,9 +51,10 @@ public class Getter extends FieldOpsMethodHandler {
         if (super.inlineMhInvoker != null) {
             return mapOwnerAndArgs(argsAction, super.inlineMhInvoker);
         }
-        return argsAction.map(args -> new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
-                        .setInstance(LoadAction.LOAD0)
-                        .setArgs(args))
+
+        return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
+                .setInstance(LoadAction.LOAD0)
+                .setArgs(argsAction))
                 .map(Actions::newLocalVar);
     }
 

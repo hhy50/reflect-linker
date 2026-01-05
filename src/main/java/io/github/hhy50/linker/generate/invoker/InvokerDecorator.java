@@ -44,9 +44,9 @@ public class InvokerDecorator extends AbstractDecorator {
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        Type mType = Type.getType(metadata.getMethod());
+        Type mType = Type.getType(metadata.getReflect());
         Type[] argsType = mType.getArgumentTypes();
-        Class<?> rClassType = metadata.getMethod().getReturnType();
+        Class<?> rClassType = metadata.getReflect().getReturnType();
 
         return (ChainAction) invoker.invoke(argsAction.map(a -> typecastArgs(a, argsType)))
                 .mapBody((body, varInst) -> {

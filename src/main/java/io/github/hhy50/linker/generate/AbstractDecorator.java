@@ -56,7 +56,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      * @param expectArgsType the args type
      */
     protected VarInst[] typecastArgs(VarInst[] args, Type[] expectArgsType) {
-        Class<?>[] parameterTypes = metadata.getMethod().getParameterTypes();
+        Class<?>[] parameterTypes = metadata.getReflect().getParameterTypes();
         // 校验入参类型
         VarInst[] realArgs = new VarInst[args.length];
         for (int i = 0; i < args.length; i++) {
@@ -85,7 +85,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      * @return the var inst
      */
     protected VarInst typecastResult(MethodBody methodBody, VarInst varInst) {
-        Method method = metadata.getMethod();
+        Method method = metadata.getReflect();
         Class<?> returnClassType = method.getReturnType();
         if (returnClassType == Object.class && !TypeUtil.isPrimitiveType(varInst.getType())) {
             return varInst;

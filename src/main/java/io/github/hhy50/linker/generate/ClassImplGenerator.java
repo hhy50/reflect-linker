@@ -1,10 +1,11 @@
 package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmUtil;
-import io.github.hhy50.linker.define.AbsMethod;
 import io.github.hhy50.linker.define.GeneratedClass;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
+import io.github.hhy50.linker.define.md.AbsMethodMetadata;
+import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.define.provider.DefaultTargetProviderImpl;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
@@ -17,7 +18,6 @@ import org.objectweb.asm.Type;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class ClassImplGenerator {
      *
      * @throws IOException the io exception
      */
-    public static GeneratedClass generateBytecode(AbsInterfaceMetadata classMetadata, String implClassName, List<AbsMethod> absMethods, List<Class<?>> interfaces) throws IOException {
+    public static GeneratedClass generateBytecode(AbsInterfaceMetadata classMetadata, String implClassName, List<MethodExprRef> methodExprs, List<Class<?>> interfaces) throws IOException {
         EarlyFieldRef targetField = new EarlyFieldRef("target", classMetadata.getTargetClass());
         TargetFieldGetter targetGetter = new TargetFieldGetter(targetField, classMetadata);
 
@@ -39,10 +39,10 @@ public class ClassImplGenerator {
                         .map(Class::getName).toArray(String[]::new), "")
                 .setTarget(targetGetter);
 
-        for (AbsMethod absMethod : absMethods) {
-            Method reflect = absMethod.getReflect();
-            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, reflect.getName(), Type.getType(reflect), null)
-                    .intercept(generateMethodImpl(classBuilder, absMethod));
+        for (MethodExprRef methodExpr : methodExprs) {
+            AbsMethodMetadata metadata = methodExpr.getMetadata();
+            classBuilder.defineMethod(Opcodes.ACC_PUBLIC, metadata.getName(), Type.getType(metadata.getReflect()), null)
+                    .intercept(generateMethodImpl(classBuilder, methodExpr));
         }
 
         byte[] bytecode = classBuilder.end().toBytecode();
@@ -53,10 +53,10 @@ public class ClassImplGenerator {
         return new GeneratedClass(implClassName, bytecode);
     }
 
-    private static Action generateMethodImpl(InvokeClassImplBuilder classBuilder, AbsMethod absMethod) {
-        MethodHandle mh = BytecodeFactory.generateInvoker(absMethod);
+    private static Action generateMethodImpl(InvokeClassImplBuilder classBuilder, MethodExprRef methodExpr) {
+        MethodHandle mh = BytecodeFactory.generateInvoker(methodExpr);
         if (mh == null) {
-            return Actions.withVisitor(mv -> AsmUtil.throwNoSuchMethod(mv, absMethod.getReflect().getName()));
+            return Actions.withVisitor(mv -> AsmUtil.throwNoSuchMethod(mv, methodExpr.getMetadata().getReflect().getName()));
         } else {
             mh.define(classBuilder);
             return mh.invoke(ChainAction.of(MethodBody::getArgs));

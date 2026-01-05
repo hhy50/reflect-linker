@@ -11,7 +11,6 @@ import java.util.function.Function;
 /**
  * The type Abstract chain.
  *
- * @param <In>  the type parameter
  * @param <Out> the type parameter
  */
 public abstract class AbstractChain<In, Out> implements Action {

@@ -33,6 +33,17 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         return (ChainAction) EMPTY;
     }
 
+    public static ChainAction<VarInst[]> join(ChainAction<VarInst> chain1, ChainAction<VarInst[]> chain2) {
+        return ChainAction.of(body -> {
+            VarInst varInst = chain1.doChain(body, null);
+            VarInst[] varInsts = chain2.doChain(body, null);
+            VarInst[] newVarInsts = new VarInst[varInsts.length+1];
+            newVarInsts[0] = varInst;
+            System.arraycopy(varInsts, 0, newVarInsts, 1, newVarInsts.length - 1);
+            return newVarInsts;
+        });
+    }
+
     @Override
     public void apply(MethodBody body) {
         T t = doChain(body, body);
@@ -75,7 +86,12 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
     }
 
     public static ChainAction<VarInst> mapOwnerAndArgs(ChainAction<VarInst[]> chainAction, BiFunction<VarInst, VarInst[], VarInst> func) {
-        return null;
+        return chainAction.map(args -> {
+            VarInst owner = args[0];
+            VarInst[] realArgs = new VarInst[args.length-1];
+            System.arraycopy(args, 1, realArgs, 0, realArgs.length);
+            return func.apply(owner, realArgs);
+        });
     }
 
     /**

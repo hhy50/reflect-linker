@@ -16,7 +16,7 @@ import org.objectweb.asm.Type;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
     private final Type methodType;
@@ -33,7 +33,6 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         this.stepMethods = mr.getStepMethods();
         this.methodType = mr.getMethodType();
         this.methodName = "invoke_" + RandomUtil.getRandomString(6);
-
     }
 
     @Override
@@ -45,23 +44,13 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
             for (MethodRef methodRef : stepMethods) {
                 MethodHandle mh = methodRef.defineInvoker();
                 mh.define(classImplBuilder);
-                varInstChain = mh.invoke(argsChainAction);
+                varInstChain = mh.invoke(ChainAction.join(varInstChain, argsChainAction));
             }
             return varInstChain.andThen(Actions.areturn(methodType.getReturnType()));
         };
-        builder.intercept(invoker.apply(target.invoke(null), new ChainAction2<>(MethodBody::getArgs)));
+        builder.intercept(invoker.apply(target.invoke(ChainAction.empty()), ChainAction.of(MethodBody::getArgs)));
     }
 
-    static class ChainAction2<T> extends ChainAction<T> {
-        ChainAction2(Function<MethodBody, T> func) {
-            super(func);
-        }
-
-        @Override
-        public void apply(MethodBody body) {
-            super.apply(body);
-        }
-    }
 
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
         return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))

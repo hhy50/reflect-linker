@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate;
 
-import io.github.hhy50.linker.define.AbsMethod;
+import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.generate.invoker.InvokerDecorator;
 
 
@@ -15,7 +15,7 @@ public class BytecodeFactory {
      *
      * @return the method handle
      */
-    public static MethodHandle generateInvoker(AbsMethod absMethod) {
-        return new InvokerDecorator(null, absMethod.getMetadata());
+    public static MethodHandle generateInvoker(MethodExprRef methodExprRef) {
+        return new InvokerDecorator(methodExprRef.defineInvoker(), methodExprRef.getMetadata());
     }
 }

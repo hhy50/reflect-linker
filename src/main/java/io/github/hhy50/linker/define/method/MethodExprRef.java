@@ -1,17 +1,17 @@
 package io.github.hhy50.linker.define.method;
 
+import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.generate.ArgsDepAnalysis;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import io.github.hhy50.linker.token.ArgsToken;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MethodExprRef extends MethodRef {
 
-    private final Method method;
+    private final AbsMethodMetadata metadata;
     private final List<MethodRef> stepMethods;
     private final ArgsDepAnalysis argsDepAnalysis;
 
@@ -19,9 +19,9 @@ public class MethodExprRef extends MethodRef {
      * Instantiates a new Method ref.
      *
      */
-    public MethodExprRef(Method method) {
-        super(method.getName(), method.getName());
-        this.method = method;
+    public MethodExprRef(AbsMethodMetadata metadata) {
+        super(metadata.getName(), metadata.getName());
+        this.metadata = metadata;
         this.stepMethods = new ArrayList<>();
         this.argsDepAnalysis = new ArgsDepAnalysis();
     }
@@ -49,5 +49,9 @@ public class MethodExprRef extends MethodRef {
     @Override
     public MethodExprInvoker defineInvoker() {
         return new MethodExprInvoker(this);
+    }
+
+    public AbsMethodMetadata getMetadata() {
+        return this.metadata;
     }
 }

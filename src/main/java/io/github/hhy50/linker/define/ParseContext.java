@@ -15,10 +15,7 @@ import io.github.hhy50.linker.token.*;
 import io.github.hhy50.linker.util.*;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,8 +38,6 @@ public class ParseContext {
     Class<?> rootType;
 
     AbsInterfaceMetadata classMetadata;
-
-    List<AbsMethodMetadata> methods = new ArrayList<>();
 
     /**
      * 解析过程中解析到的字段和method
@@ -79,11 +74,12 @@ public class ParseContext {
      * @throws ClassNotFoundException the class not found exception
      * @throws ParseException         the parse exception
      */
-    public List<AbsMethod> parse() throws ClassNotFoundException, ParseException {
+    public List<MethodExprRef> parse() throws ClassNotFoundException, ParseException {
         return doParseClass();
     }
 
-    private List<AbsMethod> doParseClass() throws ClassNotFoundException, ParseException {
+    private List<MethodExprRef> doParseClass() throws ClassNotFoundException, ParseException {
+        List<MethodExprRef> methods = new ArrayList<>();
         for (Method method : this.classMetadata.getMethods()) {
             if (!Modifier.isAbstract(method.getModifiers()))
                 continue;
@@ -91,12 +87,11 @@ public class ParseContext {
                 continue;
             }
             AbsMethodMetadata metadata = preParse(classMetadata, method);
-            AbsMethod absMethod = parseMethod(metadata);
-            postParse(absMethod);
-
-            this.methods.add(metadata);
+            MethodExprRef methodExprRef = parseMethod(metadata);
+            postParse(methodExprRef);
+            methods.add(methodExprRef);
         }
-        return null;
+        return methods;
     }
 
     /**
@@ -135,7 +130,7 @@ public class ParseContext {
      * Post parse.
      *
      */
-    void postParse(AbsMethod absMethod) {
+    void postParse(MethodExprRef methodExpr) {
         this.staticTokens.remove(CURRENT_TOKEN);
     }
 
@@ -160,10 +155,9 @@ public class ParseContext {
      * @throws ClassNotFoundException the class not found exception
      * @throws ParseException         the parse exception
      */
-    public AbsMethod parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
-        Method method = metadata.getMethod();
+    public MethodExprRef parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
         if (metadata.isConstructor()) {
-            String[] argsType = parseArgsType(method, null, true);
+            String[] argsType = parseArgsType(metadata, null, true);
             Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, argsType);
             if (constructor == null) {
                 throw new ParseException(
@@ -172,16 +166,13 @@ public class ParseContext {
             return null;
         } else {
             String expr = metadata.getExpr();
-            MethodExprRef methodExprRef = parseMethodExpr(method, tokenParser.parse(expr));
+            MethodExprRef methodExprRef = parseMethodExpr(metadata, tokenParser.parse(expr));
+            return methodExprRef;
         }
-        return null;
     }
 
-    private MethodExprRef parseMethodExpr(Method methodDefine, final Tokens tokens) throws ClassNotFoundException {
-        String invokeSuper = Optional.ofNullable(methodDefine
-                        .getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class))
-                .map(io.github.hhy50.linker.annotations.Method.InvokeSuper::value)
-                .orElse(null);
+    private MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
+        String invokeSuper = metadata.getInvokeSuper();
 
         // 提前全部解析
         Iterator<SplitToken> tokensIterator = tokens.splitWithMethod();
@@ -190,7 +181,7 @@ public class ParseContext {
             tokenList.add(tokensIterator.next());
         }
 
-        MethodExprRef methodExprRef = new MethodExprRef(methodDefine);
+        MethodExprRef methodExprRef = new MethodExprRef(metadata);
         Class<?> curType = this.rootType;
         for (SplitToken splitToken : tokenList) {
             Tokens fieldsToken = (Tokens) splitToken.prefix;
@@ -203,7 +194,7 @@ public class ParseContext {
                 }
             }
             if (methodToken != null) {
-                String[] argsType = parseArgsType(methodDefine, methodToken, false);
+                String[] argsType = parseArgsType(metadata, methodToken, false);
                 Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, argsType);
 
                 MethodRef m;
@@ -212,7 +203,7 @@ public class ParseContext {
                     curType = method.getReturnType();
                 } else {
                     m = new RuntimeMethodRef("", methodToken.methodName, argsType)
-                            .setAutolink(AnnotationUtils.isAutolink(methodDefine));
+                            .setAutolink(metadata.isAutolink());
                     curType = Object.class;
                 }
                 m.setSuperClass(invokeSuper);
@@ -257,16 +248,17 @@ public class ParseContext {
         return fields;
     }
 
-    private String[] parseArgsType(Method methodDefine, MethodToken methodToken, boolean isConstructor) {
+    private String[] parseArgsType(AbsMethodMetadata metadata, MethodToken methodToken, boolean isConstructor) {
+        Parameter[] parameters = metadata.getParameters();
         if (isConstructor) {
-            return Arrays.stream(methodDefine.getParameters())
+            return Arrays.stream(parameters)
                     .map(ParseUtil::getRawType).toArray(String[]::new);
         }
         ArgsToken args = methodToken.getArgsToken();
         return args.stream().map(item -> {
             if (item.kind() == Token.Kind.Placeholder) {
                 int i = ((PlaceholderToken) item).index;
-                Class argType = methodDefine.getParameterTypes()[i];
+                Class argType = parameters[i].getType();
                 return TypeUtil.getClassName(argType);
             } else if (item.kind() == Token.Kind.IntConst) {
                 return "int";

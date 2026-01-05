@@ -7,6 +7,7 @@ import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.VerifyException;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,8 @@ public class AbsMethodMetadata {
     private Map<String, Boolean> staticToken = new HashMap<>();
 
     private boolean constructor;
+
+    private String invokeSuper;
 
     public AbsMethodMetadata(AbsInterfaceMetadata parent, java.lang.reflect.Method reflect) {
         this.parent = parent;
@@ -67,6 +70,9 @@ public class AbsMethodMetadata {
             }
             this.annotations.add(annotation);
         }
+        if (annotation instanceof Method.InvokeSuper) {
+            this.invokeSuper = ((Method.InvokeSuper) annotation).value();
+        }
     }
 
     public boolean isAutolink() {
@@ -77,7 +83,7 @@ public class AbsMethodMetadata {
         return uniqueAnno instanceof io.github.hhy50.linker.annotations.Method.Constructor;
     }
 
-    public java.lang.reflect.Method getMethod() {
+    public java.lang.reflect.Method getReflect() {
         return reflect;
     }
 
@@ -93,5 +99,17 @@ public class AbsMethodMetadata {
 //                .orElseGet(() -> method.getName() + "(" + IntStream.range(0, method.getParameterCount())
 //                        .mapToObj(i -> "$" + i).collect(Collectors.joining(",")) + ")");
         return null;
+    }
+
+    public String getName() {
+        return reflect.getName();
+    }
+
+    public String getInvokeSuper() {
+        return invokeSuper;
+    }
+
+    public Parameter[] getParameters() {
+        return reflect.getParameters();
     }
 }
