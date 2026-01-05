@@ -35,8 +35,8 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
 
     public static ChainAction<VarInst[]> join(ChainAction<VarInst> chain1, ChainAction<VarInst[]> chain2) {
         return ChainAction.of(body -> {
-            VarInst varInst = chain1.doChain(body, null);
-            VarInst[] varInsts = chain2.doChain(body, null);
+            VarInst varInst = chain1.doChain(body, body);
+            VarInst[] varInsts = chain2.doChain(body, body);
             VarInst[] newVarInsts = new VarInst[varInsts.length+1];
             newVarInsts[0] = varInst;
             System.arraycopy(varInsts, 0, newVarInsts, 1, newVarInsts.length - 1);
