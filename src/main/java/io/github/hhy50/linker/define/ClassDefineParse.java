@@ -70,8 +70,7 @@ public class ClassDefineParse {
         }
 
         String implClassName = define.getName()+"$"+dynKey;
-        ClassImplGenerator.generateBytecode(classMetadata, implClassName, absMethods, interfaces);
-        return null;
+        return ClassImplGenerator.generateBytecode(classMetadata, implClassName, absMethods, interfaces);
     }
 
 //    private static InterfaceImplClass getCache(Class<?> define, String dynKey) {

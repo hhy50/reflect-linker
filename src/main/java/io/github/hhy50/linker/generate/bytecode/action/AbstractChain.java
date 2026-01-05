@@ -13,12 +13,12 @@ import java.util.function.Function;
  *
  * @param <Out> the type parameter
  */
-public abstract class AbstractChain<In, Out> implements Action {
+public abstract class AbstractChain<Out> implements Action {
 
     /**
      * The Func.
      */
-    protected Function<In, Out> func;
+    protected Function<MethodBody, Out> func;
 
     /**
      * The Consumers.
@@ -30,7 +30,7 @@ public abstract class AbstractChain<In, Out> implements Action {
      *
      * @param func the func
      */
-    protected AbstractChain(Function<In, Out> func) {
+    protected AbstractChain(Function<MethodBody, Out> func) {
         this.func = func;
     }
 
@@ -38,11 +38,10 @@ public abstract class AbstractChain<In, Out> implements Action {
      * Do chain out.
      *
      * @param body the body
-     * @param in   the in
      * @return the out
      */
-    public Out doChain(MethodBody body, In in) {
-        Out o = func.apply(in);
+    public Out doChain(MethodBody body) {
+        Out o = func.apply(body);
         if (consumers != null) {
             for (BiConsumer<MethodBody, Out> consumer : consumers) {
                 consumer.accept(body, o);

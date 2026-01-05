@@ -16,7 +16,6 @@ import org.objectweb.asm.Type;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
     private final Type methodType;
