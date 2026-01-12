@@ -3,7 +3,6 @@ package io.github.hhy50.linker.generate.bytecode.action;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
-import java.lang.reflect.Array;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -52,14 +51,14 @@ public class ChainAction<T> extends AbstractChain<T> {
             if (t instanceof Action) {
                 ((Action) t).apply(body);
             }
-            if (t.getClass().isArray()) {
-                for (int i = 0; i < Array.getLength(t); i++) {
-                    Object o = Array.get(t, i);
-                    if (o instanceof Action) {
-                        ((Action) o).apply(body);
-                    }
-                }
-            }
+//            if (t.getClass().isArray()) {
+//                for (int i = 0; i < Array.getLength(t); i++) {
+//                    Object o = Array.get(t, i);
+//                    if (o instanceof Action) {
+//                        ((Action) o).apply(body);
+//                    }
+//                }
+//            }
         }
     }
 

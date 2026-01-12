@@ -8,10 +8,9 @@ import io.github.hhy50.linker.exceptions.VerifyException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class AbsMethodMetadata {
 
@@ -95,10 +94,9 @@ public class AbsMethodMetadata {
         } else if (uniqueAnno instanceof Field.Setter) {
             return ((Field.Setter) uniqueAnno).value();
         }
-//        String methodExpr = Optional.ofNullable(expr).map(io.github.hhy50.linker.annotations.Method.Expr::value)
-//                .orElseGet(() -> method.getName() + "(" + IntStream.range(0, method.getParameterCount())
-//                        .mapToObj(i -> "$" + i).collect(Collectors.joining(",")) + ")");
-        return null;
+
+        return reflect.getName()+"("+ IntStream.range(0, reflect.getParameterCount())
+                .mapToObj(i -> "$"+i).collect(Collectors.joining(","))+")";
     }
 
     public String getName() {

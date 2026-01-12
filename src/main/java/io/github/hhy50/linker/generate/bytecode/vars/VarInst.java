@@ -16,7 +16,6 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
  */
 public abstract class VarInst implements LoadAction, TypedAction {
 
-
     /**
      * Gets name.
      *
@@ -66,5 +65,20 @@ public abstract class VarInst implements LoadAction, TypedAction {
      */
     public Action tryGetTarget() {
         return new ConditionJumpAction(instanceOf(this, Type.getType(TargetProvider.class)), this.getTarget(), this);
+    }
+
+    public static VarInst wrap(Action action, Type type) {
+        return new VarInst() {
+
+            @Override
+            public Type getType() {
+                return type;
+            }
+
+            @Override
+            public Action load() {
+                return action;
+            }
+        };
     }
 }

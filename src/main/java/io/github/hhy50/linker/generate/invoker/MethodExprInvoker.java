@@ -52,9 +52,9 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
 
 
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))
-                        .setInstance(LoadAction.LOAD0)
-                        .setArgs(argsAction))
-                .map(Actions::newLocalVar);
+        MethodInvokeAction action = new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))
+                .setInstance(LoadAction.LOAD0)
+                .setArgs(argsAction);
+        return ChainAction.of(() -> VarInst.wrap(action, methodType.getReturnType()));
     }
 }
