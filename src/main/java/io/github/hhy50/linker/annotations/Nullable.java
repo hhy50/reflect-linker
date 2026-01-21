@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 public interface Nullable {
 
     /**
-     * 当表达式因为null终止时，返回的默认值, 仅适用于基本数据类型, 所有的引用类型（包括引用类型和String）默认返回null
+     * 当表达式因为null终止时，返回的默认值, 仅适用于基本数据类型, 所有的引用类型（包括包装类型和String）默认返回null
      * bool类型的默认值为 "false" | "true"
      *
      */
