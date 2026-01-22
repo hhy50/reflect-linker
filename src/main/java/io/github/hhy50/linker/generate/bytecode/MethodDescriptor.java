@@ -155,6 +155,17 @@ public class MethodDescriptor {
     }
 
     /**
+     * Of method descriptor.
+     *
+     * @param name  the method name
+     * @param mType the method type
+     * @return the method descriptor
+     */
+    public static SmartMethodDescriptor of(String name, Type mType) {
+        return new SmartMethodDescriptor(name, mType);
+    }
+
+    /**
      * Instantiates a new Method descriptor.
      *
      * @param base the base

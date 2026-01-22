@@ -6,7 +6,7 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -16,6 +16,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.function.BiFunction;
+
+import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
+import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
 
 /**
  * The type Field ops method handler.
@@ -75,23 +78,25 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
             prefix = "setter_";
         }
         this.runtimeMethodName = prefix + fullName.replace('.', '_');
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.runtimeMethodName  , TypeUtil.appendArgs(mhType, ObjectVar.TYPE, true), null)
-                .intercept(ChainAction.of(() -> Args.of(0))
-                                .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, null)) // TODO
-                                .then(ownerVar -> {
+
+        ChainAction<VarInst> invoker = mapOwnerAndArgs(of(MethodBody::getArgs), (ownerVar, args) -> {
+            Action action = isDesignateStatic != null ?
+                    (isDesignateStatic ? mhMember.invokeStatic(args) : mhMember.invokeInstance(ownerVar, args))
+                    : mhMember.invokeOfNull(ownerVar, args);
+            return VarInst.wrap(action, mhType.getReturnType());
+        });
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.runtimeMethodName, TypeUtil.appendArgs(mhType, ObjectVar.TYPE, true), null)
+                .intercept(of(() -> Args.of(0))
+                        .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, null)) // TODO
+                        .then(ownerVar -> {
 //                                    ClassTypeMember prevLookupClass = preFieldGetter.lookupClass;
 //                                    if (prevLookupClass != null) {
 //                                        return staticCheckClass(this.lookupClass, prevField.fieldName, prevLookupClass);
 //                                    }
-                                    return null;
-                                })
-                                .then(ownerVar -> checkMethodHandle(this.lookupClass, mhMember))
-                                .map(isDesignateStatic != null ?
-                                        (isDesignateStatic ? ownerVar -> mhMember.invokeStatic(Args.loadArgs())
-                                                : ownerVar -> mhMember.invokeInstance(ownerVar, Args.loadArgs()))
-                                        : ownerVar -> mhMember.invokeOfNull(ownerVar, Args.loadArgs())
-                                ),
-                        Actions.areturn(mhType.getReturnType()));
+                            return null;
+                        })
+                        .then(ownerVar -> checkMethodHandle(this.lookupClass, mhMember))
+                        .andThen(invoker.areturn()));
     }
 
     /**

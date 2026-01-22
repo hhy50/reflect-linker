@@ -43,7 +43,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                 MethodHandle mh = classImplBuilder.defineInvoker(methodRef);
                 varInstChain = mh.invoke(ChainAction.join(varInstChain, argsChainAction));
             }
-            return varInstChain.andThen(Actions.areturn(methodType.getReturnType()));
+            return varInstChain.areturn();
         };
         builder.intercept(invoker.apply(target.invoke(ChainAction.empty()), ChainAction.of(MethodBody::getArgs)));
     }
