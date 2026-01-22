@@ -188,8 +188,18 @@ public class ParseContext {
             MethodToken methodToken = (MethodToken) splitToken.suffix;
 
             if (fieldsToken != null && fieldsToken.size() > 0) {
-                for (FieldRef fieldRef : parseFieldExpr(curType, fieldsToken)) {
-                    methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef), null);
+                List<FieldRef> fieldRefs = parseFieldExpr(curType, fieldsToken);
+                Iterator<FieldRef> iter = fieldRefs.iterator();
+                while (iter.hasNext()) {
+                    FieldRef fieldRef = iter.next();
+                    boolean isLast = !iter.hasNext();
+                    if (isLast && metadata.isSetter()) {
+                        ArgsToken args = new ArgsToken();
+                        args.add(new PlaceholderToken(0));
+                        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRef), args);
+                    } else {
+                        methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef), null);
+                    }
                     curType = fieldRef.getActualType();
                 }
             }
@@ -199,10 +209,10 @@ public class ParseContext {
 
                 MethodRef m;
                 if (method != null) {
-                    m = new EarlyMethodRef("", method);
+                    m = new EarlyMethodRef(method);
                     curType = method.getReturnType();
                 } else {
-                    m = new RuntimeMethodRef("", methodToken.methodName, argsType)
+                    m = new RuntimeMethodRef(methodToken.methodName, argsType)
                             .setAutolink(metadata.isAutolink());
                     curType = Object.class;
                 }

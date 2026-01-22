@@ -69,7 +69,7 @@ public class Getter extends FieldOpsMethodHandler {
     protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
         MethodInvokeAction findGetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICGETTER : MethodDescriptor.LOOKUP_FINDGETTER);
         findGetter.setInstance(lookupClass.getLookup())
-                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(field.getType()));
+                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(Type.getType(field.getActualType())));
         return mhMember.store(findGetter);
     }
 }

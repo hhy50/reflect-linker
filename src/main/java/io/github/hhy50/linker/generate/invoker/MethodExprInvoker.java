@@ -10,7 +10,6 @@ import io.github.hhy50.linker.generate.bytecode.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
-import io.github.hhy50.linker.util.RandomUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -31,7 +30,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         super(mr.getName(), null);
         this.stepMethods = mr.getStepMethods();
         this.methodType = mr.getMethodType();
-        this.methodName = "invoke_" + RandomUtil.getRandomString(6);
+        this.methodName = mr.getFullName();
     }
 
     @Override
@@ -41,8 +40,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                 .defineMethod(Opcodes.ACC_PUBLIC, methodName, methodType, null);
         BiFunction<ChainAction<VarInst>, ChainAction<VarInst[]>, Action> invoker = (varInstChain, argsChainAction) -> {
             for (MethodRef methodRef : stepMethods) {
-                MethodHandle mh = methodRef.defineInvoker();
-                mh.define(classImplBuilder);
+                MethodHandle mh = classImplBuilder.defineInvoker(methodRef);
                 varInstChain = mh.invoke(ChainAction.join(varInstChain, argsChainAction));
             }
             return varInstChain.andThen(Actions.areturn(methodType.getReturnType()));
@@ -55,6 +53,15 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         MethodInvokeAction action = new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(argsAction);
-        return ChainAction.of(() -> VarInst.wrap(action, methodType.getReturnType()));
+        return ChainAction.of(() -> {
+                    if (methodType.getReturnType() != Type.VOID_TYPE) {
+                        return Actions.newLocalVar(action);
+                    }
+                    return VarInst.wrap(action, methodType.getReturnType());
+                });
+    }
+
+    public Type getMethodType() {
+        return methodType;
     }
 }

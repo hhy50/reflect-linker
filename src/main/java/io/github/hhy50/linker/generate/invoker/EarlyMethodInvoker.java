@@ -31,9 +31,9 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
      * @param mr the method ref
      */
     public EarlyMethodInvoker(EarlyMethodRef mr) {
-        super(mr.getName(), mr.getMhType());
+        super(mr.getName(), mr.getLookupMhType());
         this.fullName = mr.getFullName().replace('.', '_');
-        this.lookupClass = mr.getDeclareType();
+        this.lookupClass = mr.getLookupClass();
         this.isStatic = mr.isStatic();
         this.isInvisible = mr.isInvisible();
     }
@@ -43,7 +43,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.fullName, super.lookupClass, super.lookupMhType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.fullName, super.lookupClass, super.lookupType);
         mhMember.setInvokeExact(!this.isInvisible);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(this.lookupClass), isStatic));
         this.inlineAction = (varInst, args) ->

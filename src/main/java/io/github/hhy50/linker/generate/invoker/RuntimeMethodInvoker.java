@@ -15,6 +15,8 @@ import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.Arrays;
+
 
 /**
  * The type Runtime method invoker.
@@ -35,7 +37,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
      * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
-        super(methodRef.getName(), methodRef.getMhType());
+        super(methodRef.getName(), methodRef.getLookupMhType());
         this.autolink = methodRef.isAutolink();
         this.argsType = methodRef.getArgsType();
         this.fullName = RandomUtil.getRandomString(10);
@@ -44,18 +46,20 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        Type mhType = super.lookupMhType;
+        Type[] argumentTypes = super.lookupType.getArgumentTypes();
+        Arrays.fill(argumentTypes, ObjectVar.TYPE);
+        Type mhType = Type.getMethodType(super.lookupType.getReturnType(), argumentTypes);
         Action args = autolink ? Actions.asArray(ObjectVar.TYPE, Args.loadArgsIgnore0()) : Args.loadArgsIgnore0();
         if (autolink) {
             // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
             // 约定将参数0设置为Autolink，以保证使用实参来查找方法
-            mhType = Type.getMethodType(mhType.getReturnType(), Type.getType(Object[].class));
+            lookupType = Type.getMethodType(mhType.getReturnType(), Type.getType(Object[].class));
             this.argsType = new Type[]{Type.getType(Autolink.class)};
         }
         ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(this.fullName);
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(this.fullName, mhType);
 
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, "invoke_"+this.fullName, TypeUtil.appendArgs(super.lookupMhType, ObjectVar.TYPE, true), null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, "invoke_"+this.fullName, TypeUtil.appendArgs(mhType, ObjectVar.TYPE, true), null)
                 .intercept(ChainAction.of(() -> Args.of(0))
                                 .then(ownerVar -> checkLookClass(lookupClass, ownerVar, null))
                                 .then(ownerVar -> {
@@ -70,16 +74,15 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                                         (isDesignateStatic ? ownerVar -> mhMember.invokeStatic(args)
                                                 : ownerVar -> mhMember.invokeInstance(ownerVar, args))
                                         : ownerVar -> mhMember.invokeOfNull(ownerVar, args)
-                                )
-                                ,
-                        Actions.areturn(super.lookupMhType.getReturnType()));
+                                ),
+                        Actions.areturn(super.lookupType.getReturnType()));
     }
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
         return argsAction.then(args -> args[0].checkNullPointer())
                 .map(args -> {
-                    return new SmartMethodInvokeAction(new SmartMethodDescriptor("invoke_"+this.fullName, TypeUtil.appendArgs(super.lookupMhType, ObjectVar.TYPE, true)))
+                    return new SmartMethodInvokeAction(new SmartMethodDescriptor("invoke_"+this.fullName, TypeUtil.appendArgs(super.lookupType, ObjectVar.TYPE, true)))
                             .setInstance(LoadAction.LOAD0)
                             .setArgs(args);
                 }).map(Actions::newLocalVar);

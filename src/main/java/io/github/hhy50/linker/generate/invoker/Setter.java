@@ -26,10 +26,9 @@ public class Setter extends FieldOpsMethodHandler {
     /**
      * Instantiates a new Setter.
      *
-     * @param implClass the impl class
      * @param field     the field
      */
-    public Setter(String implClass, FieldRef field) {
+    public Setter(FieldRef field) {
         super(field.getName(), field.getFullName(), Type.getMethodType(Type.VOID_TYPE, field.getType()));
         this.field = field;
     }
@@ -54,7 +53,7 @@ public class Setter extends FieldOpsMethodHandler {
         return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(argsAction))
-                .map(Actions::newLocalVar);
+                .map(VarInst::wrap);
     }
 
     @Override

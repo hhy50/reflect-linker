@@ -2,6 +2,7 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
+import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
@@ -119,5 +120,18 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
 
     public TargetFieldGetter getTargetGetter() {
         return targetGetter;
+    }
+
+
+    Map<String, MethodHandle> cache = new HashMap<>();
+    public MethodHandle defineInvoker(MethodRef methodRef) {
+        String k = "method:"+methodRef.getFullName();
+        if (cache.containsKey("method:"+methodRef.getFullName())) {
+            return cache.get(k);
+        }
+        MethodHandle mh = methodRef.defineInvoker();
+        mh.define(this);
+        cache.put(k, mh);
+        return mh;
     }
 }

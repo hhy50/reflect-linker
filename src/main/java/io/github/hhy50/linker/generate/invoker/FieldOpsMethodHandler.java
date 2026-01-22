@@ -108,13 +108,9 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(fullName, null, mhType);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
         if (isStatic) {
-            this.inlineMhInvoker = (__, args) -> {
-                return Actions.newLocalVar(mhMember.invokeStatic(args));
-            };
+            this.inlineMhInvoker = (__, args) -> VarInst.wrap(mhMember.invokeStatic(args));
         } else {
-            this.inlineMhInvoker = (varInst, args) -> {
-                return Actions.newLocalVar(mhMember.invokeInstance(varInst, args));
-            };
+            this.inlineMhInvoker = (varInst, args) -> VarInst.wrap(mhMember.invokeInstance(varInst, args));
         }
     }
 }

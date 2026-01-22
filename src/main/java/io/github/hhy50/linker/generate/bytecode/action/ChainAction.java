@@ -6,6 +6,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.lang.reflect.Array;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -49,11 +50,11 @@ public class ChainAction<T> extends AbstractChain<T> {
         return ChainAction.of(body -> {
             VarInst first = chain1.doChain(body);
             VarInst[] rest = chain2.doChain(body);
-            
+
             if (rest == null || rest.length == 0) {
                 return new VarInst[]{first};
             }
-            
+
             VarInst[] result = new VarInst[rest.length + 1];
             result[0] = first;
             System.arraycopy(rest, 0, result, 1, rest.length);
@@ -72,7 +73,7 @@ public class ChainAction<T> extends AbstractChain<T> {
         if (chains == null || chains.length == 0) {
             return ChainAction.of(() -> new VarInst[0]);
         }
-        
+
         return ChainAction.of(body -> {
             VarInst[] result = new VarInst[chains.length];
             for (int i = 0; i < chains.length; i++) {
@@ -93,11 +94,11 @@ public class ChainAction<T> extends AbstractChain<T> {
         return ChainAction.of(body -> {
             VarInst[] first = chain1.doChain(body);
             VarInst last = chain2.doChain(body);
-            
+
             if (first == null || first.length == 0) {
                 return new VarInst[]{last};
             }
-            
+
             VarInst[] result = Arrays.copyOf(first, first.length + 1);
             result[first.length] = last;
             return result;
@@ -115,14 +116,14 @@ public class ChainAction<T> extends AbstractChain<T> {
         return ChainAction.of(body -> {
             VarInst[] first = chain1.doChain(body);
             VarInst[] second = chain2.doChain(body);
-            
+
             if (first == null || first.length == 0) {
                 return second;
             }
             if (second == null || second.length == 0) {
                 return first;
             }
-            
+
             VarInst[] result = new VarInst[first.length + second.length];
             System.arraycopy(first, 0, result, 0, first.length);
             System.arraycopy(second, 0, result, first.length, second.length);
@@ -187,7 +188,7 @@ public class ChainAction<T> extends AbstractChain<T> {
             if (args == null || args.length == 0) {
                 return func.apply(null, new VarInst[0]);
             }
-            
+
             VarInst owner = args[0];
             VarInst[] realArgs = new VarInst[args.length - 1];
             System.arraycopy(args, 1, realArgs, 0, realArgs.length);

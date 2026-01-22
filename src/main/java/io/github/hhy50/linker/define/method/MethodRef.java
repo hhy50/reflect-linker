@@ -3,23 +3,11 @@ package io.github.hhy50.linker.define.method;
 import io.github.hhy50.linker.generate.MethodHandle;
 import org.objectweb.asm.Type;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 
 /**
  * The type Method ref.
  */
 public abstract class MethodRef {
-    /**
-     * The constant COUNTER.
-     */
-    protected static final AtomicInteger COUNTER = new AtomicInteger(0);
-
-    /**
-     * The Full name.
-     */
-    protected String fullName;
-
     /**
      * The Name.
      */
@@ -35,8 +23,7 @@ public abstract class MethodRef {
      *
      * @param name the name
      */
-    public MethodRef(String fullName, String name) {
-        this.fullName = fullName;
+    public MethodRef(String name) {
         this.name = name;
     }
 
@@ -47,15 +34,6 @@ public abstract class MethodRef {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Gets full name.
-     *
-     * @return
-     */
-    public String getFullName() {
-        return fullName;
     }
 
     /**
@@ -83,8 +61,19 @@ public abstract class MethodRef {
     public abstract MethodHandle defineInvoker();
 
     /**
-     * 这个方法返回来的类型用来寻找具体的methodhandle, 所以类型是具体的类型
+     * Gets full name.
+     *
      * @return
      */
-    public abstract Type getMhType();
+    public abstract String getFullName();
+
+    /**
+     * 这个方法返回来的类型用来定位具体的methodhandle, 所以类型是具体的类型
+     * @return
+     */
+    public abstract Type getLookupMhType();
+
+    public boolean isRuntime() {
+        return true;
+    }
 }

@@ -20,7 +20,7 @@ public class ConstructorRef extends MethodRef {
      * @param constructor the constructor
      */
     public ConstructorRef(String name, Constructor<?> constructor) {
-        super(name, name);
+        super(name);
         this.constructor = constructor;
     }
 
@@ -29,17 +29,32 @@ public class ConstructorRef extends MethodRef {
         return new io.github.hhy50.linker.generate.constructor.Constructor(this);
     }
 
-    @Override
-    public Type getMhType() {
-        return null;
-    }
-
     /**
      * Gets declare type.
      *
      * @return the declare type
      */
-    public Type getDeclareType() {
+    public Type getLookupClass() {
         return Type.getType(constructor.getDeclaringClass());
     }
+
+    @Override
+    public Type getLookupMhType() {
+        return Type.getType(constructor);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getFullName() {
+        return "constructor";
+    }
+
+    @Override
+    public boolean isRuntime() {
+        return false;
+    }
+
+
 }

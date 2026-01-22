@@ -8,7 +8,10 @@ import io.github.hhy50.linker.exceptions.VerifyException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -109,5 +112,9 @@ public class AbsMethodMetadata {
 
     public Parameter[] getParameters() {
         return reflect.getParameters();
+    }
+
+    public boolean isSetter() {
+        return uniqueAnno instanceof Field.Setter;
     }
 }

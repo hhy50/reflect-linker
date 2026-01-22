@@ -81,4 +81,19 @@ public abstract class VarInst implements LoadAction, TypedAction {
             }
         };
     }
+
+    public static VarInst wrap(TypedAction action) {
+        return new VarInst() {
+
+            @Override
+            public Type getType() {
+                return action.getType();
+            }
+
+            @Override
+            public Action load() {
+                return action;
+            }
+        };
+    }
 }

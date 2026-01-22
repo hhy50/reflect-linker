@@ -3,6 +3,7 @@ package io.github.hhy50.linker.define.method;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
+import io.github.hhy50.linker.util.RandomUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
@@ -26,8 +27,8 @@ public class EarlyMethodRef extends MethodRef {
      *
      * @param reflectMethod the method
      */
-    public EarlyMethodRef(String fullName, Method reflectMethod) {
-        super(fullName, reflectMethod.getName());
+    public EarlyMethodRef(Method reflectMethod) {
+        super(reflectMethod.getName());
         this.reflectMethod = reflectMethod;
     }
 
@@ -40,12 +41,12 @@ public class EarlyMethodRef extends MethodRef {
         return Modifier.isStatic(reflectMethod.getModifiers());
     }
 
-    public Type getDeclareType() {
+    public Type getLookupClass() {
         return Type.getType(this.reflectMethod.getDeclaringClass());
     }
 
     @Override
-    public Type getMhType() {
+    public Type getLookupMhType() {
         return Type.getType(reflectMethod);
     }
 
@@ -60,6 +61,16 @@ public class EarlyMethodRef extends MethodRef {
             this.superClass = reflectMethod.getDeclaringClass().getName();
         else
             this.superClass = superClass;
+    }
+
+    @Override
+    public String getFullName() {
+        return "method:"+ RandomUtil.getRandomString(5);
+    }
+
+    @Override
+    public boolean isRuntime() {
+        return false;
     }
 
     /**

@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate;
 
 
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.token.ArgsToken;
 import io.github.hhy50.linker.token.PlaceholderToken;
 import io.github.hhy50.linker.token.Token;
@@ -22,13 +23,17 @@ public class ArgsDepAnalysis {
 
     }
 
-    public void analyse(Type methodType, ArgsToken argsToken) {
+    public void analyse(boolean runtime, Type methodType, ArgsToken argsToken) {
         Type[] argumentTypes = methodType.getArgumentTypes();
         this.rType = methodType.getReturnType();
         for (int i = 0; i < argumentTypes.length; i++) {
             Token arg = argsToken.get(i);
             if (arg instanceof PlaceholderToken) {
                 int index = ((PlaceholderToken) arg).index;
+                Type argType = argumentTypes[i];
+                if (runtime) {
+                    argType = ObjectVar.TYPE;
+                }
                 if (argsStack.length < index+1) {
                     int[] newStackArr = new int[index + 1];
                     Type[] newTypesArr = new Type[index + 1];
@@ -38,7 +43,11 @@ public class ArgsDepAnalysis {
                     argsType = newTypesArr;
                 }
                 argsStack[index] += 1;
-                argsType[index] = argumentTypes[i];
+                if (argsType[index] != null && argsType[index] != argType) {
+                    argsType[index] = ObjectVar.TYPE;
+                } else {
+                    argsType[index] = argType;
+                }
             }
         }
     }

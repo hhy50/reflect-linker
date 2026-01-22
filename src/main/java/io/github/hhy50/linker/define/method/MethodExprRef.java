@@ -4,6 +4,7 @@ import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.generate.ArgsDepAnalysis;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import io.github.hhy50.linker.token.ArgsToken;
+import io.github.hhy50.linker.util.RandomUtil;
 import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class MethodExprRef extends MethodRef {
      *
      */
     public MethodExprRef(AbsMethodMetadata metadata) {
-        super(metadata.getName(), metadata.getName());
+        super(metadata.getName());
         this.metadata = metadata;
         this.stepMethods = new ArrayList<>();
         this.argsDepAnalysis = new ArgsDepAnalysis();
@@ -28,7 +29,7 @@ public class MethodExprRef extends MethodRef {
 
     public void addStepMethod(MethodRef methodRef, ArgsToken argsToken) {
         stepMethods.add(methodRef);
-        argsDepAnalysis.analyse(methodRef.getMhType(), argsToken);
+        argsDepAnalysis.analyse(methodRef.isRuntime(), methodRef.getLookupMhType(), argsToken);
     }
 
     public List<MethodRef> getStepMethods() {
@@ -42,8 +43,13 @@ public class MethodExprRef extends MethodRef {
     }
 
     @Override
-    public Type getMhType() {
+    public Type getLookupMhType() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getFullName() {
+        return "invoke_" + RandomUtil.getRandomString(5);
     }
 
     @Override
