@@ -8,7 +8,7 @@ import io.github.hhy50.linker.annotations.Runtime;
 /**
  * The interface Direct method handle linker.
  */
-@Runtime
+//@Runtime
 public interface DirectMethodHandleLinker {
 
     /**
@@ -16,7 +16,7 @@ public interface DirectMethodHandleLinker {
      *
      * @return the int
      */
-    @Runtime.Static(value = false)
+    @Runtime.Static(name = {"member", "member.flags"}, value = false)
     @Field.Getter("member.flags")
     int modifiers();
 
@@ -25,7 +25,7 @@ public interface DirectMethodHandleLinker {
      *
      * @return the member
      */
-    @Runtime.Static(value = false)
+    @Runtime.Static(name = {"member"}, value = false)
     @Field.Getter("member")
     MemberNameLinker getMember();
 }

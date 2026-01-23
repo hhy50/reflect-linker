@@ -39,7 +39,7 @@ public class ConstructorRef extends MethodRef {
     }
 
     @Override
-    public Type getLookupMhType() {
+    public Type getLookupType() {
         return Type.getType(constructor);
     }
 

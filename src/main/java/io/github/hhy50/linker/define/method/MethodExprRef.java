@@ -29,7 +29,7 @@ public class MethodExprRef extends MethodRef {
 
     public void addStepMethod(MethodRef methodRef, ArgsToken argsToken) {
         stepMethods.add(methodRef);
-        argsDepAnalysis.analyse(methodRef.isRuntime(), methodRef.getLookupMhType(), argsToken);
+        argsDepAnalysis.analyse(methodRef.isRuntime(), methodRef.getLookupType(), argsToken);
     }
 
     public List<MethodRef> getStepMethods() {
@@ -43,7 +43,7 @@ public class MethodExprRef extends MethodRef {
     }
 
     @Override
-    public Type getLookupMhType() {
+    public Type getLookupType() {
         throw new UnsupportedOperationException();
     }
 

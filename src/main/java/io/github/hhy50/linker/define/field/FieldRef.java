@@ -4,6 +4,8 @@ package io.github.hhy50.linker.define.field;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
+import java.util.List;
+
 /**
  * The type Field ref.
  */
@@ -18,6 +20,12 @@ public abstract class FieldRef  {
      * The Full name.
      */
     protected String fullName;
+
+    private boolean nullable;
+
+    private Object defaultValue;
+
+    private List<Object> indexs;
 
     /**
      * Instantiates a new Field ref.
@@ -59,5 +67,20 @@ public abstract class FieldRef  {
      */
     public Class<?> getActualType() {
         return Object.class;
+    }
+
+    public void setStatic(boolean isStatic) {
+
+    }
+    /**
+     *
+     * @param nullable
+     */
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    public void setIndex(List<Object> indexs) {
+        this.indexs = indexs;
     }
 }

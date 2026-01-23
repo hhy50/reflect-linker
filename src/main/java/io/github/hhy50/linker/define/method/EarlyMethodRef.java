@@ -1,10 +1,8 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.MethodHandle;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
 import io.github.hhy50.linker.util.RandomUtil;
-import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -46,7 +44,7 @@ public class EarlyMethodRef extends MethodRef {
     }
 
     @Override
-    public Type getLookupMhType() {
+    public Type getLookupType() {
         return Type.getType(reflectMethod);
     }
 
@@ -65,7 +63,7 @@ public class EarlyMethodRef extends MethodRef {
 
     @Override
     public String getFullName() {
-        return "method:"+ RandomUtil.getRandomString(5);
+        return reflectMethod.getName() + "_"+RandomUtil.getRandomString(5);
     }
 
     @Override
@@ -88,25 +86,5 @@ public class EarlyMethodRef extends MethodRef {
             }
         }
         return false;
-    }
-
-    /**
-     * Generic type type.
-     *
-     * @param methodType the method type
-     * @return the type
-     */
-    static Type genericType(Type methodType) {
-        Type rType = methodType.getReturnType();
-        Type[] argsType = methodType.getArgumentTypes();
-        if (!rType.equals(Type.VOID_TYPE) && TypeUtil.isObjectType(rType)) {
-            rType = ObjectVar.TYPE;
-        }
-        for (int i = 0; i < argsType.length; i++) {
-            if (!argsType[i].equals(Type.VOID_TYPE) && TypeUtil.isObjectType(argsType[i])) {
-                argsType[i] = ObjectVar.TYPE;
-            }
-        }
-        return Type.getMethodType(rType, argsType);
     }
 }

@@ -36,13 +36,13 @@ public class RuntimeMethodRef extends MethodRef {
     }
 
     @Override
-    public Type getLookupMhType() {
+    public Type getLookupType() {
         return Type.getMethodType(ObjectVar.TYPE, this.argsType);
     }
 
     @Override
     public String getFullName() {
-        return "method:"+ RandomUtil.getRandomString(5);
+        return super.name + "_" + RandomUtil.getRandomString(5);
     }
 
     /**

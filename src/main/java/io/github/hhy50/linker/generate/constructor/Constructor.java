@@ -35,7 +35,7 @@ public class Constructor extends Invoker<ConstructorRef> {
      * @param constructor the constructor ref
      */
     public Constructor(ConstructorRef constructor) {
-        super(null, constructor.getLookupMhType());
+        super(null, constructor.getLookupType());
         this.ref = constructor;
     }
 

@@ -5,6 +5,7 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
@@ -37,7 +38,12 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     /**
      *
      */
-    protected final Type mhType;
+    protected final Type opsFieldType;
+
+    /**
+     * 运行时调用的方法
+     */
+    protected MethodDescriptor rmd;
 
     /**
      *
@@ -49,19 +55,17 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      */
     public ClassTypeMember lookupClass;
 
-    protected String runtimeMethodName;
-
     /**
      * Instantiates a new Field ops method handler.
      *
-     * @param fieldName the field name
-     * @param fullName  the full name
-     * @param mhType    the mhType
+     * @param fieldName    the field name
+     * @param fullName     the full name
+     * @param opsFieldType the opsFieldType
      */
-    public FieldOpsMethodHandler(String fieldName, String fullName, Type mhType) {
+    public FieldOpsMethodHandler(String fieldName, String fullName, Type opsFieldType) {
         this.fieldName = fieldName;
         this.fullName = fullName;
-        this.mhType = mhType;
+        this.opsFieldType = opsFieldType;
     }
 
     /**
@@ -72,20 +76,21 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      */
     protected void defineRuntimeMethod(InvokeClassImplBuilder classImplBuilder, Boolean isDesignateStatic) {
         String prefix = "getter_";
-        if (this.mhType.getReturnType() == Type.VOID_TYPE) {
+        if (this.opsFieldType.getReturnType() == Type.VOID_TYPE) {
             prefix = "setter_";
         }
 
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(prefix+fullName, mhType);
-        this.runtimeMethodName = prefix + fullName.replace('.', '_');
+        this.rmd = MethodDescriptor.of(prefix + fullName.replace('.', '_'), TypeUtil.appendArgs(this.opsFieldType, ObjectVar.TYPE, true));
 
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(prefix + fullName, this.opsFieldType);
         ChainAction<VarInst> invoker = mapOwnerAndArgs(of(MethodBody::getArgs), (ownerVar, args) -> {
             Action action = isDesignateStatic != null ?
                     (isDesignateStatic ? mhMember.invokeStatic(args) : mhMember.invokeInstance(ownerVar, args))
                     : mhMember.invokeOfNull(ownerVar, args);
-            return VarInst.wrap(action, mhType.getReturnType());
+            return VarInst.wrap(action, opsFieldType.getReturnType());
         });
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.runtimeMethodName, TypeUtil.appendArgs(mhType, ObjectVar.TYPE, true), null)
+
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
                 .intercept(of(() -> Args.of(0))
                         .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, null)) // TODO
                         .then(ownerVar -> {
@@ -108,13 +113,13 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      */
     protected void defineMethod(InvokeClassImplBuilder classImplBuilder, Type lookupClass, boolean isStatic) {
         String prefix = "getter_";
-        if (this.mhType.getReturnType() == Type.VOID_TYPE) {
+        if (this.opsFieldType.getReturnType() == Type.VOID_TYPE) {
             prefix = "setter_";
         }
 
-        MethodBody clinit = classImplBuilder.getClinit();
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(prefix+fullName, null, mhType);
+        MethodBody clinit = classImplBuilder.getClinit();
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(prefix + fullName, null, this.opsFieldType);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
         if (isStatic) {
             this.inlineMhInvoker = (__, args) -> VarInst.wrap(mhMember.invokeStatic(args));

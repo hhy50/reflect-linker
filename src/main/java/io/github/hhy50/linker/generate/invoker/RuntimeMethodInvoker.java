@@ -11,7 +11,6 @@ import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.util.RandomUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -31,9 +30,9 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
     private Boolean isDesignateStatic;
 
-    private Type methodType;
+    private Type mhType;
 
-    private MethodDescriptor runtimeMethodDescriptor;
+    private MethodDescriptor rmd;
 
     /**
      * Instantiates a new Runtime method invoker.
@@ -41,9 +40,9 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
      * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
-        super(methodRef.getName(), methodRef.getLookupMhType());
+        super(methodRef.getName(), methodRef.getLookupType());
         this.isDesignateStatic = methodRef.isDesignateStatic();
-        this.fullName = RandomUtil.getRandomString(10);
+        this.fullName = methodRef.getFullName();
 
         Type[] argumentTypes = super.lookupType.getArgumentTypes();
         Arrays.fill(argumentTypes, ObjectVar.TYPE);
@@ -54,23 +53,23 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
             super.lookupType =  Type.getMethodType(lookupType.getReturnType(), Type.getType(Object[].class));
             argumentTypes = new Type[]{Type.getType(Autolink.class)};
         }
-        this.methodType = Type.getMethodType(ObjectVar.TYPE, argumentTypes);
-        this.runtimeMethodDescriptor = MethodDescriptor.of("invoke_" + this.fullName, TypeUtil.appendArgs(methodType, ObjectVar.TYPE, true));
+        this.mhType = Type.getMethodType(ObjectVar.TYPE, argumentTypes);
+        this.rmd = MethodDescriptor.of("invoke_" + this.fullName, TypeUtil.appendArgs(mhType, ObjectVar.TYPE, true));
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(this.fullName);
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(this.fullName, this.methodType);
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(this.fullName, this.mhType);
 
         ChainAction<VarInst> invoker = mapOwnerAndArgs(of(MethodBody::getArgs), (ownerVar, args) -> {
             Action action = isDesignateStatic != null ? (isDesignateStatic ? mhMember.invokeStatic(args)
                     : mhMember.invokeInstance(ownerVar, args))
                     : mhMember.invokeOfNull(ownerVar, args);
-            return VarInst.wrap(action, methodType.getReturnType());
+            return VarInst.wrap(action, rmd.getReturnType());
         });
 
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.runtimeMethodDescriptor.getMethodName(), this.runtimeMethodDescriptor.getType(), null)
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
                 .intercept(of(() -> Args.of(0))
                         .then(ownerVar -> checkLookClass(lookupClass, ownerVar, null))
                         .then(ownerVar -> {
@@ -86,9 +85,9 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        return argsAction.then(args -> args[0].checkNullPointer())
+        return argsAction
                 .map(args -> {
-                    return new SmartMethodInvokeAction(runtimeMethodDescriptor)
+                    return new SmartMethodInvokeAction(this.rmd)
                             .setInstance(LoadAction.LOAD0)
                             .setArgs(args);
                 }).map(Actions::newLocalVar);

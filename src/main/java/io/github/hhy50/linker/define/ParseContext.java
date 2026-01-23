@@ -17,7 +17,6 @@ import io.github.hhy50.linker.util.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -49,10 +48,6 @@ public class ParseContext {
      * The Typed fields.
      */
     final Map<String, String> typedFields = new HashMap<>();
-    /**
-     * The constant staticTokens.
-     */
-    final Map<String, Boolean> staticTokens = new HashMap<>();
 
     /**
      * The Token parser.
@@ -131,7 +126,6 @@ public class ParseContext {
      *
      */
     void postParse(MethodExprRef methodExpr) {
-        this.staticTokens.remove(CURRENT_TOKEN);
     }
 
     /**
@@ -240,6 +234,7 @@ public class ParseContext {
             fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);
 
             // 使用@Typed指定的类型
+            // TODO
             Class<?> assignedType = getFieldTyped(fullField, fieldName);
             if (assignedType != null) {
                 if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
@@ -247,14 +242,13 @@ public class ParseContext {
                 }
                 currentType = index == null ? assignedType : Util.expandIndexType(index, assignedType);
             }
+            Boolean designateStatic = metadata.isDesignateStatic(fullField);
             FieldRef fieldRef = earlyField != null ? new EarlyFieldRef(fullField, earlyField)
                     : new RuntimeFieldRef(fullField, fieldName);
-
-            // lastField.setNullable(token.isNullable());
-            // lastField.setDefaultValue();
-            // lastField.setIndex();
-            if (metadata.isDesignateStatic(fieldRef.getFullName())) {
-
+            fieldRef.setNullable(token.isNullable());
+            fieldRef.setIndex(index);
+            if (designateStatic != null) {
+                fieldRef.setStatic(designateStatic);
             }
             fields.add(fieldRef);
         }
@@ -291,47 +285,5 @@ public class ParseContext {
                 .filter(Objects::nonNull)
                 .map(item -> Util.getClass(this.classLoader, item))
                 .findFirst().orElse(null);
-    }
-
-    private void designateStatic(Object refObj) {
-        if (refObj instanceof RuntimeFieldRef) {
-            String fullName = ((RuntimeFieldRef) refObj).getFullName();
-            if (staticTokens.containsKey(fullName)) {
-                ((RuntimeFieldRef) refObj).designateStatic(staticTokens.get(fullName));
-            } else if (staticTokens.containsKey(CURRENT_TOKEN)) {
-                ((RuntimeFieldRef) refObj).designateStatic(staticTokens.get(CURRENT_TOKEN));
-            }
-        } else if (refObj instanceof RuntimeMethodRef) {
-            if (staticTokens.containsKey(CURRENT_TOKEN)) {
-                ((RuntimeMethodRef) refObj).designateStatic(staticTokens.get(CURRENT_TOKEN));
-            }
-        }
-    }
-
-    private static void verify(Method method) throws VerifyException {
-        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
-        List<Class<? extends Annotation>> uniques = Arrays.stream(declaredAnnotations)
-                .map(Annotation::annotationType)
-                .filter(item -> item.getDeclaredAnnotation(Verify.Unique.class) != null).collect(Collectors.toList());
-        if (uniques.size() > 1) {
-            throw new VerifyException("method [" + method.getDeclaringClass() + "@" + method.getName()
-                    + "] cannot have two annotations [" +
-                    uniques.stream().map(Class::getSimpleName).collect(Collectors.joining(", @", "@", "")) + "]");
-        }
-        for (Annotation annotation : declaredAnnotations) {
-            Verify.Custom custom = annotation.annotationType().getDeclaredAnnotation(Verify.Custom.class);
-            if (custom != null) {
-                Verifier verifier = null;
-                try {
-                    verifier = custom.value().newInstance();
-                } catch (IllegalAccessException | InstantiationException e) {
-                    throw new VerifyException(e);
-                }
-                if (!verifier.test(method, annotation)) {
-                    throw new VerifyException(
-                            "method [" + method.getDeclaringClass() + "@" + method.getName() + "] verify failed");
-                }
-            }
-        }
     }
 }

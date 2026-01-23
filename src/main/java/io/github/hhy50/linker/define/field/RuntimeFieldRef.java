@@ -7,11 +7,10 @@ public class RuntimeFieldRef extends FieldRef {
 
     private Boolean designateStatic;
 
-
     /**
      * Instantiates a new Runtime field ref.
      *
-     * @param fullName      the prev
+     * @param fullName  the prev
      * @param fieldName the field name
      */
     public RuntimeFieldRef(String fullName, String fieldName) {
@@ -32,7 +31,11 @@ public class RuntimeFieldRef extends FieldRef {
      *
      * @param isStatic the is static
      */
-    public void designateStatic(boolean isStatic) {
-        this.designateStatic = isStatic;
+    public void setStatic(boolean isStatic) {
+        if (this.designateStatic == null) {
+            this.designateStatic = isStatic;
+        } else if (this.designateStatic ^ isStatic) {
+            throw new IllegalArgumentException("");
+        }
     }
 }

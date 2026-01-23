@@ -66,6 +66,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public InvokeClassImplBuilder setTarget(TargetFieldGetter targetGetter) {
         this.targetGetter = targetGetter;
+        this.targetGetter.define(this);
         return this;
     }
 
@@ -78,7 +79,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      * @return the method handle member
      */
     public MethodHandleMember defineStaticMethodHandle(String fullName, Type lookupType, Type methodType) {
-        fullName = fullName.replace('.', '_');
+        fullName = fullName.replace('.', '_') + "_mh";
         AsmField field = getField(fullName);
         if (field == null) {
             int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;

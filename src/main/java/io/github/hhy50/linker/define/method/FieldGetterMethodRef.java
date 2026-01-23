@@ -15,7 +15,7 @@ public class FieldGetterMethodRef extends MethodRef {
     }
 
     @Override
-    public Type getLookupMhType() {
+    public Type getLookupType() {
         return Type.getMethodType(field.getType());
     }
 

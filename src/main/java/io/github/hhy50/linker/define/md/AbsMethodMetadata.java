@@ -119,6 +119,6 @@ public class AbsMethodMetadata {
     }
 
     public Boolean isDesignateStatic(String tokenName) {
-        return false;
+        return staticToken.get(tokenName);
     }
 }
