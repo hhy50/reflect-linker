@@ -9,8 +9,10 @@ import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
@@ -52,7 +54,8 @@ public class Getter extends FieldOpsMethodHandler {
             return mapOwnerAndArgs(argsAction, super.inlineMhInvoker);
         }
 
-        return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName, super.mhType))
+        return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(super.runtimeMethodName,
+                        TypeUtil.appendArgs(super.mhType, ObjectVar.TYPE, true)))
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(argsAction))
                 .map(Actions::newLocalVar);

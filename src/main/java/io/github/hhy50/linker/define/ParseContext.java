@@ -188,7 +188,7 @@ public class ParseContext {
             MethodToken methodToken = (MethodToken) splitToken.suffix;
 
             if (fieldsToken != null && fieldsToken.size() > 0) {
-                List<FieldRef> fieldRefs = parseFieldExpr(curType, fieldsToken);
+                List<FieldRef> fieldRefs = parseFieldExpr(metadata, curType, fieldsToken);
                 Iterator<FieldRef> iter = fieldRefs.iterator();
                 while (iter.hasNext()) {
                     FieldRef fieldRef = iter.next();
@@ -223,7 +223,7 @@ public class ParseContext {
         return methodExprRef;
     }
 
-    private List<FieldRef> parseFieldExpr(Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
+    private List<FieldRef> parseFieldExpr(AbsMethodMetadata metadata, Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
         Class<?> currentType = rootType;
         String fullField = null;
 
@@ -249,10 +249,13 @@ public class ParseContext {
             }
             FieldRef fieldRef = earlyField != null ? new EarlyFieldRef(fullField, earlyField)
                     : new RuntimeFieldRef(fullField, fieldName);
+
             // lastField.setNullable(token.isNullable());
             // lastField.setDefaultValue();
             // lastField.setIndex();
-            designateStatic(fieldRef);
+            if (metadata.isDesignateStatic(fieldRef.getFullName())) {
+
+            }
             fields.add(fieldRef);
         }
         return fields;

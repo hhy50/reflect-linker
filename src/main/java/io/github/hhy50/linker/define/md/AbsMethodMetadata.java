@@ -117,4 +117,8 @@ public class AbsMethodMetadata {
     public boolean isSetter() {
         return uniqueAnno instanceof Field.Setter;
     }
+
+    public Boolean isDesignateStatic(String tokenName) {
+        return false;
+    }
 }

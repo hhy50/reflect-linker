@@ -39,9 +39,15 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         MethodBuilder builder = classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodName, methodType, null);
         BiFunction<ChainAction<VarInst>, ChainAction<VarInst[]>, Action> invoker = (varInstChain, argsChainAction) -> {
+            ChainAction<VarInst[]> originArgs = argsChainAction;
             for (MethodRef methodRef : stepMethods) {
                 MethodHandle mh = classImplBuilder.defineInvoker(methodRef);
-                varInstChain = mh.invoke(ChainAction.join(varInstChain, argsChainAction));
+                if (!(mh instanceof Getter)) {
+                    argsChainAction = ChainAction.join(varInstChain, originArgs);
+                } else {
+                    argsChainAction = varInstChain.map(varInst -> new VarInst[]{varInst});
+                }
+                varInstChain = mh.invoke(argsChainAction);
             }
             return varInstChain.areturn();
         };

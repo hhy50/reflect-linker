@@ -71,12 +71,12 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      * @param isDesignateStatic
      */
     protected void defineRuntimeMethod(InvokeClassImplBuilder classImplBuilder, Boolean isDesignateStatic) {
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(fullName, mhType);
-
         String prefix = "getter_";
         if (this.mhType.getReturnType() == Type.VOID_TYPE) {
             prefix = "setter_";
         }
+
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(prefix+fullName, mhType);
         this.runtimeMethodName = prefix + fullName.replace('.', '_');
 
         ChainAction<VarInst> invoker = mapOwnerAndArgs(of(MethodBody::getArgs), (ownerVar, args) -> {
@@ -107,10 +107,14 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      * @param isStatic         the is static
      */
     protected void defineMethod(InvokeClassImplBuilder classImplBuilder, Type lookupClass, boolean isStatic) {
-        MethodBody clinit = classImplBuilder.getClinit();
+        String prefix = "getter_";
+        if (this.mhType.getReturnType() == Type.VOID_TYPE) {
+            prefix = "setter_";
+        }
 
+        MethodBody clinit = classImplBuilder.getClinit();
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(fullName, null, mhType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(prefix+fullName, null, mhType);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
         if (isStatic) {
             this.inlineMhInvoker = (__, args) -> VarInst.wrap(mhMember.invokeStatic(args));
