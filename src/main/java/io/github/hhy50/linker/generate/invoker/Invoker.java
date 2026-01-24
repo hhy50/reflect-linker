@@ -22,11 +22,11 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
      *
      */
-    protected Type lookupClass;
+    protected final Type lookupClass;
     /**
      * 方法名字
      */
-    protected String lookupName;
+    protected final String lookupName;
 
     /**
      * 查找 method handle时的类型
@@ -36,7 +36,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
      * 调用的父类
      */
-    protected String superClass;
+    protected final String superClass;
 
     /**
      * Instantiates a new Invoker.
@@ -45,8 +45,14 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      * @param lookupType the lookup type
      */
     public Invoker(String lookupName, Type lookupType) {
+        this(null, lookupName, lookupType, null);
+    }
+
+    public Invoker(Type lookupClass, String lookupName, Type lookupType,  String superClass) {
+        this.lookupClass = lookupClass;
         this.lookupName = lookupName;
         this.lookupType = lookupType;
+        this.superClass = superClass;
     }
 
     @Override

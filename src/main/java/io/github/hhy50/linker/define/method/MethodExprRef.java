@@ -29,7 +29,7 @@ public class MethodExprRef extends MethodRef {
 
     public void addStepMethod(MethodRef methodRef, ArgsToken argsToken) {
         stepMethods.add(methodRef);
-        argsDepAnalysis.analyse(methodRef.isRuntime(), methodRef.getLookupType(), argsToken);
+        argsDepAnalysis.analyse(methodRef.isRuntime(), methodRef.getGenericType(), argsToken);
     }
 
     public List<MethodRef> getStepMethods() {

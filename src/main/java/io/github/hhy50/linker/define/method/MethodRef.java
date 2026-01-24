@@ -73,6 +73,10 @@ public abstract class MethodRef {
      */
     public abstract Type getLookupType();
 
+    public Type getGenericType() {
+        return getLookupType();
+    }
+
     public boolean isRuntime() {
         return true;
     }

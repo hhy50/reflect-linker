@@ -34,27 +34,32 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
     private MethodDescriptor rmd;
 
+    private boolean autolinked;
+
     /**
      * Instantiates a new Runtime method invoker.
      *
      * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
-        super(methodRef.getName(), methodRef.getLookupType());
+        super(null, methodRef.getName(), methodRef.getLookupType(), methodRef.getSuperClass());
+
         this.isDesignateStatic = methodRef.isDesignateStatic();
         this.fullName = methodRef.getFullName();
 
         Type[] argumentTypes = super.lookupType.getArgumentTypes();
         Arrays.fill(argumentTypes, ObjectVar.TYPE);
 
+        this.rmd = MethodDescriptor.of("invoke_" + this.fullName, TypeUtil.appendArgs(Type.getMethodType(ObjectVar.TYPE, argumentTypes), ObjectVar.TYPE, true));
         if (methodRef.isAutolink()) {
             // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
             // 约定将参数0设置为Autolink，以保证使用实参来查找方法
-            super.lookupType =  Type.getMethodType(lookupType.getReturnType(), Type.getType(Object[].class));
-            argumentTypes = new Type[]{Type.getType(Autolink.class)};
+//            super.lookupType = Type.getMethodType(lookupType.getReturnType(), Type.getType(Object[].class));
+            argumentTypes = new Type[]{ Type.getType(Object[].class) };
+            super.lookupType = Type.getMethodType(lookupType.getReturnType(), Type.getType(Autolink.class));
+            this.autolinked = true;
         }
         this.mhType = Type.getMethodType(ObjectVar.TYPE, argumentTypes);
-        this.rmd = MethodDescriptor.of("invoke_" + this.fullName, TypeUtil.appendArgs(mhType, ObjectVar.TYPE, true));
     }
 
     @Override
@@ -63,9 +68,14 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(this.fullName, this.mhType);
 
         ChainAction<VarInst> invoker = mapOwnerAndArgs(of(MethodBody::getArgs), (ownerVar, args) -> {
-            Action action = isDesignateStatic != null ? (isDesignateStatic ? mhMember.invokeStatic(args)
-                    : mhMember.invokeInstance(ownerVar, args))
-                    : mhMember.invokeOfNull(ownerVar, args);
+            Action loadArgs = Actions.of(args);
+            if (this.autolinked) {
+                loadArgs = Actions.asArray(ObjectVar.TYPE, args);
+            }
+            Action action = isDesignateStatic != null ? (isDesignateStatic ? mhMember.invokeStatic(loadArgs)
+                    : mhMember.invokeInstance(ownerVar, loadArgs))
+                    : mhMember.invokeOfNull(ownerVar, loadArgs);
+
             return VarInst.wrap(action, rmd.getReturnType());
         });
 
@@ -85,11 +95,8 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        return argsAction
-                .map(args -> {
-                    return new SmartMethodInvokeAction(this.rmd)
-                            .setInstance(LoadAction.LOAD0)
-                            .setArgs(args);
-                }).map(Actions::newLocalVar);
+        return of(() -> new SmartMethodInvokeAction(this.rmd)
+                .setInstance(LoadAction.LOAD0)
+                .setArgs(argsAction));
     }
 }

@@ -262,10 +262,15 @@ public class TypeUtil {
     /**
      * Generic type type.
      *
-     * @param methodType the method type
+     * @param type the type
      * @return the type
      */
-    public static Type genericType(Type methodType) {
+    public static Type genericType(Type type) {
+        if (type.getSort() == Type.OBJECT) {
+            return Type.getType("Ljava/lang/Object;");
+        }
+
+        Type methodType = type;
         Type rType = methodType.getReturnType();
         Type[] argsType = methodType.getArgumentTypes();
         if (!rType.equals(Type.VOID_TYPE) && TypeUtil.isObjectType(rType)) {

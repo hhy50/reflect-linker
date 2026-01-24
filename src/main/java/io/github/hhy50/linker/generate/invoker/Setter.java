@@ -51,8 +51,7 @@ public class Setter extends FieldOpsMethodHandler {
 
         return ChainAction.of(() -> new SmartMethodInvokeAction(super.rmd)
                 .setInstance(LoadAction.LOAD0)
-                .setArgs(argsAction))
-                .map(VarInst::wrap);
+                .setArgs(argsAction));
     }
 
     @Override
@@ -66,7 +65,7 @@ public class Setter extends FieldOpsMethodHandler {
     protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
         MethodInvokeAction findSetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
                 .setInstance(lookupClass.getLookup())
-                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(field.getType()));
+                .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(Type.getType(field.getActualType())));
         return mhMember.store(findSetter);
     }
 }

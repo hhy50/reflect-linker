@@ -6,7 +6,6 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.action.CreateLinkerAction;
-import io.github.hhy50.linker.generate.bytecode.action.TypeCastAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -52,9 +51,9 @@ public class InvokerDecorator extends AbstractDecorator {
                 .mapBody((body, varInst) -> {
                     Type retType = Type.getType(rClassType);
                     if (isConstructor) {
-                        return Actions.newLocalVar(new TypeCastAction(new CreateLinkerAction(retType, varInst), retType));
+                        return new CreateLinkerAction(retType, varInst);
                     } else if (varInst != null && retType != Type.VOID_TYPE) {
-                        return typecastResult(body, varInst);
+                        return typecastResult(body, Actions.newLocalVar(varInst));
                     }
                     return varInst;
                 })

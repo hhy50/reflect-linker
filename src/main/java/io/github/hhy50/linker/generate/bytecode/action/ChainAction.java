@@ -131,19 +131,6 @@ public class ChainAction<T> extends AbstractChain<T> {
         return new Next<>(this, func);
     }
 
-    /**
-     * Map chain action.
-     *
-     * @param func the func
-     * @return the chain action
-     */
-    public ChainAction<VarInst> mapVar(Function<T, TypedAction> func) {
-        return new Next<>(this, varinst -> {
-            TypedAction apply = func.apply(varinst);
-            return Actions.newLocalVar(apply.getType(), apply);
-        });
-    }
-
     public ChainAction<Action> areturn() {
         return new Next<>(this, varinst -> {
             TypedAction typedAction = ((TypedAction) varinst);

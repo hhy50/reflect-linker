@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.type;
 
 import io.github.hhy50.linker.exceptions.TypeNotMatchException;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.BoxAction;
 import io.github.hhy50.linker.generate.bytecode.action.UnBoxAction;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -27,9 +26,9 @@ public class AutoBox implements TypeCast {
             }
             throw new TypeNotMatchException(varInst.getType(), expectType);
         } else if (r1 && (TypeUtil.isWrapType(varInst.getType()) || varInst.getType().equals(ObjectVar.TYPE))) {
-            return Actions.newLocalVar(new UnBoxAction(varInst, expectType));
+            return new UnBoxAction(varInst, expectType);
         } else if (r2 && (TypeUtil.isWrapType(expectType) || expectType.equals(ObjectVar.TYPE))) {
-            return Actions.newLocalVar(new BoxAction(varInst, expectType));
+            return new BoxAction(varInst, expectType);
         } else if (r1 || r2) {
             throw new TypeNotMatchException(varInst.getType(), expectType);
         } else {

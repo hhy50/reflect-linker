@@ -273,6 +273,7 @@ public interface Actions {
     static VarInst newLocalVar(Type type, String name, Action action) {
         return new VarInst() {
             VarInst varInst;
+
             @Override
             public Type getType() {
                 return type;

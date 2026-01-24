@@ -59,6 +59,14 @@ public abstract class VarInst implements LoadAction, TypedAction {
     }
 
     /**
+     *
+     * @return
+     */
+    public boolean isLocalVar() {
+        return this instanceof LocalVarInst;
+    }
+
+    /**
      * Gets target.
      *
      * @return the target

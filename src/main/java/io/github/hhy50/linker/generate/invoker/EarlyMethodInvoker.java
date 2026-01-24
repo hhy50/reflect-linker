@@ -6,11 +6,11 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import org.objectweb.asm.Type;
 
 import java.util.function.BiFunction;
 
 import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
-import static io.github.hhy50.linker.util.TypeUtil.genericType;
 
 /**
  * The type Early method invoker.
@@ -19,7 +19,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     private final String fullName;
     private final boolean isStatic;
     private final boolean isInvisible;
-
+    private final Type genericType;
     /**
      * 内联方法调用。父类的invoke是调用这个 mh的单独生成的方法
      */
@@ -31,13 +31,12 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
      * @param mr the method ref
      */
     public EarlyMethodInvoker(EarlyMethodRef mr) {
-        super(mr.getName(), mr.getLookupType());
-        super.superClass = mr.getSuperClass();
-        super.lookupClass = mr.getLookupClass();
+        super(mr.getLookupClass(), mr.getName(), mr.getLookupType(), mr.getSuperClass());
 
         this.fullName = mr.getFullName();
         this.isStatic = mr.isStatic();
         this.isInvisible = mr.isInvisible();
+        this.genericType = mr.getGenericType();
     }
 
     @Override
@@ -45,12 +44,14 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.fullName, super.lookupClass, this.isInvisible ? genericType(super.lookupType) : super.lookupType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.fullName, super.lookupClass, this.genericType);
         mhMember.setInvokeExact(!this.isInvisible);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(this.lookupClass), isStatic));
-        this.inlineAction = (varInst, args) ->
-                VarInst.wrap(isStatic ? mhMember.invokeStatic(args)
-                        : mhMember.invokeInstance(varInst, args));
+        if (isStatic) {
+            this.inlineAction = (varInst, args) -> mhMember.invokeStatic(args);
+        } else {
+            this.inlineAction = mhMember::invokeInstance;
+        }
     }
 
 

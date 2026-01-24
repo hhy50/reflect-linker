@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode;
 
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -23,6 +22,6 @@ public class ClassTypeMember extends Member implements ClassTypeVarInst {
 
     @Override
     public VarInst getLookup() {
-        return Actions.newLocalVar(new MethodInvokeAction(Runtime.LOOKUP).setArgs(this));
+        return new MethodInvokeAction(Runtime.LOOKUP).setArgs(this);
     }
 }

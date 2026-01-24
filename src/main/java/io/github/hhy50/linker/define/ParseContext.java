@@ -268,8 +268,15 @@ public class ParseContext {
         return args.stream().map(item -> {
             if (item.kind() == Token.Kind.Placeholder) {
                 int i = ((PlaceholderToken) item).index;
-                Class argType = parameters[i].getType();
-                return TypeUtil.getClassName(argType);
+                String typed = AnnotationUtils.getTyped(parameters[i]);
+                if (StringUtil.isNotEmpty(typed)) {
+                    return typed;
+                }
+                String bind = AnnotationUtils.getBind(parameters[i].getType());
+                if (StringUtil.isNotEmpty(bind)) {
+                    return bind;
+                }
+                return TypeUtil.getClassName(parameters[i].getType());
             } else if (item.kind() == Token.Kind.IntConst) {
                 return "int";
             } else if (item.kind() == Token.Kind.StrConst) {

@@ -108,14 +108,14 @@ public abstract class AbstractDecorator extends MethodHandle {
             java.lang.reflect.Type actualType = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
             Class genericType = actualType instanceof Class ? (Class) actualType : null;
             if (genericType != null && genericType.isInterface() && (AnnotationUtils.getBind(genericType) != null || autolink))
-                return Actions.newLocalVar(retType, varInst.getName(), new CreateLinkerCollectAction(Type.getType(genericType), varInst));
+                return new CreateLinkerCollectAction(Type.getType(genericType), varInst);
         } else if (returnClassType.isInterface() && (StringUtil.isNotEmpty(bindClass) || autolink)) {
             methodBody.append(new ConditionJumpAction(
                     any(isNull(varInst), instanceOf(varInst, retType)),
                     varInst.thenReturn(), null));
-            return Actions.newLocalVar(varInst.getName(), new TypeCastAction(new CreateLinkerAction(retType, varInst), retType));
+            return new CreateLinkerAction(retType, varInst);
         } else if (!varInst.getType().equals(retType)) {
-            return Actions.newLocalVar(varInst.getName(), new TypeCastAction(varInst, retType));
+            return new TypeCastAction(varInst, retType);
         }
         return varInst;
     }

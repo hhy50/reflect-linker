@@ -7,7 +7,10 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.SmartMethodDescriptor;
-import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
+import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
+import io.github.hhy50.linker.generate.bytecode.action.SmartMethodInvokeAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import org.objectweb.asm.Opcodes;
@@ -56,15 +59,9 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
 
 
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        MethodInvokeAction action = new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))
+        return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))
                 .setInstance(LoadAction.LOAD0)
-                .setArgs(argsAction);
-        return ChainAction.of(() -> {
-                    if (methodType.getReturnType() != Type.VOID_TYPE) {
-                        return Actions.newLocalVar(action);
-                    }
-                    return VarInst.wrap(action, methodType.getReturnType());
-                });
+                .setArgs(argsAction));
     }
 
     public Type getMethodType() {

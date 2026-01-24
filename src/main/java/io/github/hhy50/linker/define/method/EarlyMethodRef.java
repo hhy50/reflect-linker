@@ -3,6 +3,7 @@ package io.github.hhy50.linker.define.method;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
 import io.github.hhy50.linker.util.RandomUtil;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -69,6 +70,15 @@ public class EarlyMethodRef extends MethodRef {
     @Override
     public boolean isRuntime() {
         return false;
+    }
+
+    @Override
+    public Type getGenericType() {
+        Type lookupType = getLookupType();
+        if (isInvisible()) {
+            return TypeUtil.genericType(lookupType);
+        }
+        return lookupType;
     }
 
     /**

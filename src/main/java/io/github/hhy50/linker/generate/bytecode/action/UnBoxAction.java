@@ -8,7 +8,7 @@ import org.objectweb.asm.Type;
 /**
  * The type Unwrap type action.
  */
-public class UnBoxAction implements LoadAction, TypedAction {
+public class UnBoxAction extends VarInst {
     private final VarInst obj;
     private final Type primitiveType;
 

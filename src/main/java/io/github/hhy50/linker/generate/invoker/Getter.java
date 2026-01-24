@@ -53,8 +53,7 @@ public class Getter extends FieldOpsMethodHandler {
 
         return ChainAction.of(() -> new SmartMethodInvokeAction(super.rmd)
                 .setInstance(LoadAction.LOAD0)
-                .setArgs(argsAction))
-                .map(Actions::newLocalVar);
+                .setArgs(argsAction));
     }
 
     @Override

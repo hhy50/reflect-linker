@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
@@ -9,7 +10,7 @@ import org.objectweb.asm.Type;
 /**
  * The type Wrap type action.
  */
-public class BoxAction implements LoadAction, TypedAction {
+public class BoxAction extends VarInst {
     private final TypedAction obj;
     private final Type wrapperType;
 

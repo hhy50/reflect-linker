@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -11,7 +12,7 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 /**
  * The type Method invoke action.
  */
-public class MethodInvokeAction implements LoadAction, TypedAction {
+public class MethodInvokeAction extends VarInst {
 
     /**
      * The Method descriptor.

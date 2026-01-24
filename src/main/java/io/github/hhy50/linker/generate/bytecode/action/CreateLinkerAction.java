@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
@@ -8,7 +7,7 @@ import org.objectweb.asm.Type;
 /**
  * The type Create linker action.
  */
-public class CreateLinkerAction implements Action {
+public class CreateLinkerAction extends VarInst  {
 
     /**
      * The Linker type.
@@ -32,8 +31,13 @@ public class CreateLinkerAction implements Action {
 
 
     @Override
-    public void apply(MethodBody body) {
-        body.append(new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER)
-                .setArgs(LdcLoadAction.of(linkerType), obj));
+    public Action load() {
+        return new MethodInvokeAction(MethodDescriptor.LINKER_FACTORY_CREATE_LINKER)
+                .setArgs(LdcLoadAction.of(linkerType), obj);
+    }
+
+    @Override
+    public Type getType() {
+        return linkerType;
     }
 }
