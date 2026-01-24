@@ -1,9 +1,11 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.MethodHandle;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 
 
 /**
@@ -40,7 +42,11 @@ public class ConstructorRef extends MethodRef {
 
     @Override
     public Type getLookupType() {
-        return Type.getType(constructor);
+        Type rType = ObjectVar.TYPE;
+        if (Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
+            rType = Type.getType(constructor.getDeclaringClass());
+        }
+        return Type.getMethodType(rType, Type.getType(constructor).getArgumentTypes());
     }
 
     /**

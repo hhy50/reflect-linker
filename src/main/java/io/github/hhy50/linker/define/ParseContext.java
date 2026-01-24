@@ -17,7 +17,7 @@ import io.github.hhy50.linker.util.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 /**
  * The type Parse context.
@@ -157,7 +157,11 @@ public class ParseContext {
                 throw new ParseException(
                         "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(argsType));
             }
-            return null;
+            MethodExprRef methodExprRef = new MethodExprRef(metadata);
+            methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor),
+                    ArgsToken.of(IntStream.range(0, argsType.length).mapToObj(PlaceholderToken::new)
+                            .toArray(PlaceholderToken[]::new)));
+            return methodExprRef;
         } else {
             String expr = metadata.getExpr();
             MethodExprRef methodExprRef = parseMethodExpr(metadata, tokenParser.parse(expr));
@@ -188,9 +192,7 @@ public class ParseContext {
                     FieldRef fieldRef = iter.next();
                     boolean isLast = !iter.hasNext();
                     if (isLast && metadata.isSetter()) {
-                        ArgsToken args = new ArgsToken();
-                        args.add(new PlaceholderToken(0));
-                        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRef), args);
+                        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRef), ArgsToken.of(new PlaceholderToken(0)));
                     } else {
                         methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef), null);
                     }
@@ -234,8 +236,9 @@ public class ParseContext {
             fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);
 
             // 使用@Typed指定的类型
-            // TODO
-            Class<?> assignedType = getFieldTyped(fullField, fieldName);
+            Class<?> assignedType = Optional.ofNullable(metadata.getTyped(fullField, fieldName))
+                    .map(t -> Util.getClass(this.classLoader, t))
+                    .orElse(null);
             if (assignedType != null) {
                 if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
                     throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
@@ -276,14 +279,5 @@ public class ParseContext {
             }
             throw new ParseException("Invalid argument type");
         }).toArray(String[]::new);
-    }
-
-    private Class<?> getFieldTyped(String fullField, String tokenValue) throws ClassNotFoundException {
-        return Stream.of(fullField, tokenValue)
-                .filter(StringUtil::isNotEmpty)
-                .map(this.typedFields::get)
-                .filter(Objects::nonNull)
-                .map(item -> Util.getClass(this.classLoader, item))
-                .findFirst().orElse(null);
     }
 }

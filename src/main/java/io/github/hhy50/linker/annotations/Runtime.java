@@ -22,7 +22,7 @@ public @interface Runtime {
      * @version $Id : $Id
      */
     @Retention(RetentionPolicy.RUNTIME)
-    @java.lang.annotation.Target(ElementType.METHOD)
+    @java.lang.annotation.Target({ElementType.METHOD, ElementType.TYPE})
     @interface Static {
         /**
          * Value boolean.

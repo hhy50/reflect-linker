@@ -51,7 +51,8 @@ public class Constructor extends Invoker<ConstructorRef> {
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        return argsAction.map(inlineAction);
+        // 忽略传递过来的target
+        return ChainAction.mapOwnerAndArgs(argsAction, (__, args) -> inlineAction.apply(args));
     }
 
     @Override

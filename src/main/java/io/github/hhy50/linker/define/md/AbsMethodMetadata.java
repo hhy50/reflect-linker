@@ -5,15 +5,15 @@ import io.github.hhy50.linker.annotations.Method;
 import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.VerifyException;
+import io.github.hhy50.linker.util.AnnotationUtils;
+import io.github.hhy50.linker.util.StringUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class AbsMethodMetadata {
 
@@ -34,8 +34,6 @@ public class AbsMethodMetadata {
     private Map<String, String> typedToken = new HashMap<>();
 
     private Map<String, Boolean> staticToken = new HashMap<>();
-
-    private boolean constructor;
 
     private String invokeSuper;
 
@@ -78,11 +76,7 @@ public class AbsMethodMetadata {
     }
 
     public boolean isAutolink() {
-        return false;
-    }
-
-    public boolean isConstructor() {
-        return uniqueAnno instanceof io.github.hhy50.linker.annotations.Method.Constructor;
+        return AnnotationUtils.isAutolink(reflect);
     }
 
     public java.lang.reflect.Method getReflect() {
@@ -114,11 +108,31 @@ public class AbsMethodMetadata {
         return reflect.getParameters();
     }
 
+    public Boolean isDesignateStatic(String tokenVal) {
+        Boolean b = staticToken.get(tokenVal);
+        if (b == null) {
+            b = parent.isDesignateStatic(tokenVal);
+        }
+        return b;
+    }
+
+    public String getTyped(String full, String tokenVal) {
+        String typed = Stream.of(full, tokenVal)
+                .filter(StringUtil::isNotEmpty)
+                .map(this.typedToken::get)
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
+        if (typed == null) {
+            typed = parent.getTyped(full, tokenVal);
+        }
+        return typed;
+    }
+
     public boolean isSetter() {
         return uniqueAnno instanceof Field.Setter;
     }
 
-    public Boolean isDesignateStatic(String tokenName) {
-        return staticToken.get(tokenName);
+    public boolean isConstructor() {
+        return uniqueAnno instanceof io.github.hhy50.linker.annotations.Method.Constructor;
     }
 }
