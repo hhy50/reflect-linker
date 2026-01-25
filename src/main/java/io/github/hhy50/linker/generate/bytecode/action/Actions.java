@@ -59,13 +59,9 @@ public interface Actions {
      * @return the action
      */
     static Action throwNullException(String nullerr) {
-        return withVisitor(mv -> {
-            mv.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
-            mv.visitInsn(Opcodes.DUP);
-            mv.visitLdcInsn(nullerr);
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NullPointerException", "<init>", "(Ljava/lang/String;)V", false);
-            mv.visitInsn(Opcodes.ATHROW);
-        });
+        return of(new NewObjectAction(Type.getType(NullPointerException.class), Type.getType(String.class))
+                        .setArgs(LdcLoadAction.of(nullerr)),
+                withVisitor(mv -> mv.visitInsn(Opcodes.ATHROW)));
     }
 
     /**
@@ -76,13 +72,9 @@ public interface Actions {
      * @return the action
      */
     static Action throwTypeCastException(String objName, Type expectType) {
-        return withVisitor(mv -> {
-            mv.visitTypeInsn(Opcodes.NEW, "java/lang/ClassCastException");
-            mv.visitInsn(Opcodes.DUP);
-            mv.visitLdcInsn("'" + objName + "' not cast to type '" + expectType.getClassName() + "'");
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ClassCastException", "<init>", "(Ljava/lang/String;)V", false);
-            mv.visitInsn(Opcodes.ATHROW);
-        });
+        return of(new NewObjectAction(Type.getType(ClassCastException.class), Type.getType(String.class))
+                .setArgs(LdcLoadAction.of("'" + objName + "' not cast to type '" + expectType.getClassName() + "'")),
+                withVisitor(mv -> mv.visitInsn(Opcodes.ATHROW)));
     }
 
     /**
@@ -150,6 +142,14 @@ public interface Actions {
                 mv.visitInsn(arrType.getOpcode(Opcodes.IASTORE));
             }
         };
+    }
+
+    static Action arrayIndex(TypedAction arrInst, int i) {
+        return of(arrInst, iconst(i), withVisitor(mv ->  mv.visitInsn(arrInst.getType().getOpcode(Opcodes.IALOAD))));
+    }
+
+    static Action iconst(int i) {
+        return withVisitor(mv -> mv.visitIntInsn(Opcodes.BIPUSH, i));
     }
 
     /**

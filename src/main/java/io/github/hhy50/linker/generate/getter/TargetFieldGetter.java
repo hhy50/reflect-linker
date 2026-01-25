@@ -13,6 +13,7 @@ import io.github.hhy50.linker.generate.bytecode.utils.Members;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInstWithLookup;
 import io.github.hhy50.linker.generate.invoker.Getter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -30,8 +31,8 @@ public class TargetFieldGetter extends Getter {
      *
      */
     private final Type targetType;
-    private final AbsInterfaceMetadata metadata;
 
+    private final AbsInterfaceMetadata metadata;
 
     /**
      * Instantiates a new Target field getter.
@@ -60,7 +61,7 @@ public class TargetFieldGetter extends Getter {
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        return ChainAction.of(() -> this.targetObj);
+        return ChainAction.of(() -> new VarInstWithLookup(this.targetObj, this.targetClass));
     }
 
     /**

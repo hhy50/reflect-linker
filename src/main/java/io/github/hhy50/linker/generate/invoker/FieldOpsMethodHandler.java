@@ -92,7 +92,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
                 .intercept(of(() -> Args.of(0))
-                        .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, null)) // TODO
+                        .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, null))
                         .then(ownerVar -> {
 //                                    ClassTypeMember prevLookupClass = preFieldGetter.lookupClass;
 //                                    if (prevLookupClass != null) {

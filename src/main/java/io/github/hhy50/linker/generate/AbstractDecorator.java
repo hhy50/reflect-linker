@@ -150,7 +150,7 @@ public abstract class AbstractDecorator extends MethodHandle {
             varInst = type.cast(varInst, expectType);
         }
         if (!varInst.getType().equals(expectType)) {
-            varInst = Actions.newLocalVar(new TypeCastAction(varInst, expectType));
+            varInst = Actions.newLocalVar(varInst.cast(expectType));
         }
         return varInst;
     }

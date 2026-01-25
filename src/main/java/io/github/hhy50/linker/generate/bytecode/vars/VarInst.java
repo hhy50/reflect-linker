@@ -66,6 +66,10 @@ public abstract class VarInst implements LoadAction, TypedAction {
         return this instanceof LocalVarInst;
     }
 
+    public VarInst cast(Type casttype) {
+        return new TypeCastAction(this, casttype);
+    }
+
     /**
      * Gets target.
      *

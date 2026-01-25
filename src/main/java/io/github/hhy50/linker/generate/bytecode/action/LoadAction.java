@@ -23,6 +23,10 @@ public interface LoadAction extends Action {
      */
     Action LOAD0 = LOAD_0;
 
+    static Action aload(int i) {
+        return withVisitor(mv -> mv.visitVarInsn(Opcodes.ALOAD, i));
+    }
+
     @Override
     default void apply(MethodBody body) {
         body.append(this.load());
