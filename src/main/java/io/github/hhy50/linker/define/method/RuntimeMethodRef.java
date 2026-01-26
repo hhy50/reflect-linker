@@ -41,6 +41,13 @@ public class RuntimeMethodRef extends MethodRef {
     }
 
     @Override
+    public Type getGenericType() {
+        Type[] newArgs = new Type[this.argsType.length];
+        Arrays.fill(newArgs, ObjectVar.TYPE);
+        return Type.getMethodType(ObjectVar.TYPE, newArgs);
+    }
+
+    @Override
     public String getFullName() {
         return super.name + "_" + RandomUtil.getRandomString(5);
     }

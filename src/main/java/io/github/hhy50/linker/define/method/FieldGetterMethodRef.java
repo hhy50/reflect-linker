@@ -1,8 +1,9 @@
 package io.github.hhy50.linker.define.method;
 
+import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.MethodHandle;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.Getter;
 import org.objectweb.asm.Type;
 
@@ -21,16 +22,16 @@ public class FieldGetterMethodRef extends MethodRef {
 
     @Override
     public MethodHandle defineInvoker() {
-        return new Getter(field);
+        if (field instanceof RuntimeFieldRef) {
+            return new Getter.WithRuntime(field);
+        } else if (field instanceof EarlyFieldRef) {
+            return new Getter.WithEarly((EarlyFieldRef) field);
+        }
+        return null;
     }
 
     @Override
     public String getFullName() {
         return "getter:"+field.getFullName();
-    }
-
-    @Override
-    public boolean isRuntime() {
-        return field.getType() == ObjectVar.TYPE;
     }
 }

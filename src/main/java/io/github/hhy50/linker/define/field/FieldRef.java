@@ -72,6 +72,7 @@ public abstract class FieldRef  {
     public void setStatic(boolean isStatic) {
 
     }
+
     /**
      *
      * @param nullable

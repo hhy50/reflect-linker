@@ -23,7 +23,7 @@ public class ArgsDepAnalysis {
 
     }
 
-    public void analyse(boolean runtime, Type methodType, ArgsToken argsToken) {
+    public void analyse(Type methodType, ArgsToken argsToken) {
         Type[] argumentTypes = methodType.getArgumentTypes();
         this.rType = methodType.getReturnType();
         for (int i = 0; i < argumentTypes.length; i++) {
@@ -31,9 +31,9 @@ public class ArgsDepAnalysis {
             if (arg instanceof PlaceholderToken) {
                 int index = ((PlaceholderToken) arg).index;
                 Type argType = argumentTypes[i];
-                if (runtime) {
-                    argType = ObjectVar.TYPE;
-                }
+//                if (runtime) {
+//                    argType = ObjectVar.TYPE;
+//                }
                 if (argsStack.length < index+1) {
                     int[] newStackArr = new int[index + 1];
                     Type[] newTypesArr = new Type[index + 1];

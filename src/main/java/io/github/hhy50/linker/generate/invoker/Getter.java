@@ -17,43 +17,21 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwn
 /**
  * The type Getter.
  */
-public class Getter extends FieldOpsMethodHandler {
+public abstract class Getter<T extends FieldRef> extends FieldOpsMethodHandler {
 
     /**
      * The Field.
      */
-    protected final FieldRef field;
+    protected final T field;
 
     /**
      * Instantiates a new Getter.
      *
      * @param field the field
      */
-    public Getter(FieldRef field) {
+    public Getter(T field) {
         super(field.getName(), field.getFullName(), Type.getMethodType(field.getType()));
         this.field = field;
-    }
-
-    protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        if (field instanceof RuntimeFieldRef) {
-            this.lookupClass = classImplBuilder.defineLookupClass(fullName);
-            super.defineRuntimeMethod(classImplBuilder, ((RuntimeFieldRef) field).isDesignateStatic());
-        } else if (field instanceof EarlyFieldRef) {
-            Type lookupClass = ((EarlyFieldRef) field).getLookupClass();
-            boolean isStatic = ((EarlyFieldRef) field).isStatic();
-            super.defineMethod(classImplBuilder, lookupClass, isStatic);
-        }
-    }
-
-    @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        if (super.inlineMhInvoker != null) {
-            return mapOwnerAndArgs(argsAction, super.inlineMhInvoker);
-        }
-
-        return ChainAction.of(() -> new SmartMethodInvokeAction(super.rmd)
-                .setInstance(LoadAction.LOAD0)
-                .setArgs(argsAction));
     }
 
     @Override
@@ -69,5 +47,50 @@ public class Getter extends FieldOpsMethodHandler {
         findGetter.setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(Type.getType(field.getActualType())));
         return mhMember.store(findGetter);
+    }
+
+    public static class WithEarly extends Getter<EarlyFieldRef> {
+        /**
+         * Instantiates a new Getter.
+         *
+         * @param field the field
+         */
+        public WithEarly(EarlyFieldRef field) {
+            super(field);
+        }
+        @Override
+        protected void define0(InvokeClassImplBuilder classImplBuilder) {
+            Type lookupClass = field.getLookupClass();
+            boolean isStatic = field.isStatic();
+            super.defineMethod(classImplBuilder, lookupClass, isStatic);
+        }
+        @Override
+        public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
+            return mapOwnerAndArgs(argsAction, super.inlineMhInvoker);
+        }
+    }
+
+    public static class WithRuntime extends Getter {
+        /**
+         * Instantiates a new Getter.
+         *
+         * @param field the field
+         */
+        public WithRuntime(FieldRef field) {
+            super(field);
+        }
+
+        @Override
+        protected void define0(InvokeClassImplBuilder classImplBuilder) {
+            this.lookupClass = classImplBuilder.defineLookupClass(fullName);
+            super.defineRuntimeMethod(classImplBuilder, ((RuntimeFieldRef) field).isDesignateStatic());
+        }
+
+        @Override
+        public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
+            return ChainAction.of(() -> new SmartMethodInvokeAction(super.rmd)
+                    .setInstance(LoadAction.LOAD0)
+                    .setArgs(argsAction));
+        }
     }
 }

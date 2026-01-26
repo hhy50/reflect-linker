@@ -68,11 +68,6 @@ public class EarlyMethodRef extends MethodRef {
     }
 
     @Override
-    public boolean isRuntime() {
-        return false;
-    }
-
-    @Override
     public Type getGenericType() {
         Type lookupType = getLookupType();
         if (isInvisible()) {

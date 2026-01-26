@@ -47,19 +47,18 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         this.isDesignateStatic = methodRef.isDesignateStatic();
         this.fullName = methodRef.getFullName();
 
-        Type[] argumentTypes = super.lookupType.getArgumentTypes();
-        Arrays.fill(argumentTypes, ObjectVar.TYPE);
+        Type genericType = methodRef.getGenericType();
 
-        this.rmd = MethodDescriptor.of("invoke_" + this.fullName, TypeUtil.appendArgs(Type.getMethodType(Type.getType(Object.class), argumentTypes), Type.getType(Object[].class), true));
+        this.rmd = MethodDescriptor.of("invoke_" + this.fullName, TypeUtil.appendArgs(genericType, Type.getType(Object[].class), true));
         if (methodRef.isAutolink()) {
             // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
             // 约定将参数0设置为Autolink，以保证使用实参来查找方法
 //            super.lookupType = Type.getMethodType(lookupType.getReturnType(), Type.getType(Object[].class));
-            argumentTypes = new Type[]{Type.getType(Object[].class)};
+            genericType = Type.getMethodType(genericType.getReturnType(), Type.getType(Object[].class));
             super.lookupType = Type.getMethodType(lookupType.getReturnType(), Type.getType(Autolink.class));
             this.autolinked = true;
         }
-        this.mhType = Type.getMethodType(ObjectVar.TYPE, argumentTypes);
+        this.mhType = genericType;
     }
 
     @Override

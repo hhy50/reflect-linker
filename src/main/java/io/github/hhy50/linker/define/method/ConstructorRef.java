@@ -56,11 +56,4 @@ public class ConstructorRef extends MethodRef {
     public String getFullName() {
         return "constructor";
     }
-
-    @Override
-    public boolean isRuntime() {
-        return false;
-    }
-
-
 }
