@@ -79,7 +79,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
                 .intercept(of(() -> new RuntimeOwnerAndType(LoadAction.aload(1)))
-                        .then(holder -> checkLookClass(lookupClass, holder.owner, holder.ownerType))
+                        .then(holder -> checkLookClass(lookupClass, holder.owner, holder.ownerType, holder.defaultType))
                         .then(ownerVar -> {
                             return null;
                         })
@@ -98,11 +98,21 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         return of(() -> new SmartMethodInvokeAction(this.rmd)
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(argsAction.map(args -> {
+                    Action owner = args[0];
+                    Action lookupClass = null;
+                    Action defaultType = null;
+
                     if (args[0] instanceof VarInstWithLookup) {
-                        args[0] = VarInst.wrap(Actions.asArray(ObjectVar.TYPE, args[0], ((VarInstWithLookup) args[0]).getLookupClass()), Type.getType(Object[].class));
-                    } else {
-                        args[0] = VarInst.wrap(Actions.asArray(ObjectVar.TYPE, args[0]), Type.getType(Object[].class));
+                        lookupClass = ((VarInstWithLookup) args[0]).getLookupClass();
+                        Type dt = ((VarInstWithLookup) args[0]).defaultType();
+                        if (dt != null) {
+                            defaultType = new ClassLoadAction(dt);
+                        }
                     }
+                    lookupClass = lookupClass == null ? Actions.loadNull() : lookupClass;
+                    defaultType = defaultType == null ? Actions.loadNull() : defaultType;
+                    // 重写参数
+                    args[0] = VarInst.wrap(Actions.asArray(ObjectVar.TYPE, owner, lookupClass, defaultType), Type.getType(Object[].class));
                     return args;
                 })));
     }
@@ -111,11 +121,13 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     static class RuntimeOwnerAndType  {
         VarInst owner;
         VarInst ownerType;
+        VarInst defaultType;
 
         public RuntimeOwnerAndType(Action arg0) {
             ArrayVarInst arrayVarInst = new ArrayVarInst(VarInst.wrap(arg0, Type.getType(Object[].class)));
             this.owner = arrayVarInst.index(0);
             this.ownerType = arrayVarInst.index(1).cast(Type.getType(Class.class));
+            this.defaultType = arrayVarInst.index(2).cast(Type.getType(Class.class));
         }
     }
 }

@@ -54,31 +54,11 @@ public class TargetFieldGetter extends Getter {
                     .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor(Object.class)).setArgs(Args.of(0))
                             .andThen(this.targetClass.store(Args.of(1)))
                             .andThen(Actions.vreturn()));
-        } else {
-
         }
     }
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        return ChainAction.of(() -> new VarInstWithLookup(this.targetObj, this.targetClass));
-    }
-
-    /**
-     * Gets target class.
-     *
-     * @return the target class
-     */
-    public ClassTypeMember getTargetClass() {
-        return targetClass;
-    }
-
-    /**
-     * Gets target type.
-     *
-     * @return the target type
-     */
-    public Type getTargetType() {
-        return this.targetType;
+        return ChainAction.of(() -> new VarInstWithLookup(this.targetObj, this.targetClass, this.targetType));
     }
 }

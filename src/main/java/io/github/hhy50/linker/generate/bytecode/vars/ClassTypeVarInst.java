@@ -1,4 +1,6 @@
-package io.github.hhy50.linker.generate.bytecode.action;
+package io.github.hhy50.linker.generate.bytecode.vars;
+
+import io.github.hhy50.linker.generate.bytecode.action.Action;
 
 /**
  * The interface Class load action.

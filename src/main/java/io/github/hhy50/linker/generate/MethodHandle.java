@@ -1,17 +1,13 @@
 package io.github.hhy50.linker.generate;
 
-import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
-import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
-import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
-
-import java.util.Objects;
 
 import static io.github.hhy50.linker.generate.bytecode.action.Condition.*;
 
@@ -79,7 +75,7 @@ public abstract class MethodHandle {
      * @param lookupClass the lookup class
      * @param varInst     the var inst
      */
-    protected Action checkLookClass(ClassTypeMember lookupClass, VarInst varInst, Action prevLookupClass) {
+    protected Action checkLookClass(ClassTypeMember lookupClass, VarInst varInst, Action prevLookupClass, Action defaultType) {
         Action action = new ConditionJumpAction(
                 must(notNull(varInst),
                         any(isNull(lookupClass), notEq(varInst.getThisClass(), lookupClass))),
@@ -91,6 +87,13 @@ public abstract class MethodHandle {
             action = action.andThen(new ConditionJumpAction(
                     isNull(lookupClass),
                     lookupClass.store(prevLookupClass),
+                    null
+            ));
+        }
+        if (defaultType != null) {
+            action = action.andThen(new ConditionJumpAction(
+                    isNull(lookupClass),
+                    lookupClass.store(defaultType),
                     null
             ));
         }
@@ -136,7 +139,7 @@ public abstract class MethodHandle {
                 return body -> {
                     ClassTypeVarInst classCache = body.getClassObjCache(type);
                     if (classCache == null) {
-                        classCache = new DynamicClassLoad(type);
+                        classCache = new CachedClassLoad(type);
                         body.putClassObjCache(type, classCache);
                     }
                     classCache.getLookup().apply(body);
@@ -147,7 +150,7 @@ public abstract class MethodHandle {
             public void apply(MethodBody body) {
                 ClassTypeVarInst classCache = body.getClassObjCache(type);
                 if (classCache == null) {
-                    classCache = new DynamicClassLoad(type);
+                    classCache = new CachedClassLoad(type);
                     body.putClassObjCache(type, classCache);
                 }
                 classCache.apply(body);
@@ -158,8 +161,7 @@ public abstract class MethodHandle {
     /**
      * The type Dynamic class load.
      */
-    protected class DynamicClassLoad implements ClassTypeVarInst {
-        private Type type;
+    protected class CachedClassLoad extends ClassLoadAction {
         private LocalVarInst clazzVar;
         private LocalVarInst lookupVar;
 
@@ -168,9 +170,8 @@ public abstract class MethodHandle {
          *
          * @param type the type
          */
-        public DynamicClassLoad(Type type) {
-            Objects.requireNonNull(type);
-            this.type = type;
+        public CachedClassLoad(Type type) {
+            super(type);
         }
 
         @Override
@@ -185,17 +186,8 @@ public abstract class MethodHandle {
 
         @Override
         public void apply(MethodBody body) {
-            if (TypeUtil.isPrimitiveType(type)) {
-                body.append(LdcLoadAction.of(type));
-                return;
-            }
-
             if (this.clazzVar == null) {
-                AsmClassBuilder classBuilder = body.getClassBuilder();
-                Action cl = LdcLoadAction.of(TypeUtil.getType(classBuilder.getClassName()))
-                        .invokeMethod(MethodDescriptor.GET_CLASS_LOADER);
-                this.clazzVar = body.newLocalVar(new MethodInvokeAction(Runtime.GET_CLASS)
-                        .setArgs(cl, LdcLoadAction.of(type.getClassName())));
+                this.clazzVar = body.newLocalVar(VarInst.wrap(this.load(), Type.getType(Class.class)));
             }
             clazzVar.loadToStack();
         }

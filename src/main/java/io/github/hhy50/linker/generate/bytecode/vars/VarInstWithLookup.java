@@ -8,10 +8,18 @@ public class VarInstWithLookup extends VarInst {
 
     private final VarInst varInst;
     private final ClassTypeMember lookupClass;
+    private final Type defaultType;
 
     public VarInstWithLookup(VarInst varInst, ClassTypeMember lookupClass) {
         this.varInst = varInst;
         this.lookupClass = lookupClass;
+        this.defaultType = null;
+    }
+
+    public VarInstWithLookup(VarInst varInst, ClassTypeMember lookupClass, Type defaultType) {
+        this.varInst = varInst;
+        this.lookupClass = lookupClass;
+        this.defaultType = defaultType;
     }
 
     @Override
@@ -26,5 +34,9 @@ public class VarInstWithLookup extends VarInst {
 
     public ClassTypeMember getLookupClass() {
         return lookupClass;
+    }
+
+    public Type defaultType() {
+        return defaultType;
     }
 }

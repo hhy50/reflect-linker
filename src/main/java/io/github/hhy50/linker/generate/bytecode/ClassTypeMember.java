@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.generate.bytecode;
 
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.generate.bytecode.action.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 
