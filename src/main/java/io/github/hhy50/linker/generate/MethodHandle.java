@@ -75,7 +75,7 @@ public abstract class MethodHandle {
      * @param lookupClass the lookup class
      * @param varInst     the var inst
      */
-    protected Action checkLookClass(ClassTypeMember lookupClass, VarInst varInst, Action prevLookupClass, Action defaultType) {
+    protected Action checkLookClass(ClassTypeMember lookupClass, VarInst varInst, VarInst prevLookupClass, VarInst defaultType) {
         Action action = new ConditionJumpAction(
                 must(notNull(varInst),
                         any(isNull(lookupClass), notEq(varInst.getThisClass(), lookupClass))),
@@ -86,14 +86,14 @@ public abstract class MethodHandle {
             // runtime
             action = action.andThen(new ConditionJumpAction(
                     isNull(lookupClass),
-                    lookupClass.store(prevLookupClass),
+                    lookupClass.store(prevLookupClass.cast(Type.getType(Class.class))),
                     null
             ));
         }
         if (defaultType != null) {
             action = action.andThen(new ConditionJumpAction(
-                    isNull(lookupClass),
-                    lookupClass.store(defaultType),
+                    must(isNull(lookupClass), notNull(defaultType)),
+                    lookupClass.store(new ClassLoadAction(defaultType.cast(Type.getType(String.class)))),
                     null
             ));
         }

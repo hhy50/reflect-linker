@@ -106,7 +106,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                         lookupClass = ((VarInstWithLookup) args[0]).getLookupClass();
                         Type dt = ((VarInstWithLookup) args[0]).defaultType();
                         if (dt != null) {
-                            defaultType = new ClassLoadAction(dt);
+                            defaultType = LdcLoadAction.of(dt.getClassName());
                         }
                     }
                     lookupClass = lookupClass == null ? Actions.loadNull() : lookupClass;
@@ -126,8 +126,8 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         public RuntimeOwnerAndType(Action arg0) {
             ArrayVarInst arrayVarInst = new ArrayVarInst(VarInst.wrap(arg0, Type.getType(Object[].class)));
             this.owner = arrayVarInst.index(0);
-            this.ownerType = arrayVarInst.index(1).cast(Type.getType(Class.class));
-            this.defaultType = arrayVarInst.index(2).cast(Type.getType(Class.class));
+            this.ownerType = arrayVarInst.index(1);
+            this.defaultType = arrayVarInst.index(2);
         }
     }
 }

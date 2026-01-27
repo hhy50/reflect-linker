@@ -10,18 +10,28 @@ import org.objectweb.asm.Type;
 import java.util.Objects;
 
 public class ClassLoadAction implements ClassTypeVarInst, LoadAction, TypedAction {
-    protected final Type type;
+    protected final Action loadAction;
+    protected boolean isPrimitive;
 
     public ClassLoadAction(Type type) {
         Objects.requireNonNull(type);
-        this.type = type;
+        if (TypeUtil.isPrimitiveType(type)) {
+            this.loadAction = LdcLoadAction.of(type);
+            this.isPrimitive = true;
+        } else {
+            this.loadAction = LdcLoadAction.of(type.getClassName());
+        }
     }
 
+    public ClassLoadAction(Action strloadAction) {
+        Objects.requireNonNull(strloadAction);
+        this.loadAction = strloadAction;
+    }
 
     @Override
     public Action load() {
-        if (TypeUtil.isPrimitiveType(type)) {
-            return LdcLoadAction.of(type);
+        if (this.isPrimitive) {
+            return this.loadAction;
         }
 
         return body -> {
@@ -29,7 +39,7 @@ public class ClassLoadAction implements ClassTypeVarInst, LoadAction, TypedActio
             Action cl = LdcLoadAction.of(TypeUtil.getType(classBuilder.getClassName()))
                     .invokeMethod(MethodDescriptor.GET_CLASS_LOADER);
             body.append(new MethodInvokeAction(Runtime.GET_CLASS)
-                    .setArgs(cl, LdcLoadAction.of(type.getClassName())));
+                    .setArgs(cl, loadAction));
         };
     }
 
