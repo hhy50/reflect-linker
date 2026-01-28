@@ -127,7 +127,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     Map<String, MethodHandle> cache = new HashMap<>();
     public MethodHandle defineInvoker(MethodRef methodRef) {
         String k = "method:"+methodRef.getFullName();
-        if (cache.containsKey("method:"+methodRef.getFullName())) {
+        if (cache.containsKey(k)) {
             return cache.get(k);
         }
         MethodHandle mh = methodRef.defineInvoker();

@@ -8,12 +8,12 @@ import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
-import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
-import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.*;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
 import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
+import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
 
 /**
  * The type Getter.
@@ -88,10 +88,11 @@ public abstract class Getter<T extends FieldRef> extends FieldOpsMethodHandler {
         }
 
         @Override
-        public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-            return ChainAction.of(() -> new SmartMethodInvokeAction(super.rmd)
+        public ChainAction<VarInst> invoke(ChainAction<VarInst[]> args) {
+            return of(() -> new SmartMethodInvokeAction(super.rmd)
                     .setInstance(LoadAction.LOAD0)
-                    .setArgs(argsAction));
+                    .setArgs(makeRuntimeOwner(args)))
+                    .map(ret -> new VarInstWithLookup(ret, this.lookupClass));
         }
     }
 }

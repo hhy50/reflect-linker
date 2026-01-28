@@ -8,14 +8,18 @@ import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
+import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInstWithLookup;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.Arrays;
 import java.util.function.BiFunction;
 
 import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
@@ -80,28 +84,32 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
             prefix = "setter_";
         }
 
-        this.rmd = MethodDescriptor.of(prefix + fullName.replace('.', '_'), TypeUtil.appendArgs(this.opsFieldType, ObjectVar.TYPE, true));
+        this.rmd = MethodDescriptor.of(prefix + fullName.replace('.', '_'), TypeUtil.appendArgs(this.opsFieldType, Type.getType(Object[].class), true));
 
         MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(prefix + fullName, this.opsFieldType);
-        ChainAction<VarInst> invoker = mapOwnerAndArgs(of(MethodBody::getArgs), (ownerVar, args) -> {
+        BiFunction<VarInst, VarInst[], VarInst> invoker = (ownerVar, args) -> {
             Action action = isDesignateStatic != null ?
                     (isDesignateStatic ? mhMember.invokeStatic(args) : mhMember.invokeInstance(ownerVar, args))
                     : mhMember.invokeOfNull(ownerVar, args);
             return VarInst.wrap(action, opsFieldType.getReturnType());
-        });
+        };
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
-                .intercept(of(() -> Args.of(0))
-                        .then(ownerVar -> checkLookClass(this.lookupClass, ownerVar, null, null))
-                        .then(ownerVar -> {
-//                                    ClassTypeMember prevLookupClass = preFieldGetter.lookupClass;
-//                                    if (prevLookupClass != null) {
-//                                        return staticCheckClass(this.lookupClass, prevField.fieldName, prevLookupClass);
-//                                    }
-                            return null;
+                .intercept(of(() -> new RuntimeMethodInvoker.RuntimeOwnerAndType(LoadAction.aload(1)))
+                        .then(holder -> checkLookClass(this.lookupClass, holder.owner, holder.ownerType, holder.defaultType))
+                        .then(__ -> checkMethodHandle(this.lookupClass, mhMember))
+                        .mapBody((body, holder) -> {
+                            VarInst[] realArgs = Arrays.copyOfRange(body.getArgs(), 1, body.getArgs().length);
+                            return invoker.apply(holder.owner, realArgs);
                         })
-                        .then(ownerVar -> checkMethodHandle(this.lookupClass, mhMember))
-                        .andThen(invoker.areturn()));
+                        .map(ret -> {
+                            if (ret.getType() == Type.VOID_TYPE) {
+                                return ret;
+                            }
+                            return new VarInstWithLookup(ret, this.lookupClass);
+                        })
+                        .areturn()
+                );
     }
 
     /**

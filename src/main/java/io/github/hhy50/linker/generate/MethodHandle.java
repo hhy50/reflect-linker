@@ -3,9 +3,7 @@ package io.github.hhy50.linker.generate;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
-import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
-import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
-import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.*;
 import io.github.hhy50.linker.runtime.Runtime;
 import org.objectweb.asm.Type;
 
@@ -124,6 +122,29 @@ public abstract class MethodHandle {
      */
     protected Action checkMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember) {
         return mhMember.ifNull(initRuntimeMethodHandle(mhMember, lookupClass));
+    }
+
+    protected ChainAction<VarInst[]> makeRuntimeOwner(ChainAction<VarInst[]> ownerAndArgs) {
+        return ChainAction.mapOwnerAndArgs(ownerAndArgs, (owner, args) -> {
+            Action lookupClass = null;
+            Action defaultType = null;
+            if (owner instanceof VarInstWithLookup) {
+                lookupClass = ((VarInstWithLookup) owner).getLookupClass();
+                Type dt = ((VarInstWithLookup) owner).defaultType();
+                if (dt != null) {
+                    defaultType = LdcLoadAction.of(dt.getClassName());
+                }
+            }
+            lookupClass = lookupClass == null ? Actions.loadNull() : lookupClass;
+            defaultType = defaultType == null ? Actions.loadNull() : defaultType;
+            // 重写参数
+            owner = VarInst.wrap(Actions.asArray(ObjectVar.TYPE, owner, lookupClass, defaultType), Type.getType(Object[].class));
+
+            VarInst[] realArgs = new VarInst[args.length+1];
+            realArgs[0] =  owner;
+            System.arraycopy(args, 0, realArgs, 1, args.length);
+            return realArgs;
+        });
     }
 
     /**

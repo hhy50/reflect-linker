@@ -80,9 +80,6 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
                 .intercept(of(() -> new RuntimeOwnerAndType(LoadAction.aload(1)))
                         .then(holder -> checkLookClass(lookupClass, holder.owner, holder.ownerType, holder.defaultType))
-                        .then(ownerVar -> {
-                            return null;
-                        })
                         .then(__ -> checkMethodHandle(lookupClass, mhMember))
                         .mapBody((body, holder) -> {
                             VarInst[] realArgs = Arrays.copyOfRange(body.getArgs(), 1, body.getArgs().length);
@@ -94,29 +91,11 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     }
 
     @Override
-    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> args) {
         return of(() -> new SmartMethodInvokeAction(this.rmd)
                 .setInstance(LoadAction.LOAD0)
-                .setArgs(argsAction.map(args -> {
-                    Action owner = args[0];
-                    Action lookupClass = null;
-                    Action defaultType = null;
-
-                    if (args[0] instanceof VarInstWithLookup) {
-                        lookupClass = ((VarInstWithLookup) args[0]).getLookupClass();
-                        Type dt = ((VarInstWithLookup) args[0]).defaultType();
-                        if (dt != null) {
-                            defaultType = LdcLoadAction.of(dt.getClassName());
-                        }
-                    }
-                    lookupClass = lookupClass == null ? Actions.loadNull() : lookupClass;
-                    defaultType = defaultType == null ? Actions.loadNull() : defaultType;
-                    // 重写参数
-                    args[0] = VarInst.wrap(Actions.asArray(ObjectVar.TYPE, owner, lookupClass, defaultType), Type.getType(Object[].class));
-                    return args;
-                })));
+                .setArgs(makeRuntimeOwner(args)));
     }
-
 
     static class RuntimeOwnerAndType  {
         VarInst owner;
