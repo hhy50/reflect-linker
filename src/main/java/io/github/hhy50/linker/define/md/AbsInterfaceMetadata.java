@@ -67,7 +67,7 @@ public class AbsInterfaceMetadata {
     }
 
     public List<Method> getMethods() {
-        return Arrays.asList(interfaceClass.getDeclaredMethods());
+        return Arrays.asList(interfaceClass.getMethods());
     }
 
     public Class<?> getTargetClass() {

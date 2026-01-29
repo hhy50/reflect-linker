@@ -31,9 +31,6 @@ public class ArgsDepAnalysis {
             if (arg instanceof PlaceholderToken) {
                 int index = ((PlaceholderToken) arg).index;
                 Type argType = argumentTypes[i];
-//                if (runtime) {
-//                    argType = ObjectVar.TYPE;
-//                }
                 if (argsStack.length < index+1) {
                     int[] newStackArr = new int[index + 1];
                     Type[] newTypesArr = new Type[index + 1];

@@ -11,6 +11,7 @@ public interface Token {
         Field,
         Method,
         Placeholder,
+        PlaceholderAll,
         IntConst,
         StrConst,
         Tokens,

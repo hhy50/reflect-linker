@@ -31,11 +31,12 @@ public abstract class AbstractDecorator extends MethodHandle {
      * The Method define.
      */
     protected final AbsMethodMetadata metadata;
-
     /**
      * The Auto link result.
      */
     protected boolean autolink;
+
+    private final boolean isConstructor;
 
     /**
      * Instantiates a new Abstract decorator.
@@ -47,6 +48,7 @@ public abstract class AbstractDecorator extends MethodHandle {
 
         this.metadata = metadata;
         this.autolink = metadata.isAutolink();
+        this.isConstructor = metadata.isConstructor();
     }
 
     /**
@@ -76,6 +78,57 @@ public abstract class AbstractDecorator extends MethodHandle {
         }
         return realArgs;
     }
+
+    /**
+     * Typecast result var inst.
+     *
+     * @param retChain    the var inst
+     * @return the var inst
+     */
+    protected ChainAction<VarInst> typecastResult2(ChainAction<VarInst> retChain) {
+        return retChain.mapBody( (body, varInst) -> {
+            Method method = metadata.getReflect();
+            Class<?> returnClassType = method.getReturnType();
+            Type retType = Type.getType(returnClassType);
+            if (returnClassType == Object.class && !TypeUtil.isPrimitiveType(varInst.getType())) {
+                return varInst;
+            }
+            if (isConstructor) {
+                return new CreateLinkerAction(retType, varInst);
+            }
+            if (retType == Type.VOID_TYPE) {
+                return VarInst.wrap(varInst, Type.VOID_TYPE);
+            }
+
+            String bindClass = AnnotationUtils.getBind(returnClassType);
+            {
+                Type expectType = Type.getType(returnClassType);
+                if (StringUtil.isNotEmpty(bindClass)) {
+                    body.append(checkType(varInst, TypeUtil.getType(bindClass)));
+                    expectType = ObjectVar.TYPE;
+                } else if (!returnClassType.isPrimitive() && this.autolink) {
+                    expectType = ObjectVar.TYPE;
+                }
+                varInst = typeCast(varInst, expectType);
+            }
+
+            if (Collection.class.isAssignableFrom(returnClassType) && method.getGenericReturnType() instanceof ParameterizedType) {
+                java.lang.reflect.Type actualType = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
+                Class genericType = actualType instanceof Class ? (Class) actualType : null;
+                if (genericType != null && genericType.isInterface() && (AnnotationUtils.getBind(genericType) != null || autolink))
+                    return new CreateLinkerCollectAction(Type.getType(genericType), varInst);
+            } else if (returnClassType.isInterface() && (StringUtil.isNotEmpty(bindClass) || autolink)) {
+                body.append(new ConditionJumpAction(
+                        any(isNull(varInst), instanceOf(varInst, retType)),
+                        varInst.thenReturn(), null));
+                return new CreateLinkerAction(retType, varInst);
+            } else if (!varInst.getType().equals(retType)) {
+                return new TypeCastAction(varInst, retType);
+            }
+            return varInst;
+        });
+    }
+
 
     /**
      * Typecast result var inst.

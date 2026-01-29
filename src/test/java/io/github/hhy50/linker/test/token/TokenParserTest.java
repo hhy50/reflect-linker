@@ -90,4 +90,12 @@ public class TokenParserTest {
         Tokens tokens = parser.parse(tokenExpr);
         Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));
     }
+
+    @Test
+    public void testParseMethodExpr4() {
+        String tokenExpr = "aasda.todo(      ..        )";
+        TokenParser parser = new TokenParser();
+        Tokens tokens = parser.parse(tokenExpr);
+        Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));
+    }
 }

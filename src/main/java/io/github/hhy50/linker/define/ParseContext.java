@@ -17,7 +17,8 @@ import io.github.hhy50.linker.util.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.IntStream;
+
+import static io.github.hhy50.linker.util.ParseUtil.getRawType;
 
 /**
  * The type Parse context.
@@ -151,16 +152,14 @@ public class ParseContext {
      */
     public MethodExprRef parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
         if (metadata.isConstructor()) {
-            String[] argsType = parseArgsType(metadata, null, true);
+            String[] argsType = parseArgsType(metadata, ArgsToken.ofAll(), true);
             Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, argsType);
             if (constructor == null) {
                 throw new ParseException(
                         "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(argsType));
             }
             MethodExprRef methodExprRef = new MethodExprRef(metadata);
-            methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor),
-                    ArgsToken.of(IntStream.range(0, argsType.length).mapToObj(PlaceholderToken::new)
-                            .toArray(PlaceholderToken[]::new)));
+            methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor), ArgsToken.ofAll());
             return methodExprRef;
         } else {
             String expr = metadata.getExpr();
@@ -200,7 +199,7 @@ public class ParseContext {
                 }
             }
             if (methodToken != null) {
-                String[] argsType = parseArgsType(metadata, methodToken, false);
+                String[] argsType = parseArgsType(metadata, methodToken.getArgsToken(), false);
                 Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, argsType);
 
                 MethodRef m;
@@ -258,25 +257,17 @@ public class ParseContext {
         return fields;
     }
 
-    private String[] parseArgsType(AbsMethodMetadata metadata, MethodToken methodToken, boolean isConstructor) {
+    private String[] parseArgsType(AbsMethodMetadata metadata, ArgsToken argsToken, boolean isConstructor) {
         Parameter[] parameters = metadata.getParameters();
-        if (isConstructor) {
+        if (isConstructor || argsToken.isPlaceholderAll()) {
             return Arrays.stream(parameters)
                     .map(ParseUtil::getRawType).toArray(String[]::new);
         }
-        ArgsToken args = methodToken.getArgsToken();
-        return args.stream().map(item -> {
+
+        return argsToken.stream().map(item -> {
             if (item.kind() == Token.Kind.Placeholder) {
                 int i = ((PlaceholderToken) item).index;
-                String typed = AnnotationUtils.getTyped(parameters[i]);
-                if (StringUtil.isNotEmpty(typed)) {
-                    return typed;
-                }
-                String bind = AnnotationUtils.getBind(parameters[i].getType());
-                if (StringUtil.isNotEmpty(bind)) {
-                    return bind;
-                }
-                return TypeUtil.getClassName(parameters[i].getType());
+                return getRawType(parameters[i]);
             } else if (item.kind() == Token.Kind.IntConst) {
                 return "int";
             } else if (item.kind() == Token.Kind.StrConst) {
