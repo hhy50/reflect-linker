@@ -27,6 +27,15 @@ interface LStaticFieldClass {
     @Field.Getter("aaa2")
     public String getA2();
 
+    @Field.StaticGetter("obj2")
+    public Object getObj2();
+
+    @Field.StaticGetter("obj2.obj3")
+    public Object getObj3();
+
+    @Field.StaticSetter("obj2.obj3")
+    public void setObj3(Object val);
+
     /**
      * <p>getObjAaa.</p>
      *

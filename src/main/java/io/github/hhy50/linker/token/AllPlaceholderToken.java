@@ -7,7 +7,7 @@ public class AllPlaceholderToken implements Token {
 
     @Override
     public Kind kind() {
-        return Kind.Placeholder;
+        return Kind.PlaceholderAll;
     }
 
     @Override

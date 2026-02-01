@@ -33,8 +33,6 @@ public class AbsMethodMetadata {
 
     private Map<String, String> typedToken = new HashMap<>();
 
-    private Map<String, Boolean> staticToken = new HashMap<>();
-
     private String invokeSuper;
 
     public AbsMethodMetadata(AbsInterfaceMetadata parent, java.lang.reflect.Method reflect) {
@@ -46,6 +44,13 @@ public class AbsMethodMetadata {
         if (this.uniqueAnno != null) {
             throw new VerifyException("method [" + reflect.getDeclaringClass() + "@" + reflect.getName() + "] cannot have two annotations [" +
                     this.uniqueAnno.annotationType() + ", " + uniqueAnno.annotationType() + "]");
+        }
+        if (uniqueAnno instanceof Field.StaticGetter) {
+            String f = ((Field.StaticGetter) uniqueAnno).value();
+            parent.staticToken.put(f, true);
+        }  else if (uniqueAnno instanceof Field.StaticSetter) {
+            String f = ((Field.StaticSetter) uniqueAnno).value();
+            parent.staticToken.put(f, true);
         }
         this.uniqueAnno = uniqueAnno;
     }
@@ -63,7 +68,7 @@ public class AbsMethodMetadata {
         if (annotation instanceof Runtime.Static) {
             Runtime.Static staticAnno = (Runtime.Static) annotation;
             for (String s : staticAnno.name()) {
-                Boolean isStatic = this.staticToken.put(s, staticAnno.value());
+                Boolean isStatic = parent.staticToken.put(s, staticAnno.value());
                 if (isStatic != null && !isStatic.equals(staticAnno.value())) {
                     throw new VerifyException("@Static of field '" + s + "' defined twice is inconsistent");
                 }
@@ -90,6 +95,10 @@ public class AbsMethodMetadata {
             return ((Field.Getter) uniqueAnno).value();
         } else if (uniqueAnno instanceof Field.Setter) {
             return ((Field.Setter) uniqueAnno).value();
+        } else if (uniqueAnno instanceof Field.StaticGetter) {
+            return ((Field.StaticGetter) uniqueAnno).value();
+        } else if (uniqueAnno instanceof Field.StaticSetter) {
+            return ((Field.StaticSetter) uniqueAnno).value();
         }
 
         return reflect.getName()+"("+ IntStream.range(0, reflect.getParameterCount())
@@ -109,7 +118,7 @@ public class AbsMethodMetadata {
     }
 
     public Boolean isDesignateStatic(String tokenVal) {
-        Boolean b = staticToken.get(tokenVal);
+        Boolean b = parent.staticToken.get(tokenVal);
         if (b == null) {
             b = parent.isDesignateStatic(tokenVal);
         }
@@ -129,7 +138,7 @@ public class AbsMethodMetadata {
     }
 
     public boolean isSetter() {
-        return uniqueAnno instanceof Field.Setter;
+        return uniqueAnno instanceof Field.Setter || uniqueAnno instanceof Field.StaticSetter;
     }
 
     public boolean isConstructor() {

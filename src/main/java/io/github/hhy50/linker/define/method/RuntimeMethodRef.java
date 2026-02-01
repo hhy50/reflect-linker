@@ -85,7 +85,7 @@ public class RuntimeMethodRef extends MethodRef {
      *
      * @param isStatic the is static
      */
-    public void designateStatic(boolean isStatic) {
+    public void setStatic(Boolean isStatic) {
         this.designateStatic = isStatic;
     }
 

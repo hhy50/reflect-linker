@@ -8,11 +8,7 @@ import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
-import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInstWithLookup;
 import io.github.hhy50.linker.util.TypeUtil;
@@ -22,7 +18,6 @@ import org.objectweb.asm.Type;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
-import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
 import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
 
 /**

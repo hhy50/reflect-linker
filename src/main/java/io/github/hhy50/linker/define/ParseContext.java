@@ -24,8 +24,6 @@ import static io.github.hhy50.linker.util.ParseUtil.getRawType;
  * The type Parse context.
  */
 public class ParseContext {
-    private static final String CURRENT_TOKEN = "$";
-    private static final String FIRST_OBJ_NAME = "target";
 
     /**
      * The Class loader.
@@ -38,17 +36,6 @@ public class ParseContext {
     Class<?> rootType;
 
     AbsInterfaceMetadata classMetadata;
-
-    /**
-     * 解析过程中解析到的字段和method
-     */
-    final Map<String, FieldRef> fieldUnits = new HashMap<>();
-    final Map<String, FieldRef> methodUnits = new HashMap<>();
-
-    /**
-     * The Typed fields.
-     */
-    final Map<String, String> typedFields = new HashMap<>();
 
     /**
      * The Token parser.
@@ -75,7 +62,7 @@ public class ParseContext {
     }
 
     private List<MethodExprRef> doParseClass() throws ClassNotFoundException, ParseException {
-        List<MethodExprRef> methods = new ArrayList<>();
+        List<AbsMethodMetadata> metadatas = new ArrayList<>();
         for (Method method : this.classMetadata.getMethods()) {
             if (!Modifier.isAbstract(method.getModifiers()))
                 continue;
@@ -83,6 +70,11 @@ public class ParseContext {
                 continue;
             }
             AbsMethodMetadata metadata = preParse(classMetadata, method);
+            metadatas.add(metadata);
+        }
+
+        List<MethodExprRef> methods = new ArrayList<>();
+        for (AbsMethodMetadata metadata : metadatas) {
             MethodExprRef methodExprRef = parseMethod(metadata);
             postParse(methodExprRef);
             methods.add(methodExprRef);
@@ -158,8 +150,9 @@ public class ParseContext {
                 throw new ParseException(
                         "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(argsType));
             }
+
             MethodExprRef methodExprRef = new MethodExprRef(metadata);
-            methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor), ArgsToken.ofAll());
+            methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor));
             return methodExprRef;
         } else {
             String expr = metadata.getExpr();
@@ -191,9 +184,9 @@ public class ParseContext {
                     FieldRef fieldRef = iter.next();
                     boolean isLast = !iter.hasNext();
                     if (isLast && metadata.isSetter()) {
-                        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRef), ArgsToken.of(new PlaceholderToken(0)));
+                        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRef));
                     } else {
-                        methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef), null);
+                        methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef));
                     }
                     curType = fieldRef.getActualType();
                 }
@@ -207,12 +200,15 @@ public class ParseContext {
                     m = new EarlyMethodRef(method);
                     curType = method.getReturnType();
                 } else {
+                    Boolean designateStatic = metadata.isDesignateStatic(methodToken.methodName);
                     m = new RuntimeMethodRef(methodToken.methodName, argsType)
                             .setAutolink(metadata.isAutolink());
                     curType = Object.class;
+                    ((RuntimeMethodRef) m).setStatic(designateStatic);
                 }
                 m.setSuperClass(invokeSuper);
-                methodExprRef.addStepMethod(m, methodToken.getArgsToken());
+                m.setArgsToken(methodToken.getArgsToken());
+                methodExprRef.addStepMethod(m);
             }
         }
         return methodExprRef;

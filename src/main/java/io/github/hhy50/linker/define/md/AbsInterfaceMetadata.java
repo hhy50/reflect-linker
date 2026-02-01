@@ -21,9 +21,9 @@ public class AbsInterfaceMetadata {
 
     private final List<Annotation> annotations = new ArrayList<>();
 
-    private final Map<String, String> typedToken = new HashMap<>();
+    protected final Map<String, String> typedToken = new HashMap<>();
 
-    private final Map<String, Boolean> staticToken = new HashMap<>();
+    protected final Map<String, Boolean> staticToken = new HashMap<>();
 
     private final boolean runtime;
 
