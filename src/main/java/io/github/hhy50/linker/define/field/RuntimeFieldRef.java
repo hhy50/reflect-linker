@@ -35,7 +35,7 @@ public class RuntimeFieldRef extends FieldRef {
         if (this.designateStatic == null) {
             this.designateStatic = isStatic;
         } else if (this.designateStatic ^ isStatic) {
-            throw new IllegalArgumentException("");
+            throw new IllegalArgumentException("The static-value specified twice are inconsistent, field="+super.name);
         }
     }
 }
