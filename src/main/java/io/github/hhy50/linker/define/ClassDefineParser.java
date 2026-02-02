@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * The type Class define parse.
  */
-public class ClassDefineParse {
+public class ClassDefineParser {
 
     private static final Map<String, Map<String, GeneratedClass>> PARSED = new HashMap<>();
 
