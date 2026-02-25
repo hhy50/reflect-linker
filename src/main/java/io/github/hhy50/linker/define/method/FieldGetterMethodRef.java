@@ -13,6 +13,7 @@ public class FieldGetterMethodRef extends MethodRef {
     public FieldGetterMethodRef(FieldRef field) {
         super(field.getName());
         this.field = field;
+        this.setIndexs(field.getIndexs());
     }
 
     @Override

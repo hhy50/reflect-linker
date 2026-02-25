@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.token;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,6 +41,11 @@ public class MethodToken implements Token {
     @Override
     public void setIndex(List<ConstToken> index) {
         this.index = new IndexToken(index);
+    }
+
+    public List<Object> getIndexs() {
+        if (this.index == null) return new ArrayList<>();
+        return this.index.toValues();
     }
 
     public ArgsToken getArgsToken() {

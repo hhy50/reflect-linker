@@ -7,12 +7,10 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.SmartMethodDescriptor;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
-import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.SmartMethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -45,12 +43,27 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
             ChainAction<VarInst[]> originArgs = argsChainAction;
             for (MethodRef methodRef : stepMethods) {
                 MethodHandle mh = classImplBuilder.defineInvoker(methodRef);
-                if (!(mh instanceof Getter)) {
-                    argsChainAction = ChainAction.join(varInstChain, originArgs);
-                } else {
+                if (mh instanceof Getter) {
                     argsChainAction = varInstChain.map(varInst -> new VarInst[]{varInst});
+                } else {
+                    argsChainAction = ChainAction.join(varInstChain, originArgs);
                 }
-                varInstChain = mh.invoke(argsChainAction);
+                varInstChain = mh.invoke(argsChainAction).map(varInst -> {
+                    Type t = varInst.getType();
+                    boolean nullable = methodRef.isNullable();
+                    List<Object> indexs = methodRef.getIndexs();
+
+                    // 数组访问
+                    if (indexs != null && !indexs.isEmpty()) {
+                        if (indexs.size() <= t.getDimensions()) {
+                            return new ArrayIndexAction(varInst, indexs);
+                        }
+                    }
+                    if (nullable && !TypeUtil.isPrimitiveType(t)) {
+
+                    }
+                    return varInst;
+                });
             }
             return varInstChain.areturn();
         };

@@ -208,6 +208,8 @@ public class ParseContext {
                 }
                 m.setSuperClass(invokeSuper);
                 m.setArgsToken(methodToken.getArgsToken());
+                m.setIndexs(methodToken.getIndexs());
+                m.setNullable(methodToken.isNullable());
                 methodExprRef.addStepMethod(m);
             }
         }

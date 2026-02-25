@@ -84,4 +84,8 @@ public abstract class FieldRef  {
     public void setIndex(List<Object> indexs) {
         this.indexs = indexs;
     }
+
+    public List<Object> getIndexs() {
+        return indexs;
+    }
 }

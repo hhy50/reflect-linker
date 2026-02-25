@@ -4,6 +4,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
@@ -11,8 +12,10 @@ import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisito
 /**
  * The type Array index.
  */
-public class ArrayIndex implements LoadAction, TypedAction {
+public class ArrayIndexAction extends VarInst {
+
     private VarInst varInst;
+
     private final List<Integer> indexs;
 
     /**
@@ -21,9 +24,18 @@ public class ArrayIndex implements LoadAction, TypedAction {
      * @param varInst the var inst
      * @param indexs   the
      */
-    public ArrayIndex(VarInst varInst, List<Integer> indexs) {
+    public ArrayIndexAction(VarInst varInst, List<Object> indexs) {
         this.varInst = varInst;
-        this.indexs = indexs;
+        this.indexs = new ArrayList<>(indexs.size());
+        for (Object index : indexs) {
+            if (index instanceof Integer) {
+                this.indexs.add((Integer) index);
+            } else if (index instanceof String) {
+                this.indexs.add(Integer.parseInt((String) index));
+            } else {
+                throw new IllegalArgumentException("Invalid index type: " + index.getClass());
+            }
+        }
     }
 
     @Override
@@ -45,6 +57,7 @@ public class ArrayIndex implements LoadAction, TypedAction {
 
     @Override
     public Type getType() {
-        return varInst.getType();
+        Type t = varInst.getType();
+        return Type.getType(t.getDescriptor().substring(this.indexs.size()));
     }
 }

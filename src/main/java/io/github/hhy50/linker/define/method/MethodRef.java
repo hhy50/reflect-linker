@@ -33,6 +33,16 @@ public abstract class MethodRef {
     private ArgsToken argsToken;
 
     /**
+     * 数组访问
+     */
+    private List<Object> indexs;
+
+    /**
+     *
+     */
+    private boolean nullable;
+
+    /**
      * Instantiates a new Method ref.
      *
      * @param name the name
@@ -93,6 +103,22 @@ public abstract class MethodRef {
 
     public void setArgsToken(ArgsToken argsToken) {
         this.argsToken = argsToken;
+    }
+
+    public void setIndexs(List<Object> indexs) {
+        this.indexs = indexs;
+    }
+
+    public List<Object> getIndexs() {
+        return indexs;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
     }
 
     @SuppressWarnings("unchecked")
