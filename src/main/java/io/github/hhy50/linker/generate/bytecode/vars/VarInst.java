@@ -59,13 +59,20 @@ public abstract class VarInst implements LoadAction, TypedAction {
     }
 
     /**
+     * Is local var boolean.
      *
-     * @return
+     * @return the boolean
      */
     public boolean isLocalVar() {
         return this instanceof LocalVarInst;
     }
 
+    /**
+     * Cast var inst.
+     *
+     * @param casttype the casttype
+     * @return the var inst
+     */
     public VarInst cast(Type casttype) {
         return new TypeCastAction(this, casttype);
     }
@@ -79,6 +86,13 @@ public abstract class VarInst implements LoadAction, TypedAction {
         return new ConditionJumpAction(instanceOf(this, Type.getType(TargetProvider.class)), this.getTarget(), this);
     }
 
+    /**
+     * Wrap var inst.
+     *
+     * @param action the action
+     * @param type   the type
+     * @return the var inst
+     */
     public static VarInst wrap(Action action, Type type) {
         return new VarInst() {
 
@@ -94,6 +108,12 @@ public abstract class VarInst implements LoadAction, TypedAction {
         };
     }
 
+    /**
+     * Wrap var inst.
+     *
+     * @param action the action
+     * @return the var inst
+     */
     public static VarInst wrap(TypedAction action) {
         return new VarInst() {
 

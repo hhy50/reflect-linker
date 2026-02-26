@@ -25,7 +25,7 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
  */
 public abstract class FieldOpsMethodHandler extends MethodHandle {
     /**
-     *
+     * The Field name.
      */
     protected final String fieldName;
 
@@ -35,7 +35,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     protected final String fullName;
 
     /**
-     *
+     * The Ops field type.
      */
     protected final Type opsFieldType;
 
@@ -45,7 +45,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     protected MethodDescriptor rmd;
 
     /**
-     *
+     * The Inline mh invoker.
      */
     protected BiFunction<VarInst, VarInst[], VarInst> inlineMhInvoker;
 
@@ -70,8 +70,8 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     /**
      * defineRuntimeMethod
      *
-     * @param classImplBuilder
-     * @param isDesignateStatic
+     * @param classImplBuilder  the class impl builder
+     * @param isDesignateStatic the is designate static
      */
     protected void defineRuntimeMethod(InvokeClassImplBuilder classImplBuilder, Boolean isDesignateStatic) {
         String prefix = "getter_";

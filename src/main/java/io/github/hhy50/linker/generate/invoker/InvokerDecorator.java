@@ -22,7 +22,8 @@ public class InvokerDecorator extends AbstractDecorator {
     /**
      * Instantiates a new Invoker decorator.
      *
-     * @param invoker         the invoker
+     * @param invoker  the invoker
+     * @param metadata the metadata
      */
     public InvokerDecorator(MethodExprInvoker invoker, AbsMethodMetadata metadata) {
         super(metadata);

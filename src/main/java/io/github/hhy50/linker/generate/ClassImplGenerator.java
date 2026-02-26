@@ -28,6 +28,11 @@ public class ClassImplGenerator {
     /**
      * Generate bytecode.
      *
+     * @param classMetadata the class metadata
+     * @param implClassName the impl class name
+     * @param methodExprs   the method exprs
+     * @param interfaces    the interfaces
+     * @return the generated class
      * @throws IOException the io exception
      */
     public static GeneratedClass generateBytecode(AbsInterfaceMetadata classMetadata, String implClassName, List<MethodExprRef> methodExprs, List<Class<?>> interfaces) throws IOException {

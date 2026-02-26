@@ -43,11 +43,21 @@ public class MethodToken implements Token {
         this.index = new IndexToken(index);
     }
 
+    /**
+     * Gets indexs.
+     *
+     * @return the indexs
+     */
     public List<Object> getIndexs() {
         if (this.index == null) return new ArrayList<>();
         return this.index.toValues();
     }
 
+    /**
+     * Gets args token.
+     *
+     * @return the args token
+     */
     public ArgsToken getArgsToken() {
         return args;
     }
@@ -57,6 +67,11 @@ public class MethodToken implements Token {
         this.nullable = nullable;
     }
 
+    /**
+     * Is nullable boolean.
+     *
+     * @return the boolean
+     */
     public boolean isNullable() {
         return nullable;
     }

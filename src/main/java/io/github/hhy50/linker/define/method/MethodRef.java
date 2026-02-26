@@ -1,10 +1,12 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.MethodHandle;
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.token.ArgsToken;
 import io.github.hhy50.linker.token.PlaceholderToken;
 import io.github.hhy50.linker.token.Token;
 import io.github.hhy50.linker.tools.Pair;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
@@ -79,48 +81,85 @@ public abstract class MethodRef {
     }
 
     /**
+     * Define invoker method handle.
      *
-     * @return
+     * @return the method handle
      */
     public abstract MethodHandle defineInvoker();
 
     /**
      * Gets full name.
      *
-     * @return
+     * @return the full name
      */
     public abstract String getFullName();
 
     /**
      * 这个方法返回来的类型用来定位具体的methodhandle, 所以类型是具体的类型
-     * @return
+     *
+     * @return the lookup type
      */
     public abstract Type getLookupType();
 
+    /**
+     * Gets generic type.
+     *
+     * @return the generic type
+     */
     public Type getGenericType() {
         return getLookupType();
     }
 
+    /**
+     * Sets args token.
+     *
+     * @param argsToken the args token
+     */
     public void setArgsToken(ArgsToken argsToken) {
         this.argsToken = argsToken;
     }
 
+    /**
+     * Sets indexs.
+     *
+     * @param indexs the indexs
+     */
     public void setIndexs(List<Object> indexs) {
         this.indexs = indexs;
     }
 
+    /**
+     * Gets indexs.
+     *
+     * @return the indexs
+     */
     public List<Object> getIndexs() {
         return indexs;
     }
 
+    /**
+     * Is nullable boolean.
+     *
+     * @return the boolean
+     */
     public boolean isNullable() {
         return nullable;
     }
 
+    /**
+     * Sets nullable.
+     *
+     * @param nullable the nullable
+     */
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
     }
 
+    /**
+     * Gets args index table.
+     *
+     * @return the args index table
+     */
     @SuppressWarnings("unchecked")
     protected List<Pair<Integer, Type>> getArgsIndexTable() {
         Type genericType = getGenericType();
@@ -134,10 +173,24 @@ public abstract class MethodRef {
             Token token = this.argsToken.get(i);
             if (token instanceof PlaceholderToken) {
                 its.add(Pair.of(((PlaceholderToken) token).index, argumentType));
-            } else {
-                its.add(Pair.of(i, argumentType));
             }
         }
         return its;
+    }
+
+    /**
+     * 返回表达式的最后一个返回值的类型
+     *
+     * @return the return type
+     */
+    Type getReturnType() {
+        Type t = this.getGenericType().getReturnType();
+        if (this.indexs == null || this.indexs.isEmpty()) {
+            return t;
+        }
+        if (TypeUtil.getDimensions(t) >= this.indexs.size()) {
+            return Type.getType(t.getDescriptor().substring(this.indexs.size()));
+        }
+        return ObjectVar.TYPE;
     }
 }

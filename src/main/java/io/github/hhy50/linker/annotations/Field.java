@@ -88,6 +88,9 @@ public interface Field {
         String value() default "";
     }
 
+    /**
+     * The interface Static setter.
+     */
     @Verify.Unique
     @Verify.Custom(SetterVerifier.class)
     @Retention(RetentionPolicy.RUNTIME)

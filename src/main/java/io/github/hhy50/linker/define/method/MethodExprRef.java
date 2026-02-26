@@ -9,6 +9,9 @@ import org.objectweb.asm.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Method expr ref.
+ */
 public class MethodExprRef extends MethodRef {
 
     private final AbsMethodMetadata metadata;
@@ -19,6 +22,7 @@ public class MethodExprRef extends MethodRef {
     /**
      * Instantiates a new Method ref.
      *
+     * @param metadata the metadata
      */
     public MethodExprRef(AbsMethodMetadata metadata) {
         super(metadata.getName());
@@ -27,16 +31,31 @@ public class MethodExprRef extends MethodRef {
         this.parameterTypeAnalysis = new ParameterTypeAnalysis(metadata.getParameters());
     }
 
+    /**
+     * Add step method.
+     *
+     * @param methodRef the method ref
+     */
     public void addStepMethod(MethodRef methodRef) {
         stepMethods.add(methodRef);
         parameterTypeAnalysis.analyse(methodRef.getArgsIndexTable());
-        this.returnType = methodRef.getGenericType().getReturnType();
+        this.returnType = methodRef.getReturnType();
     }
 
+    /**
+     * Gets step methods.
+     *
+     * @return the step methods
+     */
     public List<MethodRef> getStepMethods() {
         return stepMethods;
     }
 
+    /**
+     * Gets method type.
+     *
+     * @return the method type
+     */
     public Type getMethodType() {
         return Type.getMethodType(this.returnType, this.parameterTypeAnalysis.getParametersType());
     }
@@ -56,6 +75,11 @@ public class MethodExprRef extends MethodRef {
         return new MethodExprInvoker(this);
     }
 
+    /**
+     * Gets metadata.
+     *
+     * @return the metadata
+     */
     public AbsMethodMetadata getMetadata() {
         return this.metadata;
     }

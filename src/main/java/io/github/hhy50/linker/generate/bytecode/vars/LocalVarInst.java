@@ -64,6 +64,7 @@ public class LocalVarInst extends VarInst {
      * Store.
      *
      * @param action the action
+     * @return the action
      */
     public Action store(Action action) {
         return Actions.of(

@@ -7,9 +7,17 @@ import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.invoker.Setter;
 import org.objectweb.asm.Type;
 
+/**
+ * The type Field setter method ref.
+ */
 public class FieldSetterMethodRef extends MethodRef {
     private final FieldRef field;
 
+    /**
+     * Instantiates a new Field setter method ref.
+     *
+     * @param field the field
+     */
     public FieldSetterMethodRef(FieldRef field) {
         super(field.getFullName());
         this.field = field;

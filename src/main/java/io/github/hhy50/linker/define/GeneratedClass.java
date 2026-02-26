@@ -1,7 +1,6 @@
 package io.github.hhy50.linker.define;
 
 
-
 /**
  * The type Interface impl class.
  */
@@ -17,6 +16,12 @@ public class GeneratedClass {
      */
     private final byte[] bytecode;
 
+    /**
+     * Instantiates a new Generated class.
+     *
+     * @param className the class name
+     * @param bytecode  the bytecode
+     */
     public GeneratedClass(String className, byte[] bytecode) {
         this.className = className;
         this.bytecode = bytecode;

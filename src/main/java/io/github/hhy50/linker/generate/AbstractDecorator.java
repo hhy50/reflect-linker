@@ -56,6 +56,7 @@ public abstract class AbstractDecorator extends MethodHandle {
      *
      * @param args           the args
      * @param expectArgsType the args type
+     * @return the var inst [ ]
      */
     protected VarInst[] typecastArgs(VarInst[] args, Type[] expectArgsType) {
         Class<?>[] parameterTypes = metadata.getReflect().getParameterTypes();
@@ -82,7 +83,7 @@ public abstract class AbstractDecorator extends MethodHandle {
     /**
      * Typecast result var inst.
      *
-     * @param retChain    the var inst
+     * @param retChain the var inst
      * @return the var inst
      */
     protected ChainAction<VarInst> typecastResult2(ChainAction<VarInst> retChain) {

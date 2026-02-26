@@ -40,6 +40,11 @@ public class EarlyMethodRef extends MethodRef {
         return Modifier.isStatic(reflectMethod.getModifiers());
     }
 
+    /**
+     * Gets lookup class.
+     *
+     * @return the lookup class
+     */
     public Type getLookupClass() {
         return Type.getType(this.reflectMethod.getDeclaringClass());
     }

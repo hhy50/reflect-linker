@@ -12,6 +12,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Stream;
 
+/**
+ * The type Abs interface metadata.
+ */
 public class AbsInterfaceMetadata {
 
     /**
@@ -21,14 +24,26 @@ public class AbsInterfaceMetadata {
 
     private final List<Annotation> annotations = new ArrayList<>();
 
+    /**
+     * The Typed token.
+     */
     protected final Map<String, String> typedToken = new HashMap<>();
 
+    /**
+     * The constant staticToken.
+     */
     protected final Map<String, Boolean> staticToken = new HashMap<>();
 
     private final boolean runtime;
 
     private final Class<?> targetClass;
 
+    /**
+     * Instantiates a new Abs interface metadata.
+     *
+     * @param define      the define
+     * @param targetClass the target class
+     */
     public AbsInterfaceMetadata(Class<?> define, Class<?> targetClass) {
         this.interfaceClass = define;
         this.runtime = AnnotationUtils.isRuntime(define)
@@ -40,6 +55,11 @@ public class AbsInterfaceMetadata {
         }
     }
 
+    /**
+     * Add annotation.
+     *
+     * @param annotation the annotation
+     */
     public void addAnnotation(Annotation annotation) {
         if (annotation instanceof Typed) {
             Typed typed = (Typed) annotation;
@@ -62,22 +82,50 @@ public class AbsInterfaceMetadata {
         }
     }
 
+    /**
+     * Is runtime boolean.
+     *
+     * @return the boolean
+     */
     public boolean isRuntime() {
         return this.runtime;
     }
 
+    /**
+     * Gets methods.
+     *
+     * @return the methods
+     */
     public List<Method> getMethods() {
         return Arrays.asList(interfaceClass.getMethods());
     }
 
+    /**
+     * Gets target class.
+     *
+     * @return the target class
+     */
     public Class<?> getTargetClass() {
         return targetClass;
     }
 
+    /**
+     * Is designate static boolean.
+     *
+     * @param tokenVal the token val
+     * @return the boolean
+     */
     public Boolean isDesignateStatic(String tokenVal) {
         return staticToken.get(tokenVal);
     }
 
+    /**
+     * Gets typed.
+     *
+     * @param full     the full
+     * @param tokenVal the token val
+     * @return the typed
+     */
     public String getTyped(String full, String tokenVal) {
         return Stream.of(full, tokenVal)
                 .filter(StringUtil::isNotEmpty)

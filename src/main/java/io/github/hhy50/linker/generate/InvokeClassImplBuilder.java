@@ -91,9 +91,9 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
     /**
      * Define method handle method handle member.
      *
-     * @param fullName
-     * @param methodType
-     * @return
+     * @param fullName   the full name
+     * @param methodType the method type
+     * @return the method handle member
      */
     public MethodHandleMember defineMethodHandle(String fullName, Type methodType) {
         fullName = fullName.replace('.', '_');
@@ -119,12 +119,27 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return new ClassTypeMember(field);
     }
 
+    /**
+     * Gets target getter.
+     *
+     * @return the target getter
+     */
     public TargetFieldGetter getTargetGetter() {
         return targetGetter;
     }
 
 
+    /**
+     * The Cache.
+     */
     Map<String, MethodHandle> cache = new HashMap<>();
+
+    /**
+     * Define invoker method handle.
+     *
+     * @param methodRef the method ref
+     * @return the method handle
+     */
     public MethodHandle defineInvoker(MethodRef methodRef) {
         String k = "method:"+methodRef.getFullName();
         if (cache.containsKey(k)) {

@@ -97,11 +97,28 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
                 .setArgs(makeRuntimeOwner(args)));
     }
 
+    /**
+     * The type Runtime owner and type.
+     */
     static class RuntimeOwnerAndType  {
+        /**
+         * The Owner.
+         */
         VarInst owner;
+        /**
+         * The Owner type.
+         */
         VarInst ownerType;
+        /**
+         * The Default type.
+         */
         VarInst defaultType;
 
+        /**
+         * Instantiates a new Runtime owner and type.
+         *
+         * @param arg0 the arg 0
+         */
         public RuntimeOwnerAndType(Action arg0) {
             ArrayVarInst arrayVarInst = new ArrayVarInst(VarInst.wrap(arg0, Type.getType(Object[].class)));
             this.owner = arrayVarInst.index(0);

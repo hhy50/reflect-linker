@@ -1,9 +1,21 @@
 package io.github.hhy50.linker.util;
 
+/**
+ * The type Random util.
+ */
 public class RandomUtil {
 
+    /**
+     * The Str.
+     */
     static String STR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+    /**
+     * Gets random string.
+     *
+     * @param length the length
+     * @return the random string
+     */
     public static String getRandomString(int length) {
         StringBuffer sb = new StringBuffer();
         int first = (int) (Math.random() * 26 * 2);

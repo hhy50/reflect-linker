@@ -22,7 +22,7 @@ public class ArrayIndexAction extends VarInst {
      * Instantiates a new Array index.
      *
      * @param varInst the var inst
-     * @param indexs   the
+     * @param indexs  the
      */
     public ArrayIndexAction(VarInst varInst, List<Object> indexs) {
         this.varInst = varInst;

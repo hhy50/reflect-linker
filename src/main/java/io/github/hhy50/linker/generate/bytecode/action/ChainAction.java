@@ -16,6 +16,9 @@ import java.util.function.Supplier;
  */
 public class ChainAction<T> extends AbstractChain<T> {
 
+    /**
+     * The Empty.
+     */
     static final ChainAction<?> EMPTY = new ChainAction<>(__ -> null);
 
     /**
@@ -28,11 +31,24 @@ public class ChainAction<T> extends AbstractChain<T> {
     }
 
 
+    /**
+     * Empty chain action.
+     *
+     * @param <T> the type parameter
+     * @return the chain action
+     */
     @SuppressWarnings("unchecked")
     public static <T> ChainAction<T> empty() {
         return (ChainAction) EMPTY;
     }
 
+    /**
+     * Join chain action.
+     *
+     * @param chain1 the chain 1
+     * @param chain2 the chain 2
+     * @return the chain action
+     */
     public static ChainAction<VarInst[]> join(ChainAction<VarInst> chain1, ChainAction<VarInst[]> chain2) {
         return ChainAction.of(body -> {
             VarInst varInst = chain1.doChain(body);
@@ -85,6 +101,14 @@ public class ChainAction<T> extends AbstractChain<T> {
         return new ChainAction<>((__) -> provider.get());
     }
 
+    /**
+     * Map owner and args chain action.
+     *
+     * @param <T>         the type parameter
+     * @param chainAction the chain action
+     * @param func        the func
+     * @return the chain action
+     */
     public static <T> ChainAction<T> mapOwnerAndArgs(ChainAction<VarInst[]> chainAction, BiFunction<VarInst, VarInst[], T> func) {
         return chainAction.map(args -> {
             VarInst owner = args[0];
@@ -131,6 +155,11 @@ public class ChainAction<T> extends AbstractChain<T> {
         return new Next<>(this, func);
     }
 
+    /**
+     * Areturn chain action.
+     *
+     * @return the chain action
+     */
     public ChainAction<Action> areturn() {
         return new Next<>(this, varinst -> {
             TypedAction typedAction = ((TypedAction) varinst);

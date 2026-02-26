@@ -19,6 +19,8 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
 
 /**
  * The type Getter.
+ *
+ * @param <T> the type parameter
  */
 public abstract class Getter<T extends FieldRef> extends FieldOpsMethodHandler {
 
@@ -52,6 +54,9 @@ public abstract class Getter<T extends FieldRef> extends FieldOpsMethodHandler {
         return mhMember.store(findGetter);
     }
 
+    /**
+     * The type With early.
+     */
     public static class WithEarly extends Getter<EarlyFieldRef> {
         /**
          * Instantiates a new Getter.
@@ -73,6 +78,9 @@ public abstract class Getter<T extends FieldRef> extends FieldOpsMethodHandler {
         }
     }
 
+    /**
+     * The type With runtime.
+     */
     public static class WithRuntime extends Getter {
         /**
          * Instantiates a new Getter.

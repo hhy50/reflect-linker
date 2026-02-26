@@ -31,13 +31,18 @@ public abstract class FieldRef  {
      * Instantiates a new Field ref.
      *
      * @param fullName the fullName
-     * @param name the name
+     * @param name     the name
      */
     public FieldRef(String fullName, String name) {
         this.fullName = fullName;
         this.name = name;
     }
 
+    /**
+     * Gets name.
+     *
+     * @return the name
+     */
     public String getName() {
         return this.name;
     }
@@ -69,22 +74,38 @@ public abstract class FieldRef  {
         return Object.class;
     }
 
+    /**
+     * Sets static.
+     *
+     * @param isStatic the is static
+     */
     public void setStatic(boolean isStatic) {
 
     }
 
     /**
+     * Sets nullable.
      *
-     * @param nullable
+     * @param nullable the nullable
      */
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
     }
 
+    /**
+     * Sets index.
+     *
+     * @param indexs the indexs
+     */
     public void setIndex(List<Object> indexs) {
         this.indexs = indexs;
     }
 
+    /**
+     * Gets indexs.
+     *
+     * @return the indexs
+     */
     public List<Object> getIndexs() {
         return indexs;
     }

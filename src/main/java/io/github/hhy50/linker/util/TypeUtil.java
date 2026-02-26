@@ -283,4 +283,17 @@ public class TypeUtil {
         }
         return Type.getMethodType(rType, argsType);
     }
+
+    /**
+     * Gets dimensions.
+     *
+     * @param t the t
+     * @return the dimensions
+     */
+    public static int getDimensions(Type t) {
+        if (t.getDescriptor().startsWith("[")) {
+            return t.getDimensions();
+        }
+        return 0;
+    }
 }

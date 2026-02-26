@@ -77,8 +77,14 @@ public class TokenParser {
          */
         public static final char METHOD_END_SYMBOL = ')';
 
+        /**
+         * The constant ARGS_SPLIT.
+         */
         public static final char ARGS_SPLIT = ',';
 
+        /**
+         * The constant ALL_PLACEHOLDER.
+         */
         public static final String ALL_PLACEHOLDER = "..";
 
         private final char[] tokenSymbols;
@@ -291,6 +297,12 @@ public class TokenParser {
             return new MethodToken(methodName, args);
         }
 
+        /**
+         * Increment pos int.
+         *
+         * @param offset the offset
+         * @return the int
+         */
         int incrementPos(int offset) {
             pos += offset;
             skipWhitespace();

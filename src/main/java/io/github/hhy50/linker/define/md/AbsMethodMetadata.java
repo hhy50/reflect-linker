@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * The type Abs method metadata.
+ */
 public class AbsMethodMetadata {
 
     private final AbsInterfaceMetadata parent;
@@ -35,11 +38,22 @@ public class AbsMethodMetadata {
 
     private String invokeSuper;
 
+    /**
+     * Instantiates a new Abs method metadata.
+     *
+     * @param parent  the parent
+     * @param reflect the reflect
+     */
     public AbsMethodMetadata(AbsInterfaceMetadata parent, java.lang.reflect.Method reflect) {
         this.parent = parent;
         this.reflect = reflect;
     }
 
+    /**
+     * Sets unique annotation.
+     *
+     * @param uniqueAnno the unique anno
+     */
     public void setUniqueAnnotation(Annotation uniqueAnno) {
         if (this.uniqueAnno != null) {
             throw new VerifyException("method [" + reflect.getDeclaringClass() + "@" + reflect.getName() + "] cannot have two annotations [" +
@@ -55,6 +69,11 @@ public class AbsMethodMetadata {
         this.uniqueAnno = uniqueAnno;
     }
 
+    /**
+     * Add annotation.
+     *
+     * @param annotation the annotation
+     */
     public void addAnnotation(Annotation annotation) {
         if (annotation instanceof Typed) {
             Typed typed = (Typed) annotation;
@@ -80,14 +99,29 @@ public class AbsMethodMetadata {
         }
     }
 
+    /**
+     * Is autolink boolean.
+     *
+     * @return the boolean
+     */
     public boolean isAutolink() {
         return AnnotationUtils.isAutolink(reflect);
     }
 
+    /**
+     * Gets reflect.
+     *
+     * @return the reflect
+     */
     public java.lang.reflect.Method getReflect() {
         return reflect;
     }
 
+    /**
+     * Gets expr.
+     *
+     * @return the expr
+     */
     public String getExpr() {
         if (uniqueAnno instanceof Method.Expr) {
             return ((Method.Expr) uniqueAnno).value();
@@ -105,18 +139,39 @@ public class AbsMethodMetadata {
                 .mapToObj(i -> "$"+i).collect(Collectors.joining(","))+")";
     }
 
+    /**
+     * Gets name.
+     *
+     * @return the name
+     */
     public String getName() {
         return reflect.getName();
     }
 
+    /**
+     * Gets invoke super.
+     *
+     * @return the invoke super
+     */
     public String getInvokeSuper() {
         return invokeSuper;
     }
 
+    /**
+     * Get parameters parameter [ ].
+     *
+     * @return the parameter [ ]
+     */
     public Parameter[] getParameters() {
         return reflect.getParameters();
     }
 
+    /**
+     * Is designate static boolean.
+     *
+     * @param tokenVal the token val
+     * @return the boolean
+     */
     public Boolean isDesignateStatic(String tokenVal) {
         Boolean b = parent.staticToken.get(tokenVal);
         if (b == null) {
@@ -125,6 +180,13 @@ public class AbsMethodMetadata {
         return b;
     }
 
+    /**
+     * Gets typed.
+     *
+     * @param full     the full
+     * @param tokenVal the token val
+     * @return the typed
+     */
     public String getTyped(String full, String tokenVal) {
         String typed = Stream.of(full, tokenVal)
                 .filter(StringUtil::isNotEmpty)
@@ -137,10 +199,20 @@ public class AbsMethodMetadata {
         return typed;
     }
 
+    /**
+     * Is setter boolean.
+     *
+     * @return the boolean
+     */
     public boolean isSetter() {
         return uniqueAnno instanceof Field.Setter || uniqueAnno instanceof Field.StaticSetter;
     }
 
+    /**
+     * Is constructor boolean.
+     *
+     * @return the boolean
+     */
     public boolean isConstructor() {
         return uniqueAnno instanceof io.github.hhy50.linker.annotations.Method.Constructor;
     }

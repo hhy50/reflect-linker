@@ -8,8 +8,10 @@ import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.SmartMethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
+import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -17,6 +19,9 @@ import org.objectweb.asm.Type;
 import java.util.List;
 import java.util.function.BiFunction;
 
+/**
+ * The type Method expr invoker.
+ */
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
     private final Type methodType;
     private final String methodName;
@@ -55,8 +60,13 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
 
                     // 数组访问
                     if (indexs != null && !indexs.isEmpty()) {
-                        if (indexs.size() <= t.getDimensions()) {
-                            return new ArrayIndexAction(varInst, indexs);
+                        if (TypeUtil.getDimensions(t) >= indexs.size()) {
+                            varInst = new ArrayIndexAction(varInst, indexs);
+                        } else {
+                            varInst = Methods.invoke(RuntimeUtil.INDEX_VALUE)
+                                    .setArgs(varInst, Actions.asList(indexs.stream().map(LdcLoadAction::of)
+                                            .map(BoxAction::new)
+                                            .toArray(Action[]::new)));
                         }
                     }
                     if (nullable && !TypeUtil.isPrimitiveType(t)) {
@@ -77,6 +87,11 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                 .setArgs(argsAction));
     }
 
+    /**
+     * Gets method type.
+     *
+     * @return the method type
+     */
     public Type getMethodType() {
         return methodType;
     }

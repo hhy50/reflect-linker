@@ -18,6 +18,8 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
 
 /**
  * The type Setter.
+ *
+ * @param <T> the type parameter
  */
 public abstract class Setter<T extends FieldRef> extends FieldOpsMethodHandler {
 
@@ -29,7 +31,7 @@ public abstract class Setter<T extends FieldRef> extends FieldOpsMethodHandler {
     /**
      * Instantiates a new Setter.
      *
-     * @param field     the field
+     * @param field the field
      */
     public Setter(T field) {
         super(field.getName(), field.getFullName(), Type.getMethodType(Type.VOID_TYPE, field.getType()));
@@ -51,7 +53,15 @@ public abstract class Setter<T extends FieldRef> extends FieldOpsMethodHandler {
         return mhMember.store(findSetter);
     }
 
+    /**
+     * The type With early.
+     */
     public static class WithEarly extends Setter<EarlyFieldRef> {
+        /**
+         * Instantiates a new With early.
+         *
+         * @param field the field
+         */
         public WithEarly(EarlyFieldRef field) {
             super(field);
         }
@@ -67,6 +77,9 @@ public abstract class Setter<T extends FieldRef> extends FieldOpsMethodHandler {
         }
     }
 
+    /**
+     * The type With runtime.
+     */
     public static class WithRuntime extends Setter {
         /**
          * Instantiates a new Getter.

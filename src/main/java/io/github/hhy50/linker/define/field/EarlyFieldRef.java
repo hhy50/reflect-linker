@@ -42,8 +42,8 @@ public class EarlyFieldRef extends FieldRef {
     /**
      * Instantiates a new Early field ref.
      *
-     * @param fullName the fullName
-     * @param fieldType     the fieldType
+     * @param fullName  the fullName
+     * @param fieldType the fieldType
      */
     public EarlyFieldRef(String fullName, Class<?> fieldType) {
         super(fullName, fullName);
@@ -68,7 +68,9 @@ public class EarlyFieldRef extends FieldRef {
     }
 
     /**
-     * @param assignedType
+     * Sets assigned type.
+     *
+     * @param assignedType the assigned type
      */
     public void setAssignedType(Class<?> assignedType) {
         this.assignedType = assignedType;
@@ -84,6 +86,11 @@ public class EarlyFieldRef extends FieldRef {
         return this.fieldType;
     }
 
+    /**
+     * Gets lookup class.
+     *
+     * @return the lookup class
+     */
     public Type getLookupClass() {
         return Type.getType(this.lookupClass);
     }

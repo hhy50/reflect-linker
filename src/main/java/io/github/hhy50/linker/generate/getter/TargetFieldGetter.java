@@ -38,6 +38,7 @@ public class TargetFieldGetter extends Getter {
      * Instantiates a new Target field getter.
      *
      * @param targetFieldRef the target field ref
+     * @param metadata       the metadata
      */
     public TargetFieldGetter(EarlyFieldRef targetFieldRef, AbsInterfaceMetadata metadata) {
         super(targetFieldRef);

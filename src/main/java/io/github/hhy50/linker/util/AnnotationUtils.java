@@ -85,6 +85,13 @@ public class AnnotationUtils {
                 method.getDeclaringClass().getDeclaredAnnotation(Autolink.class) != null);
     }
 
+    /**
+     * Has annotation boolean.
+     *
+     * @param clazz           the clazz
+     * @param annotationClass the annotation class
+     * @return the boolean
+     */
     public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         return clazz.getDeclaredAnnotation(annotationClass) != null;
     }

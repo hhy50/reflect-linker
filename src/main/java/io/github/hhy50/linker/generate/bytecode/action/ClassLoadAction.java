@@ -9,10 +9,24 @@ import org.objectweb.asm.Type;
 
 import java.util.Objects;
 
+/**
+ * The type Class load action.
+ */
 public class ClassLoadAction implements ClassTypeVarInst, LoadAction, TypedAction {
+    /**
+     * The Load action.
+     */
     protected final Action loadAction;
+    /**
+     * The Is primitive.
+     */
     protected boolean isPrimitive;
 
+    /**
+     * Instantiates a new Class load action.
+     *
+     * @param type the type
+     */
     public ClassLoadAction(Type type) {
         Objects.requireNonNull(type);
         if (TypeUtil.isPrimitiveType(type)) {
@@ -23,6 +37,11 @@ public class ClassLoadAction implements ClassTypeVarInst, LoadAction, TypedActio
         }
     }
 
+    /**
+     * Instantiates a new Class load action.
+     *
+     * @param strloadAction the strload action
+     */
     public ClassLoadAction(Action strloadAction) {
         Objects.requireNonNull(strloadAction);
         this.loadAction = strloadAction;

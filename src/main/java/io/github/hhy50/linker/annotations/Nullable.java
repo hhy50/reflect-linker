@@ -11,6 +11,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 
 
+/**
+ * The interface Nullable.
+ */
 public interface Nullable {
 
     /**
@@ -22,10 +25,21 @@ public interface Nullable {
     @Retention(RetentionPolicy.RUNTIME)
     @java.lang.annotation.Target({ElementType.METHOD})
     public @interface Default {
+        /**
+         * Value string.
+         *
+         * @return the string
+         */
         public String value();
     }
 
+    /**
+     * The type Default check.
+     */
     static class DefaultCheck implements Verifier {
+        /**
+         * The constant boolValues.
+         */
         public static final String[] boolValues = {"true", "false"};
 
         @Override

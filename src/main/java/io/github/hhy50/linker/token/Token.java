@@ -7,16 +7,45 @@ import java.util.List;
  */
 public interface Token {
 
+    /**
+     * The enum Kind.
+     */
     enum Kind {
+        /**
+         * Field kind.
+         */
         Field,
+        /**
+         * Method kind.
+         */
         Method,
+        /**
+         * Placeholder kind.
+         */
         Placeholder,
+        /**
+         * Placeholder all kind.
+         */
         PlaceholderAll,
+        /**
+         * Int const kind.
+         */
         IntConst,
+        /**
+         * Str const kind.
+         */
         StrConst,
+        /**
+         * Tokens kind.
+         */
         Tokens,
     }
 
+    /**
+     * Kind kind.
+     *
+     * @return the kind
+     */
     Kind kind();
 
     /**
@@ -28,6 +57,11 @@ public interface Token {
 
     }
 
+    /**
+     * Sets nullable.
+     *
+     * @param nullable the nullable
+     */
     default void setNullable(boolean nullable) {
 
     }

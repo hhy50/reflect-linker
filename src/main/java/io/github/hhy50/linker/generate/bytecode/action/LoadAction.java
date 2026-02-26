@@ -23,6 +23,12 @@ public interface LoadAction extends Action {
      */
     Action LOAD0 = LOAD_0;
 
+    /**
+     * Aload action.
+     *
+     * @param i the
+     * @return the action
+     */
     static Action aload(int i) {
         return withVisitor(mv -> mv.visitVarInsn(Opcodes.ALOAD, i));
     }
@@ -82,6 +88,8 @@ public interface LoadAction extends Action {
 
     /**
      * Load.
+     *
+     * @return the action
      */
     Action load();
 

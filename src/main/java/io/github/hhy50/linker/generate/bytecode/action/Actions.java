@@ -144,10 +144,23 @@ public interface Actions {
         };
     }
 
+    /**
+     * Array index action.
+     *
+     * @param arrInst the arr inst
+     * @param i       the
+     * @return the action
+     */
     static Action arrayIndex(TypedAction arrInst, int i) {
         return of(arrInst, iconst(i), withVisitor(mv ->  mv.visitInsn(arrInst.getType().getOpcode(Opcodes.IALOAD))));
     }
 
+    /**
+     * Iconst action.
+     *
+     * @param i the
+     * @return the action
+     */
     static Action iconst(int i) {
         return withVisitor(mv -> mv.visitIntInsn(Opcodes.BIPUSH, i));
     }
@@ -174,8 +187,8 @@ public interface Actions {
     /**
      * withVisitor action.
      *
-     * @param mvApply
-     * @return
+     * @param mvApply the mv apply
+     * @return the action
      */
     static Action withVisitor(Consumer<MethodVisitor> mvApply) {
         return body -> mvApply.accept(body.getWriter());
@@ -258,18 +271,46 @@ public interface Actions {
         return withVisitor(mv -> AsmUtil.areturn(mv, Type.VOID_TYPE));
     }
 
+    /**
+     * New local var var inst.
+     *
+     * @param action the action
+     * @return the var inst
+     */
     static VarInst newLocalVar(TypedAction action) {
         return newLocalVar(action.getType(), action);
     }
 
+    /**
+     * New local var var inst.
+     *
+     * @param name   the name
+     * @param action the action
+     * @return the var inst
+     */
     static VarInst newLocalVar(String name, TypedAction action) {
         return newLocalVar(action.getType(), name, action);
     }
 
+    /**
+     * New local var var inst.
+     *
+     * @param type   the type
+     * @param action the action
+     * @return the var inst
+     */
     static VarInst newLocalVar(Type type, Action action) {
         return newLocalVar(type, null, action);
     }
 
+    /**
+     * New local var var inst.
+     *
+     * @param type   the type
+     * @param name   the name
+     * @param action the action
+     * @return the var inst
+     */
     static VarInst newLocalVar(Type type, String name, Action action) {
         return new VarInst() {
             VarInst varInst;

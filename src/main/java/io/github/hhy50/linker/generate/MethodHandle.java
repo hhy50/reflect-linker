@@ -41,7 +41,7 @@ public abstract class MethodHandle {
     /**
      * Invoke var inst.
      *
-     * @param argsAction
+     * @param argsAction the args action
      * @return the var inst
      */
     public abstract ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction);
@@ -49,9 +49,10 @@ public abstract class MethodHandle {
     /**
      * Init static method handle.
      *
-     * @param mhMember
+     * @param mhMember    the mh member
      * @param lookupClass the lookup class
      * @param isStatic    the is static
+     * @return the action
      */
     protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
         return Actions.empty();
@@ -62,6 +63,7 @@ public abstract class MethodHandle {
      *
      * @param mhMember    the mh member
      * @param lookupClass the lookup class
+     * @return the action
      */
     protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
         return Actions.empty();
@@ -70,8 +72,11 @@ public abstract class MethodHandle {
     /**
      * Check look class.
      *
-     * @param lookupClass the lookup class
-     * @param varInst     the var inst
+     * @param lookupClass     the lookup class
+     * @param varInst         the var inst
+     * @param prevLookupClass the prev lookup class
+     * @param defaultType     the default type
+     * @return the action
      */
     protected Action checkLookClass(ClassTypeMember lookupClass, VarInst varInst, VarInst prevLookupClass, VarInst defaultType) {
         Action action = new ConditionJumpAction(
@@ -104,6 +109,7 @@ public abstract class MethodHandle {
      * @param lookupClass   the lookup class
      * @param prevFieldName the prev field name
      * @param prevLookup    the prev lookup
+     * @return the action
      */
     protected Action staticCheckClass(ClassTypeMember lookupClass, String prevFieldName, Action prevLookup) {
         return new ConditionJumpAction(
@@ -119,11 +125,18 @@ public abstract class MethodHandle {
      *
      * @param lookupClass the lookup class
      * @param mhMember    the mh member
+     * @return the action
      */
     protected Action checkMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember) {
         return mhMember.ifNull(initRuntimeMethodHandle(mhMember, lookupClass));
     }
 
+    /**
+     * Make runtime owner chain action.
+     *
+     * @param ownerAndArgs the owner and args
+     * @return the chain action
+     */
     protected ChainAction<VarInst[]> makeRuntimeOwner(ChainAction<VarInst[]> ownerAndArgs) {
         return ChainAction.mapOwnerAndArgs(ownerAndArgs, (owner, args) -> {
             Action lookupClass = null;

@@ -17,18 +17,24 @@ import java.util.Objects;
 public class ParameterTypeAnalysis {
 
     /**
-     *
+     * The Parameter types.
      */
     final Type[] parameterTypes;
 
+    /**
+     * Instantiates a new Parameter type analysis.
+     *
+     * @param parameters the parameters
+     */
     public ParameterTypeAnalysis(Parameter[] parameters) {
         this.parameterTypes = new Type[parameters.length];
     }
 
 
     /**
+     * Analyse.
      *
-     * @param parameterIndexTypes
+     * @param parameterIndexTypes the parameter index types
      */
     public void analyse(List<Pair<Integer, Type>> parameterIndexTypes) {
         for (Pair<Integer, Type> entry : parameterIndexTypes) {
@@ -47,6 +53,11 @@ public class ParameterTypeAnalysis {
         }
     }
 
+    /**
+     * Get parameters type type [ ].
+     *
+     * @return the type [ ]
+     */
     public Type[] getParametersType() {
         return Arrays.stream(this.parameterTypes).filter(Objects::nonNull).toArray(Type[]::new);
     }

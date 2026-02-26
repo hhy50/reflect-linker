@@ -37,8 +37,15 @@ public class BoxAction extends VarInst {
 
     @Override
     public Action load() {
-        return Actions.withVisitor(obj, c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap",
-                "(" + obj.getType().getDescriptor() + ")Ljava/lang/Object;", false));
+        if (this.wrapperType != null) {
+            if (this.wrapperType.equals(ObjectVar.TYPE)) {
+                return Actions.withVisitor(obj, c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap",
+                        "(" + obj.getType().getDescriptor() + ")Ljava/lang/Object;", false));
+            }
+            return Actions.withVisitor(obj, c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, this.wrapperType.getInternalName(), "valueOf",
+                    Type.getMethodDescriptor(this.wrapperType, obj.getType()), false));
+        }
+        return obj;
     }
 
     @Override
@@ -46,6 +53,6 @@ public class BoxAction extends VarInst {
         if (this.wrapperType != null) {
             return this.wrapperType;
         }
-        return ObjectVar.TYPE;
+        return obj.getType();
     }
 }

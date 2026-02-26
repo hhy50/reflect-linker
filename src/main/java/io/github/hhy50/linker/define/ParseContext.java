@@ -35,6 +35,9 @@ public class ParseContext {
      */
     Class<?> rootType;
 
+    /**
+     * The Class metadata.
+     */
     AbsInterfaceMetadata classMetadata;
 
     /**
@@ -44,6 +47,9 @@ public class ParseContext {
 
     /**
      * Instantiates a new Parse context.
+     *
+     * @param classMetadata the class metadata
+     * @param targetClass   the target class
      */
     ParseContext(AbsInterfaceMetadata classMetadata, Class<?> targetClass) {
         this.classMetadata = classMetadata;
@@ -85,8 +91,9 @@ public class ParseContext {
     /**
      * Pre parse.
      *
-     * @param classMetadata
+     * @param classMetadata the class metadata
      * @param method        the method
+     * @return the abs method metadata
      */
     AbsMethodMetadata preParse(AbsInterfaceMetadata classMetadata, Method method) {
         AbsMethodMetadata metadata = new AbsMethodMetadata(classMetadata, method);
@@ -117,6 +124,7 @@ public class ParseContext {
     /**
      * Post parse.
      *
+     * @param methodExpr the method expr
      */
     void postParse(MethodExprRef methodExpr) {
     }

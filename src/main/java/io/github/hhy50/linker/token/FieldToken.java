@@ -21,6 +21,9 @@ public class FieldToken implements Token {
      */
     public IndexToken index;
 
+    /**
+     * The Nullable.
+     */
     public boolean nullable = false;
 
     /**
@@ -60,6 +63,11 @@ public class FieldToken implements Token {
         return index != null ? index.toValues() : null;
     }
 
+    /**
+     * Is nullable boolean.
+     *
+     * @return the boolean
+     */
     public boolean isNullable() {
         return nullable;
     }
