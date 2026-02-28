@@ -21,6 +21,7 @@ public class FieldSetterMethodRef extends MethodRef {
     public FieldSetterMethodRef(FieldRef field) {
         super(field.getFullName());
         this.field = field;
+        this.setNullable(field.isNullable());
     }
 
     @Override

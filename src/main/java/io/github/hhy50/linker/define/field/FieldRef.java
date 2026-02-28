@@ -93,6 +93,15 @@ public abstract class FieldRef  {
     }
 
     /**
+     * Is nullable boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    /**
      * Sets index.
      *
      * @param indexs the indexs

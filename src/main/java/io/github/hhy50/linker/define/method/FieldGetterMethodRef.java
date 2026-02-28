@@ -22,6 +22,7 @@ public class FieldGetterMethodRef extends MethodRef {
         super(field.getName());
         this.field = field;
         this.setIndexs(field.getIndexs());
+        this.setNullable(field.isNullable());
     }
 
     @Override

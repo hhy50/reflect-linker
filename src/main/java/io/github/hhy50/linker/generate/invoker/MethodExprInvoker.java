@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.generate.invoker;
 
+import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.asm.MethodBuilder;
 import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.define.method.MethodRef;
@@ -53,7 +54,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                 } else {
                     argsChainAction = ChainAction.join(varInstChain, originArgs);
                 }
-                varInstChain = mh.invoke(argsChainAction).map(varInst -> {
+                varInstChain = mh.invoke(argsChainAction).mapBody((body, varInst) -> {
                     Type t = varInst.getType();
                     boolean nullable = methodRef.isNullable();
                     List<Object> indexs = methodRef.getIndexs();
@@ -68,9 +69,15 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                                             .map(BoxAction::new)
                                             .toArray(Action[]::new)));
                         }
+                        t = varInst.getType();
                     }
-                    if (nullable && !TypeUtil.isPrimitiveType(t)) {
-
+                    if (nullable && t.getSort() != Type.VOID && !TypeUtil.isPrimitiveType(t)) {
+                        varInst = Actions.newLocalVar(varInst);
+                        body.append(new ConditionJumpAction(
+                                Condition.isNull(varInst),
+                                defaultReturnAction(),
+                                null
+                        ));
                     }
                     return varInst;
                 });
@@ -94,5 +101,36 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
      */
     public Type getMethodType() {
         return methodType;
+    }
+
+    private Action defaultReturnAction() {
+        Type returnType = methodType.getReturnType();
+        return Actions.withVisitor(mv -> {
+            switch (returnType.getSort()) {
+                case Type.VOID:
+                    mv.visitInsn(Opcodes.RETURN);
+                    return;
+                case Type.BOOLEAN:
+                case Type.BYTE:
+                case Type.CHAR:
+                case Type.SHORT:
+                case Type.INT:
+                    mv.visitInsn(Opcodes.ICONST_0);
+                    break;
+                case Type.LONG:
+                    mv.visitInsn(Opcodes.LCONST_0);
+                    break;
+                case Type.FLOAT:
+                    mv.visitInsn(Opcodes.FCONST_0);
+                    break;
+                case Type.DOUBLE:
+                    mv.visitInsn(Opcodes.DCONST_0);
+                    break;
+                default:
+                    mv.visitInsn(Opcodes.ACONST_NULL);
+                    break;
+            }
+            AsmUtil.areturn(mv, returnType);
+        });
     }
 }
