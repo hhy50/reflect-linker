@@ -121,8 +121,9 @@ public abstract class MethodRef {
 
 
     /**
+     * Gets args token.
      *
-     * @return
+     * @return the args token
      */
     public ArgsToken getArgsToken() {
         return argsToken;

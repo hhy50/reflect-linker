@@ -55,7 +55,7 @@ public class ArrayListTest {
         Assert.assertEquals(list.size(), list.size());
 
         LInteger modCount = list.modCount();
-        modCount.setValue(10086);
+        modCount.setTarget(10086);
         list.setModCount(modCount);
 
         Assert.assertEquals(modCount, 10086);

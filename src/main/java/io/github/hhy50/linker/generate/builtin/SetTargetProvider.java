@@ -23,5 +23,5 @@ public interface SetTargetProvider<T> {
      *
      * @param target the target
      */
-    void setValue(T target);
+    void setTarget(T target);
 }

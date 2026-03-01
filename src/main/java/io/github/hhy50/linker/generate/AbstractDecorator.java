@@ -65,7 +65,7 @@ public abstract class AbstractDecorator extends MethodHandle {
             String bindClass = AnnotationUtils.getBind(actualType);
             if (StringUtil.isNotEmpty(bindClass)) {
                 arg = VarInst.wrap(arg.getTarget(), ObjectVar.TYPE);
-            } else if (this.autolink && !actualType.isPrimitive()) {
+            } else if ((this.autolink || AnnotationUtils.isAutolink(actualType)) && !actualType.isPrimitive()) {
                 arg = VarInst.wrap(arg.tryGetTarget(), ObjectVar.TYPE);
             }
 
@@ -86,6 +86,7 @@ public abstract class AbstractDecorator extends MethodHandle {
             Method method = metadata.getReflect();
             Class<?> returnClassType = method.getReturnType();
             Type retType = Type.getType(returnClassType);
+            boolean linkresult = this.autolink || AnnotationUtils.isAutolink(returnClassType);
             if (returnClassType == Object.class && !TypeUtil.isPrimitiveType(varInst.getType())) {
                 return varInst;
             }
@@ -103,7 +104,7 @@ public abstract class AbstractDecorator extends MethodHandle {
                 if (StringUtil.isNotEmpty(bindClass)) {
                     body.append(checkType(varInst, TypeUtil.getType(bindClass)));
                     expectType = ObjectVar.TYPE;
-                } else if (!returnClassType.isPrimitive() && this.autolink) {
+                } else if (!returnClassType.isPrimitive() && linkresult) {
                     expectType = ObjectVar.TYPE;
                 }
                 varInst = typeCast(varInst, expectType);
@@ -112,9 +113,9 @@ public abstract class AbstractDecorator extends MethodHandle {
             if (Collection.class.isAssignableFrom(returnClassType) && method.getGenericReturnType() instanceof ParameterizedType) {
                 java.lang.reflect.Type actualType = ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
                 Class genericType = actualType instanceof Class ? (Class) actualType : null;
-                if (genericType != null && genericType.isInterface() && (AnnotationUtils.getBind(genericType) != null || autolink))
+                if (genericType != null && genericType.isInterface() && (AnnotationUtils.getBind(genericType) != null || linkresult))
                     return new CreateLinkerCollectAction(Type.getType(genericType), varInst);
-            } else if (returnClassType.isInterface() && (StringUtil.isNotEmpty(bindClass) || autolink)) {
+            } else if (returnClassType.isInterface() && (StringUtil.isNotEmpty(bindClass) || linkresult)) {
                 body.append(new ConditionJumpAction(
                         any(isNull(varInst), instanceOf(varInst, retType)),
                         varInst.thenReturn(), null));

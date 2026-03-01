@@ -146,30 +146,31 @@ public class ClassUtil {
      * @return primitive class
      */
     public static Class<?> getPrimitiveClass(String clazz) {
-        if (clazz.equals("byte")) {
+        if (clazz.equals("byte") || clazz.equals(Byte.class.getName())) {
             return byte.class;
         }
-        if (clazz.equals("short")) {
+        if (clazz.equals("short") || clazz.equals(Short.class.getName())) {
             return short.class;
         }
-        if (clazz.equals("int")) {
+        if (clazz.equals("int") || clazz.equals(Integer.class.getName())) {
             return int.class;
         }
-        if (clazz.equals("long")) {
+        if (clazz.equals("long") || clazz.equals(Long.class.getName())) {
             return long.class;
         }
-        if (clazz.equals("float")) {
+        if (clazz.equals("float") || clazz.equals(Float.class.getName())) {
             return float.class;
         }
-        if (clazz.equals("double")) {
+        if (clazz.equals("double") || clazz.equals(Double.class.getName())) {
             return double.class;
         }
-        if (clazz.equals("char")) {
+        if (clazz.equals("char") || clazz.equals(Character.class.getName())) {
             return char.class;
         }
-        if (clazz.equals("boolean")) {
+        if (clazz.equals("boolean") || clazz.equals(Boolean.class.getName())) {
             return boolean.class;
         }
+
         return null;
     }
 }

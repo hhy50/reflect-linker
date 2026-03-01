@@ -33,7 +33,7 @@ public class DefaultTargetProviderImpl implements TargetProvider, SetTargetProvi
     }
 
     @Override
-    public void setValue(Object target) {
+    public void setTarget(Object target) {
         requireNonNull(target);
         if (this.target.getClass().getName().equals(target.getClass().getName()) ||
                 this instanceof RuntimeProvider) {

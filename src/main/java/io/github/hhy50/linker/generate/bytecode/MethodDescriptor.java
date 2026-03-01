@@ -21,6 +21,10 @@ public class MethodDescriptor {
      */
     public static final MethodDescriptor GET_CLASS = MethodDescriptor.of(Object.class, "getClass", Class.class);
     /**
+     * The constant CLASS_GET_NAME.
+     */
+    public static final MethodDescriptor GET_CANONICAL_NAME = MethodDescriptor.of(Class.class, "getCanonicalName", String.class);
+    /**
      * The constant LOOKUP_FIND_GETTER_METHOD.
      */
     public static final MethodDescriptor LOOKUP_FINDGETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findGetter",

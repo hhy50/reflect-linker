@@ -2,14 +2,16 @@ package io.github.hhy50.linker.test.arraylist;
 
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
+import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;
 
 import java.util.List;
 
+@Runtime
 public interface LArrayList2 extends TargetProvider<List> {
 
-    @Method.Constructor
-    LArrayList2 newList();
+//    @Method.Constructor
+//    LArrayList2 newList();
 
     /**
      * <p>add.</p>
