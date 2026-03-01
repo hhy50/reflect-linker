@@ -41,38 +41,7 @@ public class InvokerDecorator extends AbstractDecorator {
         Type mType = invoker.getMethodType();
         Type[] argsType = mType.getArgumentTypes();
 
-        return typecastResult2(invoker.invoke(argsAction.map(a -> typecastArgs(a, argsType))))
+        return typecastResult(invoker.invoke(argsAction.map(a -> typecastArgs(a, argsType))))
                 .then(VarInst::thenReturn);
-//        return ChainAction.of(() -> typecastArgs(originArgs, argsType))
-//                .map(realArgs -> )
-//                .map(varInst -> {
-//                    Type retType = Type.getType(rClassType);
-//                    if (isConstructor) {
-//                        return new TypeCastAction(new CreateLinkerAction(retType, varInst), retType);
-//                    } else if (varInst != null && retType != Type.VOID_TYPE) {
-//                        return typecastResult(methodBody, varInst);
-//                    }
-//                })
-//
-//
-//
-//        return ChainAction.of(body -> args1)
-//                .map(body -> realInvoker.invoke(null,  args))
-//                .map(varInst -> {
-//                    Type retType = Type.getType(rClassType);
-//                    if (isConstructor) {
-//                        return new TypeCastAction(new CreateLinkerAction(retType, varInst), retType);
-//                    } else if (varInst != null && retType != Type.VOID_TYPE) {
-//                        return typecastResult(methodBody, varInst);
-//                    }
-//                    return (VarInst) null;
-//                })
-//                .map(varInst -> {
-//                    if (varInst != null) {
-//                        return varInst.thenReturn();
-//                    } else {
-//                        return Actions.vreturn();
-//                    }
-//                });
     }
 }

@@ -6,6 +6,7 @@ import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.TypedAction;
 import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -21,7 +22,7 @@ public class MethodBody {
 
     private final MethodVisitor writer;
     private int lvbIndex;
-    private final LocalVarInst[] args;
+    private final VarInst[] args;
     private final Map<String, ClassTypeVarInst> classLoadCache;
 
     /**
@@ -35,7 +36,7 @@ public class MethodBody {
 
         Type[] argumentTypes = methodBuilder.getDescriptor().getType().getArgumentTypes();
         this.writer = mv;
-        this.args = new LocalVarInst[argumentTypes.length];
+        this.args = new VarInst[argumentTypes.length];
         this.classLoadCache = new HashMap<>();
         initArgsTable(argumentTypes);
     }
@@ -75,7 +76,7 @@ public class MethodBody {
      *
      * @return the var inst [ ]
      */
-    public LocalVarInst[] getArgs() {
+    public VarInst[] getArgs() {
         return args;
     }
 

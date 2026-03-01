@@ -15,7 +15,7 @@ public class MethodToken implements Token {
     private ArgsToken args;
     private IndexToken index;
 
-    private boolean nullable = true;
+    private boolean nullable = false;
 
     /**
      * Instantiates a new Method token.
@@ -35,7 +35,7 @@ public class MethodToken implements Token {
 
     @Override
     public String toString() {
-        return methodName+args+(index == null ? "" : index);
+        return methodName+args+(index == null ? "" : index)+(nullable ? "?" : "");
     }
 
     @Override

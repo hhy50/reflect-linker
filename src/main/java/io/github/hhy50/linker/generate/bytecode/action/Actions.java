@@ -274,11 +274,14 @@ public interface Actions {
     /**
      * New local var var inst.
      *
-     * @param action the action
+     * @param varInst the action
      * @return the var inst
      */
-    static VarInst newLocalVar(TypedAction action) {
-        return newLocalVar(action.getType(), action);
+    static VarInst newLocalVar(VarInst varInst) {
+        if (varInst.isLocalVar()) {
+            return varInst;
+        }
+        return newLocalVar(varInst.getType(), varInst);
     }
 
     /**

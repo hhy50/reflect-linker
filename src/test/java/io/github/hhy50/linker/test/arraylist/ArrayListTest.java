@@ -190,9 +190,4 @@ public class ArrayListTest {
 //        Assert.assertEquals(objects[3], list.get(3));
 //        Assert.assertEquals(objects[4], list.get(4));
     }
-
-
-    public static void check() {
-
-    }
 }

@@ -2,7 +2,6 @@ package io.github.hhy50.linker.generate.bytecode.utils;
 
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LazyTypedAction;
-import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
@@ -20,13 +19,13 @@ public class Args {
      */
     public static Action loadArgs(int... argIndices) {
         return body -> {
-            LocalVarInst[] args = body.getArgs();
+            VarInst[] args = body.getArgs();
             int[] indices = argIndices;
             if (argIndices.length == 0) {
                 indices = IntStream.range(0, args.length).toArray();
             }
             for (int i = 0; i < indices.length; i++) {
-                args[indices[i]].loadToStack();
+                body.append(args[indices[i]]);
             }
         };
     }
@@ -44,8 +43,8 @@ public class Args {
             @Override
             public Action load() {
                 return body -> {
-                    LocalVarInst arg = body.getArgs()[index];
-                    arg.loadToStack();
+                    VarInst arg = body.getArgs()[index];
+                    body.append(arg);
                     this.type = arg.getType();
                 };
             }
@@ -53,20 +52,6 @@ public class Args {
             @Override
             public Type getType() {
                 return type;
-            }
-        };
-    }
-
-    /**
-     * Load args ignore this action.
-     *
-     * @return the action
-     */
-    public static Action loadArgsIgnore0() {
-        return body -> {
-            LocalVarInst[] args = body.getArgs();
-            for (int i = 1; i < args.length; i++) {
-                args[i].loadToStack();
             }
         };
     }

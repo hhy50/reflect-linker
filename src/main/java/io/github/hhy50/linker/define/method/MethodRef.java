@@ -119,6 +119,15 @@ public abstract class MethodRef {
         this.argsToken = argsToken;
     }
 
+
+    /**
+     *
+     * @return
+     */
+    public ArgsToken getArgsToken() {
+        return argsToken;
+    }
+
     /**
      * Sets indexs.
      *

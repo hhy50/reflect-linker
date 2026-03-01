@@ -93,7 +93,15 @@ public class TokenParserTest {
 
     @Test
     public void testParseMethodExpr4() {
-        String tokenExpr = "aasda.todo(      ..        )";
+        String tokenExpr = "aasda.doAAA(      ..        )";
+        TokenParser parser = new TokenParser();
+        Tokens tokens = parser.parse(tokenExpr);
+        Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));
+    }
+
+    @Test
+    public void testParseMethodExpr5() {
+        String tokenExpr = "aasda.doAAA(      ..        )?.doXX()['123']?.aaa";
         TokenParser parser = new TokenParser();
         Tokens tokens = parser.parse(tokenExpr);
         Assert.assertEquals(tokenExpr.replace(" ", ""), tokens.toString().replace(" ", ""));

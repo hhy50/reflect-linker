@@ -13,10 +13,15 @@ import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
+import io.github.hhy50.linker.token.ArgsToken;
+import io.github.hhy50.linker.token.ConstToken;
+import io.github.hhy50.linker.token.PlaceholderToken;
+import io.github.hhy50.linker.token.Token;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -46,15 +51,21 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         MethodBuilder builder = classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodName, methodType, null);
         BiFunction<ChainAction<VarInst>, ChainAction<VarInst[]>, Action> invoker = (varInstChain, argsChainAction) -> {
-            ChainAction<VarInst[]> originArgs = argsChainAction;
             for (MethodRef methodRef : stepMethods) {
                 MethodHandle mh = classImplBuilder.defineInvoker(methodRef);
-                if (mh instanceof Getter) {
-                    argsChainAction = varInstChain.map(varInst -> new VarInst[]{varInst});
-                } else {
-                    argsChainAction = ChainAction.join(varInstChain, originArgs);
-                }
-                varInstChain = mh.invoke(argsChainAction).mapBody((body, varInst) -> {
+                ChainAction<VarInst[]> stepArgsChain = loadStepArgs(mh, methodRef, argsChainAction)
+                        .map(varInsts -> {
+                            if (varInsts != null) {
+                                Type mType = methodRef.getGenericType();
+                                Type[] argsType = mType.getArgumentTypes();
+                                for (int i = 0; i < varInsts.length; i++) {
+                                    varInsts[i] = typeCast(varInsts[i], argsType[i]);
+                                }
+                            }
+                            return varInsts;
+                        });
+
+                varInstChain = mh.invoke(ChainAction.join(varInstChain, stepArgsChain)).mapBody((body, varInst) -> {
                     Type t = varInst.getType();
                     boolean nullable = methodRef.isNullable();
                     List<Object> indexs = methodRef.getIndexs();
@@ -87,11 +98,42 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         builder.intercept(invoker.apply(target.invoke(ChainAction.empty()), ChainAction.of(MethodBody::getArgs)));
     }
 
-
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
         return ChainAction.of(() -> new SmartMethodInvokeAction(new SmartMethodDescriptor(methodName, methodType))
                 .setInstance(LoadAction.LOAD0)
                 .setArgs(argsAction));
+    }
+
+    private ChainAction<VarInst[]> loadStepArgs(MethodHandle mh, MethodRef methodRef, ChainAction<VarInst[]> argsChainAction) {
+        if (mh instanceof Getter) {
+            return ChainAction.empty();
+        }
+
+        ArgsToken argsToken = methodRef.getArgsToken();
+        if (argsToken == null || argsToken.isPlaceholderAll()) {
+            return ChainAction.of(MethodBody::getArgs);
+        }
+
+        return argsChainAction.map(varInsts -> {
+            List<VarInst> args = new ArrayList<>();
+            for (Token token : argsToken) {
+                switch (token.kind()) {
+                    // TODO
+                    case Field:
+                    case Method:
+                        break;
+                    case StrConst:
+                    case IntConst:
+                        args.add(LdcLoadAction.of(((ConstToken) token).getValue()));
+                        break;
+                    case Placeholder:
+                        args.add(varInsts[((PlaceholderToken) token).index]);
+                        break;
+                }
+            }
+            return args.toArray(new VarInst[0]);
+        });
+
     }
 
     /**

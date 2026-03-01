@@ -4,8 +4,15 @@ import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.*;
+import io.github.hhy50.linker.generate.type.AutoBox;
+import io.github.hhy50.linker.generate.type.ContainerCast;
+import io.github.hhy50.linker.generate.type.TypeCast;
 import io.github.hhy50.linker.runtime.Runtime;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static io.github.hhy50.linker.generate.bytecode.action.Condition.*;
 
@@ -129,6 +136,24 @@ public abstract class MethodHandle {
      */
     protected Action checkMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember) {
         return mhMember.ifNull(initRuntimeMethodHandle(mhMember, lookupClass));
+    }
+
+
+    protected VarInst typeCast(VarInst varInst, Type expectType) {
+        if (varInst.getType().equals(expectType)) {
+            return varInst;
+        }
+        if (expectType.equals(ObjectVar.TYPE) && !TypeUtil.isPrimitiveType(varInst.getType())) {
+            return varInst;
+        }
+        List<TypeCast> types = Arrays.asList(new AutoBox(), new ContainerCast());
+        for (TypeCast type : types) {
+            varInst = type.cast(varInst, expectType);
+        }
+        if (!varInst.getType().equals(expectType)) {
+            varInst = varInst.cast(expectType);
+        }
+        return varInst;
     }
 
     /**

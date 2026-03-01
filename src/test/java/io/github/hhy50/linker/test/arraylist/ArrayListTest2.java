@@ -1,0 +1,34 @@
+package io.github.hhy50.linker.test.arraylist;
+
+import io.github.hhy50.linker.LinkerFactory;
+import io.github.hhy50.linker.exceptions.LinkerException;
+import org.junit.Test;
+
+import java.util.ArrayList;
+
+/**
+ * <p>LArrayListTest class.</p>
+ *
+ * @author hanhaiyang
+ * @version $Id: $Id
+ * @since 1.0.0
+ */
+public class ArrayListTest2 {
+
+
+    @Test
+    public void test() throws LinkerException {
+        Object[] objects = new Object[10];
+        LArrayList2 staticLinker = LinkerFactory.createStaticLinker(LArrayList2.class, ArrayList.class);
+        LArrayList2 list = staticLinker.newList();
+        list.setElementData(objects);
+
+        list.addInt(5555);
+        list.addInt1();
+        list.addInt2(5555);
+
+        list.addStr("6666");
+        list.addStr1();
+        list.addStr2("6666");
+    }
+}

@@ -28,6 +28,9 @@ public class ParameterTypeAnalysis {
      */
     public ParameterTypeAnalysis(Parameter[] parameters) {
         this.parameterTypes = new Type[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            this.parameterTypes[i] = Type.getType(parameters[i].getType());
+        }
     }
 
 

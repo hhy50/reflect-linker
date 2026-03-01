@@ -53,6 +53,9 @@ public class ChainAction<T> extends AbstractChain<T> {
         return ChainAction.of(body -> {
             VarInst varInst = chain1.doChain(body);
             VarInst[] varInsts = chain2.doChain(body);
+            if (varInsts == null) {
+                varInsts = new VarInst[0];
+            }
             VarInst[] newVarInsts = new VarInst[varInsts.length + 1];
             newVarInsts[0] = varInst;
             System.arraycopy(varInsts, 0, newVarInsts, 1, newVarInsts.length - 1);
