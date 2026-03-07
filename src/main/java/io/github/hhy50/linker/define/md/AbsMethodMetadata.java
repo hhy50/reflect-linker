@@ -105,7 +105,15 @@ public class AbsMethodMetadata {
      * @return the boolean
      */
     public boolean isAutolink() {
-        return AnnotationUtils.isAutolink(reflect);
+        if (AnnotationUtils.isAutolink(reflect)) {
+            return true;
+        }
+        for (Class<?> parameterType : reflect.getParameterTypes()) {
+            if (AnnotationUtils.isAutolink(parameterType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

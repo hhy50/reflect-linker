@@ -72,14 +72,4 @@ public class ClassDefineParser {
         String implClassName = define.getName()+"$"+dynKey;
         return ClassImplGenerator.generateBytecode(classMetadata, implClassName, absMethods, interfaces);
     }
-
-//    private static InterfaceImplClass getCache(Class<?> define, String dynKey) {
-//        Map<String, InterfaceImplClass> parsed = PARSED.computeIfAbsent(define.getName(), k -> new HashMap<>());
-//        return parsed.get(dynKey);
-//    }
-//
-//    private static void putCache(Class<?> define, String dynKey, InterfaceImplClass classDefine) {
-//        Map<String, InterfaceImplClass> parsed = PARSED.computeIfAbsent(define.getName(), k -> new HashMap<>());
-//        parsed.put(dynKey, classDefine);
-//    }
 }
