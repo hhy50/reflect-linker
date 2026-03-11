@@ -24,10 +24,6 @@ import java.util.Optional;
  */
 public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
-     * The Lookup class.
-     */
-    protected final Type lookupClass;
-    /**
      * 方法名字
      */
     protected final String lookupName;
@@ -49,19 +45,17 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      * @param lookupType the lookup type
      */
     public Invoker(String lookupName, Type lookupType) {
-        this(null, lookupName, lookupType, null);
+        this(lookupName, lookupType, null);
     }
 
     /**
      * Instantiates a new Invoker.
      *
-     * @param lookupClass the lookup class
      * @param lookupName  the lookup name
      * @param lookupType  the lookup type
      * @param superClass  the super class
      */
-    public Invoker(Type lookupClass, String lookupName, Type lookupType, String superClass) {
-        this.lookupClass = lookupClass;
+    public Invoker(String lookupName, Type lookupType, String superClass) {
         this.lookupName = lookupName;
         this.lookupType = lookupType;
         this.superClass = superClass;

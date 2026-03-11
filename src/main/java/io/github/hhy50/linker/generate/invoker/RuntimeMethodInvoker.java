@@ -41,7 +41,7 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
      * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
-        super(null, methodRef.getName(), methodRef.getLookupType(), methodRef.getSuperClass());
+        super(methodRef.getName(), methodRef.getLookupType(), methodRef.getSuperClass());
 
         Type genericType = methodRef.getGenericType();
         this.isDesignateStatic = methodRef.isDesignateStatic();

@@ -32,7 +32,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
      * @param mr the method ref
      */
     public EarlyMethodInvoker(EarlyMethodRef mr) {
-        super(mr.getLookupClass(), mr.getName(), mr.getLookupType(), mr.getSuperClass());
+        super(mr.getName(), mr.getLookupType(), mr.getSuperClass());
 
         this.reflect = mr.getReflect();
         this.isInvisible = mr.isInvisible();
@@ -42,12 +42,13 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         MethodBody clinit = classImplBuilder.getClinit();
+        Type lookupClass = Type.getType(this.reflect.getDeclaringClass());
         boolean isStatic = Modifier.isStatic(this.reflect.getModifiers());
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.reflect, super.lookupName, super.lookupClass, this.genericType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.reflect, super.lookupName, lookupClass, this.genericType);
         mhMember.setInvokeExact(!this.isInvisible);
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(this.lookupClass), isStatic));
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
         if (isStatic) {
             this.inlineAction = (varInst, args) -> mhMember.invokeStatic(args);
         } else {

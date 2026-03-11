@@ -17,30 +17,21 @@ public class EarlyMethodRef extends MethodRef {
     /**
      * The Method.
      */
-    private final Method reflectMethod;
+    private final Method reflect;
 
     /**
      * Instantiates a new Early method ref.
      *
-     * @param reflectMethod the method
+     * @param reflect the method
      */
-    public EarlyMethodRef(Method reflectMethod) {
-        super(reflectMethod.getName());
-        this.reflectMethod = reflectMethod;
-    }
-
-    /**
-     * Gets lookup class.
-     *
-     * @return the lookup class
-     */
-    public Type getLookupClass() {
-        return Type.getType(this.reflectMethod.getDeclaringClass());
+    public EarlyMethodRef(Method reflect) {
+        super(reflect.getName());
+        this.reflect = reflect;
     }
 
     @Override
     public Type getLookupType() {
-        return Type.getType(reflectMethod);
+        return Type.getType(reflect);
     }
 
     @Override
@@ -51,7 +42,7 @@ public class EarlyMethodRef extends MethodRef {
     @Override
     public void setSuperClass(String superClass) {
         if (Objects.equals("", superClass))
-            this.superClass = reflectMethod.getDeclaringClass().getName();
+            this.superClass = reflect.getDeclaringClass().getName();
         else
             this.superClass = superClass;
     }
@@ -62,7 +53,7 @@ public class EarlyMethodRef extends MethodRef {
      * @return the reflect
      */
     public Method getReflect() {
-        return this.reflectMethod;
+        return this.reflect;
     }
 
     @Override
@@ -80,10 +71,10 @@ public class EarlyMethodRef extends MethodRef {
      * @return the boolean
      */
     public boolean isInvisible() {
-        if (!isPublic(reflectMethod.getReturnType())) {
+        if (!isPublic(reflect.getReturnType())) {
             return true;
         }
-        for (Class<?> parameterType : reflectMethod.getParameterTypes()) {
+        for (Class<?> parameterType : reflect.getParameterTypes()) {
             if (!isPublic(parameterType)) {
                 return true;
             }
