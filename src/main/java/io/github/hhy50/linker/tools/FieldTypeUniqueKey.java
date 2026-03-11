@@ -39,5 +39,19 @@ public class FieldTypeUniqueKey {
     public static FieldTypeUniqueKey withSetter(Field reflect) {
         return new FieldTypeUniqueKey(reflect, 2);
     }
+
+    @Override
+    public int hashCode() {
+        return 1008611;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof FieldTypeUniqueKey) {
+            FieldTypeUniqueKey other = (FieldTypeUniqueKey)obj;
+            return this.field.equals(other.field) && this.type == other.type;
+        }
+        return false;
+    }
 }
 

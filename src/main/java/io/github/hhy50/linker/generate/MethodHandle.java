@@ -22,20 +22,12 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.*;
 public abstract class MethodHandle {
 
     /**
-     * The Defined.
-     */
-    protected boolean defined = false;
-
-    /**
      * Define.
      *
      * @param classImplBuilder the class impl builder
      */
     public final void define(InvokeClassImplBuilder classImplBuilder) {
-        if (!this.defined) {
-            define0(classImplBuilder);
-        }
-        this.defined = true;
+        define0(classImplBuilder);
     }
 
     /**

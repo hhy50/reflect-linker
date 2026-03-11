@@ -29,6 +29,11 @@ public class MethodHandleMember extends Member {
     private boolean invokeExact;
 
     /**
+     *
+     */
+    private boolean inited;
+
+    /**
      * Instantiates a new Method handle member.
      *
      * @param field      the field
@@ -97,18 +102,6 @@ public class MethodHandleMember extends Member {
                 .setArgs(args);
     }
 
-//    /**
-//     * Invoke static action.
-//     *
-//     * @param args the args
-//     * @return the action
-//     */
-//    public MethodInvokeAction invokeStatic(ChainAction<VarInst[]> args) {
-//        return new MethodInvokeAction(MethodDescriptor.of("java/lang/invoke/MethodHandle", invokeExact ? "invokeExact" : "invoke", methodType))
-//                .setInstance(this)
-//                .setArgs(args);
-//    }
-
     /**
      * Invoke instance action.
      *
@@ -137,5 +130,14 @@ public class MethodHandleMember extends Member {
      */
     public void setInvokeExact(boolean invokeExact) {
         this.invokeExact = invokeExact;
+    }
+
+    @Override
+    public Action store(Action action) {
+        if (this.inited) {
+            return Actions.empty();
+        }
+        this.inited = true;
+        return super.store(action);
     }
 }

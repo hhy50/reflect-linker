@@ -60,7 +60,7 @@ public abstract class Invoker<T extends MethodRef> extends MethodHandle {
      * @param lookupType  the lookup type
      * @param superClass  the super class
      */
-    public Invoker(Type lookupClass, String lookupName, Type lookupType,  String superClass) {
+    public Invoker(Type lookupClass, String lookupName, Type lookupType, String superClass) {
         this.lookupClass = lookupClass;
         this.lookupName = lookupName;
         this.lookupType = lookupType;
