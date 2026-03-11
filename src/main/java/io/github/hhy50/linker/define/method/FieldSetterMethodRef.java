@@ -19,7 +19,7 @@ public class FieldSetterMethodRef extends MethodRef {
      * @param field the field
      */
     public FieldSetterMethodRef(FieldRef field) {
-        super(field.getFullName());
+        super(field.getName());
         this.field = field;
         this.setNullable(field.isNullable());
     }
@@ -27,11 +27,6 @@ public class FieldSetterMethodRef extends MethodRef {
     @Override
     public Type getLookupType() {
         return Type.getMethodType(Type.VOID_TYPE, field.getType());
-    }
-
-    @Override
-    public String getFullName() {
-        return "setter:"+field.getFullName();
     }
 
     @Override

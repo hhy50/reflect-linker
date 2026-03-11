@@ -2,12 +2,10 @@ package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
-import io.github.hhy50.linker.util.RandomUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 import static io.github.hhy50.linker.util.ClassUtil.isPublic;
@@ -29,15 +27,6 @@ public class EarlyMethodRef extends MethodRef {
     public EarlyMethodRef(Method reflectMethod) {
         super(reflectMethod.getName());
         this.reflectMethod = reflectMethod;
-    }
-
-    /**
-     * Is static boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isStatic() {
-        return Modifier.isStatic(reflectMethod.getModifiers());
     }
 
     /**
@@ -67,9 +56,13 @@ public class EarlyMethodRef extends MethodRef {
             this.superClass = superClass;
     }
 
-    @Override
-    public String getFullName() {
-        return reflectMethod.getName() + "_"+RandomUtil.getRandomString(5);
+    /**
+     * Gets reflect.
+     *
+     * @return the reflect
+     */
+    public Method getReflect() {
+        return this.reflectMethod;
     }
 
     @Override

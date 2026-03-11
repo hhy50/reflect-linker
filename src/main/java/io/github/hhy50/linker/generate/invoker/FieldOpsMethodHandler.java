@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.generate.invoker;
 
 
+import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -11,10 +12,14 @@ import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInstWithLookup;
+import io.github.hhy50.linker.tools.FieldTypeUniqueKey;
+import io.github.hhy50.linker.util.RandomUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
@@ -28,11 +33,6 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      * The Field name.
      */
     protected final String fieldName;
-
-    /**
-     * The Mh name.
-     */
-    protected final String fullName;
 
     /**
      * The Ops field type.
@@ -58,12 +58,10 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      * Instantiates a new Field ops method handler.
      *
      * @param fieldName    the field name
-     * @param fullName     the full name
      * @param opsFieldType the opsFieldType
      */
-    public FieldOpsMethodHandler(String fieldName, String fullName, Type opsFieldType) {
+    public FieldOpsMethodHandler(String fieldName, Type opsFieldType) {
         this.fieldName = fieldName;
-        this.fullName = fullName;
         this.opsFieldType = opsFieldType;
     }
 
@@ -74,14 +72,14 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
      * @param isDesignateStatic the is designate static
      */
     protected void defineRuntimeMethod(InvokeClassImplBuilder classImplBuilder, Boolean isDesignateStatic) {
-        String prefix = "getter_";
+        String rname = "getter_";
         if (this.opsFieldType.getReturnType() == Type.VOID_TYPE) {
-            prefix = "setter_";
+            rname = "setter_";
         }
+        rname += this.fieldName + RandomUtil.getRandomString(5);
+        this.rmd = MethodDescriptor.of(rname, TypeUtil.appendArgs(this.opsFieldType, Type.getType(Object[].class), true));
 
-        this.rmd = MethodDescriptor.of(prefix + fullName.replace('.', '_'), TypeUtil.appendArgs(this.opsFieldType, Type.getType(Object[].class), true));
-
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(prefix + fullName, this.opsFieldType);
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(this.fieldName, this.opsFieldType);
         BiFunction<VarInst, VarInst[], VarInst> invoker = (ownerVar, args) -> {
             Action action = isDesignateStatic != null ?
                     (isDesignateStatic ? mhMember.invokeStatic(args) : mhMember.invokeInstance(ownerVar, args))
@@ -108,21 +106,26 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     }
 
     /**
-     * defineMethod
+     * Define method.
      *
-     * @param classImplBuilder the class impl builder
-     * @param lookupClass      the lookup class
-     * @param isStatic         the is static
+     * @param classImplBuilder classImplBuilder
+     * @param fieldRef         fieldRef
      */
-    protected void defineMethod(InvokeClassImplBuilder classImplBuilder, Type lookupClass, boolean isStatic) {
-        String prefix = "getter_";
+    protected void defineMethod(InvokeClassImplBuilder classImplBuilder, EarlyFieldRef fieldRef) {
+        Field reflect = fieldRef.getReflect();
+        boolean isStatic = Modifier.isStatic(reflect.getModifiers());
+        Type lookupClass = Type.getType(reflect.getDeclaringClass());
+
+        Object uniqueKey;
         if (this.opsFieldType.getReturnType() == Type.VOID_TYPE) {
-            prefix = "setter_";
+            uniqueKey = FieldTypeUniqueKey.withSetter(reflect);
+        } else {
+            uniqueKey = FieldTypeUniqueKey.withGetter(reflect);
         }
 
         // init methodHandle
         MethodBody clinit = classImplBuilder.getClinit();
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(prefix + fullName, null, this.opsFieldType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(uniqueKey, this.fieldName, null, this.opsFieldType);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
         if (isStatic) {
             this.inlineMhInvoker = (__, args) -> mhMember.invokeStatic(args);

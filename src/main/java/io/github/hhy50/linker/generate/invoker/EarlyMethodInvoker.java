@@ -8,6 +8,8 @@ import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.function.BiFunction;
 
 import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
@@ -16,8 +18,7 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwn
  * The type Early method invoker.
  */
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
-    private final String fullName;
-    private final boolean isStatic;
+    private final Method reflect;
     private final boolean isInvisible;
     private final Type genericType;
     /**
@@ -33,8 +34,7 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     public EarlyMethodInvoker(EarlyMethodRef mr) {
         super(mr.getLookupClass(), mr.getName(), mr.getLookupType(), mr.getSuperClass());
 
-        this.fullName = mr.getFullName();
-        this.isStatic = mr.isStatic();
+        this.reflect = mr.getReflect();
         this.isInvisible = mr.isInvisible();
         this.genericType = mr.getGenericType();
     }
@@ -42,9 +42,10 @@ public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         MethodBody clinit = classImplBuilder.getClinit();
+        boolean isStatic = Modifier.isStatic(this.reflect.getModifiers());
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.fullName, super.lookupClass, this.genericType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.reflect, super.lookupName, super.lookupClass, this.genericType);
         mhMember.setInvokeExact(!this.isInvisible);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(this.lookupClass), isStatic));
         if (isStatic) {

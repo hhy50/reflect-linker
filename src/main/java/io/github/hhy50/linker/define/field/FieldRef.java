@@ -16,11 +16,6 @@ public abstract class FieldRef  {
      */
     protected String name;
 
-    /**
-     * The Full name.
-     */
-    protected String fullName;
-
     private boolean nullable;
 
     private Object defaultValue;
@@ -30,11 +25,9 @@ public abstract class FieldRef  {
     /**
      * Instantiates a new Field ref.
      *
-     * @param fullName the fullName
      * @param name     the name
      */
-    public FieldRef(String fullName, String name) {
-        this.fullName = fullName;
+    public FieldRef(String name) {
         this.name = name;
     }
 
@@ -45,15 +38,6 @@ public abstract class FieldRef  {
      */
     public String getName() {
         return this.name;
-    }
-
-    /**
-     * Gets full name.
-     *
-     * @return the full name
-     */
-    public String getFullName() {
-        return fullName;
     }
 
     /**

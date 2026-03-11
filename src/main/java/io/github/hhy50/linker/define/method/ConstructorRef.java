@@ -50,10 +50,11 @@ public class ConstructorRef extends MethodRef {
     }
 
     /**
+     * Gets reflect.
      *
-     * @return
+     * @return the reflect
      */
-    public String getFullName() {
-        return "constructor";
+    public Constructor<?> getReflect() {
+        return constructor;
     }
 }

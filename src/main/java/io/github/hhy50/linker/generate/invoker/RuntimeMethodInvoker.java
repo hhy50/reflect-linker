@@ -11,6 +11,7 @@ import io.github.hhy50.linker.generate.bytecode.vars.ArrayVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInstWithLookup;
+import io.github.hhy50.linker.util.RandomUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -25,8 +26,6 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
  * The type Runtime method invoker.
  */
 public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
-
-    private String fullName;
 
     private Boolean isDesignateStatic;
 
@@ -44,12 +43,10 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
         super(null, methodRef.getName(), methodRef.getLookupType(), methodRef.getSuperClass());
 
-        this.isDesignateStatic = methodRef.isDesignateStatic();
-        this.fullName = methodRef.getFullName();
-
         Type genericType = methodRef.getGenericType();
+        this.isDesignateStatic = methodRef.isDesignateStatic();
 
-        this.rmd = MethodDescriptor.of("invoke_" + this.fullName, TypeUtil.appendArgs(genericType, Type.getType(Object[].class), true));
+        this.rmd = MethodDescriptor.of("invoke_" + super.lookupName + RandomUtil.getRandomString(5), TypeUtil.appendArgs(genericType, Type.getType(Object[].class), true));
         if (methodRef.isAutolink()) {
             // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
             // 约定将参数0设置为Autolink，以保证使用实参来查找方法
@@ -63,8 +60,8 @@ public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(this.fullName);
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(this.fullName, this.mhType);
+        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(super.lookupName);
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle("invoke_"+super.lookupName, this.mhType);
 
         BiFunction<VarInst, VarInst[], VarInst> invoker = (ownerVar, args) -> {
             Action loadArgs = Actions.of(args);

@@ -35,7 +35,7 @@ public abstract class Getter<T extends FieldRef> extends FieldOpsMethodHandler {
      * @param field the field
      */
     public Getter(T field) {
-        super(field.getName(), field.getFullName(), Type.getMethodType(field.getType()));
+        super(field.getName(), Type.getMethodType(field.getType()));
         this.field = field;
     }
 
@@ -68,10 +68,9 @@ public abstract class Getter<T extends FieldRef> extends FieldOpsMethodHandler {
         }
         @Override
         protected void define0(InvokeClassImplBuilder classImplBuilder) {
-            Type lookupClass = field.getLookupClass();
-            boolean isStatic = field.isStatic();
-            super.defineMethod(classImplBuilder, lookupClass, isStatic);
+            super.defineMethod(classImplBuilder, super.field);
         }
+
         @Override
         public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
             return mapOwnerAndArgs(argsAction, super.inlineMhInvoker);
@@ -93,7 +92,7 @@ public abstract class Getter<T extends FieldRef> extends FieldOpsMethodHandler {
 
         @Override
         protected void define0(InvokeClassImplBuilder classImplBuilder) {
-            this.lookupClass = classImplBuilder.defineLookupClass(fullName);
+            this.lookupClass = classImplBuilder.defineLookupClass(fieldName);
             super.defineRuntimeMethod(classImplBuilder, ((RuntimeFieldRef) field).isDesignateStatic());
         }
 

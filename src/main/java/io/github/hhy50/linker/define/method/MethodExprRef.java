@@ -3,7 +3,6 @@ package io.github.hhy50.linker.define.method;
 import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.generate.ParameterTypeAnalysis;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
-import io.github.hhy50.linker.util.RandomUtil;
 import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
@@ -63,11 +62,6 @@ public class MethodExprRef extends MethodRef {
     @Override
     public Type getLookupType() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getFullName() {
-        return "invoke_" + RandomUtil.getRandomString(5);
     }
 
     @Override

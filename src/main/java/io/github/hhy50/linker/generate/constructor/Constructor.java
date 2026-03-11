@@ -45,7 +45,7 @@ public class Constructor extends Invoker<ConstructorRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(ref.getFullName(), null, super.lookupType);
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.ref.getReflect(), super.lookupName, null, super.lookupType);
         clinit.append(initStaticMethodHandle(mhMember, loadClass(ref.getLookupClass()), false));
         this.inlineAction = mhMember::invokeStatic;
     }

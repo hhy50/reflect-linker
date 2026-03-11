@@ -39,9 +39,4 @@ public class FieldGetterMethodRef extends MethodRef {
         }
         return null;
     }
-
-    @Override
-    public String getFullName() {
-        return "getter:"+field.getFullName();
-    }
 }

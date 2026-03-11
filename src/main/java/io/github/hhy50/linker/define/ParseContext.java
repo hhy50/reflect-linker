@@ -251,8 +251,8 @@ public class ParseContext {
                 currentType = index == null ? assignedType : Util.expandIndexType(index, assignedType);
             }
             Boolean designateStatic = metadata.isDesignateStatic(fullField);
-            FieldRef fieldRef = earlyField != null ? new EarlyFieldRef(fullField, earlyField)
-                    : new RuntimeFieldRef(fullField, fieldName);
+            FieldRef fieldRef = earlyField != null ? new EarlyFieldRef(earlyField)
+                    : new RuntimeFieldRef(fieldName);
             fieldRef.setNullable(token.isNullable());
             fieldRef.setIndex(index);
             if (designateStatic != null) {

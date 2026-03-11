@@ -12,14 +12,9 @@ import java.lang.reflect.Modifier;
  */
 public class EarlyFieldRef extends FieldRef {
 
-    private Class<?> lookupClass;
+    private final Field reflect;
 
     private Class<?> fieldType;
-
-    /**
-     * 是否静态字段
-     */
-    private boolean isStatic;
 
     /**
      * assignedType
@@ -29,34 +24,24 @@ public class EarlyFieldRef extends FieldRef {
     /**
      * Instantiates a new Early field ref.
      *
-     * @param fullName the fullName
      * @param field    the field
      */
-    public EarlyFieldRef(String fullName, Field field) {
-        super(fullName, field.getName());
-        this.lookupClass = field.getDeclaringClass();
+    public EarlyFieldRef(Field field) {
+        super(field.getName());
+        this.reflect = field;
         this.fieldType = field.getType();
-        this.isStatic = Modifier.isStatic(field.getModifiers());
     }
 
     /**
      * Instantiates a new Early field ref.
      *
-     * @param fullName  the fullName
+     * @param fieldName  the fieldName
      * @param fieldType the fieldType
      */
-    public EarlyFieldRef(String fullName, Class<?> fieldType) {
-        super(fullName, fullName);
+    public EarlyFieldRef(String fieldName, Class<?> fieldType) {
+        super(fieldName);
+        this.reflect = null;
         this.fieldType = fieldType;
-    }
-
-    /**
-     * Is static boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isStatic() {
-        return this.isStatic;
     }
 
     @Override
@@ -87,11 +72,11 @@ public class EarlyFieldRef extends FieldRef {
     }
 
     /**
-     * Gets lookup class.
+     * Gets reflect.
      *
-     * @return the lookup class
+     * @return the reflect
      */
-    public Type getLookupClass() {
-        return Type.getType(this.lookupClass);
+    public Field getReflect() {
+        return this.reflect;
     }
 }

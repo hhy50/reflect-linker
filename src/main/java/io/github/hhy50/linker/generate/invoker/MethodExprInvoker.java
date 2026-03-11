@@ -17,6 +17,7 @@ import io.github.hhy50.linker.token.ArgsToken;
 import io.github.hhy50.linker.token.ConstToken;
 import io.github.hhy50.linker.token.PlaceholderToken;
 import io.github.hhy50.linker.token.Token;
+import io.github.hhy50.linker.util.RandomUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -42,7 +43,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         super(mr.getName(), null);
         this.stepMethods = mr.getStepMethods();
         this.methodType = mr.getMethodType();
-        this.methodName = mr.getFullName();
+        this.methodName = "invoke_"+mr.getName()+"_expr_" + RandomUtil.getRandomString(5);
     }
 
     @Override
@@ -52,7 +53,9 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                 .defineMethod(Opcodes.ACC_PUBLIC, methodName, methodType, null);
         BiFunction<ChainAction<VarInst>, ChainAction<VarInst[]>, Action> invoker = (varInstChain, argsChainAction) -> {
             for (MethodRef methodRef : stepMethods) {
-                MethodHandle mh = classImplBuilder.defineInvoker(methodRef);
+                MethodHandle mh = methodRef.defineInvoker();
+                mh.define(classImplBuilder);
+
                 ChainAction<VarInst[]> stepArgsChain = loadStepArgs(mh, methodRef, argsChainAction)
                         .map(varInsts -> {
                             if (varInsts != null) {

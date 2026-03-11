@@ -2,13 +2,11 @@ package io.github.hhy50.linker.generate;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.getter.TargetFieldGetter;
-import io.github.hhy50.linker.generate.invoker.Getter;
-import io.github.hhy50.linker.generate.invoker.Setter;
+import io.github.hhy50.linker.util.RandomUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -23,8 +21,7 @@ import static io.github.hhy50.linker.util.TypeUtil.METHOD_HANDLER_TYPE;
  */
 public class InvokeClassImplBuilder extends AsmClassBuilder {
     private TargetFieldGetter targetGetter;
-    private final Map<String, Getter> getters;
-    private final Map<String, Setter> setters;
+    private final Map<Object, MethodHandleMember> mhFields = new HashMap<>();
 
     /**
      * Instantiates a new Invoke class impl builder.
@@ -37,8 +34,6 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public InvokeClassImplBuilder(int access, String className, String superName, String[] interfaces, String signature) {
         super(access, className, superName, interfaces, signature);
-        this.getters = new HashMap<>();
-        this.setters = new HashMap<>();
 
         this.defineConstruct(Opcodes.ACC_PUBLIC, Object.class)
                 .intercept(Methods.invokeSuper().thenReturn());
@@ -70,53 +65,48 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         return this;
     }
 
+
     /**
      * Define static method handle method handle member.
      *
-     * @param fullName   the fullName
-     * @param lookupType the method invokedType
+     * @param uniqueKey  the unique key
+     * @param name       the name
+     * @param lookupType the lookup type
      * @param methodType the method type
      * @return the method handle member
      */
-    public MethodHandleMember defineStaticMethodHandle(String fullName, Type lookupType, Type methodType) {
-        fullName = fullName.replace('.', '_') + "_mh";
-        AsmField field = getField(fullName);
-        if (field == null) {
-            int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
-            field = super.visitField(access, fullName, METHOD_HANDLER_TYPE, null, null);
+    public MethodHandleMember defineStaticMethodHandle(Object uniqueKey, String name, Type lookupType, Type methodType) {
+        if (mhFields.containsKey(uniqueKey)) {
+            return mhFields.get(uniqueKey);
         }
-        return new MethodHandleMember(field, lookupType, methodType);
+
+        String mhName = name + "_mh_" + RandomUtil.getRandomString(5);
+        AsmField field = super.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
+                mhName, METHOD_HANDLER_TYPE, null, null);
+        MethodHandleMember mh = new MethodHandleMember(field, lookupType, methodType);
+        this.mhFields.put(uniqueKey, mh);
+        return mh;
     }
 
     /**
-     * Define method handle method handle member.
      *
-     * @param fullName   the full name
-     * @param methodType the method type
-     * @return the method handle member
+     * @param name
+     * @param methodType
+     * @return
      */
-    public MethodHandleMember defineMethodHandle(String fullName, Type methodType) {
-        fullName = fullName.replace('.', '_');
-        AsmField field = getField(fullName);
-        if (field == null) {
-            field = super.visitField(Opcodes.ACC_PUBLIC, fullName, METHOD_HANDLER_TYPE, null, null);
-        }
-        return new MethodHandleMember(field, methodType);
+    public MethodHandleMember defineMethodHandle(String name, Type methodType) {
+        name = name + "_mh_" +  RandomUtil.getRandomString(5);
+        return new MethodHandleMember(super.visitField(Opcodes.ACC_PUBLIC, name, TypeUtil.METHOD_HANDLER_TYPE, null, null), methodType);
     }
 
     /**
-     * Define lookup class class type member.
      *
-     * @param fullName the fullName
-     * @return the class type member
+     * @param name name
+     * @return
      */
-    public ClassTypeMember defineLookupClass(String fullName) {
-        fullName = fullName.replace('.', '_') + "_lookup_$_class_type";
-        AsmField field = getField(fullName);
-        if (field == null) {
-            field = super.visitField(Opcodes.ACC_PUBLIC, fullName, TypeUtil.CLASS_TYPE, null, null);
-        }
-        return new ClassTypeMember(field);
+    public ClassTypeMember defineLookupClass(String name) {
+        name = name + "_lookup_" +  RandomUtil.getRandomString(5);
+        return new ClassTypeMember(super.visitField(Opcodes.ACC_PUBLIC, name, TypeUtil.CLASS_TYPE, null, null));
     }
 
     /**
@@ -126,28 +116,5 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
      */
     public TargetFieldGetter getTargetGetter() {
         return targetGetter;
-    }
-
-
-    /**
-     * The Cache.
-     */
-    Map<String, MethodHandle> cache = new HashMap<>();
-
-    /**
-     * Define invoker method handle.
-     *
-     * @param methodRef the method ref
-     * @return the method handle
-     */
-    public MethodHandle defineInvoker(MethodRef methodRef) {
-        String k = "method:"+methodRef.getFullName();
-        if (cache.containsKey(k)) {
-            return cache.get(k);
-        }
-        MethodHandle mh = methodRef.defineInvoker();
-        mh.define(this);
-        cache.put(k, mh);
-        return mh;
     }
 }
