@@ -6,10 +6,7 @@ import io.github.hhy50.linker.annotations.Typed;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -119,11 +116,17 @@ public class ClassUtil {
         if (parameters.length != argTypes.length) return false;
         for (int i = 0; i < parameters.length; i++) {
             Class<?> pType = parameters[i].getType();
-            String pName = pType.getCanonicalName();
-            if (pType == Object.class && !argTypes[i].equals("java.lang.Object[]")) continue;
             if (argTypes[i].equals(Object.class.getName())) continue;
-            if (pName.equals(argTypes[i])) continue;
-            if (pType == getPrimitiveClass(argTypes[i])) continue;
+            // 后面的逻辑是为了防止早期命中(Object)的方法，但是定义的形参是(Object[])
+            if (pType == Object.class && !argTypes[i].equals("java.lang.Object[]")) continue;
+            if (argTypes[i].equals(pType.getCanonicalName())) continue;
+
+            if (pType.isPrimitive()) {
+                pType = getBoxType(pType);
+            } else {
+                pType = getPrimitiveClass(pType);
+            }
+            if (Objects.nonNull(pType) && Objects.equals(pType.getCanonicalName(), argTypes[i])) continue;
             return false;
         }
         return true;
@@ -145,32 +148,68 @@ public class ClassUtil {
      * @param clazz the clazz
      * @return primitive class
      */
+    public static Class<?> getPrimitiveClass(Class<?> clazz) {
+        if (clazz.isPrimitive()) return clazz;
+
+        if (clazz == Byte.class) return byte.class;
+        if (clazz == Short.class) return short.class;
+        if (clazz == Integer.class) return int.class;
+        if (clazz == Long.class) return long.class;
+        if (clazz == Float.class) return float.class;
+        if (clazz == Double.class) return double.class;
+        if (clazz == Character.class) return char.class;
+        if (clazz == Boolean.class) return boolean.class;
+        return null;
+    }
+
+    /**
+     *
+     * @param clazz
+     * @return
+     */
+    public static Class<?> getBoxType(Class<?> clazz) {
+        if (clazz == byte.class) return Byte.class;
+        if (clazz == short.class) return Short.class;
+        if (clazz == int.class) return Integer.class;
+        if (clazz == long.class) return Long.class;
+        if (clazz == float.class) return Float.class;
+        if (clazz == double.class) return Double.class;
+        if (clazz == char.class) return Character.class;
+        if (clazz == boolean.class) return Boolean.class;
+        return null;
+    }
+
+    /**
+     * Gets primitive class.
+     *
+     * @param clazz the clazz
+     * @return primitive class
+     */
     public static Class<?> getPrimitiveClass(String clazz) {
-        if (clazz.equals("byte") || clazz.equals(Byte.class.getName())) {
+        if (clazz.equals("byte")) {
             return byte.class;
         }
-        if (clazz.equals("short") || clazz.equals(Short.class.getName())) {
+        if (clazz.equals("short")) {
             return short.class;
         }
-        if (clazz.equals("int") || clazz.equals(Integer.class.getName())) {
+        if (clazz.equals("int")) {
             return int.class;
         }
-        if (clazz.equals("long") || clazz.equals(Long.class.getName())) {
+        if (clazz.equals("long")) {
             return long.class;
         }
-        if (clazz.equals("float") || clazz.equals(Float.class.getName())) {
+        if (clazz.equals("float")) {
             return float.class;
         }
-        if (clazz.equals("double") || clazz.equals(Double.class.getName())) {
+        if (clazz.equals("double")) {
             return double.class;
         }
-        if (clazz.equals("char") || clazz.equals(Character.class.getName())) {
+        if (clazz.equals("char")) {
             return char.class;
         }
-        if (clazz.equals("boolean") || clazz.equals(Boolean.class.getName())) {
+        if (clazz.equals("boolean")) {
             return boolean.class;
         }
-
         return null;
     }
 }

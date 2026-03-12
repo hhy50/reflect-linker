@@ -97,22 +97,16 @@ interface Case2_Linker {
     @Method.Expr("user.getName($0)")
     String getNameWithArgs(String name);
 
-//    @Typed(name = "user", type = "io.github.hhy50.linker.test.nest.case2.UserVo")
-//    @Runtime
     /**
      * <p>getSuperName.</p>
      *
      * @return a {@link java.lang.String} object.
      */
-//    @Method.Expr("boot().findModule('jdk.compiler').get()")
 //    @Method.Expr("user.getName(a.b.c.d, a.b.c.d, a.b.c, a.b.c.d.getAA('a'), 1).a.b.c.d.get()")
     @Method.InvokeSuper
     @Method.Expr("user.getName()")
     String getSuperName();
 
-//    @Method.InvokeSuper
-//    @Method.Expr("user.a.b.c.d.e.f.e.a.a.a.a")
-//    String getA();
 
     // runtime
     /**
