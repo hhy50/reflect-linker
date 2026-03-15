@@ -1,4 +1,4 @@
-package io.github.hhy50.linker.test.testv2;
+package io.github.hhy50.linker.testv2;
 
 import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.annotations.Method;

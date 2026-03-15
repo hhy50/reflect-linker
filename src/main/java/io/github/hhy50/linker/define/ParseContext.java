@@ -11,8 +11,10 @@ import io.github.hhy50.linker.define.method.*;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
+import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import io.github.hhy50.linker.token.*;
 import io.github.hhy50.linker.util.*;
+import org.objectweb.asm.Type;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -152,7 +154,7 @@ public class ParseContext {
      */
     public MethodExprRef parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
         if (metadata.isConstructor()) {
-            String[] argsType = parseArgsType(metadata, ArgsToken.ofAll(), true);
+            String[] argsType = parseArgs(metadata, ArgsToken.ofAll(), true).getTypes();
             Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, argsType);
             if (constructor == null) {
                 throw new ParseException(
@@ -164,12 +166,12 @@ public class ParseContext {
             return methodExprRef;
         } else {
             String expr = metadata.getExpr();
-            MethodExprRef methodExprRef = parseMethodExpr(metadata, tokenParser.parse(expr));
+            MethodExprRef methodExprRef = parseMethodExpr(metadata, tokenParser.parse(expr), metadata.isSetter());
             return methodExprRef;
         }
     }
 
-    private MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
+    private MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens, boolean setterContext) throws ClassNotFoundException {
         String invokeSuper = metadata.getInvokeSuper();
 
         // 提前全部解析
@@ -191,7 +193,7 @@ public class ParseContext {
                 while (iter.hasNext()) {
                     FieldRef fieldRef = iter.next();
                     boolean isLast = !iter.hasNext();
-                    if (isLast && metadata.isSetter()) {
+                    if (isLast && setterContext) {
                         methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRef));
                     } else {
                         methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef));
@@ -200,7 +202,8 @@ public class ParseContext {
                 }
             }
             if (methodToken != null) {
-                String[] argsType = parseArgsType(metadata, methodToken.getArgsToken(), false);
+                ParsedArgs parsedArgs = parseArgs(metadata, methodToken.getArgsToken(), false);
+                String[] argsType = parsedArgs.getTypes();
                 Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, argsType);
 
                 MethodRef m;
@@ -216,6 +219,7 @@ public class ParseContext {
                 }
                 m.setSuperClass(invokeSuper);
                 m.setArgsToken(methodToken.getArgsToken());
+                m.setArgsExprInvokers(parsedArgs.getExprInvokers());
                 m.setIndexs(methodToken.getIndexs());
                 m.setNullable(methodToken.isNullable());
                 methodExprRef.addStepMethod(m);
@@ -263,25 +267,67 @@ public class ParseContext {
         return fields;
     }
 
-    private String[] parseArgsType(AbsMethodMetadata metadata, ArgsToken argsToken, boolean isConstructor) {
+    private ParsedArgs parseArgs(AbsMethodMetadata metadata, ArgsToken argsToken, boolean isConstructor) throws ClassNotFoundException {
         Parameter[] parameters = metadata.getParameters();
         if (isConstructor || argsToken.isPlaceholderAll()) {
-            return Arrays.stream(parameters)
-                    .map(ParseUtil::getRawType).toArray(String[]::new);
+            return new ParsedArgs(Arrays.stream(parameters)
+                    .map(ParseUtil::getRawType).toArray(String[]::new), null);
         }
 
-        return argsToken.stream().map(item -> {
+        List<String> argsType = new ArrayList<>(argsToken.size());
+        List<MethodExprInvoker> argsExprInvokers = new ArrayList<>(argsToken.size());
+        for (Token item : argsToken) {
             if (item.kind() == Token.Kind.Placeholder) {
                 int i = ((PlaceholderToken) item).index;
-                return getRawType(parameters[i]);
+                argsType.add(getRawType(parameters[i]));
+                argsExprInvokers.add(null);
             } else if (item.kind() == Token.Kind.IntConst) {
-                return "int";
+                argsType.add("int");
+                argsExprInvokers.add(null);
             } else if (item.kind() == Token.Kind.StrConst) {
-                return "java.lang.String";
-            } else if (item.kind() == Token.Kind.Method) {
-                return "java.lang.Object";
+                argsType.add("java.lang.String");
+                argsExprInvokers.add(null);
+            } else if (item.kind() == Token.Kind.Tokens
+                    || item.kind() == Token.Kind.Field
+                    || item.kind() == Token.Kind.Method) {
+                MethodExprInvoker argExprInvoker = parseArgInvoker(metadata, item);
+                Type argType = argExprInvoker.getMethodType().getReturnType();
+                if (argType == Type.VOID_TYPE) {
+                    throw new ParseException("Invalid argument type");
+                }
+                argsType.add(argType.getClassName());
+                argsExprInvokers.add(argExprInvoker);
+            } else {
+                throw new ParseException("Invalid argument type");
             }
-            throw new ParseException("Invalid argument type");
-        }).toArray(String[]::new);
+        }
+        return new ParsedArgs(argsType.toArray(new String[0]), argsExprInvokers);
+    }
+
+    private MethodExprInvoker parseArgInvoker(AbsMethodMetadata metadata, Token token) throws ClassNotFoundException {
+        if (token instanceof Tokens) {
+            return parseMethodExpr(metadata, (Tokens) token, false).defineInvoker();
+        }
+        Tokens tokens = new Tokens();
+        tokens.add(token);
+        return parseMethodExpr(metadata, tokens, false).defineInvoker();
+    }
+
+    private static class ParsedArgs {
+        private final String[] types;
+        private final List<MethodExprInvoker> exprInvokers;
+
+        private ParsedArgs(String[] types, List<MethodExprInvoker> exprInvokers) {
+            this.types = types;
+            this.exprInvokers = exprInvokers;
+        }
+
+        private String[] getTypes() {
+            return types;
+        }
+
+        private List<MethodExprInvoker> getExprInvokers() {
+            return exprInvokers;
+        }
     }
 }

@@ -119,14 +119,15 @@ public class ClassUtil {
             if (argTypes[i].equals(Object.class.getName())) continue;
             // 后面的逻辑是为了防止早期命中(Object)的方法，但是定义的形参是(Object[])
             if (pType == Object.class && !argTypes[i].equals("java.lang.Object[]")) continue;
-            if (argTypes[i].equals(pType.getCanonicalName())) continue;
+            if (argTypes[i].equals(pType.getCanonicalName()) || argTypes[i].equals(pType.getName())) continue;
 
             if (pType.isPrimitive()) {
                 pType = getBoxType(pType);
             } else {
                 pType = getPrimitiveClass(pType);
             }
-            if (Objects.nonNull(pType) && Objects.equals(pType.getCanonicalName(), argTypes[i])) continue;
+            if (Objects.nonNull(pType)
+                    && (Objects.equals(pType.getCanonicalName(), argTypes[i]) || Objects.equals(pType.getName(), argTypes[i]))) continue;
             return false;
         }
         return true;

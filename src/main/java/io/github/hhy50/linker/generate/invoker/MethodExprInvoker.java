@@ -56,7 +56,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                 MethodHandle mh = methodRef.defineInvoker();
                 mh.define(classImplBuilder);
 
-                ChainAction<VarInst[]> stepArgsChain = loadStepArgs(mh, methodRef, argsChainAction)
+                ChainAction<VarInst[]> stepArgsChain = loadStepArgs(classImplBuilder, mh, methodRef, argsChainAction)
                         .map(varInsts -> {
                             if (varInsts != null) {
                                 Type mType = methodRef.getGenericType();
@@ -107,7 +107,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                 .setArgs(argsAction));
     }
 
-    private ChainAction<VarInst[]> loadStepArgs(MethodHandle mh, MethodRef methodRef, ChainAction<VarInst[]> argsChainAction) {
+    private ChainAction<VarInst[]> loadStepArgs(InvokeClassImplBuilder classImplBuilder, MethodHandle mh, MethodRef methodRef, ChainAction<VarInst[]> argsChainAction) {
         if (mh instanceof Getter) {
             return ChainAction.empty();
         }
@@ -117,13 +117,26 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
             return ChainAction.of(MethodBody::getArgs);
         }
 
-        return argsChainAction.map(varInsts -> {
+        List<MethodExprInvoker> argExprInvokers = methodRef.getArgsExprInvokers();
+        if (argExprInvokers != null) {
+            for (MethodExprInvoker argExprInvoker : argExprInvokers) {
+                if (argExprInvoker != null) {
+                    argExprInvoker.define(classImplBuilder);
+                }
+            }
+        }
+        return ChainAction.of(body -> {
+            VarInst[] varInsts = argsChainAction.doChain(body);
             List<VarInst> args = new ArrayList<>();
-            for (Token token : argsToken) {
+            for (int i = 0; i < argsToken.size(); i++) {
+                Token token = argsToken.get(i);
                 switch (token.kind()) {
-                    // TODO
+                    case Tokens:
                     case Field:
                     case Method:
+                        MethodExprInvoker argExprInvoker = argExprInvokers.get(i);
+                        args.add(argExprInvoker.invoke(ChainAction.of(() ->
+                                typeCastArgs(varInsts, argExprInvoker.getMethodType().getArgumentTypes()))).doChain(body));
                         break;
                     case StrConst:
                     case IntConst:
@@ -136,7 +149,14 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
             }
             return args.toArray(new VarInst[0]);
         });
+    }
 
+    private VarInst[] typeCastArgs(VarInst[] varInsts, Type[] argsType) {
+        VarInst[] casted = new VarInst[varInsts.length];
+        for (int i = 0; i < varInsts.length; i++) {
+            casted[i] = typeCast(varInsts[i], argsType[i]);
+        }
+        return casted;
     }
 
     /**

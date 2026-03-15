@@ -2,6 +2,7 @@ package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import io.github.hhy50.linker.token.ArgsToken;
 import io.github.hhy50.linker.token.PlaceholderToken;
 import io.github.hhy50.linker.token.Token;
@@ -33,6 +34,8 @@ public abstract class MethodRef {
      *
      */
     private ArgsToken argsToken;
+
+    private List<MethodExprInvoker> argsExprInvokers;
 
     /**
      * 数组访问
@@ -121,6 +124,24 @@ public abstract class MethodRef {
      */
     public ArgsToken getArgsToken() {
         return argsToken;
+    }
+
+    /**
+     * Sets parsed argument expressions.
+     *
+     * @param argsExprInvokers parsed argument invokers aligned with {@link #argsToken}
+     */
+    public void setArgsExprInvokers(List<MethodExprInvoker> argsExprInvokers) {
+        this.argsExprInvokers = argsExprInvokers;
+    }
+
+    /**
+     * Gets parsed argument invokers.
+     *
+     * @return parsed argument invokers aligned with {@link #argsToken}
+     */
+    public List<MethodExprInvoker> getArgsExprInvokers() {
+        return argsExprInvokers;
     }
 
     /**
