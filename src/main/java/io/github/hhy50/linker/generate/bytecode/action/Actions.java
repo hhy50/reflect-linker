@@ -190,10 +190,10 @@ public interface Actions {
      * @param mvApply the mv apply
      * @return the action
      */
-    static Action withVisitor(Consumer<MethodVisitor> mvApply) {
-        return body -> mvApply.accept(body.getWriter());
+    static Action withVisitor(Consumer<MethodVisitor> mvApply, Action... actions) {
+        Action mvWrite = body -> mvApply.accept(body.getWriter());
+        return mvWrite.andThen(of(actions));
     }
-
     /**
      * withWrite action.
      *
@@ -269,6 +269,10 @@ public interface Actions {
      */
     static Action vreturn() {
         return withVisitor(mv -> AsmUtil.areturn(mv, Type.VOID_TYPE));
+    }
+
+    static TrycatchAction _try(Action tryblock) {
+        return new TrycatchAction(tryblock);
     }
 
     /**
