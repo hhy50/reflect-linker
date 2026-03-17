@@ -8,6 +8,7 @@ import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
 import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.define.method.*;
+import io.github.hhy50.linker.define.parameter.ParameterLoader;
 import io.github.hhy50.linker.define.parameter.ParameterParser;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
@@ -162,7 +163,7 @@ public class ParseContext {
                         "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(types));
             }
             MethodExprRef methodExprRef = new MethodExprRef(metadata);
-            methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor));
+            methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor), ParameterLoader.DEFAULT);
             return methodExprRef;
         } else if (metadata.isSetter()) {
             String expr = metadata.getExpr();
@@ -187,7 +188,7 @@ public class ParseContext {
         for (int i = 0; i < fieldRefs.size()-1; i++) {
             methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRefs.get(i)));
         }
-        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRefs.get(fieldRefs.size()-1)));
+        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRefs.get(fieldRefs.size()-1)), ParameterLoader.DEFAULT);
         return methodExprRef;
     }
 
@@ -241,8 +242,7 @@ public class ParseContext {
                 m.setSuperClass(invokeSuper);
                 m.setIndexs(methodToken.getIndexs());
                 m.setNullable(methodToken.isNullable());
-                m.setParameterParser(parametersParser);
-                methodExprRef.addStepMethod(m, methodToken.getArgsToken());
+                methodExprRef.addStepMethod(m, parametersParser.getParameterLoader());
             }
         }
         return methodExprRef;

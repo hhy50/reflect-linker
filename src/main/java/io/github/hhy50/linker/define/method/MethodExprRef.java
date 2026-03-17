@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.define.md.AbsMethodMetadata;
-import io.github.hhy50.linker.define.parameter.ParameterParser;
+import io.github.hhy50.linker.define.parameter.ParameterLoader;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
@@ -18,10 +18,9 @@ import java.util.stream.Collectors;
 public class MethodExprRef extends MethodRef {
 
     private final AbsMethodMetadata metadata;
-    private final List<MethodRef> stepMethods;
+    private final List<MethodExprStep> stepMethods;
     private final Type[] parameterTypes;
     private Type returnType = Type.VOID_TYPE;
-    private Map<MethodRef, ParameterParser> parameterParsers;
 
     /**
      * Instantiates a new Method ref.
@@ -33,7 +32,6 @@ public class MethodExprRef extends MethodRef {
         this.metadata = metadata;
         this.stepMethods = new ArrayList<>();
         this.parameterTypes = Arrays.stream(metadata.getParameters()).map(p -> Type.getType(p.getType())).toArray(Type[]::new);
-        this.parameterParsers = new HashMap<>();
     }
 
     /**
@@ -42,17 +40,16 @@ public class MethodExprRef extends MethodRef {
      * @param methodRef the method ref
      */
     public void addStepMethod(MethodRef methodRef) {
-        stepMethods.add(methodRef);
+        this.stepMethods.add(new MethodExprStep(methodRef, ParameterLoader.DEFAULT));
         this.returnType = methodRef.getReturnType();
     }
 
-    public void addStepMethod(MethodRef methodRef, ArgsToken argsToken) {
-        stepMethods.add(methodRef);
-        if (argsToken != null) {
-            Type type = methodRef.getGenericType();
-            this.analyse(type, argsToken);
-        }
+    public void addStepMethod(MethodRef methodRef, ParameterLoader loader) {
+        this.stepMethods.add(new MethodExprStep(methodRef, loader));
         this.returnType = methodRef.getReturnType();
+
+        Type type = methodRef.getGenericType();
+        this.analyse(type, loader.getArgsToken());
     }
 
     public void analyse(Type methodType, ArgsToken argsToken) {
@@ -89,7 +86,7 @@ public class MethodExprRef extends MethodRef {
      *
      * @return the step methods
      */
-    public List<MethodRef> getStepMethods() {
+    public List<MethodExprStep> getStepMethods() {
         return stepMethods;
     }
 
@@ -119,9 +116,5 @@ public class MethodExprRef extends MethodRef {
      */
     public AbsMethodMetadata getMetadata() {
         return this.metadata;
-    }
-
-    public ParameterParser getParameterParser(MethodRef methodRef) {
-        return this.parameterParsers.get(methodRef);
     }
 }

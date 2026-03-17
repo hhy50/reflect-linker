@@ -2,7 +2,6 @@ package io.github.hhy50.linker.define.parameter;
 
 import io.github.hhy50.linker.define.ParseContext;
 import io.github.hhy50.linker.define.md.AbsMethodMetadata;
-import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -39,6 +38,10 @@ public class ParameterParser implements ParameterLoader {
 
     public String[] getParametersTypes() {
         return this.parameters.stream().toArray(String[]::new);
+    }
+
+    public ParameterLoader getParameterLoader() {
+        return this;
     }
 
     void parse() throws ClassNotFoundException {
@@ -102,7 +105,8 @@ public class ParameterParser implements ParameterLoader {
         });
     }
 
-    public ArgsToken getTokens() {
+    @Override
+    public ArgsToken getArgsToken() {
         return argsToken;
     }
 }

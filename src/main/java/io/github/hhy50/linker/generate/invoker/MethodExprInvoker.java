@@ -3,8 +3,9 @@ package io.github.hhy50.linker.generate.invoker;
 import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.asm.MethodBuilder;
 import io.github.hhy50.linker.define.method.MethodExprRef;
+import io.github.hhy50.linker.define.method.MethodExprStep;
 import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.define.parameter.ParameterParser;
+import io.github.hhy50.linker.define.parameter.ParameterLoader;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -27,7 +28,7 @@ import java.util.function.BiFunction;
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
     private final Type methodType;
     private final String methodName;
-    private final List<MethodRef> stepMethods;
+    private final List<MethodExprStep> stepMethods;
 
     /**
      * Instantiates a new Invoker.
@@ -38,7 +39,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         super(mr.getName(), null);
         this.stepMethods = mr.getStepMethods();
         this.methodType = mr.getMethodType();
-        this.methodName = "invoke_"+mr.getName()+"_expr_" + RandomUtil.getRandomString(5);
+        this.methodName = "invoke_" + mr.getName() + "_expr_" + RandomUtil.getRandomString(5);
     }
 
     @Override
@@ -47,12 +48,24 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
         MethodBuilder builder = classImplBuilder
                 .defineMethod(Opcodes.ACC_PUBLIC, methodName, methodType, null);
         BiFunction<ChainAction<VarInst>, ChainAction<VarInst[]>, Action> invoker = (varInstChain, argsChainAction) -> {
-            for (MethodRef methodRef : stepMethods) {
-                ParameterParser parameterParser = methodRef.getParameterParser();
+            for (MethodExprStep stepMethod : stepMethods) {
+                MethodRef methodRef = stepMethod.getMethodRef();
+                ParameterLoader parameterLoader = stepMethod.getParameterLoader();
+
                 MethodHandle mh = methodRef.defineInvoker();
                 mh.define(classImplBuilder);
 
-                ChainAction<VarInst[]> stepArgsChain = parameterParser.loadStepArgs(mh, argsChainAction);
+                ChainAction<VarInst[]> stepArgsChain = parameterLoader.loadStepArgs(mh, argsChainAction)
+                        .map(varInsts -> {
+                            if (varInsts != null) {
+                                Type mType = methodRef.getGenericType();
+                                Type[] argsType = mType.getArgumentTypes();
+                                for (int i = 0; i < varInsts.length; i++) {
+                                    varInsts[i] = typeCast(varInsts[i], argsType[i]);
+                                }
+                            }
+                            return varInsts;
+                        });
                 varInstChain = mh.invoke(ChainAction.join(varInstChain, stepArgsChain)).mapBody((body, varInst) -> {
                     Type t = varInst.getType();
                     boolean nullable = methodRef.isNullable();

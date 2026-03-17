@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.define.parameter.ParameterParser;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 
@@ -33,11 +32,6 @@ public abstract class MethodRef {
      *
      */
     private boolean nullable;
-
-    /**
-     *
-     */
-    private ParameterParser parameterParser;
 
     /**
      * Instantiates a new Method ref.
@@ -92,6 +86,9 @@ public abstract class MethodRef {
 
     /**
      * Gets generic type.
+     * 这个方法的作用:
+     * 1. 用于执行methodhandle的类型
+     * 2. 用于定义运行时方法的类型
      *
      * @return the generic type
      */
@@ -133,22 +130,6 @@ public abstract class MethodRef {
      */
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public ParameterParser getParameterParser() {
-        return parameterParser;
-    }
-
-    /**
-     *
-     * @param parameterParser
-     */
-    public void setParameterParser(ParameterParser parameterParser) {
-        this.parameterParser = parameterParser;
     }
 
     /**
