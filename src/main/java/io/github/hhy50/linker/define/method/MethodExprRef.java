@@ -7,10 +7,10 @@ import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
 import io.github.hhy50.linker.token.ArgsToken;
 import io.github.hhy50.linker.token.PlaceholderToken;
+import io.github.hhy50.linker.token.Token;
 import org.objectweb.asm.Type;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * The type Method expr ref.
@@ -60,9 +60,13 @@ public class MethodExprRef extends MethodRef {
                 indexTable.put(i, argumentTypes[i]);
             }
         } else {
-            Class<PlaceholderToken> __ = PlaceholderToken.class;
-            indexTable = argsToken.stream().filter(item -> item instanceof PlaceholderToken).map(__::cast)
-                    .collect(Collectors.toMap(PlaceholderToken::getIndex, p -> argumentTypes[p.index]));
+            for (int i = 0; i < argumentTypes.length; i++) {
+                Type argumentType = argumentTypes[i];
+                Token token = argsToken.get(i);
+                if (token instanceof PlaceholderToken) {
+                    indexTable.put(((PlaceholderToken) token).index, argumentType);
+                }
+            }
         }
 
         for (Map.Entry<Integer, Type> entry : indexTable.entrySet()) {
