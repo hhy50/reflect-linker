@@ -1,7 +1,9 @@
 package io.github.hhy50.linker.define.method;
 
+import io.github.hhy50.linker.define.parameter.ParameterParser;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
@@ -31,6 +33,11 @@ public abstract class MethodRef {
      *
      */
     private boolean nullable;
+
+    /**
+     *
+     */
+    private ParameterParser parameterParser;
 
     /**
      * Instantiates a new Method ref.
@@ -126,6 +133,22 @@ public abstract class MethodRef {
      */
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ParameterParser getParameterParser() {
+        return parameterParser;
+    }
+
+    /**
+     *
+     * @param parameterParser
+     */
+    public void setParameterParser(ParameterParser parameterParser) {
+        this.parameterParser = parameterParser;
     }
 
     /**

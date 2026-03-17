@@ -58,7 +58,7 @@ public class EarlyMethodRef extends MethodRef {
 
     @Override
     public Type getGenericType() {
-        Type lookupType = getLookupType();
+        Type lookupType = Type.getType(reflect);
         if (isInvisible()) {
             return TypeUtil.genericType(lookupType);
         }

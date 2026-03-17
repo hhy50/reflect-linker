@@ -4,6 +4,7 @@ import io.github.hhy50.linker.asm.AsmUtil;
 import io.github.hhy50.linker.asm.MethodBuilder;
 import io.github.hhy50.linker.define.method.MethodExprRef;
 import io.github.hhy50.linker.define.method.MethodRef;
+import io.github.hhy50.linker.define.parameter.ParameterParser;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
@@ -47,11 +48,11 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
                 .defineMethod(Opcodes.ACC_PUBLIC, methodName, methodType, null);
         BiFunction<ChainAction<VarInst>, ChainAction<VarInst[]>, Action> invoker = (varInstChain, argsChainAction) -> {
             for (MethodRef methodRef : stepMethods) {
+                ParameterParser parameterParser = methodRef.getParameterParser();
                 MethodHandle mh = methodRef.defineInvoker();
                 mh.define(classImplBuilder);
 
-                ChainAction<VarInst[]> stepArgsChain = loadStepArgs(classImplBuilder, mh, methodRef, argsChainAction);
-
+                ChainAction<VarInst[]> stepArgsChain = parameterParser.loadStepArgs(mh, argsChainAction);
                 varInstChain = mh.invoke(ChainAction.join(varInstChain, stepArgsChain)).mapBody((body, varInst) -> {
                     Type t = varInst.getType();
                     boolean nullable = methodRef.isNullable();

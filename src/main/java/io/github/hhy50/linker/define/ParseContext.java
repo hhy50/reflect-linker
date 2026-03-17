@@ -8,7 +8,7 @@ import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
 import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.define.method.*;
-import io.github.hhy50.linker.define.parameter.ParametersParser;
+import io.github.hhy50.linker.define.parameter.ParameterParser;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
@@ -154,29 +154,52 @@ public class ParseContext {
      */
     public MethodExprRef parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
         if (metadata.isConstructor()) {
-            ParametersParser parametersParser = new ParametersParser(this, metadata, ArgsToken.ofAll());
+            ParameterParser parametersParser = new ParameterParser(this, metadata, ArgsToken.ofAll());
             String[] types = parametersParser.getParametersTypes();
             Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, types);
             if (constructor == null) {
                 throw new ParseException(
                         "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(types));
             }
-
             MethodExprRef methodExprRef = new MethodExprRef(metadata);
             methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor));
             return methodExprRef;
+        } else if (metadata.isSetter()) {
+            String expr = metadata.getExpr();
+            return parseFieldSetter(metadata, tokenParser.parse(expr));
         } else {
             String expr = metadata.getExpr();
-            MethodExprRef methodExprRef = parseMethodExpr(metadata, tokenParser.parse(expr));
-            return methodExprRef;
+            return parseMethodExpr(metadata, tokenParser.parse(expr));
         }
     }
 
-    private MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
-        return parseMethodExpr(metadata, tokens, metadata.isSetter());
+    /**
+     * Parse field setter method expr ref.
+     *
+     * @param metadata the metadata
+     * @param tokens   the tokens
+     * @return the method expr ref
+     * @throws ClassNotFoundException the class not found exception
+     */
+    public MethodExprRef parseFieldSetter(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
+        List<FieldRef> fieldRefs = this.parseFieldExpr(metadata, this.rootType, tokens);
+        MethodExprRef methodExprRef = new MethodExprRef(metadata);
+        for (int i = 0; i < fieldRefs.size()-1; i++) {
+            methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRefs.get(i)));
+        }
+        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRefs.get(fieldRefs.size()-1)));
+        return methodExprRef;
     }
 
-    public MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens, boolean setterContext) throws ClassNotFoundException {
+    /**
+     * Parse method expr ref.
+     *
+     * @param metadata the metadata
+     * @param tokens   the tokens
+     * @return the method expr ref
+     * @throws ClassNotFoundException the class not found exception
+     */
+    public MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
         String invokeSuper = metadata.getInvokeSuper();
 
         // Parse all steps first.
@@ -194,20 +217,13 @@ public class ParseContext {
 
             if (fieldsToken != null && fieldsToken.size() > 0) {
                 List<FieldRef> fieldRefs = parseFieldExpr(metadata, curType, fieldsToken);
-                Iterator<FieldRef> iter = fieldRefs.iterator();
-                while (iter.hasNext()) {
-                    FieldRef fieldRef = iter.next();
-                    boolean isLast = !iter.hasNext();
-                    if (isLast && setterContext) {
-                        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRef));
-                    } else {
-                        methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef));
-                    }
+                for (FieldRef fieldRef : fieldRefs) {
+                    methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef));
                     curType = fieldRef.getActualType();
                 }
             }
             if (methodToken != null) {
-                ParametersParser parametersParser = new ParametersParser(this, metadata, methodToken.getArgsToken());
+                ParameterParser parametersParser = new ParameterParser(this, metadata, methodToken.getArgsToken());
                 String[] types = parametersParser.getParametersTypes();
 
                 Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
@@ -225,13 +241,23 @@ public class ParseContext {
                 m.setSuperClass(invokeSuper);
                 m.setIndexs(methodToken.getIndexs());
                 m.setNullable(methodToken.isNullable());
-                methodExprRef.addStepMethod(m);
+                m.setParameterParser(parametersParser);
+                methodExprRef.addStepMethod(m, methodToken.getArgsToken());
             }
         }
         return methodExprRef;
     }
 
-    private List<FieldRef> parseFieldExpr(AbsMethodMetadata metadata, Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
+    /**
+     * Parse field expr list.
+     *
+     * @param metadata the metadata
+     * @param rootType the root type
+     * @param tokens   the tokens
+     * @return the list
+     * @throws ClassNotFoundException the class not found exception
+     */
+    public List<FieldRef> parseFieldExpr(AbsMethodMetadata metadata, Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
         Class<?> currentType = rootType;
         String fullField = null;
 

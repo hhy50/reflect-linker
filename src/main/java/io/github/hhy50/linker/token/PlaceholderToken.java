@@ -19,6 +19,10 @@ public class PlaceholderToken implements Token {
         this.index = index;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
     @Override
     public Kind kind() {
         return Kind.Placeholder;
