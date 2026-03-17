@@ -88,30 +88,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
         return ChainAction.of(() -> Methods.invoke(methodName, methodType)
                 .setInstance(LoadAction.LOAD0)
-                .setArgs(castArgs(argsAction, methodType.getArgumentTypes())));
-    }
-
-    private ChainAction<VarInst[]> loadStepArgs(InvokeClassImplBuilder classImplBuilder, MethodHandle mh, MethodRef methodRef, ChainAction<VarInst[]> argsChainAction) {
-        if (mh instanceof Getter) {
-            return ChainAction.empty();
-        }
-        return castArgs(
-                methodRef.getParametersLoader().load(classImplBuilder, argsChainAction),
-                methodRef.getGenericType().getArgumentTypes()
-        );
-    }
-
-    private ChainAction<VarInst[]> castArgs(ChainAction<VarInst[]> argsAction, Type[] argsType) {
-        return argsAction.map(varInsts -> {
-            if (varInsts == null) {
-                return null;
-            }
-            VarInst[] casted = new VarInst[varInsts.length];
-            for (int i = 0; i < varInsts.length; i++) {
-                casted[i] = typeCast(varInsts[i], argsType[i]);
-            }
-            return casted;
-        });
+                .setArgs(argsAction));
     }
 
     /**

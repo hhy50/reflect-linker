@@ -22,8 +22,6 @@ public abstract class MethodRef {
      */
     protected String superClass;
 
-    private ParametersLoader parametersLoader = ParametersLoader.all();
-
     /**
      * 数组访问
      */
@@ -92,25 +90,6 @@ public abstract class MethodRef {
      */
     public Type getGenericType() {
         return getLookupType();
-    }
-
-    /**
-     * Sets parameter loader.
-     *
-     * @param parametersLoader the parameters loader
-     */
-    public void setParametersLoader(ParametersLoader parametersLoader) {
-        this.parametersLoader = parametersLoader == null ? ParametersLoader.all() : parametersLoader;
-    }
-
-
-    /**
-     * Gets parameters loader.
-     *
-     * @return the parameters loader
-     */
-    public ParametersLoader getParametersLoader() {
-        return parametersLoader;
     }
 
     /**

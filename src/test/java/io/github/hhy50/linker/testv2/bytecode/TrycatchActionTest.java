@@ -1,7 +1,10 @@
 package io.github.hhy50.linker.testv2.bytecode;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
-import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
+import io.github.hhy50.linker.generate.bytecode.action.NewObjectAction;
 import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
 import org.junit.Assert;
 import org.junit.Test;

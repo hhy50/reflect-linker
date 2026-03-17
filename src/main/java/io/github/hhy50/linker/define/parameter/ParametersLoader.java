@@ -1,4 +1,5 @@
-package io.github.hhy50.linker.define.method;
+package io.github.hhy50.linker.define.parameter;
+
 
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
