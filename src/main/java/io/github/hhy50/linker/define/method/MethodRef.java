@@ -2,18 +2,10 @@ package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
-import io.github.hhy50.linker.generate.invoker.MethodExprInvoker;
-import io.github.hhy50.linker.token.ArgsToken;
-import io.github.hhy50.linker.token.PlaceholderToken;
-import io.github.hhy50.linker.token.Token;
-import io.github.hhy50.linker.tools.Pair;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 /**
@@ -30,12 +22,7 @@ public abstract class MethodRef {
      */
     protected String superClass;
 
-    /**
-     *
-     */
-    private ArgsToken argsToken;
-
-    private List<MethodExprInvoker> argsExprInvokers;
+    private ParametersLoader parametersLoader = ParametersLoader.all();
 
     /**
      * 数组访问
@@ -108,40 +95,22 @@ public abstract class MethodRef {
     }
 
     /**
-     * Sets args token.
+     * Sets parameter loader.
      *
-     * @param argsToken the args token
+     * @param parametersLoader the parameters loader
      */
-    public void setArgsToken(ArgsToken argsToken) {
-        this.argsToken = argsToken;
+    public void setParametersLoader(ParametersLoader parametersLoader) {
+        this.parametersLoader = parametersLoader == null ? ParametersLoader.all() : parametersLoader;
     }
 
 
     /**
-     * Gets args token.
+     * Gets parameters loader.
      *
-     * @return the args token
+     * @return the parameters loader
      */
-    public ArgsToken getArgsToken() {
-        return argsToken;
-    }
-
-    /**
-     * Sets parsed argument expressions.
-     *
-     * @param argsExprInvokers parsed argument invokers aligned with {@link #argsToken}
-     */
-    public void setArgsExprInvokers(List<MethodExprInvoker> argsExprInvokers) {
-        this.argsExprInvokers = argsExprInvokers;
-    }
-
-    /**
-     * Gets parsed argument invokers.
-     *
-     * @return parsed argument invokers aligned with {@link #argsToken}
-     */
-    public List<MethodExprInvoker> getArgsExprInvokers() {
-        return argsExprInvokers;
+    public ParametersLoader getParametersLoader() {
+        return parametersLoader;
     }
 
     /**
@@ -178,29 +147,6 @@ public abstract class MethodRef {
      */
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
-    }
-
-    /**
-     * Gets args index table.
-     *
-     * @return the args index table
-     */
-    @SuppressWarnings("unchecked")
-    protected List<Pair<Integer, Type>> getArgsIndexTable() {
-        Type genericType = getGenericType();
-        Type[] argumentTypes = genericType.getArgumentTypes();
-        if (this.argsToken == null || this.argsToken.isPlaceholderAll()) {
-            return IntStream.range(0, argumentTypes.length).mapToObj(i -> Pair.of(i, argumentTypes[i])).collect(Collectors.toList());
-        }
-        List<Pair<Integer, Type>> its = new ArrayList<>();
-        for (int i = 0; i < argumentTypes.length; i++) {
-            Type argumentType = argumentTypes[i];
-            Token token = this.argsToken.get(i);
-            if (token instanceof PlaceholderToken) {
-                its.add(Pair.of(((PlaceholderToken) token).index, argumentType));
-            }
-        }
-        return its;
     }
 
     /**

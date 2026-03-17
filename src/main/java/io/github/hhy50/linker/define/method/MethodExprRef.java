@@ -37,7 +37,7 @@ public class MethodExprRef extends MethodRef {
      */
     public void addStepMethod(MethodRef methodRef) {
         stepMethods.add(methodRef);
-        parameterTypeAnalysis.analyse(methodRef.getArgsIndexTable());
+        parameterTypeAnalysis.analyse(methodRef.getParametersLoader().analyse(methodRef.getGenericType()));
         this.returnType = methodRef.getReturnType();
     }
 

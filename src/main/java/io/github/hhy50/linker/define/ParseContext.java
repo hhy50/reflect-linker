@@ -154,11 +154,12 @@ public class ParseContext {
      */
     public MethodExprRef parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
         if (metadata.isConstructor()) {
-            String[] argsType = parseArgs(metadata, ArgsToken.ofAll(), true).getTypes();
-            Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, argsType);
+            ParametersParser parametersParser = new ParametersParser(this, metadata, ArgsToken.ofAll());
+            String[] types = parametersParser.getParametersTypes();
+            Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, types);
             if (constructor == null) {
                 throw new ParseException(
-                        "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(argsType));
+                        "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(types));
             }
 
             MethodExprRef methodExprRef = new MethodExprRef(metadata);
@@ -166,15 +167,19 @@ public class ParseContext {
             return methodExprRef;
         } else {
             String expr = metadata.getExpr();
-            MethodExprRef methodExprRef = parseMethodExpr(metadata, tokenParser.parse(expr), metadata.isSetter());
+            MethodExprRef methodExprRef = parseMethodExpr(metadata, tokenParser.parse(expr));
             return methodExprRef;
         }
+    }
+
+    private MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
+        return parseMethodExpr(metadata, tokens, metadata.isSetter());
     }
 
     private MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens, boolean setterContext) throws ClassNotFoundException {
         String invokeSuper = metadata.getInvokeSuper();
 
-        // 提前全部解析
+        // Parse all steps first.
         Iterator<SplitToken> tokensIterator = tokens.splitWithMethod();
         ArrayList<SplitToken> tokenList = new ArrayList<>();
         while (tokensIterator.hasNext()) {
@@ -202,24 +207,23 @@ public class ParseContext {
                 }
             }
             if (methodToken != null) {
-                ParsedArgs parsedArgs = parseArgs(metadata, methodToken.getArgsToken(), false);
-                String[] argsType = parsedArgs.getTypes();
-                Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, argsType);
+                ParametersParser parametersParser = new ParametersParser(this, metadata, methodToken.getArgsToken());
+                String[] types = parametersParser.getParametersTypes();
 
+                Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
                 MethodRef m;
                 if (method != null) {
                     m = new EarlyMethodRef(method);
                     curType = method.getReturnType();
                 } else {
                     Boolean designateStatic = metadata.isDesignateStatic(methodToken.methodName);
-                    m = new RuntimeMethodRef(methodToken.methodName, argsType)
+                    m = new RuntimeMethodRef(methodToken.methodName, types)
                             .setAutolink(metadata.isAutolink());
                     curType = Object.class;
                     ((RuntimeMethodRef) m).setStatic(designateStatic);
                 }
                 m.setSuperClass(invokeSuper);
-                m.setArgsToken(methodToken.getArgsToken());
-                m.setArgsExprInvokers(parsedArgs.getExprInvokers());
+                m.setParametersLoader(parametersParser.getParametersLoader());
                 m.setIndexs(methodToken.getIndexs());
                 m.setNullable(methodToken.isNullable());
                 methodExprRef.addStepMethod(m);
@@ -267,67 +271,75 @@ public class ParseContext {
         return fields;
     }
 
-    private ParsedArgs parseArgs(AbsMethodMetadata metadata, ArgsToken argsToken, boolean isConstructor) throws ClassNotFoundException {
-        Parameter[] parameters = metadata.getParameters();
-        if (isConstructor || argsToken.isPlaceholderAll()) {
-            return new ParsedArgs(Arrays.stream(parameters)
-                    .map(ParseUtil::getRawType).toArray(String[]::new), null);
+    static class ParametersParser {
+        private final ParseContext parseContext;
+        private final AbsMethodMetadata metadata;
+        private final ArgsToken tokens;
+        private final List<ParameterLoader> parameters;
+        private ParametersLoader parametersLoader;
+
+        public ParametersParser(ParseContext parseContext, AbsMethodMetadata metadata, ArgsToken tokens) throws ClassNotFoundException {
+            this.parseContext = parseContext;
+            this.metadata = metadata;
+            this.tokens = tokens;
+            this.parameters = new ArrayList<>();
+
+            parse();
         }
 
-        List<String> argsType = new ArrayList<>(argsToken.size());
-        List<MethodExprInvoker> argsExprInvokers = new ArrayList<>(argsToken.size());
-        for (Token item : argsToken) {
-            if (item.kind() == Token.Kind.Placeholder) {
-                int i = ((PlaceholderToken) item).index;
-                argsType.add(getRawType(parameters[i]));
-                argsExprInvokers.add(null);
-            } else if (item.kind() == Token.Kind.IntConst) {
-                argsType.add("int");
-                argsExprInvokers.add(null);
-            } else if (item.kind() == Token.Kind.StrConst) {
-                argsType.add("java.lang.String");
-                argsExprInvokers.add(null);
-            } else if (item.kind() == Token.Kind.Tokens
-                    || item.kind() == Token.Kind.Field
-                    || item.kind() == Token.Kind.Method) {
-                MethodExprInvoker argExprInvoker = parseArgInvoker(metadata, item);
-                Type argType = argExprInvoker.getMethodType().getReturnType();
-                if (argType == Type.VOID_TYPE) {
+        String[] getParametersTypes() {
+            return this.parameters.stream().map(ParameterLoader::getType).toArray(String[]::new);
+        }
+
+        ParametersLoader getParametersLoader() {
+            return this.parametersLoader;
+        }
+
+        void parse() throws ClassNotFoundException {
+            Parameter[] parameters = metadata.getParameters();
+            if (metadata.isConstructor() || tokens.isPlaceholderAll()) {
+                for (int i = 0; i < parameters.length; i++) {
+                    this.parameters.add(ParameterLoader.placeholder(i, ParseUtil.getRawType(parameters[i])));
+                }
+                this.parametersLoader = ParametersLoader.all();
+                return;
+            }
+
+            for (int i = 0; i < tokens.size(); i++) {
+                Token item = tokens.get(i);
+                if (item.kind() == Token.Kind.Placeholder) {
+                    int p = ((PlaceholderToken) item).index;
+                    if (p < 0 || p >= parameters.length) {
+                        throw new ParseException("Parameter index out of bounds for parameter: $" + p);
+                    }
+                    this.parameters.add(ParameterLoader.placeholder(p, getRawType(parameters[p])));
+                } else if (item.kind() == Token.Kind.IntConst) {
+                    this.parameters.add(ParameterLoader.constant("int", ((ConstToken) item).getValue()));
+                } else if (item.kind() == Token.Kind.StrConst) {
+                    this.parameters.add(ParameterLoader.constant("java.lang.String", ((ConstToken) item).getValue()));
+                } else if (item.kind() == Token.Kind.Tokens
+                        || item.kind() == Token.Kind.Field
+                        || item.kind() == Token.Kind.Method) {
+                    MethodExprInvoker argExprInvoker = parseArgInvoker(item);
+                    Type argType = argExprInvoker.getMethodType().getReturnType();
+                    if (argType == Type.VOID_TYPE) {
+                        throw new ParseException("Invalid argument type");
+                    }
+                    this.parameters.add(ParameterLoader.expr(argType.getClassName(), argExprInvoker));
+                } else {
                     throw new ParseException("Invalid argument type");
                 }
-                argsType.add(argType.getClassName());
-                argsExprInvokers.add(argExprInvoker);
-            } else {
-                throw new ParseException("Invalid argument type");
             }
-        }
-        return new ParsedArgs(argsType.toArray(new String[0]), argsExprInvokers);
-    }
-
-    private MethodExprInvoker parseArgInvoker(AbsMethodMetadata metadata, Token token) throws ClassNotFoundException {
-        if (token instanceof Tokens) {
-            return parseMethodExpr(metadata, (Tokens) token, false).defineInvoker();
-        }
-        Tokens tokens = new Tokens();
-        tokens.add(token);
-        return parseMethodExpr(metadata, tokens, false).defineInvoker();
-    }
-
-    private static class ParsedArgs {
-        private final String[] types;
-        private final List<MethodExprInvoker> exprInvokers;
-
-        private ParsedArgs(String[] types, List<MethodExprInvoker> exprInvokers) {
-            this.types = types;
-            this.exprInvokers = exprInvokers;
+            this.parametersLoader = ParametersLoader.of(this.parameters);
         }
 
-        private String[] getTypes() {
-            return types;
-        }
-
-        private List<MethodExprInvoker> getExprInvokers() {
-            return exprInvokers;
+        private MethodExprInvoker parseArgInvoker(Token token) throws ClassNotFoundException {
+            if (token instanceof Tokens) {
+                return this.parseContext.parseMethodExpr(metadata, (Tokens) token, false).defineInvoker();
+            }
+            Tokens tokens = new Tokens();
+            tokens.add(token);
+            return this.parseContext.parseMethodExpr(metadata, tokens, false).defineInvoker();
         }
     }
 }
