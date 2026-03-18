@@ -5,7 +5,7 @@
 
 ---
 
-- [中文文档](https://github.com/hhy50/reflect-linker/README-ZH.md)
+- [中文文档](https://github.com/hhy50/reflect-linker/blob/master/README-ZH.md)
 
 ## Introduction
 
