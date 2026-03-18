@@ -1,8 +1,8 @@
 package io.github.hhy50.linker;
 
 import io.github.hhy50.linker.define.BytecodeClassLoader;
-import io.github.hhy50.linker.define.ClassDefineParse;
-import io.github.hhy50.linker.define.InterfaceImplClass;
+import io.github.hhy50.linker.define.ClassDefineParser;
+import io.github.hhy50.linker.define.GeneratedClass;
 import io.github.hhy50.linker.define.cl.SysLinkerClassLoader;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import io.github.hhy50.linker.util.Util;
@@ -54,6 +54,10 @@ public class LinkerFactory {
      * @throws LinkerException the linker exception
      */
     public static <T> T createLinker(Class<T> define, Object target) throws LinkerException {
+        if (!define.isInterface()) {
+            throw new RuntimeException("define-class must be an interface");
+        }
+
         if (target == null) {
             throw new NullPointerException("target");
         }
@@ -121,7 +125,7 @@ public class LinkerFactory {
      * @throws IOException            the io exception
      */
     static Class<?> create(Class<?> define, Class<?> targetClass, ClassLoader cl) throws ClassNotFoundException, IOException {
-        InterfaceImplClass defineClass = ClassDefineParse.parseClass(define, targetClass);
+        GeneratedClass defineClass = ClassDefineParser.parseClass(define, targetClass);
         return BytecodeClassLoader.load(cl, defineClass.getClassName(), defineClass.getBytecode());
     }
 
@@ -135,7 +139,7 @@ public class LinkerFactory {
      * @throws IOException            the io exception
      */
     static Class<?> create(Class<?> define, ClassLoader cl) throws ClassNotFoundException, IOException {
-        InterfaceImplClass defineClass = ClassDefineParse.parseClass(define, cl);
+        GeneratedClass defineClass = ClassDefineParser.parseClass(define, cl);
         return BytecodeClassLoader.load(cl, defineClass.getClassName(), defineClass.getBytecode());
     }
 

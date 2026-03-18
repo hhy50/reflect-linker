@@ -1,8 +1,8 @@
 package io.github.hhy50.linker.generate.bytecode.vars;
 
 
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.objectweb.asm.Type;
@@ -17,36 +17,12 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.notNull;
 public abstract class VarInst implements LoadAction, TypedAction {
 
     /**
-     * The Type.
-     */
-    protected final Type type;
-
-    /**
-     * Instantiates a new Var inst.
-     *
-     * @param type the type
-     */
-    public VarInst(Type type) {
-        this.type = type;
-    }
-
-    /**
-     * Gets type.
-     *
-     * @return the type
-     */
-    @Override
-    public Type getType() {
-        return type;
-    }
-
-    /**
      * Gets name.
      *
      * @return the name
      */
     public String getName() {
-        return "var[type=" + type.getClassName() + "]";
+        return "var[type=" + this.getType().getClassName() + "]";
     }
 
     /**
@@ -83,11 +59,73 @@ public abstract class VarInst implements LoadAction, TypedAction {
     }
 
     /**
+     * Is local var boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isLocalVar() {
+        return this instanceof LocalVarInst;
+    }
+
+    /**
+     * Cast var inst.
+     *
+     * @param casttype the casttype
+     * @return the var inst
+     */
+    public VarInst cast(Type casttype) {
+        return new TypeCastAction(this, casttype);
+    }
+
+    /**
      * Gets target.
      *
      * @return the target
      */
     public Action tryGetTarget() {
         return new ConditionJumpAction(instanceOf(this, Type.getType(TargetProvider.class)), this.getTarget(), this);
+    }
+
+    /**
+     * Wrap var inst.
+     *
+     * @param action the action
+     * @param type   the type
+     * @return the var inst
+     */
+    public static VarInst wrap(Action action, Type type) {
+        return new VarInst() {
+
+            @Override
+            public Type getType() {
+                return type;
+            }
+
+            @Override
+            public Action load() {
+                return action;
+            }
+        };
+    }
+
+    /**
+     * Wrap var inst.
+     *
+     * @param action the action
+     * @return the var inst
+     */
+    public static VarInst wrap(TypedAction action) {
+        return new VarInst() {
+
+            @Override
+            public Type getType() {
+                return action.getType();
+            }
+
+            @Override
+            public Action load() {
+                return action;
+            }
+        };
     }
 }

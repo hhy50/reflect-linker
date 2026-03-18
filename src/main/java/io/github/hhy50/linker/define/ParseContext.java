@@ -3,20 +3,17 @@ package io.github.hhy50.linker.define;
 import io.github.hhy50.linker.annotations.Builtin;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
-import io.github.hhy50.linker.define.field.FieldIndexRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
-import io.github.hhy50.linker.define.method.ConstructorRef;
-import io.github.hhy50.linker.define.method.EarlyMethodRef;
-import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.define.method.RuntimeMethodRef;
+import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
+import io.github.hhy50.linker.define.md.AbsMethodMetadata;
+import io.github.hhy50.linker.define.method.*;
+import io.github.hhy50.linker.define.parameter.ParameterLoader;
+import io.github.hhy50.linker.define.parameter.ParameterParser;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
 import io.github.hhy50.linker.exceptions.ParseException;
 import io.github.hhy50.linker.exceptions.VerifyException;
-import io.github.hhy50.linker.token.FieldToken;
-import io.github.hhy50.linker.token.Token;
-import io.github.hhy50.linker.token.TokenParser;
-import io.github.hhy50.linker.token.Tokens;
+import io.github.hhy50.linker.token.*;
 import io.github.hhy50.linker.util.*;
 
 import java.lang.annotation.Annotation;
@@ -25,24 +22,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * The type Parse context.
  */
 public class ParseContext {
-    private static final String CURRENT_TOKEN = "$";
-    private static final String FIRST_OBJ_NAME = "target";
 
-    /**
-     * The Define class.
-     */
-    Class<?> defineClass;
-    /**
-     * The Target class.
-     */
-    Class<?> targetClass;
     /**
      * The Class loader.
      */
@@ -51,20 +36,12 @@ public class ParseContext {
     /**
      * The Target root.
      */
-    EarlyFieldRef targetRoot;
+    Class<?> rootType;
 
     /**
-     * The Parsed fields.
+     * The Class metadata.
      */
-    final Map<String, FieldRef> parsedFields = new HashMap<>();
-    /**
-     * The Typed fields.
-     */
-    final Map<String, String> typedFields = new HashMap<>();
-    /**
-     * The constant staticTokens.
-     */
-    final Map<String, Boolean> staticTokens = new HashMap<>();
+    AbsInterfaceMetadata classMetadata;
 
     /**
      * The Token parser.
@@ -74,46 +51,85 @@ public class ParseContext {
     /**
      * Instantiates a new Parse context.
      *
-     * @param defineClass the define class
-     * @param targetClass the target class
+     * @param classMetadata the class metadata
+     * @param targetClass   the target class
      */
-    ParseContext(Class<?> defineClass, Class<?> targetClass) {
-        this.defineClass = defineClass;
-        this.targetClass = targetClass;
-        this.targetRoot = new EarlyFieldRef(null, FIRST_OBJ_NAME, targetClass);
+    ParseContext(AbsInterfaceMetadata classMetadata, Class<?> targetClass) {
+        this.classMetadata = classMetadata;
+        this.rootType = targetClass;
+    }
+
+    /**
+     * Parse list.
+     *
+     * @return the list
+     * @throws ClassNotFoundException the class not found exception
+     * @throws ParseException         the parse exception
+     */
+    public List<MethodExprRef> parse() throws ClassNotFoundException, ParseException {
+        return doParseClass();
+    }
+
+    private List<MethodExprRef> doParseClass() throws ClassNotFoundException, ParseException {
+        List<AbsMethodMetadata> metadatas = new ArrayList<>();
+        for (Method method : this.classMetadata.getMethods()) {
+            if (!Modifier.isAbstract(method.getModifiers()))
+                continue;
+            if (AnnotationUtils.hasAnnotation(method.getDeclaringClass(), Builtin.class)) {
+                continue;
+            }
+            AbsMethodMetadata metadata = preParse(classMetadata, method);
+            metadatas.add(metadata);
+        }
+
+        List<MethodExprRef> methods = new ArrayList<>();
+        for (AbsMethodMetadata metadata : metadatas) {
+            MethodExprRef methodExprRef = parseMethod(metadata);
+            postParse(methodExprRef);
+            methods.add(methodExprRef);
+        }
+        return methods;
     }
 
     /**
      * Pre parse.
      *
-     * @param method the method
+     * @param classMetadata the class metadata
+     * @param method        the method
+     * @return the abs method metadata
      */
-    void preParse(Method method) {
-        verify(method);
+    AbsMethodMetadata preParse(AbsInterfaceMetadata classMetadata, Method method) {
+        AbsMethodMetadata metadata = new AbsMethodMetadata(classMetadata, method);
 
-        Map<String, String> typeDefines = ClassUtil.getTypeDefines(method);
-        for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
-            String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
-            if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Typed of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
+        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
+        for (Annotation annotation : declaredAnnotations) {
+            if (annotation.annotationType().getDeclaredAnnotation(Verify.Unique.class) != null) {
+                metadata.setUniqueAnnotation(annotation);
             }
-        }
-        for (Map.Entry<String, Boolean> fieldEntry : AnnotationUtils.getDesignateStaticTokens(method, CURRENT_TOKEN).entrySet()) {
-            String name = fieldEntry.getKey();
-            Boolean isStatic = this.staticTokens.put(name, fieldEntry.getValue());
-            if (isStatic != null && !isStatic.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Static of field '"+name+"' defined twice is inconsistent");
+            Verify.Custom custom = annotation.annotationType().getDeclaredAnnotation(Verify.Custom.class);
+            if (custom != null) {
+                Verifier verifier = null;
+                try {
+                    verifier = custom.value().newInstance();
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new VerifyException(e);
+                }
+                if (!verifier.test(method, annotation)) {
+                    throw new VerifyException(
+                            "method [" + method.getDeclaringClass() + "@" + method.getName() + "] verify failed");
+                }
             }
+            metadata.addAnnotation(annotation);
         }
+        return metadata;
     }
 
     /**
      * Post parse.
      *
-     * @param absMethod the abs method
+     * @param methodExpr the method expr
      */
-    void postParse(AbsMethodDefine absMethod) {
-        this.staticTokens.remove(CURRENT_TOKEN);
+    void postParse(MethodExprRef methodExpr) {
     }
 
     /**
@@ -129,201 +145,154 @@ public class ParseContext {
     }
 
     /**
-     * Parse list.
-     *
-     * @return the list
-     * @throws ClassNotFoundException the class not found exception
-     * @throws ParseException         the parse exception
-     */
-    public List<AbsMethodDefine> parse() throws ClassNotFoundException, ParseException {
-        return doParseClass();
-    }
-
-    private List<AbsMethodDefine> doParseClass() throws ClassNotFoundException, ParseException {
-        List<AbsMethodDefine> absMethodDefines = new ArrayList<>();
-        Map<String, String> typeDefines = ClassUtil.getTypeDefines(this.defineClass);
-        for (Map.Entry<String, String> fieldEntry : typeDefines.entrySet()) {
-            String type = this.typedFields.put(fieldEntry.getKey(), fieldEntry.getValue());
-            if (type != null && !type.equals(fieldEntry.getValue())) {
-                throw new VerifyException("@Typed of field '"+fieldEntry.getKey()+"' defined twice is inconsistent");
-            }
-        }
-
-        for (Method method : this.defineClass.getMethods()) {
-            if (!Modifier.isAbstract(method.getModifiers())) continue;
-            Builtin builtin = method.getDeclaringClass().getDeclaredAnnotation(Builtin.class);
-            if (builtin != null) {
-                continue;
-            }
-            preParse(method);
-            AbsMethodDefine absMethod = parseMethod(method);
-            absMethodDefines.add(absMethod);
-            postParse(absMethod);
-        }
-        return absMethodDefines;
-    }
-
-    /**
      * Parse method abs method define.
      *
-     * @param method the method
+     * @param metadata the method metadata
      * @return the abs method define
      * @throws VerifyException        the verify exception
      * @throws ClassNotFoundException the class not found exception
      * @throws ParseException         the parse exception
      */
-    public AbsMethodDefine parseMethod(Method method) throws VerifyException, ClassNotFoundException, ParseException {
-        io.github.hhy50.linker.annotations.Field.Getter getter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Getter.class);
-        io.github.hhy50.linker.annotations.Field.Setter setter = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Field.Setter.class);
-        io.github.hhy50.linker.annotations.Method.Name name = method.getDeclaredAnnotation(io.github.hhy50.linker.annotations.Method.Name.class);
-
-        AbsMethodDefine absMethodDefine = new AbsMethodDefine(method);
-        if (getter != null || setter != null) {
-            String exprStr = Util.getOrElseDefault(Optional.ofNullable(getter).map(io.github.hhy50.linker.annotations.Field.Getter::value)
-                    .orElseGet(() -> setter.value()), method.getName());
-            Tokens tokens = tokenParser.parse(exprStr);
-            absMethodDefine.fieldRef = parseFieldExpr(targetClass, tokens);
-        } else if (absMethodDefine.hasConstructor()) {
-            String[] argsType = parseArgsType(method);
-            Constructor<?> constructor = ReflectUtil.matchConstructor(targetClass, argsType);
+    public MethodExprRef parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
+        if (metadata.isConstructor()) {
+            ParameterParser parametersParser = new ParameterParser(this, metadata, ArgsToken.ofAll());
+            String[] types = parametersParser.getParametersTypes();
+            Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, types);
             if (constructor == null) {
-                throw new ParseException("Constructor not found in class '"+targetClass+"' with args "+Arrays.toString(argsType));
+                throw new ParseException(
+                        "Constructor not found in class '" + rootType + "' with args " + Arrays.toString(types));
             }
-            absMethodDefine.methodRef = new ConstructorRef(targetRoot, method.getName(), constructor);
+            MethodExprRef methodExprRef = new MethodExprRef(metadata);
+            methodExprRef.addStepMethod(new ConstructorRef(metadata.getName(), constructor), ParameterLoader.DEFAULT);
+            return methodExprRef;
+        } else if (metadata.isSetter()) {
+            String expr = metadata.getExpr();
+            return parseFieldSetter(metadata, tokenParser.parse(expr));
         } else {
-            io.github.hhy50.linker.annotations.Method.Name methodNameAnn = method.getAnnotation(io.github.hhy50.linker.annotations.Method.Name.class);
-            String methodName = Util.getOrElseDefault(methodNameAnn == null ? null : methodNameAnn.value(), absMethodDefine.getName());
-            String fieldExpr = null;
-            int i;
-            if ((i = methodName.lastIndexOf('.')) != -1) {
-                fieldExpr = methodName.substring(0, i);
-                methodName = methodName.substring(i+1);
-            }
-            absMethodDefine.methodRef = parseMethodExpr(methodName, method, tokenParser.parse(fieldExpr));
+            String expr = metadata.getExpr();
+            return parseMethodExpr(metadata, tokenParser.parse(expr));
         }
-        return absMethodDefine;
     }
 
-    private MethodRef parseMethodExpr(String methodName, Method methodDefine, final Tokens fieldTokens) throws ClassNotFoundException {
-        FieldRef owner = parseFieldExpr(targetClass, fieldTokens);
-
-        String[] argsType = parseArgsType(methodDefine);
-        io.github.hhy50.linker.annotations.Method.InvokeSuper invokeSuperAnno = methodDefine.getAnnotation(io.github.hhy50.linker.annotations.Method.InvokeSuper.class);
-        String superClass = invokeSuperAnno != null ? invokeSuperAnno.value() : null;
-        MethodRef methodRef = null;
-        Class<?> ownerClass = owner.getActualType();
-        if (ownerClass != null) {
-            Method method = ReflectUtil.matchMethod(ownerClass, methodName, superClass, argsType);
-            if (method == null && this.typedFields.containsKey(owner.getFullName())) {
-                throw new ParseException("can not find method "+methodName+" in class "+ownerClass.getName());
-            }
-            methodRef = method == null ? null : new EarlyMethodRef(owner, method);
+    /**
+     * Parse field setter method expr ref.
+     *
+     * @param metadata the metadata
+     * @param tokens   the tokens
+     * @return the method expr ref
+     * @throws ClassNotFoundException the class not found exception
+     */
+    public MethodExprRef parseFieldSetter(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
+        List<FieldRef> fieldRefs = this.parseFieldExpr(metadata, this.rootType, tokens);
+        MethodExprRef methodExprRef = new MethodExprRef(metadata);
+        for (int i = 0; i < fieldRefs.size()-1; i++) {
+            methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRefs.get(i)));
         }
-        if (methodRef == null) {
-            methodRef = new RuntimeMethodRef(owner, methodName, argsType)
-                    .setAutolink(AnnotationUtils.isAutolink(methodDefine));
-            designateStatic(methodRef);
-        }
-        if (superClass != null) {
-            methodRef.setSuperClass(superClass);
-        }
-        return methodRef;
+        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRefs.get(fieldRefs.size()-1)), ParameterLoader.DEFAULT);
+        return methodExprRef;
     }
 
-    private FieldRef parseFieldExpr(Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
+    /**
+     * Parse method expr ref.
+     *
+     * @param metadata the metadata
+     * @param tokens   the tokens
+     * @return the method expr ref
+     * @throws ClassNotFoundException the class not found exception
+     */
+    public MethodExprRef parseMethodExpr(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
+        String invokeSuper = metadata.getInvokeSuper();
+
+        // Parse all steps first.
+        Iterator<SplitToken> tokensIterator = tokens.splitWithMethod();
+        ArrayList<SplitToken> tokenList = new ArrayList<>();
+        while (tokensIterator.hasNext()) {
+            tokenList.add(tokensIterator.next());
+        }
+
+        MethodExprRef methodExprRef = new MethodExprRef(metadata);
+        Class<?> curType = this.rootType;
+        for (SplitToken splitToken : tokenList) {
+            Tokens fieldsToken = (Tokens) splitToken.prefix;
+            MethodToken methodToken = (MethodToken) splitToken.suffix;
+
+            if (fieldsToken != null && fieldsToken.size() > 0) {
+                List<FieldRef> fieldRefs = parseFieldExpr(metadata, curType, fieldsToken);
+                for (FieldRef fieldRef : fieldRefs) {
+                    methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef));
+                    curType = fieldRef.getActualType();
+                }
+            }
+            if (methodToken != null) {
+                ParameterParser parametersParser = new ParameterParser(this, metadata, methodToken.getArgsToken());
+                String[] types = parametersParser.getParametersTypes();
+
+                Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
+                MethodRef m;
+                if (method != null) {
+                    m = new EarlyMethodRef(method);
+                    curType = method.getReturnType();
+                } else {
+                    Boolean designateStatic = metadata.isDesignateStatic(methodToken.methodName);
+                    m = new RuntimeMethodRef(methodToken.methodName, types)
+                            .setAutolink(metadata.isAutolink());
+                    curType = Object.class;
+                    ((RuntimeMethodRef) m).setStatic(designateStatic);
+                }
+                m.setSuperClass(invokeSuper);
+                m.setIndexs(methodToken.getIndexs());
+                m.setNullable(methodToken.isNullable());
+                methodExprRef.addStepMethod(m, parametersParser.getParameterLoader());
+            }
+        }
+        return methodExprRef;
+    }
+
+    /**
+     * Parse field expr list.
+     *
+     * @param metadata the metadata
+     * @param rootType the root type
+     * @param tokens   the tokens
+     * @return the list
+     * @throws ClassNotFoundException the class not found exception
+     */
+    public List<FieldRef> parseFieldExpr(AbsMethodMetadata metadata, Class<?> rootType, final Tokens tokens) throws ClassNotFoundException {
         Class<?> currentType = rootType;
-        FieldRef lastField = targetRoot;
         String fullField = null;
+
+        List<FieldRef> fields = new ArrayList<>();
         for (Token item : tokens) {
-            if (!(item instanceof FieldToken)) {
-                throw new ParseException("Field token expected, but "+item.getClass().getSimpleName()+" found");
+            if (item.kind() != Token.Kind.Field) {
+                throw new ParseException("Field token expected, but " + item.getClass().getSimpleName() + " found");
             }
             FieldToken token = (FieldToken) item;
             String fieldName = token.fieldName;
             List<Object> index = token.getIndexVal();
             Field earlyField = token.getField(currentType);
             currentType = earlyField == null ? Object.class : Util.expandIndexType(index, earlyField.getType());
-            fullField = Optional.ofNullable(fullField).map(i -> i+"."+fieldName).orElse(fieldName);
+            fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);
+
             // 使用@Typed指定的类型
-            Class<?> assignedType = getFieldTyped(fullField, fieldName);
+            Class<?> assignedType = Optional.ofNullable(metadata.getTyped(fullField, fieldName))
+                    .map(t -> Util.getClass(this.classLoader, t))
+                    .orElse(null);
             if (assignedType != null) {
                 if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
                     throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
                 }
-                currentType = index == null ? assignedType : Util.expandIndexType(index, assignedType);;
+                currentType = index == null ? assignedType : Util.expandIndexType(index, assignedType);
             }
-            lastField = earlyField != null ? new EarlyFieldRef(lastField, earlyField, assignedType) : new RuntimeFieldRef(lastField, fieldName);
-            lastField.setFullName(fullField);
-            designateStatic(lastField);
-            if (index != null && index.size() > 0) {
-                lastField = new FieldIndexRef(lastField, index);
+            Boolean designateStatic = metadata.isDesignateStatic(fullField);
+            FieldRef fieldRef = earlyField != null ? new EarlyFieldRef(earlyField)
+                    : new RuntimeFieldRef(fieldName);
+            fieldRef.setNullable(token.isNullable());
+            fieldRef.setIndex(index);
+            if (designateStatic != null) {
+                fieldRef.setStatic(designateStatic);
             }
+            fields.add(fieldRef);
         }
-        return lastField;
-    }
-
-    private static String[] parseArgsType(Method method) {
-        return Arrays.stream(method.getParameters())
-                .map(item -> {
-                    String typed = AnnotationUtils.getTyped(item);
-                    if (StringUtil.isNotEmpty(typed)) {
-                        return typed;
-                    }
-                    Class<?> type = item.getType();
-                    String bind = AnnotationUtils.getBind(type);
-                    if (StringUtil.isNotEmpty(bind)) {
-                        return bind;
-                    }
-                    return type.getCanonicalName();
-                }).toArray(String[]::new);
-    }
-
-    private Class<?> getFieldTyped(String fullField, String tokenValue) throws ClassNotFoundException {
-        return Stream.of(fullField, tokenValue)
-                .filter(StringUtil::isNotEmpty)
-                .map(this.typedFields::get)
-                .filter(Objects::nonNull)
-                .map(item -> Util.getClass(this.classLoader, item))
-                .findFirst().orElse(null);
-    }
-
-    private void designateStatic(Object refObj) {
-        if (refObj instanceof RuntimeFieldRef) {
-            String fullName = ((RuntimeFieldRef) refObj).getFullName();
-            if (staticTokens.containsKey(fullName)) {
-                ((RuntimeFieldRef) refObj).designateStatic(staticTokens.get(fullName));
-            } else if (staticTokens.containsKey(CURRENT_TOKEN)) {
-                ((RuntimeFieldRef) refObj).designateStatic(staticTokens.get(CURRENT_TOKEN));
-            }
-        } else if (refObj instanceof RuntimeMethodRef) {
-            if (staticTokens.containsKey(CURRENT_TOKEN)) {
-                ((RuntimeMethodRef) refObj).designateStatic(staticTokens.get(CURRENT_TOKEN));
-            }
-        }
-    }
-
-    private static void verify(Method method) throws VerifyException {
-        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
-        List<Class<? extends Annotation>> uniques = Arrays.stream(declaredAnnotations)
-                .map(Annotation::annotationType)
-                .filter(item -> item.getDeclaredAnnotation(Verify.Unique.class) != null).collect(Collectors.toList());
-        if (uniques.size() > 1) {
-            throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"] cannot have two annotations ["+
-                    uniques.stream().map(Class::getSimpleName).collect(Collectors.joining(", @", "@", ""))+"]");
-        }
-        for (Annotation annotation : declaredAnnotations) {
-            Verify.Custom custom = annotation.annotationType().getDeclaredAnnotation(Verify.Custom.class);
-            if (custom != null) {
-                Verifier verifier = null;
-                try {
-                    verifier = custom.value().newInstance();
-                } catch (IllegalAccessException | InstantiationException e) {
-                    throw new VerifyException(e);
-                }
-                if (!verifier.test(method, annotation)) {
-                    throw new VerifyException("method ["+method.getDeclaringClass()+"@"+method.getName()+"] verify failed");
-                }
-            }
-        }
+        return fields;
     }
 }

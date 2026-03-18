@@ -1,8 +1,7 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.define.field.FieldRef;
+import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
-import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.generate.invoker.RuntimeMethodInvoker;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
@@ -14,32 +13,37 @@ import java.util.Arrays;
  * The type Runtime method ref.
  */
 public class RuntimeMethodRef extends MethodRef {
-    private Type methodType;
     private Type[] argsType;
-    private boolean designateStatic;
-    private boolean isStatic;
+    private Boolean designateStatic;
     private boolean isAutolink;
 
     /**
      * Instantiates a new Runtime method ref.
      *
-     * @param owner    the owner
      * @param name     the name
      * @param argsType the args type
      */
-    public RuntimeMethodRef(FieldRef owner, String name, String[] argsType) {
-        super(owner, name);
-
-        Type[] newArgsType = new Type[argsType.length];
-        Arrays.fill(newArgsType, ObjectVar.TYPE);
-        this.methodType = Type.getMethodType(ObjectVar.TYPE, newArgsType);
+    public RuntimeMethodRef(String name, String[] argsType) {
+        super(name);
         this.argsType = Arrays.stream(argsType)
                 .map(TypeUtil::getType).toArray(Type[]::new);
     }
 
     @Override
-    public Type getMethodType() {
-        return methodType;
+    public MethodHandle defineInvoker() {
+        return new RuntimeMethodInvoker(this);
+    }
+
+    @Override
+    public Type getLookupType() {
+        return Type.getMethodType(ObjectVar.TYPE, this.argsType);
+    }
+
+    @Override
+    public Type getGenericType() {
+        Type[] newArgs = new Type[this.argsType.length];
+        Arrays.fill(newArgs, ObjectVar.TYPE);
+        return Type.getMethodType(ObjectVar.TYPE, newArgs);
     }
 
     /**
@@ -52,30 +56,12 @@ public class RuntimeMethodRef extends MethodRef {
     }
 
     /**
-     * Sets args type.
-     *
-     * @param argsType the args type
-     */
-    public void setArgsType(Type[] argsType) {
-        this.argsType = argsType;
-    }
-
-    /**
      * Is designate static boolean.
      *
      * @return the boolean
      */
-    public boolean isDesignateStatic() {
+    public Boolean isDesignateStatic() {
         return designateStatic;
-    }
-
-    /**
-     * Is static boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isStatic() {
-        return isStatic;
     }
 
     /**
@@ -83,9 +69,8 @@ public class RuntimeMethodRef extends MethodRef {
      *
      * @param isStatic the is static
      */
-    public void designateStatic(boolean isStatic) {
-        this.designateStatic = true;
-        this.isStatic = isStatic;
+    public void setStatic(Boolean isStatic) {
+        this.designateStatic = isStatic;
     }
 
     /**
@@ -106,10 +91,5 @@ public class RuntimeMethodRef extends MethodRef {
     public RuntimeMethodRef setAutolink(boolean autolink) {
         this.isAutolink = autolink;
         return this;
-    }
-
-    @Override
-    public Invoker<?> defineInvoker() {
-        return new RuntimeMethodInvoker((RuntimeMethodRef) this);
     }
 }

@@ -1,18 +1,18 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.*;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 import static java.util.Objects.requireNonNull;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 
 /**
  * The type Method invoke action.
  */
-public class MethodInvokeAction implements LoadAction, TypedAction {
+public class MethodInvokeAction extends VarInst {
 
     /**
      * The Method descriptor.
@@ -37,18 +37,10 @@ public class MethodInvokeAction implements LoadAction, TypedAction {
     }
 
     @Override
-    public void apply(MethodBody body) {
+    public Action load() {
         int opCode = getOpCode();
-        body.append(of(instance, multi(args),
-                mv -> mv.visitMethodInsn(opCode,
-                        descriptor.getOwner(), descriptor.getMethodName(),
-                        descriptor.getDesc(), opCode == INVOKEINTERFACE)
-        ));
-    }
-
-    @Override
-    public void load(MethodBody body) {
-        this.apply(body);
+        return Actions.withVisitor(instance, of(args), mv -> mv.visitMethodInsn(opCode,
+                descriptor.getOwner(), descriptor.getMethodName(), descriptor.getDesc(), opCode == INVOKEINTERFACE));
     }
 
     /**

@@ -1,70 +1,64 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
-import io.github.hhy50.linker.generate.bytecode.utils.Args;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.generate.getter.Getter;
 import org.objectweb.asm.Type;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.function.BiFunction;
+
+import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwnerAndArgs;
 
 /**
  * The type Early method invoker.
  */
 public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
-
-    /**
-     * The generic.
-     */
-    protected boolean generic;
-
+    private final Method reflect;
+    private final boolean isInvisible;
+    private final Type genericType;
     /**
      * 内联方法调用。父类的invoke是调用这个 mh的单独生成的方法
      */
-    protected Action inlineAction;
+    protected BiFunction<VarInst, VarInst[], VarInst> inlineAction;
 
     /**
      * Instantiates a new Early method invoker.
      *
-     * @param methodRef the method ref
+     * @param mr the method ref
      */
-    public EarlyMethodInvoker(EarlyMethodRef methodRef) {
-        super(methodRef, methodRef.getMethodType());
-        this.generic = methodRef.isInvisible();
+    public EarlyMethodInvoker(EarlyMethodRef mr) {
+        super(mr.getName(), mr.getLookupType(), mr.getSuperClass());
+
+        this.reflect = mr.getReflect();
+        this.isInvisible = mr.isInvisible();
+        this.genericType = mr.getGenericType();
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        FieldRef owner = method.getOwner();
-        Getter getter = classImplBuilder.getGetter(owner.getUniqueName());
-        getter.define(classImplBuilder);
-
         MethodBody clinit = classImplBuilder.getClinit();
+        Type lookupClass = Type.getType(this.reflect.getDeclaringClass());
+        boolean isStatic = Modifier.isStatic(this.reflect.getModifiers());
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), method.getLookupClass(), descriptor.getType());
-        mhMember.setInvokeExact(!this.generic);
-        initStaticMethodHandle(clinit, mhMember, loadClass(method.getLookupClass()), method.getName(), method.getDeclareType(), method.isStatic());
-
-        this.inlineAction = method.isStatic()
-                ? mhMember.invokeStatic(Args.loadArgs())
-                : ChainAction.of(getter::invoke)
-                .map(varInst -> mhMember.invokeInstance(varInst, Args.loadArgs()));
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.reflect, super.lookupName, lookupClass, this.genericType);
+        mhMember.setInvokeExact(!this.isInvisible);
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
+        if (isStatic) {
+            this.inlineAction = (varInst, args) -> mhMember.invokeStatic(args);
+        } else {
+            this.inlineAction = mhMember::invokeInstance;
+        }
     }
 
 
     @Override
-    public VarInst invoke(MethodBody methodBody) {
-        Type rType = methodBody.getMethodBuilder().getDescriptor().getReturnType();
-        if (rType.getSort() == Type.VOID) {
-            methodBody.append(inlineAction);
-            return null;
-        } else {
-            return methodBody.newLocalVar(descriptor.getReturnType(), null, inlineAction);
-        }
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
+        return mapOwnerAndArgs(argsAction, this.inlineAction);
     }
 }

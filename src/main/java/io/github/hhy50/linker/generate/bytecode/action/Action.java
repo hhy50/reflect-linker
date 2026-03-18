@@ -2,6 +2,8 @@ package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.MethodBody;
 
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
+
 /**
  * The interface Action.
  */
@@ -21,9 +23,6 @@ public interface Action {
      * @return the action
      */
     default Action andThen(Action after) {
-        return (body) -> {
-            apply(body);
-            after.apply(body);
-        };
+        return of(this, after);
     }
 }

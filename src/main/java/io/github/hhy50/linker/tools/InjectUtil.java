@@ -2,7 +2,7 @@ package io.github.hhy50.linker.tools;
 
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.define.MethodDescriptor;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
@@ -14,7 +14,7 @@ import org.objectweb.asm.Type;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static io.github.hhy50.linker.generate.bytecode.action.Actions.multi;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 import static io.github.hhy50.linker.util.StringUtil.toUpperCamelCase;
 
 /**
@@ -93,7 +93,7 @@ public class InjectUtil {
 
             classBuilder.defineConstruct(Opcodes.ACC_PUBLIC, fields.stream().map(f -> f.type).toArray(Type[]::new))
                     .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor()),
-                            multi(stores),
+                            of(stores),
                             Actions.vreturn());
         }
     }

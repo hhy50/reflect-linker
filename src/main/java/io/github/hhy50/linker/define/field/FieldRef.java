@@ -4,66 +4,40 @@ package io.github.hhy50.linker.define.field;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
+import java.util.List;
+
 /**
  * The type Field ref.
  */
-public abstract class FieldRef {
+public abstract class FieldRef  {
 
     /**
      * The Field name.
      */
-    public String fieldName;
+    protected String name;
 
-    /**
-     * The Full name.
-     */
-    protected String fullName;
+    private boolean nullable;
 
-    /**
-     * The Prev.
-     */
-    protected FieldRef prev;
+    private Object defaultValue;
+
+    private List<Object> indexs;
 
     /**
      * Instantiates a new Field ref.
      *
-     * @param prev the prev
-     * @param name the name
+     * @param name     the name
      */
-    public FieldRef(FieldRef prev, String name) {
-        this.prev = prev;
-        this.fieldName = name;
+    public FieldRef(String name) {
+        this.name = name;
     }
 
     /**
-     * Gets unique name.
+     * Gets name.
      *
-     * @return the unique name
+     * @return the name
      */
-    public String getUniqueName() {
-        String prefix = "";
-        if (prev != null) {
-            prefix = prev.getUniqueName()+"_$_";
-        }
-        return prefix+fieldName;
-    }
-
-    /**
-     * Gets getter name.
-     *
-     * @return the getter name
-     */
-    public String getGetterName() {
-        return getUniqueName()+"_getter_mh";
-    }
-
-    /**
-     * Gets setter name.
-     *
-     * @return the setter name
-     */
-    public String getSetterName() {
-        return getUniqueName()+"_setter_mh";
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -76,38 +50,56 @@ public abstract class FieldRef {
     }
 
     /**
-     * Gets prev.
-     *
-     * @return the prev
-     */
-    public FieldRef getPrev() {
-        return prev;
-    }
-
-    /**
-     * Sets full name.
-     *
-     * @param fullName the full name
-     */
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    /**
-     * Gets full name.
-     *
-     * @return the full name
-     */
-    public String getFullName() {
-        return fullName;
-    }
-
-    /**
      * Gets actual type.
      *
      * @return the actual type
      */
     public Class<?> getActualType() {
         return Object.class;
+    }
+
+    /**
+     * Sets static.
+     *
+     * @param isStatic the is static
+     */
+    public void setStatic(boolean isStatic) {
+
+    }
+
+    /**
+     * Sets nullable.
+     *
+     * @param nullable the nullable
+     */
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    /**
+     * Is nullable boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    /**
+     * Sets index.
+     *
+     * @param indexs the indexs
+     */
+    public void setIndex(List<Object> indexs) {
+        this.indexs = indexs;
+    }
+
+    /**
+     * Gets indexs.
+     *
+     * @return the indexs
+     */
+    public List<Object> getIndexs() {
+        return indexs;
     }
 }

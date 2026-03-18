@@ -4,7 +4,7 @@ package io.github.hhy50.linker.token;
 /**
  * The type Split token.
  */
-public class SplitToken implements Token {
+public class SplitToken {
     /**
      * 前段
      */
@@ -28,6 +28,12 @@ public class SplitToken implements Token {
 
     @Override
     public String toString() {
+        if (prefix == null) {
+            return suffix == null ? "" : suffix.toString();
+        }
+        if (suffix == null) {
+            return prefix.toString();
+        }
         return prefix + "." + suffix;
     }
 }

@@ -2,18 +2,18 @@ package io.github.hhy50.linker.runtime;
 
 
 import io.github.hhy50.linker.AccessTool;
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.exceptions.LinkerException;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.syslinker.DirectMethodHandleLinker;
 import io.github.hhy50.linker.util.ClassUtil;
 import org.objectweb.asm.Type;
-import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
@@ -74,15 +74,6 @@ public class RuntimeUtil {
      */
     public static final MethodDescriptor INDEX_VALUE = MethodDescriptor.of(RuntimeUtil.class, "indexValue",
             Object.class, Object.class, List.class);
-
-    /**
-     * Check null.
-     *
-     * @param obj the obj
-     */
-    public static void checkNull(Object obj) {
-
-    }
 
     /**
      * Is static boolean.
@@ -304,19 +295,22 @@ public class RuntimeUtil {
      */
     public static Object indexValue(Object obj, List<Object> index) {
         for (Object o : index) {
-           try {
-               if (o instanceof Integer && obj.getClass().isArray()) {
-                   obj = Array.get(obj, ((Integer) o).intValue());
-               } else if (o instanceof Integer && List.class.isAssignableFrom(obj.getClass())) {
-                   obj = ((List) obj).get(((Integer) o).intValue());
-               } else if (Map.class.isAssignableFrom(obj.getClass())) {
-                   obj = ((Map) obj).get(o);
-               } else {
-                   throw new RuntimeException(obj.getClass()+" not support index access");
-               }
-           } catch (ArrayIndexOutOfBoundsException e) {
-               throw new ArrayIndexOutOfBoundsException("index ["+o+"]");
-           }
+            if (obj == null) {
+                return null;
+            }
+            try {
+                if (o instanceof Integer && obj.getClass().isArray()) {
+                    obj = Array.get(obj, ((Integer) o).intValue());
+                } else if (o instanceof Integer && List.class.isAssignableFrom(obj.getClass())) {
+                    obj = ((List) obj).get(((Integer) o).intValue());
+                } else if (Map.class.isAssignableFrom(obj.getClass())) {
+                    obj = ((Map) obj).get(o);
+                } else {
+                    throw new RuntimeException(obj.getClass()+" not support index access");
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new ArrayIndexOutOfBoundsException("index ["+o+"]");
+            }
         }
         return obj;
     }
@@ -328,15 +322,32 @@ public class RuntimeUtil {
      */
     public static MethodHandles.Lookup getLookupByUnsafe() {
         try {
-            Field field = Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            Unsafe unsafe = (Unsafe) field.get(null);
             Field implLookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
-            Object base = unsafe.staticFieldBase(implLookupField);
-            long fieldOffset = unsafe.staticFieldOffset(implLookupField);
-            return ((MethodHandles.Lookup) unsafe.getObject(base, fieldOffset));
+            Object unsafe = getUnsafeSingleton();
+            Class<?> unsafeClass = unsafe.getClass();
+            Method staticFieldBase = unsafeClass.getMethod("staticFieldBase", Field.class);
+            Method staticFieldOffset = unsafeClass.getMethod("staticFieldOffset", Field.class);
+            Method getObject = unsafeClass.getMethod("getObject", Object.class, long.class);
+            Object base = staticFieldBase.invoke(unsafe, implLookupField);
+            long fieldOffset = ((Number) staticFieldOffset.invoke(unsafe, implLookupField)).longValue();
+            return (MethodHandles.Lookup) getObject.invoke(unsafe, base, fieldOffset);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Object getUnsafeSingleton() throws Exception {
+        try {
+            return getUnsafeSingleton("sun.misc.Unsafe");
+        } catch (ClassNotFoundException e) {
+            return getUnsafeSingleton("jdk.internal.misc.Unsafe");
+        }
+    }
+
+    private static Object getUnsafeSingleton(String unsafeClassName) throws Exception {
+        Class<?> unsafeClass = Class.forName(unsafeClassName);
+        Field theUnsafe = unsafeClass.getDeclaredField("theUnsafe");
+        theUnsafe.setAccessible(true);
+        return theUnsafe.get(null);
     }
 }

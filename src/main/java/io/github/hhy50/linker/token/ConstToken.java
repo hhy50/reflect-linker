@@ -22,6 +22,11 @@ public interface ConstToken extends Token {
         }
 
         @Override
+        public Kind kind() {
+            return Kind.IntConst;
+        }
+
+        @Override
         public String toString() {
             return this.val;
         }
@@ -48,8 +53,13 @@ public interface ConstToken extends Token {
         }
 
         @Override
+        public Kind kind() {
+            return Kind.StrConst;
+        }
+
+        @Override
         public String toString() {
-            return "'"+val+"'";
+            return "'" + val + "'";
         }
 
         @Override

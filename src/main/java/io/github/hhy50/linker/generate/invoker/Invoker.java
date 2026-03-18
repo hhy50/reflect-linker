@@ -1,15 +1,15 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
-import io.github.hhy50.linker.define.SmartMethodDescriptor;
 import io.github.hhy50.linker.define.method.MethodRef;
-import io.github.hhy50.linker.define.method.RuntimeMethodRef;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.*;
-import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.bytecode.action.Action;
+import io.github.hhy50.linker.generate.bytecode.action.Actions;
+import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
+import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
+import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
@@ -24,81 +24,86 @@ import java.util.Optional;
  */
 public abstract class Invoker<T extends MethodRef> extends MethodHandle {
     /**
-     * The Method.
+     * 方法名字
      */
-    protected final T method;
+    protected final String lookupName;
 
     /**
-     * The Method holder.
+     * 查找 method handle时的类型
      */
-    protected final MethodDescriptor descriptor;
+    protected Type lookupType;
+
+    /**
+     * 调用的父类
+     */
+    protected final String superClass;
 
     /**
      * Instantiates a new Invoker.
      *
-     * @param method the method
-     * @param mType  the m type
+     * @param lookupName the methodName
+     * @param lookupType the lookup type
      */
-    public Invoker(T method, Type mType) {
-        this.method = method;
-        this.descriptor = new SmartMethodDescriptor("invoke_"+method.getUniqueName(), mType);
+    public Invoker(String lookupName, Type lookupType) {
+        this(lookupName, lookupType, null);
+    }
+
+    /**
+     * Instantiates a new Invoker.
+     *
+     * @param lookupName  the lookup name
+     * @param lookupType  the lookup type
+     * @param superClass  the super class
+     */
+    public Invoker(String lookupName, Type lookupType, String superClass) {
+        this.lookupName = lookupName;
+        this.lookupType = lookupType;
+        this.superClass = superClass;
     }
 
     @Override
-    public VarInst invoke(MethodBody methodBody) {
-        MethodInvokeAction invoker = new SmartMethodInvokeAction(descriptor)
-                .setInstance(LoadAction.LOAD0)
-                .setArgs(methodBody.getArgs());
-
-        Type rType = descriptor.getReturnType();
-        if (rType.getSort() == Type.VOID) {
-            methodBody.append(invoker);
-            return null;
-        } else {
-            return methodBody.newLocalVar(rType, null, invoker);
-        }
-    }
-
-    @Override
-    protected void initRuntimeMethodHandle(MethodBody methodBody, ClassTypeMember lookupClass, MethodHandleMember mhMember, VarInst objVar) {
-        RuntimeMethodRef runtime = (RuntimeMethodRef) method;
+    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
         Class<Action> __ = Action.class;
-        Action superClassLoad = Optional.ofNullable(method.getSuperClass())
+        Type[] argumentTypes = this.lookupType.getArgumentTypes();
+
+        Action superClassLoad = Optional.ofNullable(this.superClass)
                 .map(LdcLoadAction::of)
                 .map(__::cast)
                 .orElseGet(Actions::loadNull);
-        MethodInvokeAction fineMethod = new MethodInvokeAction(Runtime.FIND_METHOD)
-                .setArgs(lookupClass.getLookup(methodBody), lookupClass,
-                        LdcLoadAction.of(method.getName()),
+        MethodInvokeAction findMethod = new MethodInvokeAction(Runtime.FIND_METHOD)
+                .setArgs(lookupClass.getLookup(), lookupClass,
+                        LdcLoadAction.of(this.lookupName),
                         superClassLoad,
-                        Actions.asArray(TypeUtil.STRING_TYPE, Arrays.stream(runtime.getArgsType())
+                        Actions.asArray(TypeUtil.STRING_TYPE, Arrays.stream(argumentTypes)
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
                 );
-        mhMember.store(methodBody, fineMethod);
+        return mhMember.store(findMethod);
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String methodName, Type methodType, boolean isStatic) {
-        String superClass = this.method.getSuperClass();
-        boolean invokeSpecial = superClass != null & !isStatic;
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
+        boolean invokeSpecial = this.superClass != null & !isStatic;
+        Type[] argumentTypes = this.lookupType.getArgumentTypes();
+        Type returnType = this.lookupType.getReturnType();
+
         MethodInvokeAction findXXX;
-        Action argsType = Actions.asArray(TypeUtil.CLASS_TYPE, Arrays.stream(methodType.getArgumentTypes()).map(this::loadClass).toArray(Action[]::new));
-        Action returnType = methodType.getReturnType() == Type.VOID_TYPE || TypeUtil.isPrimitiveType(methodType.getReturnType())
-                ? LdcLoadAction.of(methodType.getReturnType()) : this.loadClass(methodType.getReturnType());
+        Action mhArgsTypeLoad = Actions.asArray(TypeUtil.CLASS_TYPE, Arrays.stream(argumentTypes).map(this::loadClass).toArray(Action[]::new));
+        Action mhRetTypeLoad = returnType == Type.VOID_TYPE || TypeUtil.isPrimitiveType(returnType)
+                ? LdcLoadAction.of(returnType) : this.loadClass(returnType);
         if (invokeSpecial) {
             findXXX = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDSPECIAL).setArgs(
-                    LdcLoadAction.of(TypeUtil.getType(superClass)),
-                    LdcLoadAction.of(methodName),
-                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType),
+                    LdcLoadAction.of(TypeUtil.getType(this.superClass)),
+                    LdcLoadAction.of(lookupName),
+                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(mhRetTypeLoad, mhArgsTypeLoad),
                     lookupClass
             );
         } else {
             findXXX = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATIC : MethodDescriptor.LOOKUP_FINDVIRTUAL).setArgs(
-                    superClass != null ? LdcLoadAction.of(TypeUtil.getType(superClass)) : lookupClass,
-                    LdcLoadAction.of(methodName),
-                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(returnType, argsType)
+                    this.superClass != null ? LdcLoadAction.of(TypeUtil.getType(this.superClass)) : lookupClass,
+                    LdcLoadAction.of(lookupName),
+                    new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(mhRetTypeLoad, mhArgsTypeLoad)
             );
         }
-        mhMember.store(clinit, findXXX.setInstance(lookupClass.getLookup()));
+        return mhMember.store(findXXX.setInstance(lookupClass.getLookup()));
     }
 }

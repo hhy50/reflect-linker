@@ -12,77 +12,53 @@ import java.lang.reflect.Modifier;
  */
 public class EarlyFieldRef extends FieldRef {
 
-    private Class<?> lookup;
+    private final Field reflect;
+
+    private Class<?> fieldType;
+
     /**
-     * 声明的类型
-     */
-    private final Class<?> declaredType;
-    /**
-     * 实际的类型.使用@Typed指定的类型
+     * assignedType
      */
     private Class<?> assignedType;
-    private boolean isStatic;
 
     /**
      * Instantiates a new Early field ref.
      *
-     * @param prev         the prev
-     * @param field        the field
-     * @param assignedType the assigned type
+     * @param field    the field
      */
-    public EarlyFieldRef(FieldRef prev, Field field, Class<?> assignedType) {
-        super(prev, field.getName());
-        this.lookup = field.getDeclaringClass();
-        this.declaredType = field.getType();
-        this.assignedType = assignedType;
-        this.isStatic = Modifier.isStatic(field.getModifiers());
+    public EarlyFieldRef(Field field) {
+        super(field.getName());
+        this.reflect = field;
+        this.fieldType = field.getType();
     }
 
     /**
      * Instantiates a new Early field ref.
      *
-     * @param prev           the prev
-     * @param fieldName      the field name
-     * @param fieldTypeClass the field type class
+     * @param fieldName  the fieldName
+     * @param fieldType the fieldType
      */
-    public EarlyFieldRef(FieldRef prev, String fieldName, Class<?> fieldTypeClass) {
-        super(prev, fieldName);
-        this.declaredType = fieldTypeClass;
-    }
-
-    /**
-     * Is static boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isStatic() {
-        return this.isStatic;
+    public EarlyFieldRef(String fieldName, Class<?> fieldType) {
+        super(fieldName);
+        this.reflect = null;
+        this.fieldType = fieldType;
     }
 
     @Override
     public Type getType() {
-        if (this.declaredType.isPrimitive() || Modifier.isPublic(this.declaredType.getModifiers())) {
-            return Type.getType(this.declaredType);
+        if (this.fieldType.isPrimitive() || Modifier.isPublic(this.fieldType.getModifiers())) {
+            return Type.getType(this.fieldType);
         }
         return ObjectVar.TYPE;
     }
 
     /**
-     * Gets lookup class.
+     * Sets assigned type.
      *
-     * @return the lookup class
+     * @param assignedType the assigned type
      */
-    public Type getLookupClass() {
-        return Type.getType(this.lookup);
-    }
-
-    /**
-     * Gets decalared type.
-     *
-     * @return the decalared type
-     */
-    public Type getDecalaredType() {
-        return Type.getType(this.declaredType);
+    public void setAssignedType(Class<?> assignedType) {
+        this.assignedType = assignedType;
     }
 
     /**
@@ -92,6 +68,15 @@ public class EarlyFieldRef extends FieldRef {
         if (this.assignedType != null) {
             return this.assignedType;
         }
-        return this.declaredType;
+        return this.fieldType;
+    }
+
+    /**
+     * Gets reflect.
+     *
+     * @return the reflect
+     */
+    public Field getReflect() {
+        return this.reflect;
     }
 }

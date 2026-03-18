@@ -22,17 +22,17 @@ public class FieldToken implements Token {
     public IndexToken index;
 
     /**
+     * The Nullable.
+     */
+    public boolean nullable = false;
+
+    /**
      * Instantiates a new Field token.
      *
      * @param fieldName the field name
      */
     public FieldToken(String fieldName) {
         this.fieldName = fieldName;
-    }
-
-    @Override
-    public String toString() {
-        return fieldName + (index == null ? "" : index.toString());
     }
 
     /**
@@ -45,8 +45,13 @@ public class FieldToken implements Token {
         return ReflectUtil.getField(owner, fieldName);
     }
 
-    public void setIndex(IndexToken index) {
-        this.index = index;
+    @Override
+    public Kind kind() {
+        return Kind.Field;
+    }
+
+    public void setIndex(List<ConstToken> index) {
+        this.index = new IndexToken(index);
     }
 
     /**
@@ -56,5 +61,23 @@ public class FieldToken implements Token {
      */
     public List<Object> getIndexVal() {
         return index != null ? index.toValues() : null;
+    }
+
+    /**
+     * Is nullable boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    @Override
+    public String toString() {
+        return fieldName+(index == null ? "" : index.toString())+(nullable ? "?" : "");
     }
 }

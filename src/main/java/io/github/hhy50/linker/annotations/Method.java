@@ -15,11 +15,12 @@ import java.lang.annotation.Target;
 public interface Method {
 
     /**
-     * 指定调用的方法，默认为方法名
+     * The interface Expr.
      */
+    @Verify.Unique
     @Retention(RetentionPolicy.RUNTIME)
     @java.lang.annotation.Target({ElementType.METHOD})
-    @interface Name {
+    @interface Expr {
         /**
          * Value string.
          *

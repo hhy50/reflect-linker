@@ -1,20 +1,25 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.annotations.Autolink;
-import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Action;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
-import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
-import io.github.hhy50.linker.generate.bytecode.utils.Args;
+import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.vars.ArrayVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
-import io.github.hhy50.linker.generate.getter.Getter;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInstWithLookup;
+import io.github.hhy50.linker.util.RandomUtil;
+import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.util.Arrays;
+import java.util.function.BiFunction;
+
+import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
 
 
 /**
@@ -22,48 +27,100 @@ import org.objectweb.asm.Type;
  */
 public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
 
+    private Boolean isDesignateStatic;
+
+    private Type mhType;
+
+    private MethodDescriptor rmd;
+
+    private boolean autolinked;
+
     /**
      * Instantiates a new Runtime method invoker.
      *
      * @param methodRef the method ref
      */
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
-        super(methodRef, methodRef.getMethodType());
+        super(methodRef.getName(), methodRef.getLookupType(), methodRef.getSuperClass());
+
+        Type genericType = methodRef.getGenericType();
+        this.isDesignateStatic = methodRef.isDesignateStatic();
+
+        this.rmd = MethodDescriptor.of("invoke_" + super.lookupName + RandomUtil.getRandomString(5), TypeUtil.appendArgs(genericType, Type.getType(Object[].class), true));
+        if (methodRef.isAutolink()) {
+            // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
+            // 约定将参数0设置为Autolink，以保证使用实参来查找方法
+//            super.lookupType = Type.getMethodType(lookupType.getReturnType(), Type.getType(Object[].class));
+            genericType = Type.getMethodType(genericType.getReturnType(), Type.getType(Object[].class));
+            super.lookupType = Type.getMethodType(lookupType.getReturnType(), Type.getType(Autolink.class));
+            this.autolinked = true;
+        }
+        this.mhType = genericType;
     }
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        boolean autolink = method.isAutolink();
-        FieldRef owner = method.getOwner();
-        Getter ownerGetter = classImplBuilder.getGetter(owner.getUniqueName());
-        ownerGetter.define(classImplBuilder);
+        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(super.lookupName);
+        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle("invoke_"+super.lookupName, this.mhType);
 
-        Type mhType = descriptor.getType();
-        Action args = autolink ? Actions.asArray(ObjectVar.TYPE, MethodBody::getArgs) : Args.loadArgs();
-        if (autolink) {
-            // 因为是根据形参寻找方法，但是形参是链接器，所以找不到具体方法，查找逻辑在io.github.hhy50.linker.runtime.Runtime.findMethod
-            // 约定将参数0设置为Autolink，以保证使用实参来查找方法
-            mhType = Type.getMethodType(descriptor.getReturnType(), Type.getType(Object[].class));
-            method.setArgsType(new Type[]{Type.getType(Autolink.class)});
+        BiFunction<VarInst, VarInst[], VarInst> invoker = (ownerVar, args) -> {
+            Action loadArgs = Actions.of(args);
+            if (this.autolinked) {
+                loadArgs = Actions.asArray(ObjectVar.TYPE, args);
+            }
+            Action action = isDesignateStatic != null ? (isDesignateStatic ? mhMember.invokeStatic(loadArgs) : mhMember.invokeInstance(ownerVar, loadArgs))
+                    : mhMember.invokeOfNull(ownerVar, loadArgs);
+
+            return VarInst.wrap(action, rmd.getReturnType());
+        };
+
+        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
+                .intercept(of(() -> new RuntimeOwnerAndType(LoadAction.aload(1)))
+                        .then(holder -> checkLookClass(lookupClass, holder.owner, holder.ownerType, holder.defaultType))
+                        .then(__ -> checkMethodHandle(lookupClass, mhMember))
+                        .mapBody((body, holder) -> {
+                            VarInst[] realArgs = Arrays.copyOfRange(body.getArgs(), 1, body.getArgs().length);
+                            return invoker.apply(holder.owner, realArgs);
+                        })
+                        .map(ret -> new VarInstWithLookup(ret, lookupClass))
+                        .areturn()
+                );
+    }
+
+    @Override
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> args) {
+        return of(() -> new SmartMethodInvokeAction(this.rmd)
+                .setInstance(LoadAction.LOAD0)
+                .setArgs(makeRuntimeOwner(args)));
+    }
+
+    /**
+     * The type Runtime owner and type.
+     */
+    static class RuntimeOwnerAndType  {
+        /**
+         * The Owner.
+         */
+        VarInst owner;
+        /**
+         * The Owner type.
+         */
+        VarInst ownerType;
+        /**
+         * The Default type.
+         */
+        VarInst defaultType;
+
+        /**
+         * Instantiates a new Runtime owner and type.
+         *
+         * @param arg0 the arg 0
+         */
+        public RuntimeOwnerAndType(Action arg0) {
+            ArrayVarInst arrayVarInst = new ArrayVarInst(VarInst.wrap(arg0, Type.getType(Object[].class)));
+            this.owner = arrayVarInst.index(0);
+            this.ownerType = arrayVarInst.index(1);
+            this.defaultType = arrayVarInst.index(2);
         }
-        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(method.getUniqueName());
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(method.getInvokerName(), mhType);
-
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
-                .intercept(ChainAction.of(ownerGetter::invoke)
-                                .then((body, ownerVar) -> checkLookClass(body, lookupClass, ownerVar, ownerGetter))
-                                .then((body, ownerVar) -> {
-                                    ClassTypeMember prevLookupClass = ownerGetter.lookupClass;
-                                    if (prevLookupClass != null) {
-                                        staticCheckClass(body, lookupClass, owner.fieldName, prevLookupClass);
-                                    }
-                                })
-                                .then((body, ownerVar) -> checkMethodHandle(body, lookupClass, mhMember, ownerVar))
-                                .map(method.isDesignateStatic() ?
-                                        (method.isStatic() ? ownerVar -> mhMember.invokeStatic(args)
-                                                : ownerVar -> mhMember.invokeInstance(ownerVar, args))
-                                        : ownerVar -> mhMember.invokeOfNull(ownerVar, args)
-                                ),
-                        Actions.areturn(descriptor.getReturnType()));
     }
 }

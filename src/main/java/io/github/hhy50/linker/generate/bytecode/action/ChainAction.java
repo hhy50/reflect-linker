@@ -1,11 +1,12 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 
-import java.util.function.BiConsumer;
+import java.lang.reflect.Array;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 
 /**
@@ -13,7 +14,12 @@ import java.util.function.Function;
  *
  * @param <T> the type parameter
  */
-public class ChainAction<T> extends AbstractChain<MethodBody, T> {
+public class ChainAction<T> extends AbstractChain<T> {
+
+    /**
+     * The Empty.
+     */
+    static final ChainAction<?> EMPTY = new ChainAction<>(__ -> null);
 
     /**
      * Instantiates a new Chain action.
@@ -24,11 +30,69 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         super(func);
     }
 
+
+    /**
+     * Empty chain action.
+     *
+     * @param <T> the type parameter
+     * @return the chain action
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> ChainAction<T> empty() {
+        return (ChainAction) EMPTY;
+    }
+
+    /**
+     * Join chain action.
+     *
+     * @param chain1 the chain 1
+     * @param chain2 the chain 2
+     * @return the chain action
+     */
+    public static ChainAction<VarInst[]> join(ChainAction<VarInst> chain1, ChainAction<VarInst[]> chain2) {
+        return ChainAction.of(body -> {
+            VarInst varInst = chain1.doChain(body);
+            VarInst[] varInsts = chain2.doChain(body);
+            if (varInsts == null) {
+                varInsts = new VarInst[0];
+            }
+            VarInst[] newVarInsts = new VarInst[varInsts.length + 1];
+            newVarInsts[0] = varInst;
+            System.arraycopy(varInsts, 0, newVarInsts, 1, newVarInsts.length - 1);
+            return newVarInsts;
+        });
+    }
+
+    public static ChainAction<VarInst[]> join2(ChainAction<VarInst[]> chain1, ChainAction<VarInst> chain2) {
+        return ChainAction.of(body -> {
+            VarInst[] varInsts = chain1.doChain(body);
+            VarInst varInst = chain2.doChain(body);
+            if (varInsts == null) {
+                varInsts = new VarInst[0];
+            }
+            VarInst[] newVarInsts = new VarInst[varInsts.length + 1];
+            System.arraycopy(varInsts, 0, newVarInsts, 0, varInsts.length);
+            newVarInsts[varInsts.length] = varInst;
+            return newVarInsts;
+        });
+    }
+
     @Override
     public void apply(MethodBody body) {
-        T t = doChain(body, body);
-        if (t instanceof Action) {
-            ((Action) t).apply(body);
+        T t = doChain(body);
+
+        if (t != null) {
+            if (t instanceof Action) {
+                ((Action) t).apply(body);
+            }
+            if (t.getClass().isArray()) {
+                for (int i = 0; i < Array.getLength(t); i++) {
+                    Object o = Array.get(t, i);
+                    if (o instanceof Action) {
+                        ((Action) o).apply(body);
+                    }
+                }
+            }
         }
     }
 
@@ -44,16 +108,31 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
     }
 
     /**
-     * Peek chain action.
+     * Of chain action.
      *
-     * @param consumer the consumer
+     * @param <T>      the type parameter
+     * @param provider the provider
      * @return the chain action
      */
-    public final ChainAction<T> then(Consumer<T> consumer) {
-        addConsumer((body, val) -> {
-            consumer.accept(val);
+    public static <T> ChainAction<T> of(Supplier<T> provider) {
+        return new ChainAction<>((__) -> provider.get());
+    }
+
+    /**
+     * Map owner and args chain action.
+     *
+     * @param <T>         the type parameter
+     * @param chainAction the chain action
+     * @param func        the func
+     * @return the chain action
+     */
+    public static <T> ChainAction<T> mapOwnerAndArgs(ChainAction<VarInst[]> chainAction, BiFunction<VarInst, VarInst[], T> func) {
+        return chainAction.map(args -> {
+            VarInst owner = args[0];
+            VarInst[] realArgs = new VarInst[args.length - 1];
+            System.arraycopy(args, 1, realArgs, 0, realArgs.length);
+            return func.apply(owner, realArgs);
         });
-        return this;
     }
 
     /**
@@ -70,16 +149,6 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
         return this;
     }
 
-    /**
-     * Then chain action.
-     *
-     * @param func the func
-     * @return the chain action
-     */
-    public ChainAction<T> then(BiConsumer<MethodBody, T> func) {
-        addConsumer(func);
-        return this;
-    }
 
     /**
      * Map chain action.
@@ -99,9 +168,22 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
      * @param func  the func
      * @return the chain action
      */
-    public <Out> ChainAction<Out> map(BiFunction<MethodBody, T, Out> func) {
+    public <Out> ChainAction<Out> mapBody(BiFunction<MethodBody, T, Out> func) {
         return new Next<>(this, func);
     }
+
+    /**
+     * Areturn chain action.
+     *
+     * @return the chain action
+     */
+    public ChainAction<Action> areturn() {
+        return new Next<>(this, varinst -> {
+            TypedAction typedAction = ((TypedAction) varinst);
+            return typedAction.thenReturn();
+        });
+    }
+
 
     /**
      * The type Next.
@@ -118,7 +200,7 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
          */
         public Next(ChainAction<In> prevAction, BiFunction<MethodBody, In, Out> func) {
             super((body) -> {
-                In in = prevAction.doChain(body, body);
+                In in = prevAction.doChain(body);
                 return func.apply(body, in);
             });
         }
@@ -131,7 +213,7 @@ public class ChainAction<T> extends AbstractChain<MethodBody, T> {
          */
         public Next(ChainAction<In> prevAction, Function<In, Out> func) {
             super((body) -> {
-                In in = prevAction.doChain(body, body);
+                In in = prevAction.doChain(body);
                 return func.apply(in);
             });
         }

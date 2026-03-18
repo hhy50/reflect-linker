@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Opcodes;
@@ -10,7 +10,7 @@ import org.objectweb.asm.Type;
 /**
  * The type Wrap type action.
  */
-public class BoxAction implements LoadAction, TypedAction {
+public class BoxAction extends VarInst {
     private final TypedAction obj;
     private final Type wrapperType;
 
@@ -36,11 +36,16 @@ public class BoxAction implements LoadAction, TypedAction {
     }
 
     @Override
-    public void load(MethodBody body) {
-        body.append(Actions.of(
-                obj,
-                c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap", "(" + obj.getType().getDescriptor() + ")Ljava/lang/Object;", false)
-        ));
+    public Action load() {
+        if (this.wrapperType != null) {
+            if (this.wrapperType.equals(ObjectVar.TYPE)) {
+                return Actions.withVisitor(obj, c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, RuntimeUtil.OWNER, "wrap",
+                        "(" + obj.getType().getDescriptor() + ")Ljava/lang/Object;", false));
+            }
+            return Actions.withVisitor(obj, c -> c.visitMethodInsn(Opcodes.INVOKESTATIC, this.wrapperType.getInternalName(), "valueOf",
+                    Type.getMethodDescriptor(this.wrapperType, obj.getType()), false));
+        }
+        return obj;
     }
 
     @Override
@@ -48,6 +53,6 @@ public class BoxAction implements LoadAction, TypedAction {
         if (this.wrapperType != null) {
             return this.wrapperType;
         }
-        return ObjectVar.TYPE;
+        return obj.getType();
     }
 }

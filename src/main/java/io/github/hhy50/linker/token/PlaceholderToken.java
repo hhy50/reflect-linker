@@ -3,7 +3,7 @@ package io.github.hhy50.linker.token;
 /**
  * The type Placeholder token.
  */
-public class PlaceholderToken implements Token{
+public class PlaceholderToken implements Token {
 
     /**
      * The Index.
@@ -17,6 +17,15 @@ public class PlaceholderToken implements Token{
      */
     public PlaceholderToken(int index) {
         this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    @Override
+    public Kind kind() {
+        return Kind.Placeholder;
     }
 
     @Override

@@ -1,17 +1,17 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.util.TypeUtil;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import static io.github.hhy50.linker.asm.AsmUtil.adaptLdcClassType;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
 
 /**
  * The type Ldc load action.
  */
-public class LdcLoadAction implements LoadAction, TypedAction {
+public class LdcLoadAction extends VarInst {
 
     private Object ldcConstVar;
 
@@ -25,15 +25,16 @@ public class LdcLoadAction implements LoadAction, TypedAction {
     }
 
     @Override
-    public void load(MethodBody body) {
-        MethodVisitor mv = body.getWriter();
-        if (ldcConstVar instanceof Type) {
-            adaptLdcClassType(mv, (Type) ldcConstVar);
-        } else if (ldcConstVar instanceof Class) {
-            adaptLdcClassType(mv, Type.getType((Class) ldcConstVar));
-        } else {
-            mv.visitLdcInsn(ldcConstVar);
-        }
+    public Action load() {
+        return withVisitor(mv -> {
+            if (ldcConstVar instanceof Type) {
+                adaptLdcClassType(mv, (Type) ldcConstVar);
+            } else if (ldcConstVar instanceof Class) {
+                adaptLdcClassType(mv, Type.getType((Class) ldcConstVar));
+            } else {
+                mv.visitLdcInsn(ldcConstVar);
+            }
+        });
     }
 
     /**

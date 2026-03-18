@@ -24,12 +24,8 @@ public interface TypedAction extends Action {
      * @return action action
      */
     default Action thenReturn() {
-        return body -> {
-            Type type = getType();
-            requireNonNull(type);
-
-            apply(body);
-            Actions.areturn(type).apply(body);
-        };
+        Type type = getType();
+        requireNonNull(type);
+        return Actions.of(this, Actions.areturn(type));
     }
 }

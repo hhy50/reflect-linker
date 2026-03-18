@@ -1,36 +1,52 @@
 package io.github.hhy50.linker.token;
 
+
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
  * The type Args token.
  */
-public class ArgsToken implements Token {
-    /**
-     * The Args.
-     */
-    public List<Token> args = new ArrayList<>();
+public class ArgsToken extends ArrayList<Token> {
 
     /**
-     * Instantiates a new Args token.
+     * The constant ALL.
      */
-    public ArgsToken() {
+    public static final ArgsToken ALL = of(new AllPlaceholderToken());
 
+    /**
+     * Of args token.
+     *
+     * @param tokens the tokens
+     * @return the args token
+     */
+    public static ArgsToken of(Token... tokens) {
+        ArgsToken t = new ArgsToken();
+        t.addAll(Arrays.asList(tokens));
+        return t;
     }
 
     /**
-     * Add.
+     * Of all args token.
      *
-     * @param token the token
+     * @return the args token
      */
-    public void add(Token token) {
-        this.args.add(token);
+    public static ArgsToken ofAll() {
+        return ALL;
     }
 
     @Override
     public String toString() {
-        return "(" + args.stream().map(Object::toString).collect(Collectors.joining(",")) + ")";
+        return "(" + this.stream().map(Object::toString).collect(Collectors.joining(",")) + ")";
+    }
+
+    /**
+     * Is placeholder all boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isPlaceholderAll() {
+        return this.size() == 1 && this.get(0).kind() == Token.Kind.PlaceholderAll;
     }
 }

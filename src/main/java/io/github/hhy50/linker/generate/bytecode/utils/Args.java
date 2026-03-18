@@ -1,10 +1,8 @@
 package io.github.hhy50.linker.generate.bytecode.utils;
 
-import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LazyTypedAction;
-import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
-import io.github.hhy50.linker.generate.bytecode.vars.LocalVarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
 
 import java.util.stream.IntStream;
@@ -21,13 +19,13 @@ public class Args {
      */
     public static Action loadArgs(int... argIndices) {
         return body -> {
-            LocalVarInst[] args = body.getArgs();
+            VarInst[] args = body.getArgs();
             int[] indices = argIndices;
             if (argIndices.length == 0) {
                 indices = IntStream.range(0, args.length).toArray();
             }
             for (int i = 0; i < indices.length; i++) {
-                args[indices[i]].loadToStack();
+                body.append(args[indices[i]]);
             }
         };
     }
@@ -38,15 +36,17 @@ public class Args {
      * @param index the index
      * @return the action
      */
-    public static LoadArgsAction of(int index) {
-        return new LoadArgsAction() {
+    public static VarInst of(int index) {
+        return new DynamicArgLoadAction() {
             private Type type;
 
             @Override
-            public void load(MethodBody body) {
-                LocalVarInst arg = body.getArgs()[index];
-                arg.loadToStack();
-                this.type = arg.getType();
+            public Action load() {
+                return body -> {
+                    VarInst arg = body.getArgs()[index];
+                    body.append(arg);
+                    this.type = arg.getType();
+                };
             }
 
             @Override
@@ -57,23 +57,9 @@ public class Args {
     }
 
     /**
-     * Load args ignore this action.
-     *
-     * @return the action
-     */
-    public static Action loadArgsIgnoreThis() {
-        return body -> {
-            LocalVarInst[] args = body.getArgs();
-            for (int i = 1; i < args.length; i++) {
-                args[i].loadToStack();
-            }
-        };
-    }
-
-    /**
      * The interface Load args action.
      */
-    public interface LoadArgsAction extends LoadAction, LazyTypedAction {
+    public static abstract class DynamicArgLoadAction extends VarInst implements LazyTypedAction {
 
     }
 }

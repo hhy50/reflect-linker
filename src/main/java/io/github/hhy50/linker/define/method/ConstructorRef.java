@@ -1,8 +1,7 @@
 package io.github.hhy50.linker.define.method;
 
-import io.github.hhy50.linker.define.field.EarlyFieldRef;
+import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
-import io.github.hhy50.linker.generate.invoker.Invoker;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
@@ -19,25 +18,16 @@ public class ConstructorRef extends MethodRef {
     /**
      * Instantiates a new Constructor ref.
      *
-     * @param owner       the owner
      * @param name        the name
      * @param constructor the constructor
      */
-    public ConstructorRef(EarlyFieldRef owner, String name, Constructor<?> constructor) {
-        super(owner, name);
+    public ConstructorRef(String name, Constructor<?> constructor) {
+        super(name);
         this.constructor = constructor;
     }
 
-    public Type getMethodType() {
-        Type rType = ObjectVar.TYPE;
-        if (Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
-            rType = Type.getType(constructor.getDeclaringClass());
-        }
-        return Type.getMethodType(rType, Type.getType(constructor).getArgumentTypes());
-    }
-
     @Override
-    public Invoker<?> defineInvoker() {
+    public MethodHandle defineInvoker() {
         return new io.github.hhy50.linker.generate.constructor.Constructor(this);
     }
 
@@ -46,7 +36,25 @@ public class ConstructorRef extends MethodRef {
      *
      * @return the declare type
      */
-    public Type getDeclareType() {
+    public Type getLookupClass() {
         return Type.getType(constructor.getDeclaringClass());
+    }
+
+    @Override
+    public Type getLookupType() {
+        Type rType = ObjectVar.TYPE;
+        if (Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
+            rType = Type.getType(constructor.getDeclaringClass());
+        }
+        return Type.getMethodType(rType, Type.getType(constructor).getArgumentTypes());
+    }
+
+    /**
+     * Gets reflect.
+     *
+     * @return the reflect
+     */
+    public Constructor<?> getReflect() {
+        return constructor;
     }
 }

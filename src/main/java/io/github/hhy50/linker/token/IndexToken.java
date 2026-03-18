@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 /**
  * The type Index token.
  */
-public class IndexToken implements Token {
+public class IndexToken {
 
     /**
      * The Index.

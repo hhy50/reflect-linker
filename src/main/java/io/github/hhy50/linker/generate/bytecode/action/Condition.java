@@ -10,6 +10,8 @@ import org.objectweb.asm.Type;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
+
 
 /**
  * The interface Condition.
@@ -32,12 +34,11 @@ public interface Condition {
      * @return the condition
      */
     public static Condition isNull(Action obj) {
-        return (body, ifLabel, elseLabel) -> {
-            MethodVisitor mv = body.getWriter();
-            obj.apply(body);
-            mv.visitJumpInsn(Opcodes.IFNULL, ifLabel);
-            mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
-        };
+        return (body, ifLabel, elseLabel) ->
+            body.append(withVisitor(obj, mv -> {
+                mv.visitJumpInsn(Opcodes.IFNULL, ifLabel);
+                mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
+            }));
     }
 
     /**
@@ -47,26 +48,25 @@ public interface Condition {
      * @return the condition
      */
     public static Condition notNull(Action obj) {
-        return (body, ifLabel, elseLabel) -> {
-            MethodVisitor mv = body.getWriter();
-            obj.apply(body);
-            mv.visitJumpInsn(Opcodes.IFNONNULL, ifLabel);
-            mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
-        };
+        return (body, ifLabel, elseLabel) ->
+                body.append(withVisitor(obj, mv -> {
+                    mv.visitJumpInsn(Opcodes.IFNONNULL, ifLabel);
+                    mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
+                }));
     }
 
     /**
      * If true condition.
      *
-     * @param action the action
+     * @param obj the obj
      * @return the condition
      */
-    static Condition ifTrue(Action action) {
-        return (body, ifLabel, elseLabel) -> {
-            action.apply(body);
-            body.getWriter().visitJumpInsn(Opcodes.IFNE, ifLabel);
-            body.getWriter().visitJumpInsn(Opcodes.GOTO, elseLabel);
-        };
+    static Condition ifTrue(Action obj) {
+        return (body, ifLabel, elseLabel) ->
+                body.append(withVisitor(obj, mv -> {
+                    mv.visitJumpInsn(Opcodes.IFNE, ifLabel);
+                    mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
+                }));
     }
 
     /**
@@ -76,12 +76,11 @@ public interface Condition {
      * @return the condition
      */
     public static Condition ifFalse(Action obj) {
-        return (body, ifLabel, elseLabel) -> {
-            MethodVisitor mv = body.getWriter();
-            obj.apply(body);
-            mv.visitJumpInsn(Opcodes.IFEQ, ifLabel);
-            mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
-        };
+        return (body, ifLabel, elseLabel) ->
+                body.append(withVisitor(obj, mv -> {
+                    mv.visitJumpInsn(Opcodes.IFEQ, ifLabel);
+                    mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
+                }));
     }
 
     /**
@@ -92,14 +91,11 @@ public interface Condition {
      * @return the condition
      */
     public static Condition notEq(Action left, Action right) {
-        return (body, ifLabel, elseLabel) -> {
-            left.apply(body);
-            right.apply(body);
-
-            MethodVisitor mv = body.getWriter();
-            mv.visitJumpInsn(Opcodes.IF_ACMPNE, ifLabel);
-            mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
-        };
+        return (body, ifLabel, elseLabel) ->
+                body.append(withVisitor(left, right, mv -> {
+                    mv.visitJumpInsn(Opcodes.IF_ACMPNE, ifLabel);
+                    mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
+                }));
     }
 
     /**
@@ -110,14 +106,11 @@ public interface Condition {
      * @return the condition
      */
     public static Condition eq(Action left, Action right) {
-        return (body, ifLabel, elseLabel) -> {
-            left.apply(body);
-            right.apply(body);
-
-            MethodVisitor mv = body.getWriter();
-            mv.visitJumpInsn(Opcodes.IF_ACMPEQ, ifLabel);
-            mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
-        };
+        return (body, ifLabel, elseLabel) ->
+                body.append(withVisitor(left, right, mv -> {
+                    mv.visitJumpInsn(Opcodes.IF_ACMPEQ, ifLabel);
+                    mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
+                }));
     }
 
     /**
@@ -128,14 +121,12 @@ public interface Condition {
      * @return the condition
      */
     public static Condition instanceOf(Action obj, Type expectType) {
-        return (body, ifLabel, elseLabel) -> {
-            obj.apply(body);
-
-            MethodVisitor mv = body.getWriter();
-            mv.visitTypeInsn(Opcodes.INSTANCEOF, expectType.getInternalName());
-            mv.visitJumpInsn(Opcodes.IFNE, ifLabel);
-            mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
-        };
+        return (body, ifLabel, elseLabel) ->
+                body.append(withVisitor(obj, mv -> {
+                    mv.visitTypeInsn(Opcodes.INSTANCEOF, expectType.getInternalName());
+                    mv.visitJumpInsn(Opcodes.IFNE, ifLabel);
+                    mv.visitJumpInsn(Opcodes.GOTO, elseLabel);
+                }));
     }
 
     /**

@@ -5,18 +5,15 @@ package io.github.hhy50.linker.define.field;
  */
 public class RuntimeFieldRef extends FieldRef {
 
-    private boolean designateStatic;
-
-    private boolean isStatic;
+    private Boolean designateStatic;
 
     /**
      * Instantiates a new Runtime field ref.
      *
-     * @param prev      the prev
      * @param fieldName the field name
      */
-    public RuntimeFieldRef(FieldRef prev, String fieldName) {
-        super(prev, fieldName);
+    public RuntimeFieldRef(String fieldName) {
+        super(fieldName);
     }
 
     /**
@@ -24,17 +21,8 @@ public class RuntimeFieldRef extends FieldRef {
      *
      * @return the boolean
      */
-    public boolean isDesignateStatic() {
+    public Boolean isDesignateStatic() {
         return designateStatic;
-    }
-
-    /**
-     * Is static boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isStatic() {
-        return isStatic;
     }
 
     /**
@@ -42,8 +30,11 @@ public class RuntimeFieldRef extends FieldRef {
      *
      * @param isStatic the is static
      */
-    public void designateStatic(boolean isStatic) {
-        this.designateStatic = true;
-        this.isStatic = isStatic;
+    public void setStatic(boolean isStatic) {
+        if (this.designateStatic == null) {
+            this.designateStatic = isStatic;
+        } else if (this.designateStatic ^ isStatic) {
+            throw new IllegalArgumentException("The static-value specified twice are inconsistent, field="+super.name);
+        }
     }
 }

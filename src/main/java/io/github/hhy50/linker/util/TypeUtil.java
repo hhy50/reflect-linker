@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.util;
 
+import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import org.objectweb.asm.Type;
 
 import java.lang.invoke.MethodHandle;
@@ -143,20 +144,33 @@ public class TypeUtil {
     /**
      * Gets type.
      *
+     * @param clazz the actual type
+     * @return the type
+     */
+    public static String getClassName(Class<?> clazz) {
+        if (clazz.isArray()) {
+            return getClassName(clazz.getComponentType()) + "[]";
+        }
+        return clazz.getName();
+    }
+
+    /**
+     * Gets type.
+     *
      * @param clazz the clazz
      * @return the type
      */
     public static Type getType(String clazz) {
         String prefix = "";
         while (clazz.endsWith("[]")) {
-            clazz = clazz.substring(0, clazz.length()-2);
+            clazz = clazz.substring(0, clazz.length() - 2);
             prefix += "[";
         }
         Type primitiveType = getPrimitiveType(clazz);
         if (primitiveType != null) {
-            return Type.getType(prefix+primitiveType.getDescriptor());
+            return Type.getType(prefix + primitiveType.getDescriptor());
         }
-        return Type.getType(prefix+toTypeDesc(clazz));
+        return Type.getType(prefix + toTypeDesc(clazz));
     }
 
     /**
@@ -212,7 +226,7 @@ public class TypeUtil {
      * @return the string
      */
     public static String toTypeDesc(String className) {
-        return "L"+ClassUtil.className2path(className)+";";
+        return "L" + ClassUtil.className2path(className) + ";";
     }
 
     /**
@@ -242,6 +256,44 @@ public class TypeUtil {
         String delimiter = header ? "\\(" : "\\)";
         String[] split = methodType.getDescriptor().split(delimiter);
         split[0] += argType.getDescriptor();
-        return Type.getMethodType(header ? ("("+split[0]+split[1]) : (split[0]+")"+split[1]));
+        return Type.getMethodType(header ? ("(" + split[0] + split[1]) : (split[0] + ")" + split[1]));
+    }
+
+    /**
+     * Generic type type.
+     *
+     * @param type the type
+     * @return the type
+     */
+    public static Type genericType(Type type) {
+        if (type.getSort() == Type.OBJECT) {
+            return Type.getType("Ljava/lang/Object;");
+        }
+
+        Type methodType = type;
+        Type rType = methodType.getReturnType();
+        Type[] argsType = methodType.getArgumentTypes();
+        if (!rType.equals(Type.VOID_TYPE) && TypeUtil.isObjectType(rType)) {
+            rType = ObjectVar.TYPE;
+        }
+        for (int i = 0; i < argsType.length; i++) {
+            if (!argsType[i].equals(Type.VOID_TYPE) && TypeUtil.isObjectType(argsType[i])) {
+                argsType[i] = ObjectVar.TYPE;
+            }
+        }
+        return Type.getMethodType(rType, argsType);
+    }
+
+    /**
+     * Gets dimensions.
+     *
+     * @param t the t
+     * @return the dimensions
+     */
+    public static int getDimensions(Type t) {
+        if (t.getDescriptor().startsWith("[")) {
+            return t.getDimensions();
+        }
+        return 0;
     }
 }

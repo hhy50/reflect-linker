@@ -1,27 +1,34 @@
 package io.github.hhy50.linker.generate.constructor;
 
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
-import io.github.hhy50.linker.generate.bytecode.action.Actions;
-import io.github.hhy50.linker.generate.bytecode.action.ClassLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.action.MethodInvokeAction;
-import io.github.hhy50.linker.generate.bytecode.utils.Args;
+import io.github.hhy50.linker.generate.bytecode.action.*;
+import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.util.TypeUtil;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 
 /**
  * The type Constructor.
  */
 public class Constructor extends Invoker<ConstructorRef> {
+    /**
+     *
+     */
+    private ConstructorRef ref;
+
+    /**
+     * The Inline action.
+     */
+    public Function<VarInst[], VarInst> inlineAction;
 
     /**
      * Instantiates a new Constructor.
@@ -29,7 +36,8 @@ public class Constructor extends Invoker<ConstructorRef> {
      * @param constructor the constructor ref
      */
     public Constructor(ConstructorRef constructor) {
-        super(constructor, constructor.getMethodType());
+        super(null, constructor.getLookupType());
+        this.ref = constructor;
     }
 
     @Override
@@ -37,23 +45,26 @@ public class Constructor extends Invoker<ConstructorRef> {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(method.getInvokerName(), null, descriptor.getType());
-        initStaticMethodHandle(clinit, mhMember, loadClass(method.getDeclareType()), null, descriptor.getType(), false);
-
-        classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, descriptor.getMethodName(), descriptor.getType(), null)
-                .intercept(mhMember.invokeStatic(Args.loadArgs()).thenReturn());
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.ref.getReflect(), super.lookupName, null, super.lookupType);
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(ref.getLookupClass()), false));
+        this.inlineAction = mhMember::invokeStatic;
     }
 
     @Override
-    protected void initStaticMethodHandle(MethodBody clinit, MethodHandleMember mhMember, ClassLoadAction lookupClass, String args0, Type methodType, boolean args1) {
-        MethodInvokeAction findConstructor = new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
+    public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
+        // 忽略传递过来的target
+        return ChainAction.mapOwnerAndArgs(argsAction, (__, args) -> inlineAction.apply(args));
+    }
+
+    @Override
+    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean args1) {
+        return mhMember.store(new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),
                                 Actions.asArray(TypeUtil.CLASS_TYPE,
-                                        Arrays.stream(methodType.getArgumentTypes()).map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
-
-                        ));
-        mhMember.store(clinit, findConstructor);
+                                        Arrays.stream(super.lookupType.getArgumentTypes())
+                                                .map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
+                        )));
     }
 }

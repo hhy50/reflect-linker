@@ -2,7 +2,6 @@ package io.github.hhy50.linker.generate.bytecode;
 
 
 import io.github.hhy50.linker.asm.AsmField;
-import io.github.hhy50.linker.define.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.RuntimeUtil;
@@ -14,11 +13,25 @@ import org.objectweb.asm.Type;
  */
 public class MethodHandleMember extends Member {
 
-    private final Type invokerType;
+    /**
+     *
+     */
+    private final Type lookupType;
 
+    /**
+     *
+     */
     private final Type methodType;
 
+    /**
+     *
+     */
     private boolean invokeExact;
+
+    /**
+     *
+     */
+    private boolean inited;
 
     /**
      * Instantiates a new Method handle member.
@@ -28,20 +41,20 @@ public class MethodHandleMember extends Member {
      */
     public MethodHandleMember(AsmField field, Type methodType) {
         super(field);
-        this.invokerType = null;
+        this.lookupType = null;
         this.methodType = methodType;
     }
 
     /**
      * Instantiates a new Method handle member.
      *
-     * @param field       the field
-     * @param invokerType the invoker type
-     * @param methodType  the method type
+     * @param field      the field
+     * @param lookupType the invoker type
+     * @param methodType the method type
      */
-    public MethodHandleMember(AsmField field, Type invokerType, Type methodType) {
+    public MethodHandleMember(AsmField field, Type lookupType, Type methodType) {
         super(field);
-        this.invokerType = invokerType;
+        this.lookupType = lookupType;
         this.methodType = methodType;
     }
 
@@ -97,9 +110,9 @@ public class MethodHandleMember extends Member {
      * @return the action
      */
     public MethodInvokeAction invokeInstance(VarInst that, Action... args) {
-        Type invokerType = this.invokerType == null ? that.getType() : this.invokerType;
+        Type invokerType = this.lookupType == null ? that.getType() : this.lookupType;
 
-        Action[] newArgs = new Action[args.length+1];
+        Action[] newArgs = new Action[args.length + 1];
         newArgs[0] = new TypeCastAction(that, invokerType);
         System.arraycopy(args, 0, newArgs, 1, args.length);
 
@@ -117,5 +130,14 @@ public class MethodHandleMember extends Member {
      */
     public void setInvokeExact(boolean invokeExact) {
         this.invokeExact = invokeExact;
+    }
+
+    @Override
+    public Action store(Action action) {
+        if (this.inited) {
+            return Actions.empty();
+        }
+        this.inited = true;
+        return super.store(action);
     }
 }

@@ -1,9 +1,10 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
-import io.github.hhy50.linker.generate.MethodBody;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
 
 /**
  * The type New object action.
@@ -37,19 +38,17 @@ public class NewObjectAction implements LoadAction, TypedAction {
     }
 
     @Override
-    public void load(MethodBody body) {
-        MethodVisitor mv = body.getWriter();
-
-        mv.visitTypeInsn(Opcodes.NEW, objType.getInternalName());
-        mv.visitInsn(Opcodes.DUP);
-
-        if (args != null) {
-            for (Action arg : args) {
-                body.append(arg);
-            }
-        }
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, objType.getInternalName(), "<init>",
-                Type.getMethodDescriptor(Type.VOID_TYPE, argsType), false);
+    public Action load() {
+        return of(
+                withVisitor(mv -> {
+                    mv.visitTypeInsn(Opcodes.NEW, objType.getInternalName());
+                    mv.visitInsn(Opcodes.DUP);
+                }),
+                of(args),
+                withVisitor(mv ->
+                        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, objType.getInternalName(), "<init>",
+                                Type.getMethodDescriptor(Type.VOID_TYPE, argsType), false))
+        );
     }
 
     @Override

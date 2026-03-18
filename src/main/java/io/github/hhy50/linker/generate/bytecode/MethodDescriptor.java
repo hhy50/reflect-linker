@@ -1,0 +1,242 @@
+package io.github.hhy50.linker.generate.bytecode;
+
+import io.github.hhy50.linker.LinkerFactory;
+import io.github.hhy50.linker.generate.builtin.TargetProvider;
+import io.github.hhy50.linker.util.StringUtil;
+import io.github.hhy50.linker.util.TypeUtil;
+import org.objectweb.asm.Type;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
+import java.util.*;
+
+/**
+ * The type Method holder.
+ */
+public class MethodDescriptor {
+    /**
+     * The constant OBJECT_GET_CLASS.
+     */
+    public static final MethodDescriptor GET_CLASS = MethodDescriptor.of(Object.class, "getClass", Class.class);
+    /**
+     * The constant CLASS_GET_NAME.
+     */
+    public static final MethodDescriptor GET_CANONICAL_NAME = MethodDescriptor.of(Class.class, "getCanonicalName", String.class);
+    /**
+     * The constant LOOKUP_FIND_GETTER_METHOD.
+     */
+    public static final MethodDescriptor LOOKUP_FINDGETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findGetter",
+            MethodHandle.class, Class.class, String.class, Class.class);
+    /**
+     * The constant LOOKUP_FIND_STATIC_GETTER_METHOD.
+     */
+    public static final MethodDescriptor LOOKUP_FINDSTATICGETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findStaticGetter",
+            MethodHandle.class, Class.class, String.class, Class.class);
+    /**
+     * The constant LOOKUP_FIND_SETTER_METHOD.
+     */
+    public static final MethodDescriptor LOOKUP_FINDSETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findSetter",
+            MethodHandle.class, Class.class, String.class, Class.class);
+    /**
+     * The constant LOOKUP_FIND_STATIC_SETTER_METHOD.
+     */
+    public static final MethodDescriptor LOOKUP_FINDSTATICSETTER = MethodDescriptor.of(MethodHandles.Lookup.class, "findStaticSetter",
+            MethodHandle.class, Class.class, String.class, Class.class);
+    /**
+     * The constant LOOKUP_FIND_FINDVIRTUAL.
+     */
+    public static final MethodDescriptor LOOKUP_FINDVIRTUAL = MethodDescriptor.of(MethodHandles.Lookup.class, "findVirtual",
+            MethodHandle.class, Class.class, String.class, MethodType.class);
+    /**
+     * The constant LOOKUP_FIND_FINDSTATIC.
+     */
+    public static final MethodDescriptor LOOKUP_FINDSTATIC = MethodDescriptor.of(MethodHandles.Lookup.class, "findStatic",
+            MethodHandle.class, Class.class, String.class, MethodType.class);
+    /**
+     * The constant LOOKUP_FIND_FINDSPECIAL.
+     */
+    public static final MethodDescriptor LOOKUP_FINDSPECIAL = MethodDescriptor.of(MethodHandles.Lookup.class, "findSpecial",
+            MethodHandle.class, Class.class, String.class, MethodType.class, Class.class);
+    /**
+     * The constant LOOKUP_FIND_CONSTRUCTOR.
+     */
+    public static final MethodDescriptor LOOKUP_FINDCONSTRUCTOR = MethodDescriptor.of(MethodHandles.Lookup.class, "findConstructor",
+            MethodHandle.class, Class.class, MethodType.class);
+    /**
+     * The constant METHOD_TYPE.
+     */
+    public static final MethodDescriptor METHOD_TYPE = MethodDescriptor.of(MethodType.class, "methodType",
+            MethodType.class, Class.class, Class[].class);
+    /**
+     * The constant ARRAYS_ASLIST.
+     */
+    public static final MethodDescriptor ARRAYS_ASLIST = MethodDescriptor.of(Arrays.class, "asList",
+            List.class, Object[].class);
+    /**
+     * The constant DEFAULT_PROVIDER_GET_TARGET.
+     */
+    public static final MethodDescriptor TARGET_PROVIDER_GET_TARGET = MethodDescriptor.of(TargetProvider.class, "getTarget",
+            Object.class);
+    /**
+     * The constant LINKER_FACTORY_CREATE_LINKER.
+     */
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER = MethodDescriptor.of(LinkerFactory.class, "createLinker",
+            Object.class, Class.class, Object.class);
+    /**
+     * The constant LINKER_FACTORY_CREATE_LINKER_COLLECT.
+     */
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_LINKER_COLLECT = MethodDescriptor.of(LinkerFactory.class, "createLinkerCollect",
+            Collection.class, Class.class, Collection.class);
+    /**
+     * The constant LINKER_FACTORY_CREATE_STATIC_LINKER.
+     */
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER = MethodDescriptor.of(LinkerFactory.class, "createStaticLinker",
+            Object.class, Class.class, Class.class);
+    /**
+     * The constant LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER.
+     */
+    public static final MethodDescriptor LINKER_FACTORY_CREATE_STATIC_LINKER_CLASSLOADER = MethodDescriptor.of(LinkerFactory.class, "createStaticLinker",
+            Object.class, Class.class, ClassLoader.class);
+    /**
+     * The constant GET_CLASS_LOADER.
+     */
+    public static final MethodDescriptor GET_CLASS_LOADER = MethodDescriptor.of(Class.class, "getClassLoader",
+            ClassLoader.class);
+    /**
+     * The constant MAP_GET.
+     */
+    public static final MethodDescriptor MAP_GET = MethodDescriptor.of(Map.class, "get", Object.class, Object.class);
+
+    private final String owner;
+    private final String name;
+    private final Type type;
+
+    /**
+     * of method descriptor.
+     *
+     * @param method the method
+     * @return method descriptor
+     */
+    public static MethodDescriptor of(Method method) {
+        return of(method.getDeclaringClass(), method.getName(), method.getReturnType(), method.getParameterTypes());
+    }
+
+    /**
+     * of method descriptor.
+     *
+     * @param argsType the args type
+     * @return method descriptor
+     */
+    public static MethodDescriptor ofConstructor(Class<?>... argsType) {
+        return new SmartMethodDescriptor("<init>", TypeUtil.getMethodType(void.class, argsType));
+    }
+
+    /**
+     * of method descriptor.
+     *
+     * @param clazzName the clazz name
+     * @param name      the method name
+     * @param rType     the r type
+     * @param argsType  the args type
+     * @return method descriptor
+     */
+    public static MethodDescriptor of(Class<?> clazzName, String name, Class<?> rType, Class<?>... argsType) {
+        return new MethodDescriptor(TypeUtil.toOwner(clazzName.getName()), name, TypeUtil.getMethodType(rType, argsType));
+    }
+
+    /**
+     * Of method descriptor.
+     *
+     * @param owner the owner
+     * @param name  the method name
+     * @param mType the method type
+     * @return the method descriptor
+     */
+    public static MethodDescriptor of(String owner, String name, Type mType) {
+        return new MethodDescriptor(owner, name, mType);
+    }
+
+    /**
+     * Of method descriptor.
+     *
+     * @param name  the method name
+     * @param mType the method type
+     * @return the method descriptor
+     */
+    public static SmartMethodDescriptor of(String name, Type mType) {
+        return new SmartMethodDescriptor(name, mType);
+    }
+
+    /**
+     * Instantiates a new Method descriptor.
+     *
+     * @param base the base
+     */
+    public MethodDescriptor(MethodDescriptor base) {
+        this(base.owner, base.name, base.type);
+    }
+
+    /**
+     * Instantiates a new Method holder.
+     *
+     * @param owner the owner
+     * @param name  the method name
+     * @param type  the method desc
+     */
+    public MethodDescriptor(String owner, String name, Type type) {
+        if (StringUtil.isEmpty(owner) || StringUtil.isEmpty(name) || Objects.isNull(type)) {
+            throw new IllegalArgumentException("owner or name or type can not be null");
+        }
+        this.owner = owner;
+        this.name = name;
+        this.type = type;
+    }
+
+    /**
+     * Gets owner.
+     *
+     * @return the owner
+     */
+    public String getOwner() {
+        return owner;
+    }
+
+    /**
+     * Gets method name.
+     *
+     * @return the method name
+     */
+    public String getMethodName() {
+        return name;
+    }
+
+    /**
+     * Gets type.
+     *
+     * @return type
+     */
+    public Type getType() {
+        return type;
+    }
+
+    /**
+     * Gets desc.
+     *
+     * @return the desc
+     */
+    public String getDesc() {
+        return type.getDescriptor();
+    }
+
+
+    /**
+     * Gets return type.
+     *
+     * @return return type
+     */
+    public Type getReturnType() {
+        return this.type.getReturnType();
+    }
+}

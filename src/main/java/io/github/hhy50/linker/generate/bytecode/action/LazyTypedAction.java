@@ -6,9 +6,6 @@ package io.github.hhy50.linker.generate.bytecode.action;
  */
 public interface LazyTypedAction extends TypedAction {
     default Action thenReturn() {
-        return body ->  {
-            apply(body);
-            Actions.areturn(getType()).apply(body);
-        };
+        return Actions.of(this, Actions.areturn(this::getType));
     }
 }
