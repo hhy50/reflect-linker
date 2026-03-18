@@ -9,17 +9,15 @@ import io.github.hhy50.linker.generate.ClassImplGenerator;
 import io.github.hhy50.linker.generate.builtin.RuntimeProvider;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.ref.SoftReference;
+import java.util.*;
 
 /**
  * The type Class define parse.
  */
 public class ClassDefineParser {
 
-    private static final Map<String, Map<String, GeneratedClass>> PARSED = new HashMap<>();
+    private static final Map<String, SoftReference<GeneratedClass>> PARSED = new HashMap<>();
 
     /**
      * Parse class interface impl class define.
@@ -34,7 +32,7 @@ public class ClassDefineParser {
     public static GeneratedClass parseClass(Class<?> define, ClassLoader cl) throws ParseException, ClassNotFoundException, IOException {
         Target.Bind bindAnno = define.getDeclaredAnnotation(Target.Bind.class);
         if (bindAnno == null) {
-            throw new VerifyException("use @Target.Bind specified a class  \n"+
+            throw new VerifyException("use @Target.Bind specified a class \n" +
                     "                  or use @Runtime designated as runtime");
         }
         Class<?> targetClass = cl.loadClass(bindAnno.value());
@@ -54,13 +52,17 @@ public class ClassDefineParser {
     public static GeneratedClass parseClass(Class<?> define, Class<?> targetClass) throws ParseException, IOException, ClassNotFoundException {
         AbsInterfaceMetadata classMetadata = new AbsInterfaceMetadata(define, targetClass);
         boolean runtime = classMetadata.isRuntime();
-        if (runtime) {
-            targetClass = Object.class;
+        Class<?> parseTargetClass = runtime ? Object.class : targetClass;
+        String dynKey = parseTargetClass == Object.class ? "runtime" : parseTargetClass.getName().replace('.', '_');
+        String implClassName = define.getName() + "$" + dynKey;
+
+        GeneratedClass cached = getCached(implClassName);
+        if (cached != null) {
+            return cached;
         }
 
-        String dynKey = targetClass == Object.class ? "runtime" : targetClass.getName().replace('.', '_');
-        ParseContext parseContext = new ParseContext(classMetadata, targetClass);
-        parseContext.setClassLoader(targetClass.getClassLoader());
+        ParseContext parseContext = new ParseContext(classMetadata, parseTargetClass);
+        parseContext.setClassLoader(parseTargetClass.getClassLoader());
         List<MethodExprRef> absMethods = parseContext.parse();
 
         List<Class<?>> interfaces = new ArrayList<>();
@@ -69,7 +71,23 @@ public class ClassDefineParser {
             interfaces.add(RuntimeProvider.class);
         }
 
-        String implClassName = define.getName()+"$"+dynKey;
-        return ClassImplGenerator.generateBytecode(classMetadata, implClassName, absMethods, interfaces);
+        GeneratedClass generatedClass = ClassImplGenerator.generateBytecode(classMetadata, implClassName, absMethods, interfaces);
+        PARSED.put(implClassName, new SoftReference<>(generatedClass));
+        return generatedClass;
+    }
+
+    private static GeneratedClass getCached(String key) {
+        synchronized (PARSED) {
+            SoftReference<GeneratedClass> defineCache = PARSED.get(key);
+            if (defineCache == null) {
+                return null;
+            }
+
+            GeneratedClass generatedClass = defineCache.get();
+            if (generatedClass == null) {
+                PARSED.remove(key);
+            }
+            return generatedClass;
+        }
     }
 }
