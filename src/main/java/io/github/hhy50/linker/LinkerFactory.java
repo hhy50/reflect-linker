@@ -54,6 +54,10 @@ public class LinkerFactory {
      * @throws LinkerException the linker exception
      */
     public static <T> T createLinker(Class<T> define, Object target) throws LinkerException {
+        if (!define.isInterface()) {
+            throw new RuntimeException("define-class must be an interface");
+        }
+
         if (target == null) {
             throw new NullPointerException("target");
         }
