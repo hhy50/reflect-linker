@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.define.parameter;
 
+import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
@@ -8,6 +9,9 @@ import io.github.hhy50.linker.generate.invoker.Getter;
 import io.github.hhy50.linker.token.ArgsToken;
 
 public interface ParameterLoader {
+
+    default void define(InvokeClassImplBuilder classImplBuilder) {
+    }
 
     /**
      *

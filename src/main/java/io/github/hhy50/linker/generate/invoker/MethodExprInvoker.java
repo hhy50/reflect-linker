@@ -51,6 +51,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
             for (MethodExprStep stepMethod : stepMethods) {
                 MethodRef methodRef = stepMethod.getMethodRef();
                 ParameterLoader parameterLoader = stepMethod.getParameterLoader();
+                parameterLoader.define(classImplBuilder);
 
                 MethodHandle mh = methodRef.defineInvoker();
                 mh.define(classImplBuilder);

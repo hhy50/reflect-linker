@@ -138,7 +138,7 @@ public abstract class MethodHandle {
      * @param expectType the expect type
      * @return the var inst
      */
-    protected VarInst typeCast(VarInst varInst, Type expectType) {
+    public static VarInst typeCast(VarInst varInst, Type expectType) {
         if (varInst.getType().equals(expectType)) {
             return varInst;
         }

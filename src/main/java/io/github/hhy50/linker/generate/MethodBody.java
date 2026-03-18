@@ -77,7 +77,9 @@ public class MethodBody {
      * @return the var inst [ ]
      */
     public VarInst[] getArgs() {
-        return args;
+        VarInst[] varInsts = new VarInst[args.length];
+        System.arraycopy(args, 0, varInsts, 0, args.length);
+        return varInsts;
     }
 
     /**
