@@ -227,19 +227,23 @@ public class ParseContext {
                 ParameterParser parametersParser = new ParameterParser(this, metadata, methodToken.getArgsToken());
                 String[] types = parametersParser.getParametersTypes();
 
-                Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
-                MethodRef m;
-                if (method != null) {
-                    m = new EarlyMethodRef(method);
-                    curType = method.getReturnType();
+                MethodRef m = findBuildinFunc(methodToken.methodName, types);
+                if (m != null) {
+
                 } else {
-                    Boolean designateStatic = metadata.isDesignateStatic(methodToken.methodName);
-                    m = new RuntimeMethodRef(methodToken.methodName, types)
-                            .setAutolink(metadata.isAutolink());
-                    curType = Object.class;
-                    ((RuntimeMethodRef) m).setStatic(designateStatic);
+                    Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
+                    if (method != null) {
+                        m = new EarlyMethodRef(method);
+                        curType = method.getReturnType();
+                    } else {
+                        Boolean designateStatic = metadata.isDesignateStatic(methodToken.methodName);
+                        m = new RuntimeMethodRef(methodToken.methodName, types)
+                                .setAutolink(metadata.isAutolink());
+                        curType = Object.class;
+                        ((RuntimeMethodRef) m).setStatic(designateStatic);
+                    }
+                    m.setSuperClass(invokeSuper);
                 }
-                m.setSuperClass(invokeSuper);
                 m.setIndexs(methodToken.getIndexs());
                 m.setNullable(methodToken.isNullable());
                 methodExprRef.addStepMethod(m, parametersParser.getParameterLoader());
