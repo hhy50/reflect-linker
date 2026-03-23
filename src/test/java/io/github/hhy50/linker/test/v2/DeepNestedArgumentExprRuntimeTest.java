@@ -3,7 +3,6 @@ package io.github.hhy50.linker.test.v2;
 import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.annotations.Method;
 import io.github.hhy50.linker.annotations.Runtime;
-import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.LinkerException;
 import org.junit.Assert;
 import org.junit.Test;

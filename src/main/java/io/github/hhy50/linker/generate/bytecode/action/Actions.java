@@ -52,6 +52,10 @@ public interface Actions {
         return withVisitor(mv -> mv.visitInsn(Opcodes.ACONST_NULL));
     }
 
+    static Action throwE(VarInst e) {
+        return withVisitor(e, mv -> mv.visitInsn(Opcodes.ATHROW));
+    }
+
     /**
      * Throw null exception action.
      *

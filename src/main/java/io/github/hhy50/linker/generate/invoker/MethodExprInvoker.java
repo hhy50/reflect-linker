@@ -22,12 +22,18 @@ import org.objectweb.asm.Type;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import static io.github.hhy50.linker.generate.bytecode.action.Actions._try;
+import static io.github.hhy50.linker.generate.bytecode.action.Actions.throwE;
+import static io.github.hhy50.linker.generate.bytecode.action.Condition.any;
+import static io.github.hhy50.linker.generate.bytecode.action.Condition.instanceOf;
+
 /**
  * The type Method expr invoker.
  */
 public class MethodExprInvoker extends Invoker<MethodExprRef> {
     private final Type methodType;
     private final String methodName;
+    private final List<Type> exceptions;
     private final List<MethodExprStep> stepMethods;
 
     /**
@@ -37,6 +43,7 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
      */
     public MethodExprInvoker(MethodExprRef mr) {
         super(mr.getName(), null);
+        this.exceptions = mr.getExceptionTypes();
         this.stepMethods = mr.getStepMethods();
         this.methodType = mr.getMethodType();
         this.methodName = "invoke_" + mr.getName() + "_expr_" + RandomUtil.getRandomString(5);
@@ -97,7 +104,17 @@ public class MethodExprInvoker extends Invoker<MethodExprRef> {
             }
             return varInstChain.areturn();
         };
-        builder.intercept(invoker.apply(target.invoke(ChainAction.empty()), ChainAction.of(MethodBody::getArgs)));
+
+        Action body = invoker.apply(target.invoke(ChainAction.empty()), ChainAction.of(MethodBody::getArgs));
+        if (!this.exceptions.isEmpty()) {
+            body = _try(body)
+                    ._catch(Type.getType(Throwable.class), e -> {
+                        Condition[] conditions = this.exceptions.stream().map(et -> instanceOf(e, et)).toArray(Condition[]::new);
+                        return new ConditionJumpAction(any(conditions), defaultReturnAction(), throwE(e));
+                    });
+        }
+
+        builder.intercept(body);
     }
 
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {

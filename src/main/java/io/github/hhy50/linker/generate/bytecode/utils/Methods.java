@@ -12,6 +12,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -25,9 +26,11 @@ public class Methods {
      *
      * @param method the method
      * @return the method invoke action
-     * @throws NoSuchMethodException the no such method exception
      */
-    public static MethodInvokeAction invoke(Method method) throws NoSuchMethodException {
+    public static MethodInvokeAction invoke(Method method){
+        if (Modifier.isStatic(method.getModifiers())) {
+            return Methods.invokerStatic(MethodDescriptor.of(method));
+        }
         return new MethodInvokeAction(MethodDescriptor.of(method));
     }
 
@@ -96,6 +99,10 @@ public class Methods {
      */
     public static MethodInvokeAction invokeSuper(String superOwner, MethodDescriptor md) {
         return new InvokeSupper(superOwner, md);
+    }
+
+    public static MethodInvokeAction invokerStatic(MethodDescriptor md) {
+        return new InvokeStatic(md);
     }
 
     /**
@@ -178,6 +185,20 @@ public class Methods {
         @Override
         public MethodInvokeAction setInstance(Action instance) {
             throw new UnsupportedOperationException("InvokeSupper() method not support set invoke object");
+        }
+    }
+
+
+    static class InvokeStatic extends MethodInvokeAction {
+        public InvokeStatic(MethodDescriptor md) {
+            super(md);
+        }
+        public int getOpCode() {
+            return Opcodes.INVOKESTATIC;
+        }
+        @Override
+        public MethodInvokeAction setInstance(Action instance) {
+            return this;
         }
     }
 }

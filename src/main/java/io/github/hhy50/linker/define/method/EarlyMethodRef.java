@@ -1,14 +1,16 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.MethodHandle;
+import io.github.hhy50.linker.generate.invoker.DirectMethodInvoker;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
+import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
-import static io.github.hhy50.linker.util.ClassUtil.isPublic;
 
 /**
  * The type Early method ref.
@@ -36,7 +38,17 @@ public class EarlyMethodRef extends MethodRef {
 
     @Override
     public MethodHandle defineInvoker() {
+        if (canDirectInvoke()) {
+            return new DirectMethodInvoker(this);
+        }
         return new EarlyMethodInvoker(this);
+    }
+
+    private boolean canDirectInvoke() {
+        return this.superClass == null
+                && !isInvisible()
+                && Modifier.isPublic(reflect.getModifiers())
+                && System.getProperty("java.version").startsWith("1.");
     }
 
     @Override
@@ -71,11 +83,11 @@ public class EarlyMethodRef extends MethodRef {
      * @return the boolean
      */
     public boolean isInvisible() {
-        if (!isPublic(reflect.getReturnType())) {
+        if (!ClassUtil.isPublic(reflect.getReturnType())) {
             return true;
         }
         for (Class<?> parameterType : reflect.getParameterTypes()) {
-            if (!isPublic(parameterType)) {
+            if (!ClassUtil.isPublic(parameterType)) {
                 return true;
             }
         }

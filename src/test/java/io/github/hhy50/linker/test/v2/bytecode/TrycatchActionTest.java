@@ -112,7 +112,7 @@ public class TrycatchActionTest {
             LocalVarInst result = body.newLocalVar(STRING_TYPE, "result", Actions.loadNull());
             body.append(_try(result.store(LdcLoadAction.of("try")))
                     ._catch(RUNTIME_EXCEPTION_TYPE,
-                            result.store(LdcLoadAction.of("catch"))));
+                            e -> result.store(LdcLoadAction.of("catch"))));
             body.append(result.thenReturn());
         }).end();
     }
@@ -126,7 +126,7 @@ public class TrycatchActionTest {
         ).accept(body -> {
             LocalVarInst result = body.newLocalVar(STRING_TYPE, "result", Actions.loadNull());
             body.append(_try(throwException("boom"))
-                    ._catch(RUNTIME_EXCEPTION_TYPE, result.store(LdcLoadAction.of("catch"))));
+                    ._catch(RUNTIME_EXCEPTION_TYPE, e -> result.store(LdcLoadAction.of("catch"))));
             body.append(result.thenReturn());
         }).end();
     }

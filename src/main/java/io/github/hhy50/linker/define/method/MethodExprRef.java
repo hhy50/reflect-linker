@@ -11,6 +11,7 @@ import io.github.hhy50.linker.token.Token;
 import org.objectweb.asm.Type;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The type Method expr ref.
@@ -18,6 +19,7 @@ import java.util.*;
 public class MethodExprRef extends MethodRef {
 
     private final AbsMethodMetadata metadata;
+    private final List<Type> exceptionTypes;
     private final List<MethodExprStep> stepMethods;
     private final Type[] parameterTypes;
     private Type returnType = Type.VOID_TYPE;
@@ -30,6 +32,7 @@ public class MethodExprRef extends MethodRef {
     public MethodExprRef(AbsMethodMetadata metadata) {
         super(metadata.getName());
         this.metadata = metadata;
+        this.exceptionTypes = Arrays.stream(metadata.getExceptions()).map(Type::getType).collect(Collectors.toList());
         this.stepMethods = new ArrayList<>();
         this.parameterTypes = Arrays.stream(metadata.getParameters()).map(p -> Type.getType(p.getType())).toArray(Type[]::new);
     }
@@ -83,6 +86,10 @@ public class MethodExprRef extends MethodRef {
                 this.parameterTypes[index] = type;
             }
         }
+    }
+
+    public List<Type> getExceptionTypes() {
+        return exceptionTypes;
     }
 
     /**

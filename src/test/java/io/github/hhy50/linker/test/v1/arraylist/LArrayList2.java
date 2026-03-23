@@ -3,6 +3,7 @@ package io.github.hhy50.linker.test.v1.arraylist;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
 import io.github.hhy50.linker.annotations.Runtime;
+import io.github.hhy50.linker.annotations.TrycatchException;
 import io.github.hhy50.linker.generate.builtin.TargetProvider;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public interface LArrayList2 extends TargetProvider<List> {
      * <p>add.</p>
      *
      */
+    @TrycatchException({RuntimeException.class, Exception.class, NullPointerException.class, NoSuchFieldError.class, NoSuchFieldException.class})
     @Method.Expr("add(..)")
     void addStr(String str);
     @Method.Expr("add('1234')")

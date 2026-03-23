@@ -8,6 +8,7 @@ import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
 import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.define.method.*;
+import io.github.hhy50.linker.define.method.buildin.BuildinFunction;
 import io.github.hhy50.linker.define.parameter.ParameterLoader;
 import io.github.hhy50.linker.define.parameter.ParameterParser;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
@@ -22,6 +23,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+
+import static io.github.hhy50.linker.define.method.buildin.BuildinFunction.matchesBuildinFunction;
 
 /**
  * The type Parse context.
@@ -227,9 +230,10 @@ public class ParseContext {
                 ParameterParser parametersParser = new ParameterParser(this, metadata, methodToken.getArgsToken());
                 String[] types = parametersParser.getParametersTypes();
 
-                MethodRef m = findBuildinFunc(methodToken.methodName, types);
-                if (m != null) {
-
+                MethodRef m;
+                BuildinFunction buildinFunc = matchesBuildinFunction(methodToken.methodName, types);
+                if (buildinFunc != null) {
+                    m = buildinFunc.toMethodRef();
                 } else {
                     Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
                     if (method != null) {

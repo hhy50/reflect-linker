@@ -1,8 +1,11 @@
 package io.github.hhy50.linker.generate.bytecode.action;
 
+import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.util.function.Function;
 
 import static io.github.hhy50.linker.generate.bytecode.action.Actions.empty;
 import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
@@ -28,11 +31,11 @@ public class TrycatchAction implements LoadAction {
         });
     }
 
-    public TrycatchAction _catch(Type e, Action catchblock) {
-        Action catchbefore = withVisitor(mv -> mv.visitLabel(cs), (Action) body -> body.newLocalVar(e, null, empty()));
-
-        this.catchblock = catchblock;
-        this.catchblock = withVisitor(catchbefore, this.catchblock, mv -> {
+    public TrycatchAction _catch(Type e, Function<VarInst, Action> catchblock) {
+        this.catchblock = withVisitor(mv -> mv.visitLabel(cs), (Action) body -> {
+            body.append(catchblock.apply(body.newLocalVar(e, null, empty())));
+        });
+        this.catchblock = withVisitor(this.catchblock, this.catchblock, mv -> {
             mv.visitLabel(ce);
             mv.visitTryCatchBlock(ts, te, cs, e.getInternalName());
         });
