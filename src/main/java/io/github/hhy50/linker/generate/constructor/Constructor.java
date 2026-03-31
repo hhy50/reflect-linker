@@ -19,7 +19,7 @@ import java.util.function.Function;
 /**
  * The type Constructor.
  */
-public class Constructor extends Invoker<ConstructorRef> {
+public class Constructor extends Invoker {
     /**
      *
      */

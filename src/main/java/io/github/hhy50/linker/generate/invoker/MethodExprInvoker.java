@@ -30,7 +30,7 @@ import static io.github.hhy50.linker.generate.bytecode.action.Condition.instance
 /**
  * The type Method expr invoker.
  */
-public class MethodExprInvoker extends Invoker<MethodExprRef> {
+public class MethodExprInvoker extends Invoker {
     private final Type methodType;
     private final String methodName;
     private final List<Type> exceptions;

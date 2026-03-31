@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
+import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -15,18 +15,17 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwn
 /**
  * The type Early method invoker.
  */
-public class DirectMethodInvoker extends Invoker<EarlyMethodRef> {
+public class DirectMethodInvoker extends MethodHandle {
+
     private final Method reflect;
+
     protected BiFunction<VarInst, VarInst[], VarInst> inlineAction;
 
     /**
      * Instantiates a new Early method invoker.
-     *
-     * @param mr the method ref
      */
-    public DirectMethodInvoker(EarlyMethodRef mr) {
-        super(mr.getName(), mr.getLookupType(), mr.getSuperClass());
-        this.reflect = mr.getReflect();
+    public DirectMethodInvoker(Method reflect) {
+        this.reflect = reflect;
     }
 
     @Override

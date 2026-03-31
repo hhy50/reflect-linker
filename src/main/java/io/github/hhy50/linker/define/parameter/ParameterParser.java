@@ -39,7 +39,7 @@ public class ParameterParser implements ParameterLoader {
         parse();
     }
 
-    public String[] getParametersTypes() {
+    public String[] getParameterTypes() {
         return this.parameters.stream().toArray(String[]::new);
     }
 

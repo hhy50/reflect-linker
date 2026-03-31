@@ -1,14 +1,12 @@
 package io.github.hhy50.linker.define.method;
 
 import io.github.hhy50.linker.generate.MethodHandle;
-import io.github.hhy50.linker.generate.invoker.DirectMethodInvoker;
 import io.github.hhy50.linker.generate.invoker.EarlyMethodInvoker;
 import io.github.hhy50.linker.util.ClassUtil;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 
@@ -38,17 +36,7 @@ public class EarlyMethodRef extends MethodRef {
 
     @Override
     public MethodHandle defineInvoker() {
-        if (canDirectInvoke()) {
-            return new DirectMethodInvoker(this);
-        }
         return new EarlyMethodInvoker(this);
-    }
-
-    private boolean canDirectInvoke() {
-        return this.superClass == null
-                && !isInvisible()
-                && Modifier.isPublic(reflect.getModifiers())
-                && System.getProperty("java.version").startsWith("1.");
     }
 
     @Override

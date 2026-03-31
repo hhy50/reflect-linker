@@ -8,7 +8,7 @@ import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
 import io.github.hhy50.linker.define.md.AbsMethodMetadata;
 import io.github.hhy50.linker.define.method.*;
-import io.github.hhy50.linker.define.method.buildin.BuildinFunction;
+import io.github.hhy50.linker.define.method.buildin.ClassBuildinMethodRef;
 import io.github.hhy50.linker.define.parameter.ParameterLoader;
 import io.github.hhy50.linker.define.parameter.ParameterParser;
 import io.github.hhy50.linker.exceptions.ClassTypeNotMatchException;
@@ -23,8 +23,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-
-import static io.github.hhy50.linker.define.method.buildin.BuildinFunction.matchesBuildinFunction;
 
 /**
  * The type Parse context.
@@ -159,7 +157,7 @@ public class ParseContext {
     public MethodExprRef parseMethod(AbsMethodMetadata metadata) throws VerifyException, ClassNotFoundException, ParseException {
         if (metadata.isConstructor()) {
             ParameterParser parametersParser = new ParameterParser(this, metadata, ArgsToken.ofAll());
-            String[] types = parametersParser.getParametersTypes();
+            String[] types = parametersParser.getParameterTypes();
             Constructor<?> constructor = ReflectUtil.matchConstructor(rootType, types);
             if (constructor == null) {
                 throw new ParseException(
@@ -228,13 +226,11 @@ public class ParseContext {
             }
             if (methodToken != null) {
                 ParameterParser parametersParser = new ParameterParser(this, metadata, methodToken.getArgsToken());
-                String[] types = parametersParser.getParametersTypes();
+                String[] types = parametersParser.getParameterTypes();
 
                 MethodRef m;
-                BuildinFunction buildinFunc = matchesBuildinFunction(methodToken.methodName, types);
-                if (buildinFunc != null) {
-                    m = buildinFunc.toMethodRef();
-                } else {
+                m = matchesBuildinFunction(methodToken.methodName, types);
+                if (m == null) {
                     Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
                     if (method != null) {
                         m = new EarlyMethodRef(method);
@@ -255,6 +251,7 @@ public class ParseContext {
         }
         return methodExprRef;
     }
+
 
     /**
      * Parse field expr list.
@@ -302,5 +299,13 @@ public class ParseContext {
             fields.add(fieldRef);
         }
         return fields;
+    }
+
+
+    static MethodRef matchesBuildinFunction(String name, String[] types) {
+        if (name.equals("class")) {
+            return new ClassBuildinMethodRef();
+        }
+        return null;
     }
 }

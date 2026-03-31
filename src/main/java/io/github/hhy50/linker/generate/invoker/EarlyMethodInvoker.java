@@ -17,7 +17,7 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.mapOwn
 /**
  * The type Early method invoker.
  */
-public class EarlyMethodInvoker extends Invoker<EarlyMethodRef> {
+public class EarlyMethodInvoker extends Invoker {
     private final Method reflect;
     private final boolean isInvisible;
     private final Type genericType;

@@ -1,6 +1,5 @@
 package io.github.hhy50.linker.generate.invoker;
 
-import io.github.hhy50.linker.define.method.MethodRef;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
@@ -20,9 +19,8 @@ import java.util.Optional;
 /**
  * The type Invoker.
  *
- * @param <T> the type parameter
  */
-public abstract class Invoker<T extends MethodRef> extends MethodHandle {
+public abstract class Invoker extends MethodHandle {
     /**
      * 方法名字
      */

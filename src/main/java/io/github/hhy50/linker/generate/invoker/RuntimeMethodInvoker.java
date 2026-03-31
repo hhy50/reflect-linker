@@ -25,7 +25,7 @@ import static io.github.hhy50.linker.generate.bytecode.action.ChainAction.of;
 /**
  * The type Runtime method invoker.
  */
-public class RuntimeMethodInvoker extends Invoker<RuntimeMethodRef> {
+public class RuntimeMethodInvoker extends Invoker {
 
     private Boolean isDesignateStatic;
 
