@@ -25,7 +25,7 @@ public class FieldSetterMethodRef extends MethodRef {
     }
 
     @Override
-    public Type getLookupType() {
+    public Type getMethodType() {
         return Type.getMethodType(Type.VOID_TYPE, field.getType());
     }
 

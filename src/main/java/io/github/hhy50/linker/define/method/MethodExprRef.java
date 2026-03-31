@@ -51,7 +51,7 @@ public class MethodExprRef extends MethodRef {
         this.stepMethods.add(new MethodExprStep(methodRef, loader));
         this.returnType = methodRef.getReturnType();
 
-        Type type = methodRef.getGenericType();
+        Type type = methodRef.getMethodType();
         this.analyse(type, loader.getArgsToken());
     }
 
@@ -108,11 +108,6 @@ public class MethodExprRef extends MethodRef {
      */
     public Type getMethodType() {
         return Type.getMethodType(this.returnType, this.parameterTypes);
-    }
-
-    @Override
-    public Type getLookupType() {
-        throw new UnsupportedOperationException();
     }
 
     @Override

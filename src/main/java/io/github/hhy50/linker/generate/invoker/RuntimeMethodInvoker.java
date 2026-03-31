@@ -43,7 +43,7 @@ public class RuntimeMethodInvoker extends Invoker {
     public RuntimeMethodInvoker(RuntimeMethodRef methodRef) {
         super(methodRef.getName(), methodRef.getLookupType(), methodRef.getSuperClass());
 
-        Type genericType = methodRef.getGenericType();
+        Type genericType = methodRef.getMethodType();
         this.isDesignateStatic = methodRef.isDesignateStatic();
 
         this.rmd = MethodDescriptor.of("invoke_" + super.lookupName + RandomUtil.getRandomString(5), TypeUtil.appendArgs(genericType, Type.getType(Object[].class), true));

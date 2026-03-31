@@ -83,7 +83,7 @@ public class InvokeClassImplBuilder extends AsmClassBuilder {
         String mhName = name + "_mh_" + RandomUtil.getRandomString(5);
         AsmField field = super.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL,
                 mhName, METHOD_HANDLER_TYPE, null, null);
-        MethodHandleMember mh = new MethodHandleMember(field, lookupType, methodType);
+        MethodHandleMember mh = new MethodHandleMember(field, methodType, lookupType);
         this.mhFields.put(uniqueKey, mh);
         return mh;
     }

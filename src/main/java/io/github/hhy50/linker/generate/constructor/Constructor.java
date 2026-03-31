@@ -3,12 +3,12 @@ package io.github.hhy50.linker.generate.constructor;
 import io.github.hhy50.linker.define.method.ConstructorRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
+import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
-import io.github.hhy50.linker.generate.invoker.Invoker;
 import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
@@ -19,11 +19,17 @@ import java.util.function.Function;
 /**
  * The type Constructor.
  */
-public class Constructor extends Invoker {
+public class Constructor extends MethodHandle {
     /**
      *
      */
-    private ConstructorRef ref;
+    private final java.lang.reflect.Constructor<?> reflect;
+    /**
+     *
+     */
+    private final Type methodType;
+
+    private final Type lookupType;
 
     /**
      * The Inline action.
@@ -36,8 +42,9 @@ public class Constructor extends Invoker {
      * @param constructor the constructor ref
      */
     public Constructor(ConstructorRef constructor) {
-        super(null, constructor.getLookupType());
-        this.ref = constructor;
+        this.reflect = constructor.getReflect();
+        this.methodType = constructor.getMethodType();
+        this.lookupType = Type.getType(reflect.getDeclaringClass());
     }
 
     @Override
@@ -45,8 +52,8 @@ public class Constructor extends Invoker {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.ref.getReflect(), super.lookupName, null, super.lookupType);
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(ref.getLookupClass()), false));
+        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.reflect, "constructor", null, this.methodType);
+        clinit.append(initStaticMethodHandle(mhMember, loadClass(this.lookupType), false));
         this.inlineAction = mhMember::invokeStatic;
     }
 
@@ -63,7 +70,7 @@ public class Constructor extends Invoker {
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),
                                 Actions.asArray(TypeUtil.CLASS_TYPE,
-                                        Arrays.stream(super.lookupType.getArgumentTypes())
+                                        Arrays.stream(this.methodType.getArgumentTypes())
                                                 .map(LdcLoadAction::of).toArray(LdcLoadAction[]::new))
                         )));
     }

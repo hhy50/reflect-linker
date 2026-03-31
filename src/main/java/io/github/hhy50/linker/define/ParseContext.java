@@ -234,12 +234,10 @@ public class ParseContext {
                     Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
                     if (method != null) {
                         m = new EarlyMethodRef(method);
-                        curType = method.getReturnType();
                     } else {
                         Boolean designateStatic = metadata.isDesignateStatic(methodToken.methodName);
                         m = new RuntimeMethodRef(methodToken.methodName, types)
                                 .setAutolink(metadata.isAutolink());
-                        curType = Object.class;
                         ((RuntimeMethodRef) m).setStatic(designateStatic);
                     }
                     m.setSuperClass(invokeSuper);
@@ -247,6 +245,7 @@ public class ParseContext {
                 m.setIndexs(methodToken.getIndexs());
                 m.setNullable(methodToken.isNullable());
                 methodExprRef.addStepMethod(m, parametersParser.getParameterLoader());
+                curType = Object.class;
             }
         }
         return methodExprRef;

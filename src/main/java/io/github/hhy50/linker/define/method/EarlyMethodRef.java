@@ -30,13 +30,17 @@ public class EarlyMethodRef extends MethodRef {
     }
 
     @Override
-    public Type getLookupType() {
-        return Type.getType(reflect);
+    public MethodHandle defineInvoker() {
+        return new EarlyMethodInvoker(this);
     }
 
     @Override
-    public MethodHandle defineInvoker() {
-        return new EarlyMethodInvoker(this);
+    public Type getMethodType() {
+        Type lookupType = Type.getType(reflect);
+        if (isInvisible()) {
+            return TypeUtil.genericType(lookupType);
+        }
+        return lookupType;
     }
 
     @Override
@@ -54,15 +58,6 @@ public class EarlyMethodRef extends MethodRef {
      */
     public Method getReflect() {
         return this.reflect;
-    }
-
-    @Override
-    public Type getGenericType() {
-        Type lookupType = Type.getType(reflect);
-        if (isInvisible()) {
-            return TypeUtil.genericType(lookupType);
-        }
-        return lookupType;
     }
 
     /**

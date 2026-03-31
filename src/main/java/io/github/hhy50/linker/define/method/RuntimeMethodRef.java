@@ -34,13 +34,12 @@ public class RuntimeMethodRef extends MethodRef {
         return new RuntimeMethodInvoker(this);
     }
 
-    @Override
     public Type getLookupType() {
         return Type.getMethodType(ObjectVar.TYPE, this.argsType);
     }
 
     @Override
-    public Type getGenericType() {
+    public Type getMethodType() {
         Type[] newArgs = new Type[this.argsType.length];
         Arrays.fill(newArgs, ObjectVar.TYPE);
         return Type.getMethodType(ObjectVar.TYPE, newArgs);

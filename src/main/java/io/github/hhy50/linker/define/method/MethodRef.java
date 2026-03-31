@@ -77,23 +77,9 @@ public abstract class MethodRef {
     public abstract MethodHandle defineInvoker();
 
     /**
-     * 这个方法返回来的类型用来定位具体的methodhandle, 所以类型是具体的类型
-     *
-     * @return the lookup type
-     */
-    public abstract Type getLookupType();
-
-    /**
-     * Gets generic type.
-     * 这个方法的作用:
-     * 1. 用于执行methodhandle的类型
-     * 2. 用于定义运行时方法的类型
-     *
      * @return the generic type
      */
-    public Type getGenericType() {
-        return getLookupType();
-    }
+    public abstract Type getMethodType();
 
     /**
      * Sets indexs.
@@ -137,7 +123,7 @@ public abstract class MethodRef {
      * @return the return type
      */
     Type getReturnType() {
-        Type t = this.getGenericType().getReturnType();
+        Type t = this.getMethodType().getReturnType();
         if (this.indexs == null || this.indexs.isEmpty()) {
             return t;
         }

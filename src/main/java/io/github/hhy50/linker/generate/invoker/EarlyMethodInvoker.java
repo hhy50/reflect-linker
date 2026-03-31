@@ -32,11 +32,11 @@ public class EarlyMethodInvoker extends Invoker {
      * @param mr the method ref
      */
     public EarlyMethodInvoker(EarlyMethodRef mr) {
-        super(mr.getName(), mr.getLookupType(), mr.getSuperClass());
+        super(mr.getName(), Type.getType(mr.getReflect()), mr.getSuperClass());
 
         this.reflect = mr.getReflect();
         this.isInvisible = mr.isInvisible();
-        this.genericType = mr.getGenericType();
+        this.genericType = mr.getMethodType();
     }
 
     @Override

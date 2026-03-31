@@ -27,7 +27,7 @@ public class ClassBuildinMethodRef extends MethodRef {
     }
 
     @Override
-    public Type getLookupType() {
+    public Type getMethodType() {
         return Type.getMethodType(Type.getType(Class.class), Type.getType(String.class));
     }
 }

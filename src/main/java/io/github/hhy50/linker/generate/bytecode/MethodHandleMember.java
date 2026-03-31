@@ -49,10 +49,10 @@ public class MethodHandleMember extends Member {
      * Instantiates a new Method handle member.
      *
      * @param field      the field
-     * @param lookupType the invoker type
      * @param methodType the method type
+     * @param lookupType the invoker type
      */
-    public MethodHandleMember(AsmField field, Type lookupType, Type methodType) {
+    public MethodHandleMember(AsmField field, Type methodType, Type lookupType) {
         super(field);
         this.lookupType = lookupType;
         this.methodType = methodType;

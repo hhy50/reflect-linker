@@ -66,7 +66,7 @@ public class MethodExprInvoker extends Invoker {
                 ChainAction<VarInst[]> stepArgsChain = parameterLoader.loadStepArgs(mh, argsChainAction)
                         .map(varInsts -> {
                             if (varInsts != null) {
-                                Type mType = methodRef.getGenericType();
+                                Type mType = methodRef.getMethodType();
                                 Type[] argsType = mType.getArgumentTypes();
                                 for (int i = 0; i < varInsts.length; i++) {
                                     varInsts[i] = typeCast(varInsts[i], argsType[i]);
