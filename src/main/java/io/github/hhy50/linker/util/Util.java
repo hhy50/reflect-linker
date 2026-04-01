@@ -71,10 +71,14 @@ public class Util {
      * @return the class
      */
     public static Class<?> expandIndexType(List<Object> index, Class<?> type) {
-        if (index == null) return type;
+        if (index == null || index.isEmpty()) return type;
         if (index.size() > TypeUtil.getArrayDimension(type)) {
             return Object.class;
         }
-        return type.getComponentType();
+        Class<?> currentType = type;
+        for (int i = 0; i < index.size(); i++) {
+            currentType = currentType.getComponentType();
+        }
+        return currentType;
     }
 }

@@ -3,11 +3,19 @@ package io.github.hhy50.linker.test.v2;
 import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.annotations.Field;
 import io.github.hhy50.linker.annotations.Method;
+import io.github.hhy50.linker.define.ParseContext;
+import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
+import io.github.hhy50.linker.define.md.AbsMethodMetadata;
+import io.github.hhy50.linker.define.method.EarlyMethodRef;
+import io.github.hhy50.linker.define.method.MethodExprRef;
+import io.github.hhy50.linker.define.method.MethodExprStep;
 import io.github.hhy50.linker.exceptions.LinkerException;
+import io.github.hhy50.linker.generate.invoker.Getter;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ObjectReferenceArrayMapIndexAccessTest {
@@ -217,5 +225,125 @@ public class ObjectReferenceArrayMapIndexAccessTest {
         mixed.put("teams", new Object[]{firstTeam, secondTeam});
 
         return new ObjectReferenceIndexTarget(userArray, userGrid, userMap, mixed);
+    }
+
+    public static class ParseContextArrayIndexTypeRegressionTest {
+
+        public interface SingleIndexMethodArrayLinker {
+
+            @Method.Expr("users()[0].getName()")
+            String firstUserName();
+        }
+
+        public interface MultiIndexMethodArrayLinker {
+
+            @Method.Expr("userGrid()[1][0].getName()")
+            String secondRowFirstUserName();
+        }
+
+        public interface MultiIndexFieldArrayLinker {
+
+            @Field.Getter("userGrid[1][0].name")
+            String secondRowFirstUserNameByField();
+        }
+
+        public static class UserValue {
+            private final String name;
+
+            public UserValue(String name) {
+                this.name = name;
+            }
+
+            public String getName() {
+                return name;
+            }
+        }
+
+        public static class ArrayIndexTarget {
+
+            private final UserValue[] users = new UserValue[]{new ParseContextArrayIndexTypeRegressionTest.UserValue("alpha")};
+
+            private final UserValue[][] userGrid = new UserValue[][]{{new ParseContextArrayIndexTypeRegressionTest.UserValue("bravo")}, {new ParseContextArrayIndexTypeRegressionTest.UserValue("charlie")}};
+
+            public UserValue[] users() {
+                return users;
+            }
+
+            public UserValue[][] userGrid() {
+                return userGrid;
+            }
+        }
+
+        @Test
+        public void shouldKeepComponentTypeAfterSingleDimMethodIndex() throws Exception {
+            MethodExprRef exprRef = parseMethodExpr(
+                    SingleIndexMethodArrayLinker.class,
+                    "firstUserName",
+                    ArrayIndexTarget.class
+            );
+
+            List<MethodExprStep> steps = exprRef.getStepMethods();
+            Assert.assertEquals(2, steps.size());
+            Assert.assertTrue(steps.get(0).getMethodRef() instanceof EarlyMethodRef);
+            Assert.assertTrue(
+                    "expected getName() to stay early-bound after users()[0]",
+                    steps.get(1).getMethodRef() instanceof EarlyMethodRef
+            );
+        }
+
+        @Test
+        public void shouldKeepComponentTypeAfterMultiDimMethodIndex() throws Exception {
+            MethodExprRef exprRef = parseMethodExpr(
+                    MultiIndexMethodArrayLinker.class,
+                    "secondRowFirstUserName",
+                    ArrayIndexTarget.class
+            );
+
+            List<MethodExprStep> steps = exprRef.getStepMethods();
+            Assert.assertEquals(2, steps.size());
+            Assert.assertTrue(steps.get(0).getMethodRef() instanceof EarlyMethodRef);
+            Assert.assertTrue(
+                    "expected getName() to stay early-bound after userGrid()[1][0]",
+                    steps.get(1).getMethodRef() instanceof EarlyMethodRef
+            );
+        }
+
+        @Test
+        public void shouldKeepComponentTypeAfterMultiDimFieldIndex() throws Exception {
+            MethodExprRef exprRef = parseMethodExpr(
+                    MultiIndexFieldArrayLinker.class,
+                    "secondRowFirstUserNameByField",
+                    ArrayIndexTarget.class
+            );
+
+            List<MethodExprStep> steps = exprRef.getStepMethods();
+            Assert.assertEquals(2, steps.size());
+            Assert.assertTrue(steps.get(0).getMethodRef().defineInvoker() instanceof Getter.WithEarly);
+            Assert.assertTrue(
+                    "expected name field to stay early-bound after userGrid[1][0]",
+                    steps.get(1).getMethodRef().defineInvoker() instanceof Getter.WithEarly
+            );
+        }
+
+        private MethodExprRef parseMethodExpr(Class<?> defineClass, String methodName, Class<?> targetClass) throws Exception {
+            AbsInterfaceMetadata interfaceMetadata = new AbsInterfaceMetadata(defineClass, targetClass);
+
+            ParseContextLinker parseContext = LinkerFactory.createStaticLinker(ParseContextLinker.class, ParseContext.class)
+                    .newInstance(interfaceMetadata, targetClass);
+            parseContext.setClassLoader(targetClass.getClassLoader());
+            java.lang.reflect.Method reflectMethod = defineClass.getMethod(methodName);
+            return parseContext.parseMethod(parseContext.preParse(interfaceMetadata, reflectMethod));
+        }
+
+        interface ParseContextLinker {
+            @Method.Constructor
+            ParseContextLinker newInstance(AbsInterfaceMetadata metadata, Class<?> targetClass);
+
+            void setClassLoader(ClassLoader classLoader);
+
+            AbsMethodMetadata preParse(AbsInterfaceMetadata classMetadata, java.lang.reflect.Method method);
+
+            MethodExprRef parseMethod(AbsMethodMetadata metadata);
+        }
     }
 }
