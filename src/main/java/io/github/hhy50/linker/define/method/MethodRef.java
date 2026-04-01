@@ -122,7 +122,7 @@ public abstract class MethodRef {
      *
      * @return the return type
      */
-    Type getReturnType() {
+    public Type getReturnType() {
         Type t = this.getMethodType().getReturnType();
         if (this.indexs == null || this.indexs.isEmpty()) {
             return t;

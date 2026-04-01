@@ -189,6 +189,9 @@ public class RuntimeUtil {
      * @return the byte
      */
     public static byte unwrapByte(Object obj) {
+        if (obj == null) {
+            return 0;
+        }
         if (obj instanceof Byte) {
             return (byte) obj;
         }
@@ -202,6 +205,9 @@ public class RuntimeUtil {
      * @return the short
      */
     public static short unwrapShort(Object obj) {
+        if (obj == null) {
+            return 0;
+        }
         if (obj instanceof Short) {
             return (short) obj;
         }
@@ -215,6 +221,9 @@ public class RuntimeUtil {
      * @return the int
      */
     public static int unwrapInt(Object obj) {
+        if (obj == null) {
+            return 0;
+        }
         if (obj instanceof Integer) {
             return (int) obj;
         }
@@ -228,6 +237,9 @@ public class RuntimeUtil {
      * @return the long
      */
     public static long unwrapLong(Object obj) {
+        if (obj == null) {
+            return 0L;
+        }
         if (obj instanceof Long) {
             return (long) obj;
         }
@@ -241,6 +253,9 @@ public class RuntimeUtil {
      * @return the float
      */
     public static float unwrapFloat(Object obj) {
+        if (obj == null) {
+            return 0F;
+        }
         if (obj instanceof Float) {
             return (float) obj;
         }
@@ -254,6 +269,9 @@ public class RuntimeUtil {
      * @return the double
      */
     public static double unwrapDouble(Object obj) {
+        if (obj == null) {
+            return 0D;
+        }
         if (obj instanceof Double) {
             return (double) obj;
         }
@@ -267,6 +285,9 @@ public class RuntimeUtil {
      * @return the char
      */
     public static char unwrapChar(Object obj) {
+        if (obj == null) {
+            return '\0';
+        }
         if (obj instanceof Character) {
             return (char) obj;
         }
@@ -280,6 +301,9 @@ public class RuntimeUtil {
      * @return the boolean
      */
     public static boolean unwrapBool(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Boolean) {
             return (boolean) obj;
         }

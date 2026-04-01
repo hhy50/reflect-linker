@@ -245,7 +245,7 @@ public class ParseContext {
                 m.setIndexs(methodToken.getIndexs());
                 m.setNullable(methodToken.isNullable());
                 methodExprRef.addStepMethod(m, parametersParser.getParameterLoader());
-                curType = Object.class;
+                curType = Util.getClass(this.classLoader, methodExprRef.getReturnType().getClassName());
             }
         }
         return methodExprRef;

@@ -54,6 +54,8 @@ public class Util {
      * @return the class
      */
     public static Class getClass(ClassLoader classLoader, String item) {
+        if (item.equals("void")) return void.class;
+
         try {
             return Runtime.getClass(classLoader, item);
         } catch (ClassNotFoundException e) {
