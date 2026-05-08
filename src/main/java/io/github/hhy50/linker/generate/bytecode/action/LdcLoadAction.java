@@ -65,7 +65,7 @@ public class LdcLoadAction extends VarInst {
             return Type.FLOAT_TYPE;
         } else if (ldcConstVar instanceof Long) {
             return Type.LONG_TYPE;
-        } else if (ldcConstVar instanceof Type) {
+        } else if (ldcConstVar instanceof Type || ldcConstVar instanceof Class) {
             return TypeUtil.CLASS_TYPE;
         }
         return ObjectVar.TYPE;

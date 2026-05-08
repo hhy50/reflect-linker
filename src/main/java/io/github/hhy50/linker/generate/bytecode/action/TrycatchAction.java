@@ -24,8 +24,7 @@ public class TrycatchAction implements LoadAction {
     public TrycatchAction(Action tryblock) {
         Action trybefore = withVisitor(mv -> mv.visitLabel(ts));
 
-        this.tryblock = tryblock;
-        this.tryblock = withVisitor(trybefore, this.tryblock, mv -> {
+        this.tryblock = withVisitor(trybefore, tryblock, mv -> {
             mv.visitLabel(te);
             mv.visitJumpInsn(Opcodes.GOTO, ce);
         });
@@ -35,7 +34,7 @@ public class TrycatchAction implements LoadAction {
         this.catchblock = withVisitor(mv -> mv.visitLabel(cs), (Action) body -> {
             body.append(catchblock.apply(body.newLocalVar(e, null, empty())));
         });
-        this.catchblock = withVisitor(this.catchblock, this.catchblock, mv -> {
+        this.catchblock = withVisitor(this.catchblock, mv -> {
             mv.visitLabel(ce);
             mv.visitTryCatchBlock(ts, te, cs, e.getInternalName());
         });
