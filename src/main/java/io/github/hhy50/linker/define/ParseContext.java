@@ -186,10 +186,10 @@ public class ParseContext {
     public MethodExprRef parseFieldSetter(AbsMethodMetadata metadata, final Tokens tokens) throws ClassNotFoundException {
         List<FieldRef> fieldRefs = this.parseFieldExpr(metadata, this.rootType, tokens);
         MethodExprRef methodExprRef = new MethodExprRef(metadata);
-        for (int i = 0; i < fieldRefs.size()-1; i++) {
+        for (int i = 0; i < fieldRefs.size() - 1; i++) {
             methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRefs.get(i)));
         }
-        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRefs.get(fieldRefs.size()-1)), ParameterLoader.DEFAULT);
+        methodExprRef.addStepMethod(new FieldSetterMethodRef(fieldRefs.get(fieldRefs.size() - 1)), ParameterLoader.DEFAULT);
         return methodExprRef;
     }
 
@@ -221,7 +221,10 @@ public class ParseContext {
                 List<FieldRef> fieldRefs = parseFieldExpr(metadata, curType, fieldsToken);
                 for (FieldRef fieldRef : fieldRefs) {
                     methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef));
-                    curType = fieldRef.getActualType();
+                    curType = fieldRef.getFieldActualType();
+                    if (fieldRef.getIndexs() != null && !fieldRef.getIndexs().isEmpty()) {
+//                        ClassUtil
+                    }
                 }
             }
             if (methodToken != null) {

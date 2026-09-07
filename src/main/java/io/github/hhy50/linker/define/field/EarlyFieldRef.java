@@ -64,7 +64,7 @@ public class EarlyFieldRef extends FieldRef {
     /**
      * @return
      */
-    public Class<?> getActualType() {
+    public Class<?> getFieldActualType() {
         if (this.assignedType != null) {
             return this.assignedType;
         }

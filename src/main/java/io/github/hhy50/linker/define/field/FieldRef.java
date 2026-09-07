@@ -41,8 +41,8 @@ public abstract class FieldRef  {
     }
 
     /**
-     * Gets type.
-     *
+     * 获取字段在生成的代码中的占位类型
+     * 1. 如果字段实际类型是不可访问（default, private） 会使用object代替
      * @return the type
      */
     public Type getType() {
@@ -50,11 +50,12 @@ public abstract class FieldRef  {
     }
 
     /**
-     * Gets actual type.
-     *
+     * 获取字段的实际类型, 这个函数有两个作用
+     * 1. 辅助《如果字段表达式后面跟着[]数组访问符，那么这个函数返回的类型和表达式返回的类型就不一样》推到当前表达式的返回值类型
+     * 2. 使用真实的class类型获取具体的 MethodHandle
      * @return the actual type
      */
-    public Class<?> getActualType() {
+    public Class<?> getFieldActualType() {
         return Object.class;
     }
 
