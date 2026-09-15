@@ -108,6 +108,29 @@ public class Example {
 | `@Autolink`                                           | Automatically wraps/unwraps parameters or return values as linkers |
 | ~~`@Target.Bind("full.class.Name")`~~               | ~~Explicitly binds the target class~~ |
 
+### `expr` Examples
+
+| Expression | Description |
+|------------|-------------|
+| `name` | Accesses the `name` field of the target object |
+| `user.address.city` | Accesses nested fields in sequence |
+| `users[0].name` | Accesses a field of the first array or `List` element |
+| `usersById['admin'].name` | Accesses a `Map` value by key and then reads its field |
+| `user?.address.city` | Returns the default value if `user` is `null` |
+| `getUser().getName()` | Invokes methods in a chain |
+| `findUser($0)` | Passes the first interface method argument to the target method |
+| `merge($0, $1)` | Passes multiple interface method arguments by index |
+| `merge(..)` | Forwards all interface method arguments in declaration order |
+| `format(user.name, 'VIP', 1)` | Uses a nested expression and string/integer constants as arguments |
+
+See [Expression Usage](#expression-usage) for detailed behavior.
+
+## Built-in Functions
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| `class()` | Loads a fully qualified class name constant and returns its `Class` object | `class('java.lang.String')`, equivalent to `Class.forName("java.lang.String")` |
+
 ## Expression Usage
 
 ### 1. Default same-name method call

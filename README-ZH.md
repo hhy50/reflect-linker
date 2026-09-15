@@ -108,6 +108,29 @@ public class Example {
 | `@Autolink`                                         | 自动把参数或返回值包装/解包为 linker |
 | ~~`@Target.Bind("full.class.Name")`~~               | ~~显式绑定目标类~~            |
 
+### `expr` 示例
+
+| 表达式 | 说明 |
+|-------|------|
+| `name` | 访问目标对象的 `name` 字段 |
+| `user.address.city` | 按顺序访问多级嵌套字段 |
+| `users[0].name` | 访问数组或 `List` 的第一个元素，再读取其字段 |
+| `usersById['admin'].name` | 使用 key 访问 `Map` 中的值，再读取其字段 |
+| `user?.address.city` | `user` 为 `null` 时直接返回默认值 |
+| `getUser().getName()` | 链式调用多个方法 |
+| `findUser($0)` | 将接口方法的第一个参数传给目标方法 |
+| `merge($0, $1)` | 按下标传递接口方法的多个参数 |
+| `merge(..)` | 按声明顺序转发接口方法的全部参数 |
+| `format(user.name, 'VIP', 1)` | 使用嵌套表达式、字符串和整数常量作为参数 |
+
+详细规则请参阅下方的[表达式用法](#表达式用法)。
+
+## 内置函数
+
+| 内置函数 | 说明 | 示例 |
+|---------|------|------|
+| `class()` | 根据传入的类全限定名获取对应的 `Class` 对象 | `class('java.lang.String')`，等价于 `Class.forName("java.lang.String")` |
+
 ## 表达式用法
 
 ### 1. 默认同名方法调用
