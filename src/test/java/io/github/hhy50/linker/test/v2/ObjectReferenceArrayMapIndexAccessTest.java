@@ -14,6 +14,7 @@ import io.github.hhy50.linker.generate.invoker.Getter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,27 @@ public class ObjectReferenceArrayMapIndexAccessTest {
         Object readMethodMixedLeadAsObject();
     }
 
+    public interface FieldIndexMethodLinker {
+
+        @Method.Expr("userGrid[1][0].getName()")
+        String secondRowFirstUserName();
+    }
+
+    public interface ListIndexAccessLinker {
+
+        @Field.Getter("userList[1]")
+        UserValue readFieldListUserAsUser();
+
+        @Field.Getter("userList[0]")
+        Object readFieldListUserAsObject();
+
+        @Field.Getter("userLists[1][0]")
+        UserValue readFieldNestedListUserAsUser();
+
+        @Method.Expr("userList[0].getName()")
+        String firstListUserName();
+    }
+
     public static class UserValue {
         private final String name;
 
@@ -88,15 +110,21 @@ public class ObjectReferenceArrayMapIndexAccessTest {
         private final UserValue[][] userGrid;
         private final Map<String, UserValue> userMap;
         private final Map<String, Object> mixed;
+        private final List<UserValue> userList;
+        private final List<List<UserValue>> userLists;
 
         public ObjectReferenceIndexTarget(UserValue[] userArray,
                                           UserValue[][] userGrid,
                                           Map<String, UserValue> userMap,
-                                          Map<String, Object> mixed) {
+                                          Map<String, Object> mixed,
+                                          List<UserValue> userList,
+                                          List<List<UserValue>> userLists) {
             this.userArray = userArray;
             this.userGrid = userGrid;
             this.userMap = userMap;
             this.mixed = mixed;
+            this.userList = userList;
+            this.userLists = userLists;
         }
 
         public Object userArrayObject() {
@@ -196,6 +224,50 @@ public class ObjectReferenceArrayMapIndexAccessTest {
         Assert.assertEquals("orion", ((UserValue) methodMixedLead).getName());
     }
 
+    @Test
+    public void shouldResolveListElementTypeFromSignatureOnIndexAccess() throws LinkerException {
+        ListIndexAccessLinker linker = LinkerFactory.createLinker(
+                ListIndexAccessLinker.class,
+                createTarget()
+        );
+
+        Assert.assertEquals("bravo", linker.readFieldListUserAsUser().getName());
+
+        Object fieldListUser = linker.readFieldListUserAsObject();
+        Assert.assertTrue(fieldListUser instanceof UserValue);
+        Assert.assertEquals("alpha", ((UserValue) fieldListUser).getName());
+
+        Assert.assertEquals("echo", linker.readFieldNestedListUserAsUser().getName());
+
+        Assert.assertEquals("alpha", linker.firstListUserName());
+    }
+
+    @Test
+    public void shouldKeepComponentTypeWhenMethodFollowsFieldIndex() throws Exception {
+        AbsInterfaceMetadata interfaceMetadata = new AbsInterfaceMetadata(
+                FieldIndexMethodLinker.class,
+                ObjectReferenceIndexTarget.class
+        );
+        ParseContextArrayIndexTypeRegressionTest.ParseContextLinker parseContext = LinkerFactory
+                .createStaticLinker(ParseContextArrayIndexTypeRegressionTest.ParseContextLinker.class, ParseContext.class)
+                .newInstance(interfaceMetadata, ObjectReferenceIndexTarget.class);
+        parseContext.setClassLoader(ObjectReferenceIndexTarget.class.getClassLoader());
+
+        java.lang.reflect.Method reflectMethod = FieldIndexMethodLinker.class.getMethod("secondRowFirstUserName");
+        MethodExprRef exprRef = parseContext.parseMethod(parseContext.preParse(interfaceMetadata, reflectMethod));
+        List<MethodExprStep> steps = exprRef.getStepMethods();
+
+        Assert.assertEquals(2, steps.size());
+        Assert.assertTrue(steps.get(0).getMethodRef().defineInvoker() instanceof Getter.WithEarly);
+        Assert.assertTrue(
+                "expected getName() to stay early-bound after userGrid[1][0]",
+                steps.get(1).getMethodRef() instanceof EarlyMethodRef
+        );
+
+        FieldIndexMethodLinker linker = LinkerFactory.createLinker(FieldIndexMethodLinker.class, createTarget());
+        Assert.assertEquals("echo", linker.secondRowFirstUserName());
+    }
+
     private ObjectReferenceIndexTarget createTarget() {
         UserValue alpha = new UserValue("alpha");
         UserValue bravo = new UserValue("bravo");
@@ -224,7 +296,16 @@ public class ObjectReferenceArrayMapIndexAccessTest {
         Map<String, Object> mixed = new HashMap<String, Object>();
         mixed.put("teams", new Object[]{firstTeam, secondTeam});
 
-        return new ObjectReferenceIndexTarget(userArray, userGrid, userMap, mixed);
+        List<UserValue> userList = new ArrayList<UserValue>();
+        userList.add(alpha);
+        userList.add(bravo);
+
+        List<List<UserValue>> userLists = new ArrayList<List<UserValue>>();
+        userLists.add(new ArrayList<UserValue>());
+        userLists.add(new ArrayList<UserValue>());
+        userLists.get(1).add(echo);
+
+        return new ObjectReferenceIndexTarget(userArray, userGrid, userMap, mixed, userList, userLists);
     }
 
     public static class ParseContextArrayIndexTypeRegressionTest {

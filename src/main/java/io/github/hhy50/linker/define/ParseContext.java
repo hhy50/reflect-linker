@@ -221,10 +221,7 @@ public class ParseContext {
                 List<FieldRef> fieldRefs = parseFieldExpr(metadata, curType, fieldsToken);
                 for (FieldRef fieldRef : fieldRefs) {
                     methodExprRef.addStepMethod(new FieldGetterMethodRef(fieldRef));
-                    curType = fieldRef.getFieldActualType();
-                    if (fieldRef.getIndexs() != null && !fieldRef.getIndexs().isEmpty()) {
-//                        ClassUtil
-                    }
+                    curType = fieldRef.getReturnType();
                 }
             }
             if (methodToken != null) {
@@ -277,7 +274,6 @@ public class ParseContext {
             String fieldName = token.fieldName;
             List<Object> index = token.getIndexVal();
             Field earlyField = token.getField(currentType);
-            currentType = earlyField == null ? Object.class : Util.expandIndexType(index, earlyField.getType());
             fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);
 
             // 使用@Typed指定的类型
@@ -288,8 +284,8 @@ public class ParseContext {
                 if (earlyField != null && !ClassUtil.isAssignableFrom(assignedType, earlyField.getType())) {
                     throw new ClassTypeNotMatchException(assignedType.getName(), earlyField.getType().getName());
                 }
-                currentType = index == null ? assignedType : Util.expandIndexType(index, assignedType);
             }
+
             Boolean designateStatic = metadata.isDesignateStatic(fullField);
             FieldRef fieldRef = earlyField != null ? new EarlyFieldRef(earlyField)
                     : new RuntimeFieldRef(fieldName);
@@ -299,6 +295,7 @@ public class ParseContext {
                 fieldRef.setStatic(designateStatic);
             }
             fields.add(fieldRef);
+            currentType = assignedType == null ? fieldRef.getReturnType() : assignedType;
         }
         return fields;
     }

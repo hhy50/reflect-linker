@@ -2,6 +2,7 @@ package io.github.hhy50.linker.define.field;
 
 
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.util.Util;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
@@ -69,6 +70,11 @@ public class EarlyFieldRef extends FieldRef {
             return this.assignedType;
         }
         return this.fieldType;
+    }
+
+    @Override
+    public Class getReturnType() {
+        return Util.expandFieldIndexType(this.getIndexs(), this.reflect);
     }
 
     /**

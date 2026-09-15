@@ -2,6 +2,7 @@ package io.github.hhy50.linker.define.field;
 
 
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
+import io.github.hhy50.linker.util.Util;
 import org.objectweb.asm.Type;
 
 import java.util.List;
@@ -50,12 +51,15 @@ public abstract class FieldRef  {
     }
 
     /**
-     * 获取字段的实际类型, 这个函数有两个作用
-     * 1. 辅助《如果字段表达式后面跟着[]数组访问符，那么这个函数返回的类型和表达式返回的类型就不一样》推到当前表达式的返回值类型
-     * 2. 使用真实的class类型获取具体的 MethodHandle
+     * 获取字段声明或指定的实际类型
+     *
      * @return the actual type
      */
     public Class<?> getFieldActualType() {
+        return Object.class;
+    }
+
+    public Class getReturnType() {
         return Object.class;
     }
 

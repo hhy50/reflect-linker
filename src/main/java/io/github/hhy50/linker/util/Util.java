@@ -2,7 +2,7 @@ package io.github.hhy50.linker.util;
 
 import io.github.hhy50.linker.runtime.Runtime;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -70,7 +70,7 @@ public class Util {
      * @param type  the type
      * @return the class
      */
-    public static Class<?> expandIndexType(List<Object> index, Class<?> type) {
+    public static Class<?> expandArrayIndexType(List<Object> index, Class<?> type) {
         if (index == null || index.isEmpty()) return type;
         if (index.size() > TypeUtil.getArrayDimension(type)) {
             return Object.class;
@@ -80,5 +80,49 @@ public class Util {
             currentType = currentType.getComponentType();
         }
         return currentType;
+    }
+
+    /**
+     *
+     */
+    public static Class<?> expandFieldIndexType(List<Object> index, Field field) {
+        Class<?> currentType = field.getType();
+        if (index == null || index.isEmpty()) return currentType;
+
+        if (currentType.isArray()) {
+            return expandArrayIndexType(index, currentType);
+        }
+        Type currentGenericType = field.getGenericType();
+        for (int i = 0; i < index.size(); i++) {
+            if (currentType != null && currentType.isArray()) {
+                currentType = currentType.getComponentType();
+                currentGenericType = currentType;
+            } else if (currentType != null && List.class.isAssignableFrom(currentType)) {
+                Type itemType = getListItemType(currentGenericType);
+                currentGenericType = itemType;
+                currentType = expandIndex(itemType);
+            } else {
+                return Object.class;
+            }
+        }
+        return currentType;
+    }
+
+    public static Type getListItemType(Type genericType) {
+        if (genericType instanceof ParameterizedType) {
+            Type[] typeArguments = ((ParameterizedType) genericType).getActualTypeArguments();
+            if (typeArguments.length > 0) return typeArguments[typeArguments.length - 1];
+        }
+        return Object.class;
+    }
+
+    public static Class<?> expandIndex(Type type) {
+        if (type instanceof Class) return (Class<?>) type;
+        if (type instanceof ParameterizedType) return (Class<?>) ((ParameterizedType) type).getRawType();
+        if (type instanceof GenericArrayType) {
+            Class<?> componentType = expandIndex(((GenericArrayType) type).getGenericComponentType());
+            return Array.newInstance(componentType, 0).getClass();
+        }
+        return Object.class; // TypeVariable/WildcardType等无法解析
     }
 }
