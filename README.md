@@ -25,6 +25,7 @@ It works well in scenarios such as:
 - Supports chained field expressions and method expressions
 - Supports nested expressions, null-safety, and indexed access
 - Seamless linker object usage with `@Autolink`
+- `@ImportStatic` imports static methods/fields of helper classes into the lookup process
 
 ## Installation
 
@@ -106,6 +107,7 @@ public class Example {
 | `@Runtime`                                            | Marks the interface for runtime resolution mode |
 | `@Runtime.Static`                                     | Treats certain runtime fields/methods as static members |
 | `@Autolink`                                           | Automatically wraps/unwraps parameters or return values as linkers |
+| `@ImportStatic`                                       | Adds static methods/fields of the given classes to the lookup process (this wins) |
 | ~~`@Target.Bind("full.class.Name")`~~               | ~~Explicitly binds the target class~~ |
 
 ### `expr` Examples
@@ -505,6 +507,78 @@ Key points:
 - If you already know the real type of a token, you can declare it in advance with `@Typed`
 - `@Typed` can be placed on an interface, method, or parameter
 - `name` corresponds to the token name in the expression, such as `a`, `user`, or `user.profile`
+
+### 9. Importing static members with `@ImportStatic`
+
+`@ImportStatic` adds the **static methods** and **static fields** of the given classes to the lookup process, much like Java's static import.
+
+Lookup rules:
+
+- **this wins**: the target object's own fields/methods are looked up first; the imported classes are searched for static members only when nothing is found
+- When multiple classes are imported, they are searched in declaration order
+- It can be placed on the interface (applies to all methods) or on a single method (method-level completely overrides the class-level one)
+- Public static methods (with public parameter/return types) are compiled directly into `invokestatic` calls;
+  non-public static members (private, package-private, etc.) are invoked through privileged `MethodHandle` lookups
+
+```java
+import io.github.hhy50.linker.LinkerFactory;
+import io.github.hhy50.linker.annotations.Field;
+import io.github.hhy50.linker.annotations.ImportStatic;
+import io.github.hhy50.linker.annotations.Method;
+import io.github.hhy50.linker.exceptions.LinkerException;
+
+class Strings {
+    public static String DEFAULT = "default";
+
+    public static String join(String left, String right) {
+        return left + "-" + right;
+    }
+
+    private static String secret() {
+        return "secret";
+    }
+}
+
+class MathUtil {
+    public static int doubleIt(int x) {
+        return x * 2;
+    }
+}
+
+@ImportStatic(value = Strings.class, classes = {"your.pkg.MathUtil"}) // value takes a single class; classes takes class names, each element may contain multiple comma-separated names
+interface MyLinker {
+    // Resolved to the static method Strings.join
+    String join(String left, String right);
+
+    // Private static methods can be invoked too
+    String secret();
+
+    // Reads a static field
+    @Field.Getter("DEFAULT")
+    String getDefault();
+
+    // this wins: if the target object has its own join method, that one is called
+    String join(String s);
+
+    // Imported static members can start a chained expression
+    @Method.Expr("DEFAULT.length()")
+    int defaultLength();
+
+    // Method-level import: applies only to this method and completely overrides the class-level import
+    @Method.Expr("doubleIt($0)")
+    @ImportStatic(MathUtil.class)
+    int doubleIt(int x);
+}
+
+public class Example {
+    public static void main(String[] args) throws LinkerException {
+        MyLinker linker = LinkerFactory.createLinker(MyLinker.class, new MyTarget());
+        System.out.println(linker.join("ab", "cd")); // ab-cd
+        System.out.println(linker.secret());         // secret
+        System.out.println(linker.getDefault());     // default
+    }
+}
+```
 
 ## Other Common Capabilities
 

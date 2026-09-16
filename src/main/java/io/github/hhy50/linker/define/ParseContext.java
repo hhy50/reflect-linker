@@ -1,6 +1,7 @@
 package io.github.hhy50.linker.define;
 
 import io.github.hhy50.linker.annotations.Builtin;
+import io.github.hhy50.linker.annotations.ImportStatic;
 import io.github.hhy50.linker.annotations.Verify;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
@@ -48,6 +49,11 @@ public class ParseContext {
      * The Token parser.
      */
     TokenParser tokenParser = new TokenParser();
+
+    /**
+     * @ImportStatic 注解 -> 导入的静态类 缓存
+     */
+    private final Map<ImportStatic, List<Class<?>>> importStaticCache = new IdentityHashMap<>();
 
     /**
      * Instantiates a new Parse context.
@@ -234,13 +240,20 @@ public class ParseContext {
                     Method method = ReflectUtil.matchMethod(curType, methodToken.methodName, invokeSuper, types);
                     if (method != null) {
                         m = new EarlyMethodRef(method);
+                        m.setSuperClass(invokeSuper);
                     } else {
-                        Boolean designateStatic = metadata.isDesignateStatic(methodToken.methodName);
-                        m = new RuntimeMethodRef(methodToken.methodName, types)
-                                .setAutolink(metadata.isAutolink());
-                        ((RuntimeMethodRef) m).setStatic(designateStatic);
+                        // this 的方法列表里找不到，再到 @ImportStatic 导入的类里找静态方法
+                        Method importMethod = matchImportStaticMethod(metadata, methodToken.methodName, types);
+                        if (importMethod != null) {
+                            m = new ImportedStaticMethodRef(importMethod);
+                        } else {
+                            Boolean designateStatic = metadata.isDesignateStatic(methodToken.methodName);
+                            m = new RuntimeMethodRef(methodToken.methodName, types)
+                                    .setAutolink(metadata.isAutolink());
+                            ((RuntimeMethodRef) m).setStatic(designateStatic);
+                            m.setSuperClass(invokeSuper);
+                        }
                     }
-                    m.setSuperClass(invokeSuper);
                 }
                 m.setIndexs(methodToken.getIndexs());
                 m.setNullable(methodToken.isNullable());
@@ -274,6 +287,10 @@ public class ParseContext {
             String fieldName = token.fieldName;
             List<Object> index = token.getIndexVal();
             Field earlyField = token.getField(currentType);
+            if (earlyField == null) {
+                // this 的字段列表里找不到，再到 @ImportStatic 导入的类里找静态字段
+                earlyField = findImportStaticField(metadata, fieldName);
+            }
             fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);
 
             // 使用@Typed指定的类型
@@ -306,5 +323,85 @@ public class ParseContext {
             return new ClassBuildinMethodRef();
         }
         return null;
+    }
+
+    /**
+     * 在 @ImportStatic 导入的类中查找静态方法（按声明顺序）
+     *
+     * @param metadata   the method metadata
+     * @param methodName the method name
+     * @param types      the arg types
+     * @return 匹配到的静态方法，找不到返回 null
+     */
+    Method matchImportStaticMethod(AbsMethodMetadata metadata, String methodName, String[] types) {
+        for (Class<?> clazz : getImportStaticClasses(metadata)) {
+            Method method = ReflectUtil.matchMethod(clazz, methodName, null, types);
+            if (method != null && Modifier.isStatic(method.getModifiers())) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 在 @ImportStatic 导入的类中查找静态字段（按声明顺序）
+     *
+     * @param metadata  the method metadata
+     * @param fieldName the field name
+     * @return 匹配到的静态字段，找不到返回 null
+     */
+    Field findImportStaticField(AbsMethodMetadata metadata, String fieldName) {
+        for (Class<?> clazz : getImportStaticClasses(metadata)) {
+            Field field = ReflectUtil.getField(clazz, fieldName);
+            if (field != null && Modifier.isStatic(field.getModifiers())) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 解析方法/接口上 @ImportStatic 导入的类（带缓存）
+     *
+     * @param metadata the method metadata
+     * @return the imported classes
+     */
+    List<Class<?>> getImportStaticClasses(AbsMethodMetadata metadata) {
+        ImportStatic anno = metadata.getImportStatic();
+        if (anno == null) {
+            return Collections.emptyList();
+        }
+        return importStaticCache.computeIfAbsent(anno, this::resolveImportStaticClasses);
+    }
+
+    private List<Class<?>> resolveImportStaticClasses(ImportStatic anno) {
+        List<Class<?>> classes = new ArrayList<>();
+        if (anno.value() != void.class) {
+            classes.add(anno.value());
+        }
+        for (String names : anno.classes()) {
+            // 每个元素内支持逗号分割多个类名
+            for (String name : names.split(",")) {
+                name = name.trim();
+                if (!name.isEmpty()) {
+                    classes.add(loadImportClass(name));
+                }
+            }
+        }
+        return classes;
+    }
+
+    private Class<?> loadImportClass(String name) {
+        // 生成的实现类定义在接口的类加载器里，优先用它解析，保证 invokestatic 直调可解析
+        ClassLoader defineLoader = classMetadata.getDefineClass().getClassLoader();
+        try {
+            return defineLoader.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            try {
+                return this.classLoader.loadClass(name);
+            } catch (ClassNotFoundException e2) {
+                throw new ParseException("@ImportStatic class not found: " + name);
+            }
+        }
     }
 }

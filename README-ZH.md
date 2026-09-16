@@ -24,6 +24,7 @@ linker。
 - 支持链式的字段表达式和方法表达式
 - 嵌套表达式, 空安全, 索引访问
 - `Autolink`无缝使用链接对象
+- `@ImportStatic` 把工具类的静态方法/静态字段导入查找过程
 
 ## 安装
 
@@ -106,6 +107,7 @@ public class Example {
 | `@Runtime`                                          | 把接口标记为运行时解析模式          |
 | `@Runtime.Static`                                   | 指定某些运行时字段/方法按静态成员处理    |
 | `@Autolink`                                         | 自动把参数或返回值包装/解包为 linker |
+| `@ImportStatic`                                     | 把指定类的静态方法/静态字段加入查找过程（this 优先） |
 | ~~`@Target.Bind("full.class.Name")`~~               | ~~显式绑定目标类~~            |
 
 ### `expr` 示例
@@ -506,6 +508,78 @@ interface HolderLinker {
 - 如果你已经知道这个 token 的实际类型，可以用 `@Typed` 提前标注
 - `@Typed` 写在接口上、方法上、参数上都可以
 - `name` 对应表达式中的 token 名称，例如 `a`、`user`、`user.profile`
+
+### 9. `@ImportStatic` 导入静态成员
+
+`@ImportStatic` 可以把指定类的**静态方法**和**静态字段**加入查找过程，就像 Java 的静态导入一样。
+
+查找规则：
+
+- **this 优先**：优先查找目标对象自身的字段/方法，找不到时再到导入的类中查找静态成员
+- 导入多个类时，按声明顺序查找
+- 可以标注在接口上（对所有方法生效），也可以标注在单个方法上（方法级完全覆盖类级）
+- public 的静态方法（且参数/返回类型均为 public）会直接生成为 `invokestatic` 调用；
+  private、默认包访问等不可直接访问的静态成员通过 `MethodHandle` 特权查找调用
+
+```java
+import io.github.hhy50.linker.LinkerFactory;
+import io.github.hhy50.linker.annotations.Field;
+import io.github.hhy50.linker.annotations.ImportStatic;
+import io.github.hhy50.linker.annotations.Method;
+import io.github.hhy50.linker.exceptions.LinkerException;
+
+class Strings {
+    public static String DEFAULT = "default";
+
+    public static String join(String left, String right) {
+        return left + "-" + right;
+    }
+
+    private static String secret() {
+        return "secret";
+    }
+}
+
+class MathUtil {
+    public static int doubleIt(int x) {
+        return x * 2;
+    }
+}
+
+@ImportStatic(value = Strings.class, classes = {"your.pkg.MathUtil"}) // value 指定单个类；classes 用类名指定，元素内支持逗号分割多个类名
+interface MyLinker {
+    // 在 Strings 中找到静态方法 join
+    String join(String s, int n);
+
+    // private 静态方法也可以调用
+    String secret();
+
+    // 读取静态字段
+    @Field.Getter("DEFAULT")
+    String getDefault();
+
+    // this 优先：目标对象有自己的 join 方法时，调用的是 this 的
+    String join(String s);
+
+    // 静态成员可以作为链式表达式的开头
+    @Method.Expr("DEFAULT.length()")
+    int defaultLength();
+
+    // 方法级导入：只对这个方法生效，且完全覆盖类级导入
+    @Method.Expr("doubleIt($0)")
+    @ImportStatic(MathUtil.class)
+    int doubleIt(int x);
+}
+
+public class Example {
+    public static void main(String[] args) throws LinkerException {
+        MyLinker linker = LinkerFactory.createLinker(MyLinker.class, new MyTarget());
+        System.out.println(linker.join("ab", "cd")); // ab-cd
+        System.out.println(linker.secret());         // secret
+        System.out.println(linker.getDefault());     // default
+    }
+}
+```
 
 ## 其它常用能力
 

@@ -37,6 +37,11 @@ public class AbsMethodMetadata {
     private String invokeSuper;
 
     /**
+     * 方法级 @ImportStatic
+     */
+    private ImportStatic importStatic;
+
+    /**
      * Instantiates a new Abs method metadata.
      *
      * @param parent  the parent
@@ -95,6 +100,19 @@ public class AbsMethodMetadata {
         if (annotation instanceof Method.InvokeSuper) {
             this.invokeSuper = ((Method.InvokeSuper) annotation).value();
         }
+        if (annotation instanceof ImportStatic) {
+            this.importStatic = (ImportStatic) annotation;
+            this.annotations.add(annotation);
+        }
+    }
+
+    /**
+     * Gets import static. 方法级优先，否则用类级
+     *
+     * @return the import static
+     */
+    public ImportStatic getImportStatic() {
+        return importStatic != null ? importStatic : parent.getImportStatic();
     }
 
     /**
