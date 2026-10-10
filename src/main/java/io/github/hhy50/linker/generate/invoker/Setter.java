@@ -4,9 +4,9 @@ import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.field.FieldRef;
 import io.github.hhy50.linker.define.field.RuntimeFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.MethodHandleFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -39,18 +39,18 @@ public abstract class Setter<T extends FieldRef> extends FieldOpsMethodHandler {
     }
 
     @Override
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
+    protected Action initRuntimeMethodHandle(MethodHandleFieldVarInst mhFieldVarInst, ClassTypeFieldVarInst lookupClassFieldVarInst) {
         MethodInvokeAction findSetter = new MethodInvokeAction(Runtime.FIND_SETTER)
-                .setArgs(lookupClass.getLookup(), lookupClass, LdcLoadAction.of(field.getName()));
-        return mhMember.store(findSetter);
+                .setArgs(lookupClassFieldVarInst.getLookup(), lookupClassFieldVarInst, LdcLoadAction.of(field.getName()));
+        return mhFieldVarInst.store(findSetter);
     }
 
     @Override
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleFieldVarInst mhFieldVarInst, ClassTypeVarInst lookupClass, boolean isStatic) {
         MethodInvokeAction findSetter = new MethodInvokeAction(isStatic ? MethodDescriptor.LOOKUP_FINDSTATICSETTER : MethodDescriptor.LOOKUP_FINDSETTER)
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, LdcLoadAction.of(super.fieldName), loadClass(Type.getType(field.getFieldActualType())));
-        return mhMember.store(findSetter);
+        return mhFieldVarInst.store(findSetter);
     }
 
     /**
@@ -90,7 +90,7 @@ public abstract class Setter<T extends FieldRef> extends FieldOpsMethodHandler {
 
         @Override
         protected void define0(InvokeClassImplBuilder classImplBuilder) {
-            this.lookupClass = classImplBuilder.defineLookupClass(fieldName);
+            this.lookupClassFieldVarInst = classImplBuilder.defineLookupClass(fieldName);
             super.defineRuntimeMethod(classImplBuilder, ((RuntimeFieldRef) field).isDesignateStatic());
         }
 

@@ -7,7 +7,7 @@ import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.utils.Members;
+import io.github.hhy50.linker.generate.bytecode.utils.Fields;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.junit.Assert;
 import org.junit.Test;
@@ -98,19 +98,19 @@ public class MultiClassLoaderTest {
                 .intercept(Methods.invokeSuper().thenReturn())
                 .defineMethod(Opcodes.ACC_PUBLIC, "getName",
                         Type.getMethodType(Type.getType(String.class)), null)
-                .intercept(Members.ofLoad("name").thenReturn())
+                .intercept(Fields.ofLoad("name").thenReturn())
                 .defineMethod(Opcodes.ACC_PUBLIC, "setName", Type.getMethodType(Type.VOID_TYPE, Type.getType(String.class)), null)
                 .intercept(
-                        Members.ofStore("name", Args.of(0)),
+                        Fields.ofStore("name", Args.of(0)),
                         Actions.vreturn()
                 )
                 .defineMethod(Opcodes.ACC_PUBLIC, "getAge",
                         Type.getMethodType(Type.INT_TYPE), null)
-                .intercept(Members.ofLoad("age").thenReturn())
+                .intercept(Fields.ofLoad("age").thenReturn())
                 .defineMethod(Opcodes.ACC_PUBLIC, "setAge",
                         Type.getMethodType(Type.VOID_TYPE, Type.INT_TYPE), null)
                 .intercept(
-                        Members.ofStore("age", Args.of(0)),
+                        Fields.ofStore("age", Args.of(0)),
                         Actions.vreturn()
                 );
         builder.defineMethod(Opcodes.ACC_PUBLIC, "computeInfo",
@@ -121,11 +121,11 @@ public class MultiClassLoaderTest {
                         .invokeMethod("append", Type.getMethodType(Type.getType(StringBuilder.class), Type.getType(String.class)),
                                 LdcLoadAction.of(": "))
                         .invokeMethod("append", Type.getMethodType(Type.getType(StringBuilder.class), Type.getType(String.class)),
-                                Members.ofLoad("name"))
+                                Fields.ofLoad("name"))
                         .invokeMethod("append", Type.getMethodType(Type.getType(StringBuilder.class), Type.getType(String.class)),
                                 LdcLoadAction.of(", "))
                         .invokeMethod("append", Type.getMethodType(Type.getType(StringBuilder.class), Type.getType(int.class)),
-                                Actions.of(Members.ofLoad("age"), Args.of(1), Actions.withVisitor(mv -> mv.visitInsn(Opcodes.IMUL))))
+                                Actions.of(Fields.ofLoad("age"), Args.of(1), Actions.withVisitor(mv -> mv.visitInsn(Opcodes.IMUL))))
                         .invokeMethod("toString", Type.getMethodType(Type.getType(String.class))).thenReturn()
                 );
         return builder.toBytecode();

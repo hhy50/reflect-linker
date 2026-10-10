@@ -36,11 +36,11 @@ public class EarlyFieldRef extends FieldRef {
     /**
      * Instantiates a new Early field ref.
      *
-     * @param fieldName  the fieldName
+     * @param name  the name
      * @param fieldType the fieldType
      */
-    public EarlyFieldRef(String fieldName, Class<?> fieldType) {
-        super(fieldName);
+    public EarlyFieldRef(String name, Class<?> fieldType) {
+        super(name);
         this.reflect = null;
         this.fieldType = fieldType;
     }

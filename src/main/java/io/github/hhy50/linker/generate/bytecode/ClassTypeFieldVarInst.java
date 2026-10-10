@@ -7,16 +7,16 @@ import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import io.github.hhy50.linker.runtime.Runtime;
 
 /**
- * The type Class type member.
+ * The type Class type field.
  */
-public class ClassTypeMember extends Member implements ClassTypeVarInst {
+public class ClassTypeFieldVarInst extends FieldVarInst implements ClassTypeVarInst {
 
     /**
-     * Instantiates a new Class type member.
+     * Instantiates a new Class type field.
      *
-     * @param field the member
+     * @param field the field
      */
-    public ClassTypeMember(AsmField field) {
+    public ClassTypeFieldVarInst(AsmField field) {
         super(field);
     }
 

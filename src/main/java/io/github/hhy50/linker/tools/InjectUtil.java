@@ -6,7 +6,7 @@ import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.utils.Members;
+import io.github.hhy50.linker.generate.bytecode.utils.Fields;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -42,7 +42,7 @@ public class InjectUtil {
             }
         }
         classBuilder.defineMethod(Opcodes.ACC_PUBLIC, getterName, Type.getMethodType(field.type), null)
-                .intercept(Members.ofLoad(fieldName).thenReturn());
+                .intercept(Fields.ofLoad(fieldName).thenReturn());
     }
 
     /**
@@ -61,7 +61,7 @@ public class InjectUtil {
             setterName = "set" + toUpperCamelCase(fieldName);
         }
         classBuilder.defineMethod(Opcodes.ACC_PUBLIC, setterName, Type.getMethodType(Type.VOID_TYPE, field.type), null)
-                .intercept(Members.ofStore(fieldName, Args.of(0)), Actions.vreturn());
+                .intercept(Fields.ofStore(fieldName, Args.of(0)), Actions.vreturn());
     }
 
     /**
@@ -89,7 +89,7 @@ public class InjectUtil {
         if (!fields.isEmpty()) {
             int size = fields.size();
             Action[] stores = IntStream.range(0, size)
-                    .mapToObj(i -> Members.ofStore(fields.get(i).name, Args.of(i))).toArray(Action[]::new);
+                    .mapToObj(i -> Fields.ofStore(fields.get(i).name, Args.of(i))).toArray(Action[]::new);
 
             classBuilder.defineConstruct(Opcodes.ACC_PUBLIC, fields.stream().map(f -> f.type).toArray(Type[]::new))
                     .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor()),

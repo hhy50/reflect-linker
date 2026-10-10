@@ -1,6 +1,6 @@
 package io.github.hhy50.linker.generate.bytecode.vars;
 
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import org.objectweb.asm.Type;
 
@@ -10,18 +10,18 @@ import org.objectweb.asm.Type;
 public class VarInstWithLookup extends VarInst {
 
     private final VarInst varInst;
-    private final ClassTypeMember lookupClass;
+    private final ClassTypeFieldVarInst lookupClassFieldVarInst;
     private final Type defaultType;
 
     /**
      * Instantiates a new Var inst with lookup.
      *
      * @param varInst     the var inst
-     * @param lookupClass the lookup class
+     * @param lookupClassFieldVarInst the lookup class
      */
-    public VarInstWithLookup(VarInst varInst, ClassTypeMember lookupClass) {
+    public VarInstWithLookup(VarInst varInst, ClassTypeFieldVarInst lookupClassFieldVarInst) {
         this.varInst = varInst;
-        this.lookupClass = lookupClass;
+        this.lookupClassFieldVarInst = lookupClassFieldVarInst;
         this.defaultType = null;
     }
 
@@ -29,12 +29,12 @@ public class VarInstWithLookup extends VarInst {
      * Instantiates a new Var inst with lookup.
      *
      * @param varInst     the var inst
-     * @param lookupClass the lookup class
+     * @param lookupClassFieldVarInst the lookup class
      * @param defaultType the default type
      */
-    public VarInstWithLookup(VarInst varInst, ClassTypeMember lookupClass, Type defaultType) {
+    public VarInstWithLookup(VarInst varInst, ClassTypeFieldVarInst lookupClassFieldVarInst, Type defaultType) {
         this.varInst = varInst;
-        this.lookupClass = lookupClass;
+        this.lookupClassFieldVarInst = lookupClassFieldVarInst;
         this.defaultType = defaultType;
     }
 
@@ -53,8 +53,8 @@ public class VarInstWithLookup extends VarInst {
      *
      * @return the lookup class
      */
-    public ClassTypeMember getLookupClass() {
-        return lookupClass;
+    public ClassTypeFieldVarInst getLookupClass() {
+        return lookupClassFieldVarInst;
     }
 
     /**

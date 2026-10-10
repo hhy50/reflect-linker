@@ -20,7 +20,7 @@ public class AsmField extends FieldVisitor {
     public final String owner;
 
     /**
-     * The Member name.
+     * The name.
      */
     public final String name;
 

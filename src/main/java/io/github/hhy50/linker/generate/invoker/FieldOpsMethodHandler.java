@@ -5,9 +5,9 @@ import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.MethodHandleFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.LoadAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -52,7 +52,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
     /**
      * The Lookup class.
      */
-    public ClassTypeMember lookupClass;
+    public ClassTypeFieldVarInst lookupClassFieldVarInst;
 
     /**
      * Instantiates a new Field ops method handler.
@@ -79,18 +79,18 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
         rname += this.fieldName + RandomUtil.getRandomString(5);
         this.rmd = MethodDescriptor.of(rname, TypeUtil.appendArgs(this.opsFieldType, Type.getType(Object[].class), true));
 
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle(this.fieldName, this.opsFieldType);
+        MethodHandleFieldVarInst mhFieldVarInst = classImplBuilder.defineMethodHandle(this.fieldName, this.opsFieldType);
         BiFunction<VarInst, VarInst[], VarInst> invoker = (ownerVar, args) -> {
             Action action = isDesignateStatic != null ?
-                    (isDesignateStatic ? mhMember.invokeStatic(args) : mhMember.invokeInstance(ownerVar, args))
-                    : mhMember.invokeOfNull(ownerVar, args);
+                    (isDesignateStatic ? mhFieldVarInst.invokeStatic(args) : mhFieldVarInst.invokeInstance(ownerVar, args))
+                    : mhFieldVarInst.invokeOfNull(ownerVar, args);
             return VarInst.wrap(action, opsFieldType.getReturnType());
         };
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
                 .intercept(of(() -> new RuntimeMethodInvoker.RuntimeOwnerAndType(LoadAction.aload(1)))
-                        .then(holder -> checkLookClass(this.lookupClass, holder.owner, holder.ownerType, holder.defaultType))
-                        .then(__ -> checkMethodHandle(this.lookupClass, mhMember))
+                        .then(holder -> checkLookClass(this.lookupClassFieldVarInst, holder.owner, holder.ownerType, holder.defaultType))
+                        .then(__ -> checkMethodHandle(this.lookupClassFieldVarInst, mhFieldVarInst))
                         .mapBody((body, holder) -> {
                             VarInst[] realArgs = Arrays.copyOfRange(body.getArgs(), 1, body.getArgs().length);
                             return invoker.apply(holder.owner, realArgs);
@@ -99,7 +99,7 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
                             if (ret.getType() == Type.VOID_TYPE) {
                                 return ret;
                             }
-                            return new VarInstWithLookup(ret, this.lookupClass);
+                            return new VarInstWithLookup(ret, this.lookupClassFieldVarInst);
                         })
                         .areturn()
                 );
@@ -125,12 +125,12 @@ public abstract class FieldOpsMethodHandler extends MethodHandle {
 
         // init methodHandle
         MethodBody clinit = classImplBuilder.getClinit();
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(uniqueKey, this.fieldName, null, this.opsFieldType);
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
+        MethodHandleFieldVarInst mhFieldVarInst = classImplBuilder.defineStaticMethodHandle(uniqueKey, this.fieldName, null, this.opsFieldType);
+        clinit.append(initStaticMethodHandle(mhFieldVarInst, loadClass(lookupClass), isStatic));
         if (isStatic) {
-            this.inlineMhInvoker = (__, args) -> mhMember.invokeStatic(args);
+            this.inlineMhInvoker = (__, args) -> mhFieldVarInst.invokeStatic(args);
         } else {
-            this.inlineMhInvoker = mhMember::invokeInstance;
+            this.inlineMhInvoker = mhFieldVarInst::invokeInstance;
         }
     }
 }

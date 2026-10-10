@@ -3,9 +3,9 @@ package io.github.hhy50.linker.generate.invoker;
 import io.github.hhy50.linker.annotations.Autolink;
 import io.github.hhy50.linker.define.method.RuntimeMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.MethodHandleFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ArrayVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
@@ -60,29 +60,29 @@ public class RuntimeMethodInvoker extends Invoker {
 
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
-        ClassTypeMember lookupClass = classImplBuilder.defineLookupClass(super.lookupName);
-        MethodHandleMember mhMember = classImplBuilder.defineMethodHandle("invoke_"+super.lookupName, this.mhType);
+        ClassTypeFieldVarInst lookupClassFieldVarInst = classImplBuilder.defineLookupClass(super.lookupName);
+        MethodHandleFieldVarInst mhFieldVarInst = classImplBuilder.defineMethodHandle("invoke_"+super.lookupName, this.mhType);
 
         BiFunction<VarInst, VarInst[], VarInst> invoker = (ownerVar, args) -> {
             Action loadArgs = Actions.of(args);
             if (this.autolinked) {
                 loadArgs = Actions.asArray(ObjectVar.TYPE, args);
             }
-            Action action = isDesignateStatic != null ? (isDesignateStatic ? mhMember.invokeStatic(loadArgs) : mhMember.invokeInstance(ownerVar, loadArgs))
-                    : mhMember.invokeOfNull(ownerVar, loadArgs);
+            Action action = isDesignateStatic != null ? (isDesignateStatic ? mhFieldVarInst.invokeStatic(loadArgs) : mhFieldVarInst.invokeInstance(ownerVar, loadArgs))
+                    : mhFieldVarInst.invokeOfNull(ownerVar, loadArgs);
 
             return VarInst.wrap(action, rmd.getReturnType());
         };
 
         classImplBuilder.defineMethod(Opcodes.ACC_PUBLIC, this.rmd.getMethodName(), this.rmd.getType(), null)
                 .intercept(of(() -> new RuntimeOwnerAndType(LoadAction.aload(1)))
-                        .then(holder -> checkLookClass(lookupClass, holder.owner, holder.ownerType, holder.defaultType))
-                        .then(__ -> checkMethodHandle(lookupClass, mhMember))
+                        .then(holder -> checkLookClass(lookupClassFieldVarInst, holder.owner, holder.ownerType, holder.defaultType))
+                        .then(__ -> checkMethodHandle(lookupClassFieldVarInst, mhFieldVarInst))
                         .mapBody((body, holder) -> {
                             VarInst[] realArgs = Arrays.copyOfRange(body.getArgs(), 1, body.getArgs().length);
                             return invoker.apply(holder.owner, realArgs);
                         })
-                        .map(ret -> new VarInstWithLookup(ret, lookupClass))
+                        .map(ret -> new VarInstWithLookup(ret, lookupClassFieldVarInst))
                         .areturn()
                 );
     }

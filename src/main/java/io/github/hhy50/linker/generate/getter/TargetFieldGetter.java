@@ -3,13 +3,13 @@ package io.github.hhy50.linker.generate.getter;
 import io.github.hhy50.linker.define.field.EarlyFieldRef;
 import io.github.hhy50.linker.define.md.AbsInterfaceMetadata;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
-import io.github.hhy50.linker.generate.bytecode.Member;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeFieldVarInst;
+import io.github.hhy50.linker.generate.bytecode.FieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.utils.Members;
+import io.github.hhy50.linker.generate.bytecode.utils.Fields;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import io.github.hhy50.linker.generate.bytecode.vars.ObjectVar;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -23,9 +23,9 @@ import org.objectweb.asm.Type;
  * The type Target field getter.
  */
 public class TargetFieldGetter extends Getter {
-    private final Member targetObj;
+    private final FieldVarInst targetFieldVarInst;
 
-    private ClassTypeMember targetClass;
+    private ClassTypeFieldVarInst targetClassFieldVarInst;
 
     /**
      *
@@ -42,7 +42,7 @@ public class TargetFieldGetter extends Getter {
      */
     public TargetFieldGetter(EarlyFieldRef targetFieldRef, AbsInterfaceMetadata metadata) {
         super(targetFieldRef);
-        this.targetObj = Members.of(targetFieldRef.getName(), ObjectVar.TYPE);
+        this.targetFieldVarInst = Fields.of(targetFieldRef.getName(), ObjectVar.TYPE);
         this.targetType = targetFieldRef.getType();
         this.metadata = metadata;
     }
@@ -50,16 +50,16 @@ public class TargetFieldGetter extends Getter {
     @Override
     protected void define0(InvokeClassImplBuilder classImplBuilder) {
         if (this.metadata.isRuntime()) {
-            this.targetClass = classImplBuilder.defineLookupClass("target");
+            this.targetClassFieldVarInst = classImplBuilder.defineLookupClass("target");
             classImplBuilder.defineConstruct(Opcodes.ACC_PUBLIC, Object.class, Class.class)
                     .intercept(Methods.invokeSuper(MethodDescriptor.ofConstructor(Object.class)).setArgs(Args.of(0))
-                            .andThen(this.targetClass.store(Args.of(1)))
+                            .andThen(this.targetClassFieldVarInst.store(Args.of(1)))
                             .andThen(Actions.vreturn()));
         }
     }
 
     @Override
     public ChainAction<VarInst> invoke(ChainAction<VarInst[]> argsAction) {
-        return ChainAction.of(() -> new VarInstWithLookup(this.targetObj, this.targetClass, this.targetType));
+        return ChainAction.of(() -> new VarInstWithLookup(this.targetFieldVarInst, this.targetClassFieldVarInst, this.targetType));
     }
 }

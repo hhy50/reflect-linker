@@ -4,7 +4,7 @@ import io.github.hhy50.linker.LinkerFactory;
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.utils.Args;
-import io.github.hhy50.linker.generate.bytecode.utils.Members;
+import io.github.hhy50.linker.generate.bytecode.utils.Fields;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -73,19 +73,19 @@ public class BytecodeBenchmark {
 
         builder.defineMethod(Opcodes.ACC_PUBLIC, "getName",
                         Type.getMethodType(Type.getType(String.class)), null)
-                .intercept(Members.ofLoad("name").thenReturn());
+                .intercept(Fields.ofLoad("name").thenReturn());
 
         builder.defineMethod(Opcodes.ACC_PUBLIC, "setName",
                         Type.getMethodType(Type.VOID_TYPE, Type.getType(String.class)), null)
-                .intercept(Members.ofStore("name", Args.of(0)), Actions.vreturn());
+                .intercept(Fields.ofStore("name", Args.of(0)), Actions.vreturn());
 
         builder.defineMethod(Opcodes.ACC_PUBLIC, "getAge",
                         Type.getMethodType(Type.INT_TYPE), null)
-                .intercept(Members.ofLoad("age").thenReturn());
+                .intercept(Fields.ofLoad("age").thenReturn());
 
         builder.defineMethod(Opcodes.ACC_PUBLIC, "setAge",
                         Type.getMethodType(Type.VOID_TYPE, Type.INT_TYPE), null)
-                .intercept(Members.ofStore("age", Args.of(0)), Actions.vreturn());
+                .intercept(Fields.ofStore("age", Args.of(0)), Actions.vreturn());
 
         return builder.toBytecode();
     }

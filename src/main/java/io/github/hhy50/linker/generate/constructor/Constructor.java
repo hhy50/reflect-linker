@@ -5,7 +5,7 @@ import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
 import io.github.hhy50.linker.generate.MethodHandle;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.MethodHandleFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.ClassTypeVarInst;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
@@ -52,9 +52,9 @@ public class Constructor extends MethodHandle {
         MethodBody clinit = classImplBuilder.getClinit();
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.reflect, "constructor", null, this.methodType);
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(this.lookupType), false));
-        this.inlineAction = mhMember::invokeStatic;
+        MethodHandleFieldVarInst mhFieldVarInst = classImplBuilder.defineStaticMethodHandle(this.reflect, "constructor", null, this.methodType);
+        clinit.append(initStaticMethodHandle(mhFieldVarInst, loadClass(this.lookupType), false));
+        this.inlineAction = mhFieldVarInst::invokeStatic;
     }
 
     @Override
@@ -64,8 +64,8 @@ public class Constructor extends MethodHandle {
     }
 
     @Override
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean args1) {
-        return mhMember.store(new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
+    protected Action initStaticMethodHandle(MethodHandleFieldVarInst mhFieldVarInst, ClassTypeVarInst lookupClass, boolean args1) {
+        return mhFieldVarInst.store(new MethodInvokeAction(MethodDescriptor.LOOKUP_FINDCONSTRUCTOR)
                 .setInstance(lookupClass.getLookup())
                 .setArgs(lookupClass, new MethodInvokeAction(MethodDescriptor.METHOD_TYPE)
                         .setArgs(LdcLoadAction.of(Type.VOID_TYPE),

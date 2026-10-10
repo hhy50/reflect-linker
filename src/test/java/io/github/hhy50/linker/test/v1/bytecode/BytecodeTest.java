@@ -3,7 +3,7 @@ package io.github.hhy50.linker.test.v1.bytecode;
 import io.github.hhy50.linker.asm.AsmClassBuilder;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
-import io.github.hhy50.linker.generate.bytecode.utils.Members;
+import io.github.hhy50.linker.generate.bytecode.utils.Fields;
 import io.github.hhy50.linker.generate.bytecode.utils.Methods;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
@@ -27,10 +27,10 @@ public class BytecodeTest {
                 "io/github/hhy50/linker/test/v1/bytecode/Test1", null, null, null);
         builder.defineField(Opcodes.ACC_PUBLIC, "name", String.class)
                 .defineMethod(Opcodes.ACC_PUBLIC, "test1", Type.getMethodType(Type.VOID_TYPE), null)
-                .intercept(Actions.of(Members.ofStore("name", LdcLoadAction.of("12345")),
+                .intercept(Actions.of(Fields.ofStore("name", LdcLoadAction.of("12345")),
                         Methods.invoke("println", Type.getMethodType(Type.VOID_TYPE, Type.getType(String.class)))
-                                .setInstance(Members.of(System.class, "out"))
-                                .setArgs(of(Members.ofLoad("name"), Members.ofStore("name", Actions.loadNull()))),
+                                .setInstance(Fields.of(System.class, "out"))
+                                .setArgs(of(Fields.ofLoad("name"), Fields.ofStore("name", Actions.loadNull()))),
                         mv -> {
                         }).andThen(Actions.vreturn()));
         builder.toBytecode();

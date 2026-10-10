@@ -271,7 +271,7 @@ public class ParseContext {
                 throw new ParseException("Field token expected, but " + item.getClass().getSimpleName() + " found");
             }
             FieldToken token = (FieldToken) item;
-            String fieldName = token.fieldName;
+            String fieldName = token.name;
             List<Object> index = token.getIndexVal();
             Field earlyField = token.getField(currentType);
             fullField = Optional.ofNullable(fullField).map(i -> i + "." + fieldName).orElse(fieldName);

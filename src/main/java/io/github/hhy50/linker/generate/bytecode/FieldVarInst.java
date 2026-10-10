@@ -15,9 +15,9 @@ import static io.github.hhy50.linker.generate.bytecode.action.Actions.of;
 import static io.github.hhy50.linker.generate.bytecode.action.Actions.withVisitor;
 
 /**
- * The type Member.
+ * The type FieldVarInst.
  */
-public class Member extends VarInst {
+public class FieldVarInst extends VarInst {
 
     /**
      * The Access.
@@ -30,9 +30,9 @@ public class Member extends VarInst {
     protected String owner;
 
     /**
-     * The Member name.
+     * The FieldVarInst name.
      */
-    protected String memberName;
+    protected String name;
 
     /**
      * The Type.
@@ -40,42 +40,42 @@ public class Member extends VarInst {
     protected final Type type;
 
     /**
-     * The Field visitor.
+     * The FieldVarInst visitor.
      */
     protected FieldVisitor fieldVisitor;
 
     /**
-     * Instantiates a new Member.
+     * Instantiates a new FieldVarInst.
      *
-     * @param access     the access
-     * @param owner      the owner
-     * @param memberName the member name
-     * @param type       the type
+     * @param access    the access
+     * @param owner     the owner
+     * @param name the field name
+     * @param type      the type
      */
-    public Member(int access, String owner, String memberName, Type type) {
+    public FieldVarInst(int access, String owner, String name, Type type) {
         this.access = access;
         this.owner = owner;
-        this.memberName = memberName;
+        this.name = name;
         this.type = type;
     }
 
     /**
-     * Instantiates a new Member.
+     * Instantiates a new FieldVarInst.
      *
      * @param field the field
      */
-    public Member(AsmField field) {
+    public FieldVarInst(AsmField field) {
         this(field.access, field.owner, field.name, field.type);
         this.fieldVisitor = field;
     }
 
     /**
-     * Gets member name.
+     * Gets field name.
      *
-     * @return the member name
+     * @return the field name
      */
-    public String getMemberName() {
-        return memberName;
+    public String getName() {
+        return name;
     }
 
     /**
@@ -107,9 +107,9 @@ public class Member extends VarInst {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Member) {
-            return Objects.equals(owner, ((Member) obj).owner)
-                    && Objects.equals(memberName, ((Member) obj).memberName);
+        if (obj instanceof FieldVarInst) {
+            return Objects.equals(owner, ((FieldVarInst) obj).owner)
+                    && Objects.equals(name, ((FieldVarInst) obj).name);
         }
         return false;
     }
@@ -121,10 +121,10 @@ public class Member extends VarInst {
             Type type = getType();
             MethodVisitor mv = body.getWriter();
             if ((access & Opcodes.ACC_STATIC) > 0) {
-                mv.visitFieldInsn(Opcodes.GETSTATIC, owner, this.memberName, type.getDescriptor());
+                mv.visitFieldInsn(Opcodes.GETSTATIC, owner, this.name, type.getDescriptor());
             } else {
                 mv.visitVarInsn(Opcodes.ALOAD, 0); // this
-                mv.visitFieldInsn(Opcodes.GETFIELD, owner, this.memberName, type.getDescriptor());
+                mv.visitFieldInsn(Opcodes.GETFIELD, owner, this.name, type.getDescriptor());
             }
         };
     }
@@ -139,9 +139,9 @@ public class Member extends VarInst {
         MethodVisitor mv = body.getWriter();
         String owner = this.owner == null ? body.getClassBuilder().getClassOwner() : this.owner;
         if ((access & Opcodes.ACC_STATIC) > 0) {
-            mv.visitFieldInsn(Opcodes.PUTSTATIC, owner, this.memberName, this.type.getDescriptor());
+            mv.visitFieldInsn(Opcodes.PUTSTATIC, owner, this.name, this.type.getDescriptor());
         } else {
-            mv.visitFieldInsn(Opcodes.PUTFIELD, owner, this.memberName, this.type.getDescriptor());
+            mv.visitFieldInsn(Opcodes.PUTFIELD, owner, this.name, this.type.getDescriptor());
         }
     }
 
@@ -163,6 +163,6 @@ public class Member extends VarInst {
                     this.owner = this.owner == null ? body.getClassBuilder().getClassOwner() : this.owner;
                 },
                 withVisitor(
-                        mv -> mv.visitFieldInsn(isStatic ? Opcodes.PUTSTATIC : Opcodes.PUTFIELD, owner, this.memberName, this.type.getDescriptor())));
+                        mv -> mv.visitFieldInsn(isStatic ? Opcodes.PUTSTATIC : Opcodes.PUTFIELD, owner, this.name, this.type.getDescriptor())));
     }
 }

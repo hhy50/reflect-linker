@@ -53,7 +53,7 @@ public class AsmClassBuilder {
      */
     protected ClassVisitor classWriter;
     /**
-     * The Members.
+     * The Fields.
      */
     protected List<AsmField> fields;
 
@@ -100,26 +100,26 @@ public class AsmClassBuilder {
     }
 
     /**
-     * Define field member.
+     * Define field.
      *
      * @param access the access
      * @param name   the name
      * @param type   the type
-     * @return the member
+     * @return the field
      */
     public AsmClassBuilder defineField(int access, String name, Class<?> type) {
         return defineField(access, name, Type.getType(type), null, null);
     }
 
     /**
-     * Define field member.
+     * Define field.
      *
      * @param access    the access
      * @param name      the name
      * @param type      the type
      * @param signature the signature
      * @param value     the value
-     * @return the member
+     * @return the field
      */
     public AsmClassBuilder defineField(int access, String name, Type type, String signature, Object value) {
         visitField(access, name, type, signature, value);
@@ -221,7 +221,7 @@ public class AsmClassBuilder {
     }
 
     /**
-     * Get field member.
+     * Get field.
      *
      * @param name the name
      * @return the field

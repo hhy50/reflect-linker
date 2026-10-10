@@ -1,9 +1,9 @@
 package io.github.hhy50.linker.generate.invoker;
 
 import io.github.hhy50.linker.generate.MethodHandle;
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.MethodDescriptor;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.MethodHandleFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.Action;
 import io.github.hhy50.linker.generate.bytecode.action.Actions;
 import io.github.hhy50.linker.generate.bytecode.action.LdcLoadAction;
@@ -60,7 +60,7 @@ public abstract class Invoker extends MethodHandle {
     }
 
     @Override
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
+    protected Action initRuntimeMethodHandle(MethodHandleFieldVarInst mhFieldVarInst, ClassTypeFieldVarInst lookupClassFieldVarInst) {
         Class<Action> __ = Action.class;
         Type[] argumentTypes = this.lookupType.getArgumentTypes();
 
@@ -69,17 +69,17 @@ public abstract class Invoker extends MethodHandle {
                 .map(__::cast)
                 .orElseGet(Actions::loadNull);
         MethodInvokeAction findMethod = new MethodInvokeAction(Runtime.FIND_METHOD)
-                .setArgs(lookupClass.getLookup(), lookupClass,
+                .setArgs(lookupClassFieldVarInst.getLookup(), lookupClassFieldVarInst,
                         LdcLoadAction.of(this.lookupName),
                         superClassLoad,
                         Actions.asArray(TypeUtil.STRING_TYPE, Arrays.stream(argumentTypes)
                                 .map(Type::getClassName).map(LdcLoadAction::of).toArray(Action[]::new))
                 );
-        return mhMember.store(findMethod);
+        return mhFieldVarInst.store(findMethod);
     }
 
     @Override
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleFieldVarInst mhFieldVarInst, ClassTypeVarInst lookupClass, boolean isStatic) {
         boolean invokeSpecial = this.superClass != null & !isStatic;
         Type[] argumentTypes = this.lookupType.getArgumentTypes();
         Type returnType = this.lookupType.getReturnType();
@@ -102,6 +102,6 @@ public abstract class Invoker extends MethodHandle {
                     new MethodInvokeAction(MethodDescriptor.METHOD_TYPE).setArgs(mhRetTypeLoad, mhArgsTypeLoad)
             );
         }
-        return mhMember.store(findXXX.setInstance(lookupClass.getLookup()));
+        return mhFieldVarInst.store(findXXX.setInstance(lookupClass.getLookup()));
     }
 }

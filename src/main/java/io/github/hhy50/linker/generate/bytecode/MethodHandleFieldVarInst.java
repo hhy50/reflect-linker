@@ -9,9 +9,9 @@ import io.github.hhy50.linker.util.TypeUtil;
 import org.objectweb.asm.Type;
 
 /**
- * The type Method handle member.
+ * The type Method handle field.
  */
-public class MethodHandleMember extends Member {
+public class MethodHandleFieldVarInst extends FieldVarInst {
 
     /**
      *
@@ -34,25 +34,25 @@ public class MethodHandleMember extends Member {
     private boolean inited;
 
     /**
-     * Instantiates a new Method handle member.
+     * Instantiates a new Method handle field.
      *
      * @param field      the field
      * @param methodType the method type
      */
-    public MethodHandleMember(AsmField field, Type methodType) {
+    public MethodHandleFieldVarInst(AsmField field, Type methodType) {
         super(field);
         this.lookupType = null;
         this.methodType = methodType;
     }
 
     /**
-     * Instantiates a new Method handle member.
+     * Instantiates a new Method handle field.
      *
      * @param field      the field
      * @param methodType the method type
      * @param lookupType the invoker type
      */
-    public MethodHandleMember(AsmField field, Type methodType, Type lookupType) {
+    public MethodHandleFieldVarInst(AsmField field, Type methodType, Type lookupType) {
         super(field);
         this.lookupType = lookupType;
         this.methodType = methodType;

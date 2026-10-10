@@ -3,7 +3,7 @@ package io.github.hhy50.linker.generate.invoker;
 import io.github.hhy50.linker.define.method.EarlyMethodRef;
 import io.github.hhy50.linker.generate.InvokeClassImplBuilder;
 import io.github.hhy50.linker.generate.MethodBody;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.MethodHandleFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.ChainAction;
 import io.github.hhy50.linker.generate.bytecode.vars.VarInst;
 import org.objectweb.asm.Type;
@@ -46,13 +46,13 @@ public class EarlyMethodInvoker extends Invoker {
         boolean isStatic = Modifier.isStatic(this.reflect.getModifiers());
 
         // init methodHandle
-        MethodHandleMember mhMember = classImplBuilder.defineStaticMethodHandle(this.reflect, super.lookupName, lookupClass, this.genericType);
-        mhMember.setInvokeExact(!this.isInvisible);
-        clinit.append(initStaticMethodHandle(mhMember, loadClass(lookupClass), isStatic));
+        MethodHandleFieldVarInst mhFieldVarInst = classImplBuilder.defineStaticMethodHandle(this.reflect, super.lookupName, lookupClass, this.genericType);
+        mhFieldVarInst.setInvokeExact(!this.isInvisible);
+        clinit.append(initStaticMethodHandle(mhFieldVarInst, loadClass(lookupClass), isStatic));
         if (isStatic) {
-            this.inlineAction = (varInst, args) -> mhMember.invokeStatic(args);
+            this.inlineAction = (varInst, args) -> mhFieldVarInst.invokeStatic(args);
         } else {
-            this.inlineAction = mhMember::invokeInstance;
+            this.inlineAction = mhFieldVarInst::invokeInstance;
         }
     }
 

@@ -14,7 +14,7 @@ public class FieldToken implements Token {
     /**
      * The Field name.
      */
-    public String fieldName;
+    public String name;
 
     /**
      * The Index.
@@ -29,10 +29,10 @@ public class FieldToken implements Token {
     /**
      * Instantiates a new Field token.
      *
-     * @param fieldName the field name
+     * @param name the field name
      */
-    public FieldToken(String fieldName) {
-        this.fieldName = fieldName;
+    public FieldToken(String name) {
+        this.name = name;
     }
 
     /**
@@ -42,7 +42,7 @@ public class FieldToken implements Token {
      * @return the field
      */
     public Field getField(Class<?> owner) {
-        return ReflectUtil.getField(owner, fieldName);
+        return ReflectUtil.getField(owner, name);
     }
 
     @Override
@@ -78,6 +78,6 @@ public class FieldToken implements Token {
 
     @Override
     public String toString() {
-        return fieldName+(index == null ? "" : index.toString())+(nullable ? "?" : "");
+        return name+(index == null ? "" : index.toString())+(nullable ? "?" : "");
     }
 }

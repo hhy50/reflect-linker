@@ -1,7 +1,7 @@
 package io.github.hhy50.linker.generate;
 
-import io.github.hhy50.linker.generate.bytecode.ClassTypeMember;
-import io.github.hhy50.linker.generate.bytecode.MethodHandleMember;
+import io.github.hhy50.linker.generate.bytecode.ClassTypeFieldVarInst;
+import io.github.hhy50.linker.generate.bytecode.MethodHandleFieldVarInst;
 import io.github.hhy50.linker.generate.bytecode.action.*;
 import io.github.hhy50.linker.generate.bytecode.vars.*;
 import io.github.hhy50.linker.generate.type.AutoBox;
@@ -48,23 +48,23 @@ public abstract class MethodHandle {
     /**
      * Init static method handle.
      *
-     * @param mhMember    the mh member
+     * @param mhFieldVarInst    the mh field
      * @param lookupClass the lookup class
      * @param isStatic    the is static
      * @return the action
      */
-    protected Action initStaticMethodHandle(MethodHandleMember mhMember, ClassTypeVarInst lookupClass, boolean isStatic) {
+    protected Action initStaticMethodHandle(MethodHandleFieldVarInst mhFieldVarInst, ClassTypeVarInst lookupClass, boolean isStatic) {
         return Actions.empty();
     }
 
     /**
      * Mh reassign.
      *
-     * @param mhMember    the mh member
+     * @param mhFieldVarInst    the mh field
      * @param lookupClass the lookup class
      * @return the action
      */
-    protected Action initRuntimeMethodHandle(MethodHandleMember mhMember, ClassTypeMember lookupClass) {
+    protected Action initRuntimeMethodHandle(MethodHandleFieldVarInst mhFieldVarInst, ClassTypeFieldVarInst lookupClassFieldVarInst) {
         return Actions.empty();
     }
 
@@ -77,25 +77,25 @@ public abstract class MethodHandle {
      * @param defaultType     the default type
      * @return the action
      */
-    protected Action checkLookClass(ClassTypeMember lookupClass, VarInst varInst, VarInst prevLookupClass, VarInst defaultType) {
+    protected Action checkLookClass(ClassTypeFieldVarInst lookupClassFieldVarInst, VarInst varInst, VarInst prevLookupClass, VarInst defaultType) {
         Action action = new ConditionJumpAction(
                 must(notNull(varInst),
-                        any(isNull(lookupClass), notEq(varInst.getThisClass(), lookupClass))),
-                lookupClass.store(varInst.getThisClass()),
+                        any(isNull(lookupClassFieldVarInst), notEq(varInst.getThisClass(), lookupClassFieldVarInst))),
+                lookupClassFieldVarInst.store(varInst.getThisClass()),
                 null
         );
         if (prevLookupClass != null) {
             // runtime
             action = action.andThen(new ConditionJumpAction(
-                    isNull(lookupClass),
-                    lookupClass.store(prevLookupClass.cast(Type.getType(Class.class))),
+                    isNull(lookupClassFieldVarInst),
+                    lookupClassFieldVarInst.store(prevLookupClass.cast(Type.getType(Class.class))),
                     null
             ));
         }
         if (defaultType != null) {
             action = action.andThen(new ConditionJumpAction(
-                    must(isNull(lookupClass), notNull(defaultType)),
-                    lookupClass.store(new ClassLoadAction(defaultType.cast(Type.getType(String.class)))),
+                    must(isNull(lookupClassFieldVarInst), notNull(defaultType)),
+                    lookupClassFieldVarInst.store(new ClassLoadAction(defaultType.cast(Type.getType(String.class)))),
                     null
             ));
         }
@@ -110,10 +110,10 @@ public abstract class MethodHandle {
      * @param prevLookup    the prev lookup
      * @return the action
      */
-    protected Action staticCheckClass(ClassTypeMember lookupClass, String prevFieldName, Action prevLookup) {
+    protected Action staticCheckClass(ClassTypeFieldVarInst lookupClassFieldVarInst, String prevFieldName, Action prevLookup) {
         return new ConditionJumpAction(
-                isNull(lookupClass),
-                lookupClass.store(new MethodInvokeAction(Runtime.FIND_FIELD).setArgs(prevLookup, LdcLoadAction.of(prevFieldName))),
+                isNull(lookupClassFieldVarInst),
+                lookupClassFieldVarInst.store(new MethodInvokeAction(Runtime.FIND_FIELD).setArgs(prevLookup, LdcLoadAction.of(prevFieldName))),
                 null
         );
     }
@@ -123,11 +123,11 @@ public abstract class MethodHandle {
      * Check method handle.
      *
      * @param lookupClass the lookup class
-     * @param mhMember    the mh member
+     * @param mhFieldVarInst    the mh field
      * @return the action
      */
-    protected Action checkMethodHandle(ClassTypeMember lookupClass, MethodHandleMember mhMember) {
-        return mhMember.ifNull(initRuntimeMethodHandle(mhMember, lookupClass));
+    protected Action checkMethodHandle(ClassTypeFieldVarInst lookupClassFieldVarInst, MethodHandleFieldVarInst mhFieldVarInst) {
+        return mhFieldVarInst.ifNull(initRuntimeMethodHandle(mhFieldVarInst, lookupClassFieldVarInst));
     }
 
 
