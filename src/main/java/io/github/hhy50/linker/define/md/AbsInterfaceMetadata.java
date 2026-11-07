@@ -1,5 +1,6 @@
 package io.github.hhy50.linker.define.md;
 
+import io.github.hhy50.linker.annotations.ImportStatic;
 import io.github.hhy50.linker.annotations.Runtime;
 import io.github.hhy50.linker.annotations.Typed;
 import io.github.hhy50.linker.exceptions.VerifyException;
@@ -33,6 +34,11 @@ public class AbsInterfaceMetadata {
      * The constant staticToken.
      */
     protected final Map<String, Boolean> staticToken = new HashMap<>();
+
+    /**
+     * 类级 @ImportStatic
+     */
+    private ImportStatic importStatic;
 
     private final boolean runtime;
 
@@ -80,6 +86,28 @@ public class AbsInterfaceMetadata {
             }
             this.annotations.add(annotation);
         }
+        if (annotation instanceof ImportStatic) {
+            this.importStatic = (ImportStatic) annotation;
+            this.annotations.add(annotation);
+        }
+    }
+
+    /**
+     * Gets define class.
+     *
+     * @return the interface class
+     */
+    public Class<?> getDefineClass() {
+        return interfaceClass;
+    }
+
+    /**
+     * Gets class level import static.
+     *
+     * @return the import static
+     */
+    public ImportStatic getImportStatic() {
+        return importStatic;
     }
 
     /**

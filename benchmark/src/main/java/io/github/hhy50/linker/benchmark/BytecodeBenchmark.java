@@ -56,9 +56,6 @@ public class BytecodeBenchmark {
     }
 
     // ======================== reflect-linker ========================
-    static {
-        LinkerFactory.setOutputPath("D:\\dev\\projects\\reflect-linker\\benchmark\\target");
-    }
     @Benchmark
     public byte[] reflectLinker() {
         String className = "benchmark/ReflectLinkerPerson" + nextId();
